@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/providers'
 import { ErrorBoundary } from '@/components/error-boundary'
-import { FeedbackWidget } from '@/components/feedback-widget'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,7 +30,6 @@ export default function RootLayout({
         <ErrorBoundary>
           <Providers>
             {children}
-            <FeedbackWidget />
           </Providers>
         </ErrorBoundary>
       </body>
