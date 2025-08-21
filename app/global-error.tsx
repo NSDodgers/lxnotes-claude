@@ -1,7 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
-import { useEffect } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
 export default function GlobalError({
@@ -11,9 +9,6 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
 
   return (
     <html lang="en" className="dark">
@@ -27,7 +22,7 @@ export default function GlobalError({
             </h2>
             
             <p className="text-gray-400 mb-6">
-              A critical error occurred. This has been reported to our team.
+              A critical error occurred. Please try again.
             </p>
             
             <button

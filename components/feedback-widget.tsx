@@ -1,6 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import { useState } from "react";
 import { MessageSquare, X } from "lucide-react";
 
@@ -8,21 +7,7 @@ export function FeedbackWidget() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpenFeedback = () => {
-    try {
-      Sentry.showReportDialog({
-        title: "Send Feedback",
-        subtitle: "Help us improve LX Notes by reporting issues or suggestions.",
-        subtitle2: "Your feedback helps make the app better for everyone.",
-        labelName: "Name",
-        labelEmail: "Email",
-        labelComments: "What happened?",
-        labelSubmit: "Send Feedback",
-        successMessage: "Thank you for your feedback! We'll review it shortly.",
-      });
-    } catch (error) {
-      console.error("Failed to open feedback dialog:", error);
-      setIsOpen(true);
-    }
+    setIsOpen(true);
   };
 
   const handleFallbackSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,16 +19,7 @@ export function FeedbackWidget() {
       message: formData.get("message") as string,
     };
 
-    Sentry.captureMessage(`User Feedback: ${feedback.message}`, {
-      level: "info",
-      user: {
-        name: feedback.name,
-        email: feedback.email,
-      },
-      tags: {
-        type: "user_feedback",
-      },
-    });
+    console.log("User Feedback:", feedback);
 
     setIsOpen(false);
     alert("Thank you for your feedback! We'll review it shortly.");
