@@ -5,19 +5,19 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { 
-  Home, 
   Lightbulb, 
   Wrench, 
   FileText, 
   Settings,
   ChevronLeft,
   ChevronRight,
-  Menu
+  Menu,
+  Tablet
 } from 'lucide-react'
 import { useState } from 'react'
+import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Cue Notes', href: '/cue-notes', icon: Lightbulb, color: 'text-modules-cue' },
   { name: 'Work Notes', href: '/work-notes', icon: Wrench, color: 'text-modules-work' },
   { name: 'Production Notes', href: '/production-notes', icon: FileText, color: 'text-modules-production' },
@@ -27,6 +27,7 @@ const navigation = [
 export function Sidebar() {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
+  const { isTabletMode, toggleTabletMode } = useTabletModeStore()
 
   return (
     <aside
@@ -96,6 +97,37 @@ export function Sidebar() {
             )
           })}
         </nav>
+
+        {/* Tablet Mode Toggle */}
+        <div className="border-t border-bg-tertiary p-4">
+          <div className={cn(
+            'flex items-center gap-3 mb-4',
+            collapsed ? 'justify-center' : 'justify-between'
+          )}>
+            {!collapsed && (
+              <div className="flex items-center gap-2">
+                <Tablet className="h-4 w-4 text-text-secondary" />
+                <span className="text-sm text-text-secondary">Tablet Mode</span>
+              </div>
+            )}
+            <button
+              onClick={toggleTabletMode}
+              className={cn(
+                'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                isTabletMode ? 'bg-modules-production' : 'bg-bg-tertiary',
+                collapsed && 'mx-auto'
+              )}
+              title={collapsed ? 'Toggle Tablet Mode' : undefined}
+            >
+              <span 
+                className={cn(
+                  'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                  isTabletMode ? 'translate-x-6' : 'translate-x-1'
+                )}
+              />
+            </button>
+          </div>
+        </div>
 
         {/* Footer */}
         <div className="border-t border-bg-tertiary p-4">

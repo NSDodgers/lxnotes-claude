@@ -67,7 +67,7 @@ const config: Config = {
           todo: '#3b82f6',
           inProgress: '#f59e0b',
           complete: '#10b981',
-          cancelled: '#6b7280'
+          cancelled: '#dc2626'
         },
         priority: {
           high: '#ef4444',

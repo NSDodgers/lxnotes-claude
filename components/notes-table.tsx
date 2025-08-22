@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import type { Note, NoteStatus, ModuleType } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { useCueLookup } from '@/lib/services/cue-lookup'
 import {
   Table,
   TableBody,
@@ -26,6 +27,7 @@ type SortField = 'title' | 'priority' | 'status' | 'type' | 'createdAt'
 type SortDirection = 'asc' | 'desc'
 
 export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesTableProps) {
+  const { lookupCue } = useCueLookup()
   const [sortField, setSortField] = useState<SortField>('createdAt')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
@@ -135,13 +137,22 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
             <TableHead className="w-20">Actions</TableHead>
             {renderHeader('Priority', 'priority')}
             {renderHeader('Type', 'type')}
-            <TableHead>
-              {moduleType === 'cue' ? 'Cue #' : moduleType === 'work' ? 'Item ID' : 'Ref'}
-            </TableHead>
+            {moduleType === 'cue' && (
+              <TableHead>Cue #</TableHead>
+            )}
+            {moduleType === 'work' && (
+              <>
+                <TableHead>Channel #(s)</TableHead>
+                <TableHead>Position/Unit</TableHead>
+              </>
+            )}
             {renderHeader('Note', 'title')}
-            <TableHead>
-              {moduleType === 'cue' ? 'Scene/Song' : moduleType === 'production' ? 'Department' : 'Details'}
-            </TableHead>
+            {moduleType === 'work' && (
+              <TableHead>Scenery Needs</TableHead>
+            )}
+            {moduleType === 'cue' && (
+              <TableHead>Script Page - Scene/Song</TableHead>
+            )}
             <TableHead>Who Created</TableHead>
             {renderHeader('Created', 'createdAt')}
           </TableRow>
@@ -157,25 +168,25 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                 <div className="flex items-center gap-1">
                   <Button
                     size="icon"
-                    variant={note.status === 'complete' ? 'complete' : 'ghost'}
+                    variant="complete"
                     onClick={(e) => {
                       e.stopPropagation()
                       onStatusUpdate(note.id, note.status === 'complete' ? 'todo' : 'complete')
                     }}
                     title={note.status === 'complete' ? 'Mark as todo' : 'Mark as complete'}
-                    className="h-7 w-7"
+                    className={cn("h-7 w-7", note.status !== 'complete' && "opacity-60 hover:opacity-100")}
                   >
                     <Check className="h-3 w-3" />
                   </Button>
                   <Button
                     size="icon"
-                    variant={note.status === 'cancelled' ? 'cancelled' : 'ghost'}
+                    variant="cancelled"
                     onClick={(e) => {
                       e.stopPropagation()
                       onStatusUpdate(note.id, note.status === 'cancelled' ? 'todo' : 'cancelled')
                     }}
                     title={note.status === 'cancelled' ? 'Reopen' : 'Cancel'}
-                    className="h-7 w-7"
+                    className={cn("h-7 w-7", note.status !== 'cancelled' && "opacity-60 hover:opacity-100")}
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -191,22 +202,60 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                   {note.type || moduleType}
                 </Badge>
               </TableCell>
-              <TableCell className="text-sm">
-                {getReference(note) || '-'}
-              </TableCell>
+              {moduleType === 'cue' && (
+                <TableCell className="text-sm">
+                  {getReference(note) || '-'}
+                </TableCell>
+              )}
+              {moduleType === 'work' && (
+                <>
+                  <TableCell className="text-sm">
+                    {note.channelNumbers || '-'}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {note.positionUnit || '-'}
+                  </TableCell>
+                </>
+              )}
               <TableCell className="max-w-md">
                 <div className="font-medium">{note.title}</div>
-                {note.description && (
-                  <div className="text-muted-foreground text-xs mt-1 line-clamp-2">
-                    {note.description}
-                  </div>
-                )}
               </TableCell>
-              <TableCell className="text-sm text-muted-foreground">
-                {moduleType === 'cue' && note.sceneSongId ? note.sceneSongId : 
-                 moduleType === 'production' ? 'All Departments' : 
-                 note.description ? note.description.substring(0, 30) + '...' : '-'}
-              </TableCell>
+              {moduleType === 'work' && (
+                <TableCell className="text-sm text-muted-foreground">
+                  {note.sceneryNeeds || '-'}
+                </TableCell>
+              )}
+              {moduleType === 'cue' && (
+                <TableCell className="text-sm text-muted-foreground">
+                  {(() => {
+                    // Extract cue number from scriptPageId if it exists
+                    if (note.scriptPageId && note.scriptPageId.startsWith('cue-')) {
+                      const cueNumber = note.scriptPageId.replace('cue-', '')
+                      const lookup = lookupCue(cueNumber)
+                      return lookup.display || '-'
+                    }
+                    
+                    // Fallback for existing data format
+                    const scriptPage = note.scriptPageId ? 
+                      (note.scriptPageId.startsWith('page-') ? 
+                        `Pg. ${note.scriptPageId.replace('page-', '')}` : 
+                        note.scriptPageId.startsWith('cue-') ? 
+                          note.scriptPageId.replace('cue-', '') : 
+                          note.scriptPageId) : '';
+                    const sceneSong = note.sceneSongId || '';
+                    
+                    if (scriptPage && sceneSong) {
+                      return `${scriptPage} - ${sceneSong}`;
+                    } else if (scriptPage) {
+                      return scriptPage;
+                    } else if (sceneSong) {
+                      return sceneSong;
+                    } else {
+                      return '-';
+                    }
+                  })()}
+                </TableCell>
+              )}
               <TableCell className="text-sm text-muted-foreground">
                 {note.createdBy || 'Nick Solyom'}
               </TableCell>

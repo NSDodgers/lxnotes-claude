@@ -3,14 +3,32 @@
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { Settings, Save, Upload, Download, Mail, FileText, Palette } from 'lucide-react'
 import { useState } from 'react'
+import { useProductionStore } from '@/lib/stores/production-store'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general')
   const [saved, setSaved] = useState(false)
+  const { name, abbreviation, logo, updateProduction } = useProductionStore()
+  const [logoPreview, setLogoPreview] = useState(logo)
 
   const handleSave = () => {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+  }
+
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result
+        if (typeof result === 'string') {
+          setLogoPreview(result)
+          updateProduction({ logo: result })
+        }
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   return (
@@ -30,7 +48,7 @@ export default function SettingsPage() {
         {/* Tabs */}
         <div className="flex gap-1 border-b border-bg-tertiary">
           {[
-            { id: 'general', label: 'General', icon: Settings },
+            { id: 'general', label: 'Production Information', icon: Settings },
             { id: 'modules', label: 'Modules', icon: FileText },
             { id: 'presets', label: 'Presets', icon: Palette },
             { id: 'export', label: 'Export & Email', icon: Mail },
@@ -64,38 +82,20 @@ export default function SettingsPage() {
                     </label>
                     <input
                       type="text"
-                      defaultValue="Hamlet"
+                      value={name}
+                      onChange={(e) => updateProduction({ name: e.target.value })}
                       className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Venue
+                      Production Abbreviation
                     </label>
                     <input
                       type="text"
-                      defaultValue="Main Theater"
-                      className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Start Date
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
-                      End Date
-                    </label>
-                    <input
-                      type="date"
+                      value={abbreviation}
+                      onChange={(e) => updateProduction({ abbreviation: e.target.value })}
                       className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
                     />
                   </div>
@@ -103,26 +103,33 @@ export default function SettingsPage() {
               </div>
 
               <div className="rounded-lg bg-bg-secondary p-6 space-y-4">
-                <h2 className="text-lg font-semibold text-text-primary">Display Preferences</h2>
+                <h2 className="text-lg font-semibold text-text-primary">Production Logo</h2>
                 
-                <div className="flex items-center justify-between">
+                <div className="space-y-4">
                   <div>
-                    <p className="text-text-primary">Dark Mode</p>
-                    <p className="text-sm text-text-secondary">Optimized for theater environments</p>
+                    <label className="block text-sm font-medium text-text-secondary mb-2">
+                      Upload Logo
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-lg bg-bg-tertiary border-2 border-dashed border-bg-hover flex items-center justify-center text-text-muted overflow-hidden">
+                        {logoPreview.startsWith('data:') ? (
+                          <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-2xl">{logoPreview}</span>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoUpload}
+                          className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-modules-production file:text-white file:text-sm hover:file:bg-modules-production/90"
+                        />
+                        <p className="text-xs text-text-muted mt-1">Recommended: Square format (1:1 ratio) for best display</p>
+                      </div>
+                    </div>
                   </div>
-                  <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-modules-production">
-                    <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
-                  </button>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-text-primary">Tablet Mode</p>
-                    <p className="text-sm text-text-secondary">Optimize layout for tablets</p>
-                  </div>
-                  <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-bg-tertiary">
-                    <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-1" />
-                  </button>
+                  
                 </div>
               </div>
             </>

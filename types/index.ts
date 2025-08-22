@@ -6,6 +6,8 @@ export type UserRole = 'admin' | 'user'
 export interface Production {
   id: string
   name: string
+  abbreviation: string
+  logo?: string
   description?: string
   startDate?: Date
   endDate?: Date
@@ -34,13 +36,20 @@ export interface Note {
   scriptPageId?: string
   sceneSongId?: string
   lightwrightItemId?: string
+  
+  // Work notes specific fields
+  channelNumbers?: string
+  positionUnit?: string
+  sceneryNeeds?: string
 }
 
 export interface ScriptPage {
   id: string
   productionId: string
   pageNumber: string
+  firstCueNumber?: string
   createdAt: Date
+  updatedAt: Date
 }
 
 export interface SceneSong {
@@ -48,8 +57,13 @@ export interface SceneSong {
   scriptPageId: string
   name: string
   type: 'scene' | 'song'
+  firstCueNumber?: string
   orderIndex: number
+  // Continuation fields
+  continuesFromId?: string // ID of the scene/song this continues from
+  continuesOnPageId?: string // ID of the page this continues onto (for UI navigation)
   createdAt: Date
+  updatedAt: Date
 }
 
 export interface LightwrightItem {

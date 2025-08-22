@@ -1,15 +1,21 @@
+/**
+ * Cue Notes Module - Main component for theatrical lighting cue management
+ * Manages notes linked to specific lighting cues, script pages, and scenes/songs
+ */
 'use client'
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
 import { useState } from 'react'
-import { Plus, Search, Lightbulb } from 'lucide-react'
+import { Plus, Search, Lightbulb, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Note, Priority, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MultiSelect } from '@/components/ui/multi-select'
+import { useProductionStore } from '@/lib/stores/production-store'
+import Link from 'next/link'
 
 // Mock data for development
 const mockCueNotes: Note[] = [
@@ -54,6 +60,7 @@ const mockCueNotes: Note[] = [
     createdAt: new Date('2024-01-13T16:45:00'),
     updatedAt: new Date('2024-01-14T11:30:00'),
     scriptPageId: 'cue-156',
+    sceneSongId: 'Intermission',
   },
   // Director type notes
   {
@@ -81,6 +88,7 @@ const mockCueNotes: Note[] = [
     type: 'Director',
     createdAt: new Date('2024-01-12T13:30:00'),
     updatedAt: new Date('2024-01-15T10:45:00'),
+    scriptPageId: 'cue-89',
     sceneSongId: 'Act1-Ballroom',
   },
   // Choreographer type notes
@@ -109,6 +117,7 @@ const mockCueNotes: Note[] = [
     type: 'Choreographer',
     createdAt: new Date('2024-01-11T15:15:00'),
     updatedAt: new Date('2024-01-13T14:20:00'),
+    scriptPageId: 'cue-203',
     sceneSongId: 'Act2-TapNumber',
   },
   // Designer type notes
@@ -137,6 +146,7 @@ const mockCueNotes: Note[] = [
     type: 'Designer',
     createdAt: new Date('2024-01-16T08:45:00'),
     updatedAt: new Date('2024-01-16T08:45:00'),
+    scriptPageId: 'cue-112',
     sceneSongId: 'Act1-Forest',
   },
   // Stage Manager type notes
@@ -149,6 +159,7 @@ const mockCueNotes: Note[] = [
     priority: 'medium',
     status: 'complete',
     type: 'Stage Manager',
+    scriptPageId: 'cue-1',
     createdAt: new Date('2024-01-14T07:30:00'),
     updatedAt: new Date('2024-01-15T18:20:00'),
   },
@@ -161,6 +172,7 @@ const mockCueNotes: Note[] = [
     priority: 'high',
     status: 'todo',
     type: 'Stage Manager',
+    scriptPageId: 'cue-145',
     createdAt: new Date('2024-01-16T19:15:00'),
     updatedAt: new Date('2024-01-16T19:15:00'),
   },
@@ -174,6 +186,7 @@ const mockCueNotes: Note[] = [
     priority: 'low',
     status: 'complete',
     type: 'Associate',
+    scriptPageId: 'cue-78',
     createdAt: new Date('2024-01-13T20:30:00'),
     updatedAt: new Date('2024-01-14T09:45:00'),
   },
@@ -186,6 +199,7 @@ const mockCueNotes: Note[] = [
     priority: 'medium',
     status: 'cancelled',
     type: 'Associate',
+    scriptPageId: 'cue-234',
     createdAt: new Date('2024-01-12T11:00:00'),
     updatedAt: new Date('2024-01-15T16:30:00'),
   },
@@ -199,6 +213,7 @@ const mockCueNotes: Note[] = [
     priority: 'low',
     status: 'todo',
     type: 'Assistant',
+    scriptPageId: 'cue-15',
     createdAt: new Date('2024-01-15T12:15:00'),
     updatedAt: new Date('2024-01-15T12:15:00'),
   },
@@ -226,6 +241,7 @@ const mockCueNotes: Note[] = [
     priority: 'medium',
     status: 'cancelled',
     type: 'Spot',
+    scriptPageId: 'cue-167',
     createdAt: new Date('2024-01-13T18:45:00'),
     updatedAt: new Date('2024-01-14T10:15:00'),
   },
@@ -239,6 +255,7 @@ const mockCueNotes: Note[] = [
     priority: 'low',
     status: 'complete',
     type: 'Programmer',
+    scriptPageId: 'cue-25',
     createdAt: new Date('2024-01-11T14:20:00'),
     updatedAt: new Date('2024-01-12T16:45:00'),
   },
@@ -251,6 +268,7 @@ const mockCueNotes: Note[] = [
     priority: 'high',
     status: 'todo',
     type: 'Programmer',
+    scriptPageId: 'cue-98',
     createdAt: new Date('2024-01-16T13:30:00'),
     updatedAt: new Date('2024-01-16T13:30:00'),
   },
@@ -264,6 +282,7 @@ const mockCueNotes: Note[] = [
     priority: 'medium',
     status: 'complete',
     type: 'Production',
+    scriptPageId: 'cue-56',
     createdAt: new Date('2024-01-09T10:00:00'),
     updatedAt: new Date('2024-01-11T15:30:00'),
   },
@@ -277,6 +296,7 @@ const mockCueNotes: Note[] = [
     priority: 'medium',
     status: 'todo',
     type: 'Paperwork',
+    scriptPageId: 'cue-189',
     createdAt: new Date('2024-01-16T16:00:00'),
     updatedAt: new Date('2024-01-16T16:00:00'),
   },
@@ -289,6 +309,7 @@ const mockCueNotes: Note[] = [
     priority: 'low',
     status: 'cancelled',
     type: 'Paperwork',
+    scriptPageId: 'cue-301',
     createdAt: new Date('2024-01-10T09:30:00'),
     updatedAt: new Date('2024-01-12T14:00:00'),
   },
@@ -302,6 +323,7 @@ const mockCueNotes: Note[] = [
     priority: 'high',
     status: 'todo',
     type: 'Think',
+    scriptPageId: 'cue-178',
     createdAt: new Date('2024-01-15T21:45:00'),
     updatedAt: new Date('2024-01-15T21:45:00'),
     sceneSongId: 'Act2-Storm',
@@ -315,6 +337,7 @@ const mockCueNotes: Note[] = [
     priority: 'medium',
     status: 'complete',
     type: 'Think',
+    scriptPageId: 'cue-67',
     createdAt: new Date('2024-01-08T11:20:00'),
     updatedAt: new Date('2024-01-10T13:15:00'),
   },
@@ -322,6 +345,7 @@ const mockCueNotes: Note[] = [
 
 export default function CueNotesPage() {
   const [notes, setNotes] = useState(mockCueNotes)
+  const { name, abbreviation, logo } = useProductionStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
@@ -388,23 +412,46 @@ export default function CueNotesPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-bg-tertiary pb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center border-b border-bg-tertiary pb-6">
+          {/* Left: Production Info */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
+              {logo.startsWith('data:') ? (
+                <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
+              ) : (
+                <span>{logo}</span>
+              )}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-text-primary">{name}</h2>
+              <p className="text-text-secondary">{abbreviation}</p>
+            </div>
+          </div>
+
+          {/* Center: Module Heading */}
+          <div className="flex justify-center">
+            <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3 whitespace-nowrap">
               <Lightbulb className="h-8 w-8 text-modules-cue" />
               Cue Notes
             </h1>
-            <p className="mt-2 text-text-secondary">
-              Manage lighting cues and effects for your production
-            </p>
           </div>
-          <Button
-            onClick={() => openDialog()}
-            variant="cue"
-          >
-            <Plus className="h-5 w-5" />
-            Add Cue Note
-          </Button>
+
+          {/* Right: Action Buttons */}
+          <div className="flex justify-end gap-3">
+            <Link href="/manage-script">
+              <Button variant="secondary">
+                <FileText className="h-5 w-5" />
+                Manage Script
+              </Button>
+            </Link>
+            <Button
+              onClick={() => openDialog()}
+              variant="cue"
+            >
+              <Plus className="h-5 w-5" />
+              Add Cue Note
+            </Button>
+          </div>
         </div>
 
 

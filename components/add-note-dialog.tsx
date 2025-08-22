@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import type { Note, Priority, ModuleType } from '@/types'
 import { Button } from '@/components/ui/button'
+import { useCueLookup } from '@/lib/services/cue-lookup'
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,7 @@ interface AddNoteDialogProps {
 }
 
 export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType, editingNote }: AddNoteDialogProps) {
+  const { lookupCue } = useCueLookup()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -198,21 +200,18 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
             />
           </div>
 
-          {moduleType === 'cue' && (
+          {moduleType === 'cue' && formData.cueNumbers && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Auto-populated based on Cue Number:</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Scene</Label>
-                  <div className="rounded-lg bg-muted border px-3 py-2 text-muted-foreground text-sm">
-                    Will be auto-filled
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Song</Label>
-                  <div className="rounded-lg bg-muted border px-3 py-2 text-muted-foreground text-sm">
-                    Will be auto-filled
-                  </div>
+              <p className="text-sm text-muted-foreground">Script Location Preview:</p>
+              <div className="rounded-lg bg-muted border px-3 py-2">
+                <div className="text-sm text-muted-foreground">
+                  {(() => {
+                    const cueNumber = formData.cueNumbers.trim()
+                    if (!cueNumber) return 'Enter cue number to see location'
+                    
+                    const lookup = lookupCue(cueNumber)
+                    return lookup.display || 'No script location found'
+                  })()}
                 </div>
               </div>
             </div>

@@ -2,6 +2,7 @@
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
+import { AddNoteDialog } from '@/components/add-note-dialog'
 import { useState } from 'react'
 import { Plus, Search, FileText, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -18,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { MultiSelect } from '@/components/ui/multi-select'
+import { useProductionStore } from '@/lib/stores/production-store'
 
 // Mock data for development
 const mockProductionNotes: Note[] = [
@@ -359,10 +361,14 @@ const mockProductionNotes: Note[] = [
 
 export default function ProductionNotesPage() {
   const [notes, setNotes] = useState(mockProductionNotes)
+  const { name, abbreviation, logo } = useProductionStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
   const [isAddingNote, setIsAddingNote] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [dialogDefaultType, setDialogDefaultType] = useState<string>('Lighting')
+  const [editingNote, setEditingNote] = useState<Note | null>(null)
   const [newNote, setNewNote] = useState({
     title: '',
     description: '',
@@ -428,28 +434,72 @@ export default function ProductionNotesPage() {
     ))
   }
 
+  const handleEditNote = (note: Note) => {
+    setEditingNote(note)
+    setDialogDefaultType(note.type || 'Lighting')
+    setIsDialogOpen(true)
+  }
+
+  const handleDialogAdd = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingNote) {
+      // Update existing note
+      const updatedNote: Note = {
+        ...editingNote,
+        ...noteData,
+        updatedAt: new Date(),
+      }
+      setNotes(notes.map(note => note.id === editingNote.id ? updatedNote : note))
+    } else {
+      // Create new note
+      const note: Note = {
+        ...noteData,
+        id: Date.now().toString(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      setNotes([note, ...notes])
+    }
+    setEditingNote(null)
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-bg-tertiary pb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center border-b border-bg-tertiary pb-6">
+          {/* Left: Production Info */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
+              {logo.startsWith('data:') ? (
+                <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
+              ) : (
+                <span>{logo}</span>
+              )}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-text-primary">{name}</h2>
+              <p className="text-text-secondary">{abbreviation}</p>
+            </div>
+          </div>
+
+          {/* Center: Module Heading */}
+          <div className="flex justify-center">
+            <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3 whitespace-nowrap">
               <FileText className="h-8 w-8 text-modules-production" />
               Production Notes
             </h1>
-            <p className="mt-2 text-text-secondary">
-              Cross-department communication and coordination
-            </p>
           </div>
-          <Button
-            onClick={() => setIsAddingNote(true)}
-            variant="production"
-          >
-            <Plus className="h-5 w-5" />
-            Add Production Note
-          </Button>
+
+          {/* Right: Action Buttons */}
+          <div className="flex justify-end gap-3">
+            <Button
+              onClick={() => setIsAddingNote(true)}
+              variant="production"
+            >
+              <Plus className="h-5 w-5" />
+              Add Production Note
+            </Button>
+          </div>
         </div>
 
         {/* Filters and Search */}
@@ -623,6 +673,7 @@ export default function ProductionNotesPage() {
           notes={filteredNotes}
           moduleType="production"
           onStatusUpdate={updateNoteStatus}
+          onEdit={handleEditNote}
         />
 
         {filteredNotes.length === 0 && (
@@ -633,6 +684,15 @@ export default function ProductionNotesPage() {
           </div>
         )}
       </div>
+
+      <AddNoteDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onAdd={handleDialogAdd}
+        moduleType="production"
+        defaultType={dialogDefaultType}
+        editingNote={editingNote}
+      />
     </DashboardLayout>
   )
 }

@@ -2,6 +2,7 @@
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
+import { AddNoteDialog } from '@/components/add-note-dialog'
 import { useState } from 'react'
 import { Plus, Search, Wrench, Upload } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -18,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { MultiSelect } from '@/components/ui/multi-select'
+import { useProductionStore } from '@/lib/stores/production-store'
 
 // Mock data for development
 const mockWorkNotes: Note[] = [
@@ -34,6 +36,9 @@ const mockWorkNotes: Note[] = [
     createdAt: new Date('2024-01-16T09:30:00'),
     updatedAt: new Date('2024-01-16T09:30:00'),
     lightwrightItemId: 'LW001',
+    channelNumbers: '101, 102',
+    positionUnit: 'FOH-3 Units 1-2',
+    sceneryNeeds: 'Need ladder access behind set piece',
   },
   {
     id: '2',
@@ -47,6 +52,9 @@ const mockWorkNotes: Note[] = [
     createdAt: new Date('2024-01-14T08:15:00'),
     updatedAt: new Date('2024-01-15T17:45:00'),
     lightwrightItemId: 'LW078',
+    channelNumbers: '215, 216, 217, 218',
+    positionUnit: 'SL Boom Units 4-7',
+    sceneryNeeds: 'Coordinate with scenic for boom placement',
   },
   {
     id: '3',
@@ -74,6 +82,9 @@ const mockWorkNotes: Note[] = [
     createdAt: new Date('2024-01-13T16:00:00'),
     updatedAt: new Date('2024-01-15T10:20:00'),
     lightwrightItemId: 'LW045',
+    channelNumbers: '301-310',
+    positionUnit: 'Cyc Units 1-10',
+    sceneryNeeds: 'Access behind cyc during intermission only',
   },
   {
     id: '5',
@@ -86,6 +97,9 @@ const mockWorkNotes: Note[] = [
     type: 'Focus',
     createdAt: new Date('2024-01-16T11:45:00'),
     updatedAt: new Date('2024-01-16T11:45:00'),
+    channelNumbers: '151-158',
+    positionUnit: 'Balcony Rail Specials 1-8',
+    sceneryNeeds: 'Wait until platform is final height',
   },
   {
     id: '6',
@@ -251,16 +265,23 @@ const mockWorkNotes: Note[] = [
 
 export default function WorkNotesPage() {
   const [notes, setNotes] = useState(mockWorkNotes)
+  const { name, abbreviation, logo } = useProductionStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
   const [isAddingNote, setIsAddingNote] = useState(false)
   const [showImport, setShowImport] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [dialogDefaultType, setDialogDefaultType] = useState<string>('Work')
+  const [editingNote, setEditingNote] = useState<Note | null>(null)
   const [newNote, setNewNote] = useState({
     title: '',
     description: '',
     priority: 'medium' as Priority,
     type: 'Work',
+    channelNumbers: '',
+    positionUnit: '',
+    sceneryNeeds: '',
   })
 
   // Get unique types from all notes
@@ -291,9 +312,12 @@ export default function WorkNotesPage() {
         type: type,
         createdAt: new Date(),
         updatedAt: new Date(),
+        channelNumbers: noteData?.title ? '' : newNote.channelNumbers,
+        positionUnit: noteData?.title ? '' : newNote.positionUnit,
+        sceneryNeeds: noteData?.title ? '' : newNote.sceneryNeeds,
       }
       setNotes([note, ...notes])
-      setNewNote({ title: '', description: '', priority: 'medium', type: 'Work' })
+      setNewNote({ title: '', description: '', priority: 'medium', type: 'Work', channelNumbers: '', positionUnit: '', sceneryNeeds: '' })
       setIsAddingNote(false)
     }
   }
@@ -315,22 +339,64 @@ export default function WorkNotesPage() {
     ))
   }
 
+  const handleEditNote = (note: Note) => {
+    setEditingNote(note)
+    setDialogDefaultType(note.type || 'Work')
+    setIsDialogOpen(true)
+  }
+
+  const handleDialogAdd = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (editingNote) {
+      // Update existing note
+      const updatedNote: Note = {
+        ...editingNote,
+        ...noteData,
+        updatedAt: new Date(),
+      }
+      setNotes(notes.map(note => note.id === editingNote.id ? updatedNote : note))
+    } else {
+      // Create new note
+      const note: Note = {
+        ...noteData,
+        id: Date.now().toString(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      setNotes([note, ...notes])
+    }
+    setEditingNote(null)
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-bg-tertiary pb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center border-b border-bg-tertiary pb-6">
+          {/* Left: Production Info */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
+              {logo.startsWith('data:') ? (
+                <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
+              ) : (
+                <span>{logo}</span>
+              )}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-text-primary">{name}</h2>
+              <p className="text-text-secondary">{abbreviation}</p>
+            </div>
+          </div>
+
+          {/* Center: Module Heading */}
+          <div className="flex justify-center">
+            <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3 whitespace-nowrap">
               <Wrench className="h-8 w-8 text-modules-work" />
               Work Notes
             </h1>
-            <p className="mt-2 text-text-secondary">
-              Track equipment and technical tasks
-            </p>
           </div>
-          <div className="flex gap-2">
+
+          {/* Right: Action Buttons */}
+          <div className="flex justify-end gap-2">
             <Button
               onClick={() => setShowImport(!showImport)}
               variant="outline"
@@ -489,10 +555,30 @@ export default function WorkNotesPage() {
                 placeholder="Lightwright ID (optional)..."
               />
             </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Input
+                type="text"
+                placeholder="Channel Numbers (e.g. 101, 102, 103)..."
+                value={newNote.channelNumbers}
+                onChange={(e) => setNewNote({ ...newNote, channelNumbers: e.target.value })}
+              />
+              <Input
+                type="text"
+                placeholder="Position/Unit (e.g. FOH-3 Units 1-2)..."
+                value={newNote.positionUnit}
+                onChange={(e) => setNewNote({ ...newNote, positionUnit: e.target.value })}
+              />
+            </div>
             <Textarea
               placeholder="Description (optional)..."
               value={newNote.description}
               onChange={(e) => setNewNote({ ...newNote, description: e.target.value })}
+              rows={2}
+            />
+            <Textarea
+              placeholder="Scenery needs (optional)..."
+              value={newNote.sceneryNeeds}
+              onChange={(e) => setNewNote({ ...newNote, sceneryNeeds: e.target.value })}
               rows={2}
             />
             <div className="flex gap-2">
@@ -517,6 +603,7 @@ export default function WorkNotesPage() {
           notes={filteredNotes}
           moduleType="work"
           onStatusUpdate={updateNoteStatus}
+          onEdit={handleEditNote}
         />
 
         {filteredNotes.length === 0 && (
@@ -527,6 +614,15 @@ export default function WorkNotesPage() {
           </div>
         )}
       </div>
+
+      <AddNoteDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onAdd={handleDialogAdd}
+        moduleType="work"
+        defaultType={dialogDefaultType}
+        editingNote={editingNote}
+      />
     </DashboardLayout>
   )
 }
