@@ -7,14 +7,16 @@
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Search, Lightbulb, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { Note, Priority, NoteStatus } from '@/types'
+import type { Note, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
+import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
+import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import Link from 'next/link'
 
 // Mock data for development
@@ -26,7 +28,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Fade house lights on page 23',
     description: 'Slow fade to 50% over 3 seconds when actor enters',
-    priority: 'high',
+    priority: 'critical',
     status: 'todo',
     type: 'Cue',
     createdAt: new Date('2024-01-15T10:30:00'),
@@ -54,7 +56,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Intermission preset too bright',
     description: 'Reduce intensity to 75% for house lights',
-    priority: 'low',
+    priority: 'very_low',
     status: 'cancelled',
     type: 'Cue',
     createdAt: new Date('2024-01-13T16:45:00'),
@@ -69,7 +71,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Need more dramatic lighting for death scene',
     description: 'Director wants stronger side light and deeper shadows',
-    priority: 'high',
+    priority: 'critical',
     status: 'todo',
     type: 'Director',
     createdAt: new Date('2024-01-16T11:00:00'),
@@ -112,7 +114,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Remove upstage wash during tap sequence',
     description: 'Too much spill light affecting the precision work',
-    priority: 'low',
+    priority: 'very_low',
     status: 'cancelled',
     type: 'Choreographer',
     createdAt: new Date('2024-01-11T15:15:00'),
@@ -141,7 +143,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Add texture to forest scene',
     description: 'Use leaf breakup gobos on trees, R79 color',
-    priority: 'high',
+    priority: 'critical',
     status: 'todo',
     type: 'Designer',
     createdAt: new Date('2024-01-16T08:45:00'),
@@ -169,7 +171,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Cue timing adjustments needed',
     description: 'Several cues running late, need to tighten timing',
-    priority: 'high',
+    priority: 'critical',
     status: 'todo',
     type: 'Stage Manager',
     scriptPageId: 'cue-145',
@@ -183,7 +185,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Focus session notes compiled',
     description: 'All focus notes from yesterday organized and prioritized',
-    priority: 'low',
+    priority: 'very_low',
     status: 'complete',
     type: 'Associate',
     scriptPageId: 'cue-78',
@@ -210,7 +212,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Cable management in booth',
     description: 'Organize control cables to prevent interference',
-    priority: 'low',
+    priority: 'very_low',
     status: 'todo',
     type: 'Assistant',
     scriptPageId: 'cue-15',
@@ -224,7 +226,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Spotlight follow for solo',
     description: 'Track performer during song, stage right to center',
-    priority: 'high',
+    priority: 'critical',
     status: 'complete',
     type: 'Spot',
     createdAt: new Date('2024-01-14T17:00:00'),
@@ -252,7 +254,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Optimize memory usage in console',
     description: 'Remove unused palettes and groups',
-    priority: 'low',
+    priority: 'very_low',
     status: 'complete',
     type: 'Programmer',
     scriptPageId: 'cue-25',
@@ -265,7 +267,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Program backup sequences',
     description: 'Create alternate cues for emergency situations',
-    priority: 'high',
+    priority: 'critical',
     status: 'todo',
     type: 'Programmer',
     scriptPageId: 'cue-98',
@@ -306,7 +308,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Archive previous show files',
     description: 'Clean up console and backup important files',
-    priority: 'low',
+    priority: 'very_low',
     status: 'cancelled',
     type: 'Paperwork',
     scriptPageId: 'cue-301',
@@ -320,7 +322,7 @@ const mockCueNotes: Note[] = [
     moduleType: 'cue',
     title: 'Consider alternative approach to storm scene',
     description: 'Current lightning effect not convincing enough',
-    priority: 'high',
+    priority: 'critical',
     status: 'todo',
     type: 'Think',
     scriptPageId: 'cue-178',
@@ -346,16 +348,29 @@ const mockCueNotes: Note[] = [
 export default function CueNotesPage() {
   const [notes, setNotes] = useState(mockCueNotes)
   const { name, abbreviation, logo } = useProductionStore()
+  const customTypesStore = useCustomTypesStore()
+  const customPrioritiesStore = useCustomPrioritiesStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [dialogDefaultType, setDialogDefaultType] = useState<string>('Cue')
   const [editingNote, setEditingNote] = useState<Note | null>(null)
+  const [isHydrated, setIsHydrated] = useState(false)
 
-  // Get unique types from all notes
-  const availableTypes = Array.from(new Set(notes.map(note => note.type).filter(Boolean))) as string[]
-  const typeOptions = availableTypes.map(type => ({ value: type, label: type }))
+  // Handle client-side hydration for stores with skipHydration: true
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  // Get custom types and priorities from stores (only after hydration)
+  const availableTypes = isHydrated ? customTypesStore.getTypes('cue') : []
+  const typeOptions = availableTypes.map(type => ({ 
+    value: type.value, 
+    label: type.label,
+    color: type.color 
+  }))
+  const availablePriorities = isHydrated ? customPrioritiesStore.getPriorities('cue') : []
 
   const filteredNotes = notes.filter(note => {
     const searchLower = searchTerm.toLowerCase()
@@ -515,42 +530,20 @@ export default function CueNotesPage() {
         {filterStatus === 'todo' && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-muted-foreground text-sm">Quick Add:</span>
-            <Button onClick={() => openDialog('Cue')} variant="priority_low" size="xs">
-              <Plus className="h-3 w-3" />Cue
-            </Button>
-            <Button onClick={() => openDialog('Director')} variant="priority_high" size="xs">
-              <Plus className="h-3 w-3" />Director
-            </Button>
-            <Button onClick={() => openDialog('Choreographer')} variant="priority_high" size="xs">
-              <Plus className="h-3 w-3" />Choreographer
-            </Button>
-            <Button onClick={() => openDialog('Designer')} variant="todo" size="xs">
-              <Plus className="h-3 w-3" />Designer
-            </Button>
-            <Button onClick={() => openDialog('Stage Manager')} variant="cue" size="xs">
-              <Plus className="h-3 w-3" />Stage Manager
-            </Button>
-            <Button onClick={() => openDialog('Associate')} variant="priority_medium" size="xs">
-              <Plus className="h-3 w-3" />Associate
-            </Button>
-            <Button onClick={() => openDialog('Assistant')} variant="priority_medium" size="xs">
-              <Plus className="h-3 w-3" />Assistant
-            </Button>
-            <Button onClick={() => openDialog('Spot')} variant="priority_low" size="xs">
-              <Plus className="h-3 w-3" />Spot
-            </Button>
-            <Button onClick={() => openDialog('Programmer')} variant="cue" size="xs">
-              <Plus className="h-3 w-3" />Programmer
-            </Button>
-            <Button onClick={() => openDialog('Production')} variant="secondary" size="xs">
-              <Plus className="h-3 w-3" />Production
-            </Button>
-            <Button onClick={() => openDialog('Paperwork')} variant="priority_low" size="xs">
-              <Plus className="h-3 w-3" />Paperwork
-            </Button>
-            <Button onClick={() => openDialog('Think')} variant="cue" size="xs">
-              <Plus className="h-3 w-3" />Think
-            </Button>
+            {availableTypes.map(type => (
+              <Button 
+                key={type.id}
+                onClick={() => openDialog(type.value)} 
+                size="xs"
+                style={{ 
+                  backgroundColor: type.color,
+                  borderColor: type.color 
+                }}
+                className="text-white hover:opacity-80 transition-opacity"
+              >
+                <Plus className="h-3 w-3" />{type.label}
+              </Button>
+            ))}
           </div>
         )}
 

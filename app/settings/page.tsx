@@ -1,20 +1,17 @@
 'use client'
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
-import { Settings, Save, Upload, Download, Mail, FileText, Palette } from 'lucide-react'
+import { Settings, Upload, Download, Mail, FileText, Palette, Lightbulb, Wrench, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useProductionStore } from '@/lib/stores/production-store'
+import { TypesManager } from '@/components/types-manager'
+import { PrioritiesManager } from '@/components/priorities-manager'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general')
-  const [saved, setSaved] = useState(false)
   const { name, abbreviation, logo, updateProduction } = useProductionStore()
   const [logoPreview, setLogoPreview] = useState(logo)
 
-  const handleSave = () => {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -46,10 +43,12 @@ export default function SettingsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 border-b border-bg-tertiary">
+        <div className="flex gap-1 border-b border-bg-tertiary overflow-x-auto">
           {[
             { id: 'general', label: 'Production Information', icon: Settings },
-            { id: 'modules', label: 'Modules', icon: FileText },
+            { id: 'cue-notes', label: 'Cue Notes', icon: Lightbulb },
+            { id: 'work-notes', label: 'Work Notes', icon: Wrench },
+            { id: 'production-notes', label: 'Production Notes', icon: Users },
             { id: 'presets', label: 'Presets', icon: Palette },
             { id: 'export', label: 'Export & Email', icon: Mail },
           ].map((tab) => (
@@ -135,53 +134,48 @@ export default function SettingsPage() {
             </>
           )}
 
-          {activeTab === 'modules' && (
-            <div className="space-y-6">
-              {['Cue Notes', 'Work Notes', 'Production Notes'].map((module, i) => (
-                <div key={module} className="rounded-lg bg-bg-secondary p-6 space-y-4">
-                  <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-                    <div className={`h-2 w-2 rounded-full ${
-                      i === 0 ? 'bg-modules-cue' : i === 1 ? 'bg-modules-work' : 'bg-modules-production'
-                    }`} />
-                    {module}
-                  </h2>
-                  
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-2">
-                        Priority Names
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue="High, Medium, Low"
-                        className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary text-sm focus:outline-none focus:border-modules-production"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-2">
-                        Default Priority
-                      </label>
-                      <select className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary text-sm focus:outline-none focus:border-modules-production">
-                        <option>Medium</option>
-                        <option>High</option>
-                        <option>Low</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-text-secondary mb-2">
-                        Note Types
-                      </label>
-                      <input
-                        type="text"
-                        defaultValue="General, Technical, Creative"
-                        className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary text-sm focus:outline-none focus:border-modules-production"
-                      />
-                    </div>
-                  </div>
+          {activeTab === 'cue-notes' && (
+            <div className="space-y-8">
+              <div className="rounded-lg bg-bg-secondary p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="h-3 w-3 rounded-full bg-modules-cue" />
+                  <h2 className="text-xl font-semibold text-text-primary">Cue Notes Configuration</h2>
                 </div>
-              ))}
+                <div className="grid gap-8 lg:grid-cols-2">
+                  <TypesManager moduleType="cue" />
+                  <PrioritiesManager moduleType="cue" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'work-notes' && (
+            <div className="space-y-8">
+              <div className="rounded-lg bg-bg-secondary p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="h-3 w-3 rounded-full bg-modules-work" />
+                  <h2 className="text-xl font-semibold text-text-primary">Work Notes Configuration</h2>
+                </div>
+                <div className="grid gap-8 lg:grid-cols-2">
+                  <TypesManager moduleType="work" />
+                  <PrioritiesManager moduleType="work" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'production-notes' && (
+            <div className="space-y-8">
+              <div className="rounded-lg bg-bg-secondary p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="h-3 w-3 rounded-full bg-modules-production" />
+                  <h2 className="text-xl font-semibold text-text-primary">Production Notes Configuration</h2>
+                </div>
+                <div className="grid gap-8 lg:grid-cols-2">
+                  <TypesManager moduleType="production" />
+                  <PrioritiesManager moduleType="production" />
+                </div>
+              </div>
             </div>
           )}
 
@@ -307,15 +301,11 @@ LX Team"
           )}
         </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end">
-          <button
-            onClick={handleSave}
-            className="flex items-center gap-2 rounded-lg bg-modules-production px-6 py-2 text-white hover:bg-modules-production/90 transition-colors"
-          >
-            <Save className="h-5 w-5" />
-            {saved ? 'Saved!' : 'Save Changes'}
-          </button>
+        {/* Auto-Save Info */}
+        <div className="flex justify-center">
+          <p className="text-sm text-text-secondary italic">
+            All changes save automatically
+          </p>
         </div>
       </div>
     </DashboardLayout>

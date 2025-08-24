@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import type { Note, Priority, ModuleType } from '@/types'
+import type { Note, ModuleType } from '@/types'
 import { Button } from '@/components/ui/button'
 import { useCueLookup } from '@/lib/services/cue-lookup'
+import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
+import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import {
   Dialog,
   DialogContent,
@@ -33,10 +35,12 @@ interface AddNoteDialogProps {
 
 export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType, editingNote }: AddNoteDialogProps) {
   const { lookupCue } = useCueLookup()
+  const { getTypes } = useCustomTypesStore()
+  const { getPriorities } = useCustomPrioritiesStore()
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    priority: 'medium' as Priority,
+    priority: 'medium',
     type: defaultType || (moduleType === 'cue' ? 'Cue' : moduleType === 'work' ? 'Work' : 'Lighting'),
     cueNumbers: '',
     scriptPageId: '',
@@ -100,18 +104,9 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     onClose()
   }
 
-  const getTypeOptions = () => {
-    switch (moduleType) {
-      case 'cue':
-        return ['Cue', 'Director', 'Choreographer', 'Designer', 'Stage Manager', 'Associate', 'Assistant', 'Spot', 'Programmer', 'Production', 'Paperwork', 'Think']
-      case 'work':
-        return ['Work', 'Focus', 'Paperwork', 'Electrician', 'Think']
-      case 'production':
-        return ['Scenic', 'Costumes', 'Lighting', 'Props', 'Sound', 'Video', 'Stage Management', 'Directing', 'Choreography', 'Production Management']
-      default:
-        return []
-    }
-  }
+  // Get custom types and priorities from stores
+  const availableTypes = getTypes(moduleType)
+  const availablePriorities = getPriorities(moduleType)
 
   const getModuleColor = () => {
     switch (moduleType) {
@@ -139,8 +134,8 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {getTypeOptions().map(type => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  {availableTypes.map(type => (
+                    <SelectItem key={type.id} value={type.value}>{type.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -148,14 +143,14 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
 
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
-              <Select value={formData.priority} onValueChange={(value: Priority) => setFormData({ ...formData, priority: value })}>
+              <Select value={formData.priority} onValueChange={(value: string) => setFormData({ ...formData, priority: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
+                  {availablePriorities.map(priority => (
+                    <SelectItem key={priority.id} value={priority.value}>{priority.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

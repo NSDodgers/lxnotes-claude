@@ -7,6 +7,8 @@ import type { Note, NoteStatus, ModuleType } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useCueLookup } from '@/lib/services/cue-lookup'
+import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import {
   Table,
   TableBody,
@@ -28,8 +30,14 @@ type SortDirection = 'asc' | 'desc'
 
 export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesTableProps) {
   const { lookupCue } = useCueLookup()
+  const { getPriorities } = useCustomPrioritiesStore()
+  const { getTypes } = useCustomTypesStore()
   const [sortField, setSortField] = useState<SortField>('createdAt')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  
+  // Get custom priorities and types for this module
+  const availablePriorities = getPriorities(moduleType)
+  const availableTypes = getTypes(moduleType)
 
   const getStatusIcon = (status: NoteStatus) => {
     switch (status) {
@@ -39,13 +47,12 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
     }
   }
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'text-priority-high'
-      case 'medium': return 'text-priority-medium'  
-      case 'low': return 'text-priority-low'
-      default: return 'text-text-muted'
-    }
+  const getPriority = (priorityValue: string) => {
+    return availablePriorities.find(p => p.value === priorityValue)
+  }
+  
+  const getType = (typeValue: string) => {
+    return availableTypes.find(t => t.value === typeValue)
   }
 
   const getModuleColor = (moduleType: ModuleType) => {
@@ -193,13 +200,20 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                 </div>
               </TableCell>
               <TableCell>
-                <span className={cn('text-sm font-medium', getPriorityColor(note.priority))}>
-                  {note.priority === 'high' ? 'Critical' : note.priority === 'medium' ? 'Very High' : 'Medium'}
+                <span 
+                  className="text-sm font-medium"
+                  style={{ color: getPriority(note.priority)?.color || '#6B7280' }}
+                >
+                  {getPriority(note.priority)?.label || note.priority}
                 </span>
               </TableCell>
               <TableCell>
-                <Badge variant={moduleType as any}>
-                  {note.type || moduleType}
+                <Badge 
+                  variant={moduleType as any}
+                  style={{ backgroundColor: getType(note.type || '')?.color || '#6B7280' }}
+                  className="text-white"
+                >
+                  {getType(note.type || '')?.label || note.type || moduleType}
                 </Badge>
               </TableCell>
               {moduleType === 'cue' && (

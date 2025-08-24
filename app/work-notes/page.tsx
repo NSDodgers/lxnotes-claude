@@ -3,10 +3,10 @@
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Search, Wrench, Upload } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { Note, Priority, NoteStatus } from '@/types'
+import type { Note, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
+import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 
 // Mock data for development
 const mockWorkNotes: Note[] = [
@@ -266,27 +267,28 @@ const mockWorkNotes: Note[] = [
 export default function WorkNotesPage() {
   const [notes, setNotes] = useState(mockWorkNotes)
   const { name, abbreviation, logo } = useProductionStore()
+  const customTypesStore = useCustomTypesStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
-  const [isAddingNote, setIsAddingNote] = useState(false)
   const [showImport, setShowImport] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [dialogDefaultType, setDialogDefaultType] = useState<string>('Work')
   const [editingNote, setEditingNote] = useState<Note | null>(null)
-  const [newNote, setNewNote] = useState({
-    title: '',
-    description: '',
-    priority: 'medium' as Priority,
-    type: 'Work',
-    channelNumbers: '',
-    positionUnit: '',
-    sceneryNeeds: '',
-  })
+  const [isHydrated, setIsHydrated] = useState(false)
 
-  // Get unique types from all notes
-  const availableTypes = Array.from(new Set(notes.map(note => note.type).filter(Boolean))) as string[]
-  const typeOptions = availableTypes.map(type => ({ value: type, label: type }))
+  // Handle client-side hydration for stores with skipHydration: true
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  // Get custom types from store (only after hydration)
+  const availableTypes = isHydrated ? customTypesStore.getTypes('work') : []
+  const typeOptions = availableTypes.map(type => ({ 
+    value: type.value, 
+    label: type.label,
+    color: type.color 
+  }))
 
   const filteredNotes = notes.filter(note => {
     const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -296,41 +298,11 @@ export default function WorkNotesPage() {
     return matchesSearch && matchesStatus && matchesType
   })
 
-  const handleAddNote = (noteData?: { title?: string; type?: string }) => {
-    const title = noteData?.title || newNote.title
-    const type = noteData?.type || newNote.type
-    
-    if (title.trim()) {
-      const note: Note = {
-        id: Date.now().toString(),
-        productionId: 'prod-1',
-        moduleType: 'work',
-        title: title,
-        description: noteData?.title ? '' : newNote.description,
-        priority: 'medium',
-        status: 'todo',
-        type: type,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        channelNumbers: noteData?.title ? '' : newNote.channelNumbers,
-        positionUnit: noteData?.title ? '' : newNote.positionUnit,
-        sceneryNeeds: noteData?.title ? '' : newNote.sceneryNeeds,
-      }
-      setNotes([note, ...notes])
-      setNewNote({ title: '', description: '', priority: 'medium', type: 'Work', channelNumbers: '', positionUnit: '', sceneryNeeds: '' })
-      setIsAddingNote(false)
-    }
-  }
 
-  const openQuickAdd = (type: string) => {
-    const titles: { [key: string]: string } = {
-      'Work': 'New work task',
-      'Focus': 'Focus lights',
-      'Paperwork': 'Complete paperwork',
-      'Electrician': 'Electrical work',
-      'Think': 'Think about issue'
-    }
-    handleAddNote({ title: titles[type] || `New ${type.toLowerCase()} note`, type })
+  const openQuickAdd = (typeValue: string) => {
+    setDialogDefaultType(typeValue)
+    setEditingNote(null)
+    setIsDialogOpen(true)
   }
 
   const updateNoteStatus = (noteId: string, status: NoteStatus) => {
@@ -405,7 +377,7 @@ export default function WorkNotesPage() {
               Import Lightwright
             </Button>
             <Button
-              onClick={() => setIsAddingNote(true)}
+              onClick={() => openQuickAdd('work')}
               variant="work"
             >
               <Plus className="h-5 w-5" />
@@ -497,106 +469,23 @@ export default function WorkNotesPage() {
         {filterStatus === 'todo' && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-muted-foreground text-sm">Quick Add:</span>
-            <Button onClick={() => openQuickAdd('Work')} variant="secondary" size="xs">
-              <Plus className="h-3 w-3" />Work
-            </Button>
-            <Button onClick={() => openQuickAdd('Focus')} variant="priority_high" size="xs">
-              <Plus className="h-3 w-3" />Focus
-            </Button>
-            <Button onClick={() => openQuickAdd('Paperwork')} variant="todo" size="xs">
-              <Plus className="h-3 w-3" />Paperwork
-            </Button>
-            <Button onClick={() => openQuickAdd('Electrician')} variant="priority_low" size="xs">
-              <Plus className="h-3 w-3" />Electrician
-            </Button>
-            <Button onClick={() => openQuickAdd('Think')} variant="priority_medium" size="xs">
-              <Plus className="h-3 w-3" />Think
-            </Button>
+            {availableTypes.map(type => (
+              <Button 
+                key={type.id}
+                onClick={() => openQuickAdd(type.value)} 
+                size="xs"
+                style={{ 
+                  backgroundColor: type.color,
+                  borderColor: type.color 
+                }}
+                className="text-white hover:opacity-80 transition-opacity"
+              >
+                <Plus className="h-3 w-3" />{type.label}
+              </Button>
+            ))}
           </div>
         )}
 
-        {/* Quick Add Form */}
-        {isAddingNote && (
-          <div className="rounded-lg bg-card border p-4 space-y-4">
-            <h3 className="font-medium">Quick Add Work Note</h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Input
-                type="text"
-                placeholder="Note title..."
-                value={newNote.title}
-                onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
-                autoFocus
-              />
-              <Select value={newNote.priority} onValueChange={(value: Priority) => setNewNote({ ...newNote, priority: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">High Priority</SelectItem>
-                  <SelectItem value="medium">Medium Priority</SelectItem>
-                  <SelectItem value="low">Low Priority</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Select value={newNote.type} onValueChange={(value) => setNewNote({ ...newNote, type: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Maintenance">Maintenance</SelectItem>
-                  <SelectItem value="Troubleshooting">Troubleshooting</SelectItem>
-                  <SelectItem value="Setup">Setup</SelectItem>
-                  <SelectItem value="Strike">Strike</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input
-                type="text"
-                placeholder="Lightwright ID (optional)..."
-              />
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Input
-                type="text"
-                placeholder="Channel Numbers (e.g. 101, 102, 103)..."
-                value={newNote.channelNumbers}
-                onChange={(e) => setNewNote({ ...newNote, channelNumbers: e.target.value })}
-              />
-              <Input
-                type="text"
-                placeholder="Position/Unit (e.g. FOH-3 Units 1-2)..."
-                value={newNote.positionUnit}
-                onChange={(e) => setNewNote({ ...newNote, positionUnit: e.target.value })}
-              />
-            </div>
-            <Textarea
-              placeholder="Description (optional)..."
-              value={newNote.description}
-              onChange={(e) => setNewNote({ ...newNote, description: e.target.value })}
-              rows={2}
-            />
-            <Textarea
-              placeholder="Scenery needs (optional)..."
-              value={newNote.sceneryNeeds}
-              onChange={(e) => setNewNote({ ...newNote, sceneryNeeds: e.target.value })}
-              rows={2}
-            />
-            <div className="flex gap-2">
-              <Button
-                onClick={() => handleAddNote()}
-                variant="work"
-              >
-                Add Note
-              </Button>
-              <Button
-                onClick={() => setIsAddingNote(false)}
-                variant="secondary"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        )}
 
         {/* Notes Table */}
         <NotesTable 

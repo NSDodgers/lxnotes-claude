@@ -3,10 +3,10 @@
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Search, FileText, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { Note, Priority, NoteStatus } from '@/types'
+import type { Note, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/select'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
+import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 
 // Mock data for development
 const mockProductionNotes: Note[] = [
@@ -362,24 +363,27 @@ const mockProductionNotes: Note[] = [
 export default function ProductionNotesPage() {
   const [notes, setNotes] = useState(mockProductionNotes)
   const { name, abbreviation, logo } = useProductionStore()
+  const customTypesStore = useCustomTypesStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
-  const [isAddingNote, setIsAddingNote] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [dialogDefaultType, setDialogDefaultType] = useState<string>('Lighting')
+  const [dialogDefaultType, setDialogDefaultType] = useState<string>('lighting')
   const [editingNote, setEditingNote] = useState<Note | null>(null)
-  const [newNote, setNewNote] = useState({
-    title: '',
-    description: '',
-    priority: 'medium' as Priority,
-    type: 'Lighting',
-    assignedTo: '',
-  })
+  const [isHydrated, setIsHydrated] = useState(false)
 
-  // Get unique types from all notes
-  const availableTypes = Array.from(new Set(notes.map(note => note.type).filter(Boolean))) as string[]
-  const typeOptions = availableTypes.map(type => ({ value: type, label: type }))
+  // Handle client-side hydration for stores with skipHydration: true
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  // Get custom types from store (only after hydration)
+  const availableTypes = isHydrated ? customTypesStore.getTypes('production') : []
+  const typeOptions = availableTypes.map(type => ({ 
+    value: type.value, 
+    label: type.label,
+    color: type.color 
+  }))
 
   const filteredNotes = notes.filter(note => {
     const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -389,43 +393,11 @@ export default function ProductionNotesPage() {
     return matchesSearch && matchesStatus && matchesType
   })
 
-  const handleAddNote = (noteData?: { title?: string; type?: string }) => {
-    const title = noteData?.title || newNote.title
-    const type = noteData?.type || newNote.type
-    
-    if (title.trim()) {
-      const note: Note = {
-        id: Date.now().toString(),
-        productionId: 'prod-1',
-        moduleType: 'production',
-        title: title,
-        description: noteData?.title ? '' : newNote.description,
-        priority: 'medium',
-        status: 'todo',
-        type: type,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      setNotes([note, ...notes])
-      setNewNote({ title: '', description: '', priority: 'medium', type: 'Lighting', assignedTo: '' })
-      setIsAddingNote(false)
-    }
-  }
 
-  const openQuickAdd = (type: string) => {
-    const titles: { [key: string]: string } = {
-      'Scenic': 'Scenic department note',
-      'Costumes': 'Costume department note',
-      'Lighting': 'Lighting department note',
-      'Props': 'Props department note',
-      'Sound': 'Sound department note',
-      'Video': 'Video department note',
-      'Stage Management': 'Stage management note',
-      'Directing': 'Directing note',
-      'Choreography': 'Choreography note',
-      'Production Management': 'Production management note'
-    }
-    handleAddNote({ title: titles[type] || `New ${type.toLowerCase()} note`, type })
+  const openQuickAdd = (typeValue: string) => {
+    setDialogDefaultType(typeValue)
+    setEditingNote(null)
+    setIsDialogOpen(true)
   }
 
   const updateNoteStatus = (noteId: string, status: NoteStatus) => {
@@ -493,7 +465,7 @@ export default function ProductionNotesPage() {
           {/* Right: Action Buttons */}
           <div className="flex justify-end gap-3">
             <Button
-              onClick={() => setIsAddingNote(true)}
+              onClick={() => openQuickAdd('scenic')}
               variant="production"
             >
               <Plus className="h-5 w-5" />
@@ -562,111 +534,31 @@ export default function ProductionNotesPage() {
         {filterStatus === 'todo' && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-muted-foreground text-sm">Quick Add:</span>
-            <Button onClick={() => openQuickAdd('Scenic')} variant="cue" size="xs">
-              <Plus className="h-3 w-3" />Scenic
-            </Button>
-            <Button onClick={() => openQuickAdd('Costumes')} variant="priority_high" size="xs">
-              <Plus className="h-3 w-3" />Costumes
-            </Button>
-            <Button onClick={() => openQuickAdd('Lighting')} variant="priority_medium" size="xs">
-              <Plus className="h-3 w-3" />Lighting
-            </Button>
-            <Button onClick={() => openQuickAdd('Props')} variant="priority_low" size="xs">
-              <Plus className="h-3 w-3" />Props
-            </Button>
-            <Button onClick={() => openQuickAdd('Sound')} variant="todo" size="xs">
-              <Plus className="h-3 w-3" />Sound
-            </Button>
-            <Button onClick={() => openQuickAdd('Video')} variant="priority_high" size="xs">
-              <Plus className="h-3 w-3" />Video
-            </Button>
-            <Button onClick={() => openQuickAdd('Stage Management')} variant="secondary" size="xs">
-              <Plus className="h-3 w-3" />Stage Mgmt
-            </Button>
-            <Button onClick={() => openQuickAdd('Directing')} variant="work" size="xs">
-              <Plus className="h-3 w-3" />Directing
-            </Button>
-            <Button onClick={() => openQuickAdd('Choreography')} variant="production" size="xs">
-              <Plus className="h-3 w-3" />Choreography
-            </Button>
-            <Button onClick={() => openQuickAdd('Production Management')} variant="priority_low" size="xs">
-              <Plus className="h-3 w-3" />Prod Mgmt
-            </Button>
+            {availableTypes.map(type => {
+              // Truncate long labels for quick add bar
+              const displayLabel = type.label.length > 12 
+                ? type.label.substring(0, 10) + '...' 
+                : type.label;
+              
+              return (
+                <Button 
+                  key={type.id}
+                  onClick={() => openQuickAdd(type.value)} 
+                  size="xs"
+                  style={{ 
+                    backgroundColor: type.color,
+                    borderColor: type.color 
+                  }}
+                  className="text-white hover:opacity-80 transition-opacity"
+                  title={type.label} // Full name on hover
+                >
+                  <Plus className="h-3 w-3" />{displayLabel}
+                </Button>
+              );
+            })}
           </div>
         )}
 
-        {/* Quick Add Form */}
-        {isAddingNote && (
-          <div className="rounded-lg bg-bg-secondary border border-modules-production/50 p-4 space-y-4">
-            <h3 className="font-medium text-text-primary">Quick Add Production Note</h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <input
-                type="text"
-                placeholder="Note title..."
-                value={newNote.title}
-                onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
-                className="rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-modules-production"
-                autoFocus
-              />
-              <select
-                value={newNote.priority}
-                onChange={(e) => setNewNote({ ...newNote, priority: e.target.value as Priority })}
-                className="rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
-              >
-                <option value="high">High Priority</option>
-                <option value="medium">Medium Priority</option>
-                <option value="low">Low Priority</option>
-              </select>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <select
-                value={newNote.type}
-                onChange={(e) => setNewNote({ ...newNote, type: e.target.value })}
-                className="rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
-              >
-                <option value="Communication">Communication</option>
-                <option value="Coordination">Coordination</option>
-                <option value="Meeting">Meeting</option>
-                <option value="Safety">Safety</option>
-                <option value="Schedule">Schedule</option>
-              </select>
-              <select
-                value={newNote.assignedTo || ''}
-                onChange={(e) => setNewNote({ ...newNote, assignedTo: e.target.value })}
-                className="rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
-              >
-                <option value="">Unassigned</option>
-                <option value="lighting">Lighting</option>
-                <option value="sound">Sound</option>
-                <option value="stage">Stage Management</option>
-                <option value="props">Props</option>
-                <option value="costumes">Costumes</option>
-                <option value="director">Director</option>
-              </select>
-            </div>
-            <textarea
-              placeholder="Description (optional)..."
-              value={newNote.description}
-              onChange={(e) => setNewNote({ ...newNote, description: e.target.value })}
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-modules-production"
-              rows={2}
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleAddNote()}
-                className="rounded-lg bg-modules-production px-4 py-2 text-white hover:bg-modules-production/90 transition-colors"
-              >
-                Add Note
-              </button>
-              <button
-                onClick={() => setIsAddingNote(false)}
-                className="rounded-lg bg-bg-tertiary px-4 py-2 text-text-secondary hover:bg-bg-hover transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Notes Table */}
         <NotesTable 

@@ -1,7 +1,62 @@
 export type ModuleType = 'cue' | 'work' | 'production'
 export type NoteStatus = 'todo' | 'complete' | 'cancelled'
-export type Priority = 'high' | 'medium' | 'low'
 export type UserRole = 'admin' | 'user'
+
+// Custom types and priorities system
+export interface CustomType {
+  id: string
+  productionId: string
+  moduleType: ModuleType
+  value: string // Internal identifier (lowercase, underscored)
+  label: string // Display name
+  color: string // Hex color
+  isSystem: boolean // True for system defaults
+  isHidden: boolean // Can hide system defaults
+  sortOrder: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface CustomPriority {
+  id: string
+  productionId: string
+  moduleType: ModuleType
+  value: string // Internal identifier
+  label: string // Display name  
+  color: string // Hex color
+  sortOrder: number // Supports decimals for insertion between defaults
+  isSystem: boolean // True for system defaults
+  isHidden: boolean // Can hide system defaults
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface SystemOverride {
+  id: string
+  productionId: string
+  moduleType: ModuleType
+  systemId: string // ID of system default being overridden
+  type: 'type' | 'priority'
+  overrideData: {
+    label?: string
+    color?: string
+    isHidden?: boolean
+  }
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ProductionSettings {
+  id: string
+  productionId: string
+  settings: {
+    customTypes: Record<ModuleType, CustomType[]>
+    customPriorities: Record<ModuleType, CustomPriority[]>
+    systemOverrides: SystemOverride[]
+  }
+  createdAt: Date
+  updatedAt: Date
+}
 
 export interface Production {
   id: string
@@ -22,7 +77,7 @@ export interface Note {
   title: string
   description?: string
   type?: string
-  priority: Priority
+  priority: string // Flexible priority value (replaces enum)
   status: NoteStatus
   createdBy?: string
   assignedTo?: string
