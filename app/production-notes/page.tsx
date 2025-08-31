@@ -3,8 +3,10 @@
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
+import { EmailNotesView } from '@/components/email-notes-view'
+import { PrintNotesView } from '@/components/print-notes-view'
 import { useState, useEffect } from 'react'
-import { Plus, Search, FileText, Users } from 'lucide-react'
+import { Plus, Search, FileText, Users, Mail, Printer } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -33,7 +35,7 @@ const mockProductionNotes: Note[] = [
     description: 'Upstage platform at 4 feet blocks key light from FOH',
     priority: 'high',
     status: 'todo',
-    type: 'Scenic',
+    type: 'scenic',
     createdAt: new Date('2024-01-16T10:30:00'),
     updatedAt: new Date('2024-01-16T10:30:00'),
   },
@@ -45,7 +47,7 @@ const mockProductionNotes: Note[] = [
     description: 'Warmer beige will work better with lighting palette',
     priority: 'medium',
     status: 'complete',
-    type: 'Scenic',
+    type: 'scenic',
     createdAt: new Date('2024-01-14T15:20:00'),
     updatedAt: new Date('2024-01-15T11:45:00'),
   },
@@ -57,7 +59,7 @@ const mockProductionNotes: Note[] = [
     description: 'Metallic finish on throne reflects too much light',
     priority: 'low',
     status: 'cancelled',
-    type: 'Scenic',
+    type: 'scenic',
     createdAt: new Date('2024-01-12T14:15:00'),
     updatedAt: new Date('2024-01-14T09:30:00'),
   },
@@ -70,7 +72,7 @@ const mockProductionNotes: Note[] = [
     description: 'Discuss color temperature for white costume reveals',
     priority: 'high',
     status: 'todo',
-    type: 'Costumes',
+    type: 'costumes',
     createdAt: new Date('2024-01-16T09:00:00'),
     updatedAt: new Date('2024-01-16T09:00:00'),
   },
@@ -82,7 +84,7 @@ const mockProductionNotes: Note[] = [
     description: 'New silk fabric responds well to blue wash',
     priority: 'medium',
     status: 'complete',
-    type: 'Costumes',
+    type: 'costumes',
     createdAt: new Date('2024-01-13T16:30:00'),
     updatedAt: new Date('2024-01-15T14:20:00'),
   },
@@ -94,7 +96,7 @@ const mockProductionNotes: Note[] = [
     description: 'Princess dress creating unwanted sparkle effects',
     priority: 'medium',
     status: 'cancelled',
-    type: 'Costumes',
+    type: 'costumes',
     createdAt: new Date('2024-01-11T13:45:00'),
     updatedAt: new Date('2024-01-13T10:15:00'),
   },
@@ -107,7 +109,7 @@ const mockProductionNotes: Note[] = [
     description: 'Replacing 12 conventional fixtures with LED',
     priority: 'low',
     status: 'complete',
-    type: 'Lighting',
+    type: 'lighting',
     createdAt: new Date('2024-01-10T11:00:00'),
     updatedAt: new Date('2024-01-12T16:45:00'),
   },
@@ -119,7 +121,7 @@ const mockProductionNotes: Note[] = [
     description: 'Need 6 more circuits for expanded design',
     priority: 'high',
     status: 'todo',
-    type: 'Lighting',
+    type: 'lighting',
     createdAt: new Date('2024-01-15T18:30:00'),
     updatedAt: new Date('2024-01-15T18:30:00'),
   },
@@ -132,7 +134,7 @@ const mockProductionNotes: Note[] = [
     description: 'Stage lanterns too bright, need inline dimmers',
     priority: 'medium',
     status: 'todo',
-    type: 'Props',
+    type: 'props',
     createdAt: new Date('2024-01-14T12:15:00'),
     updatedAt: new Date('2024-01-14T12:15:00'),
   },
@@ -144,7 +146,7 @@ const mockProductionNotes: Note[] = [
     description: 'Angled to avoid light reflection into audience',
     priority: 'low',
     status: 'complete',
-    type: 'Props',
+    type: 'props',
     createdAt: new Date('2024-01-11T10:30:00'),
     updatedAt: new Date('2024-01-13T15:45:00'),
   },
@@ -156,7 +158,7 @@ const mockProductionNotes: Note[] = [
     description: 'LED candles look fake under stage lights',
     priority: 'medium',
     status: 'cancelled',
-    type: 'Props',
+    type: 'props',
     createdAt: new Date('2024-01-09T16:20:00'),
     updatedAt: new Date('2024-01-11T14:30:00'),
   },
@@ -169,7 +171,7 @@ const mockProductionNotes: Note[] = [
     description: 'Sync lighting blackouts with sound effects timing',
     priority: 'high',
     status: 'complete',
-    type: 'Sound',
+    type: 'sound',
     createdAt: new Date('2024-01-13T14:00:00'),
     updatedAt: new Date('2024-01-16T11:30:00'),
   },
@@ -181,7 +183,7 @@ const mockProductionNotes: Note[] = [
     description: 'Stage right speaker blocking side light angle',
     priority: 'medium',
     status: 'todo',
-    type: 'Sound',
+    type: 'sound',
     createdAt: new Date('2024-01-15T17:45:00'),
     updatedAt: new Date('2024-01-15T17:45:00'),
   },
@@ -194,7 +196,7 @@ const mockProductionNotes: Note[] = [
     description: 'Need to flag or adjust FOH positions to prevent spill',
     priority: 'high',
     status: 'todo',
-    type: 'Video',
+    type: 'video',
     createdAt: new Date('2024-01-16T13:20:00'),
     updatedAt: new Date('2024-01-16T13:20:00'),
   },
@@ -206,7 +208,7 @@ const mockProductionNotes: Note[] = [
     description: 'New matte screen reduces light bounce',
     priority: 'low',
     status: 'complete',
-    type: 'Video',
+    type: 'video',
     createdAt: new Date('2024-01-12T09:15:00'),
     updatedAt: new Date('2024-01-14T16:30:00'),
   },
@@ -218,7 +220,7 @@ const mockProductionNotes: Note[] = [
     description: 'SMPTE timecode not stable during video cues',
     priority: 'medium',
     status: 'cancelled',
-    type: 'Video',
+    type: 'video',
     createdAt: new Date('2024-01-10T14:45:00'),
     updatedAt: new Date('2024-01-12T11:20:00'),
   },
@@ -231,7 +233,7 @@ const mockProductionNotes: Note[] = [
     description: 'Updated emergency lighting and evacuation procedures',
     priority: 'high',
     status: 'complete',
-    type: 'Stage Management',
+    type: 'stage_management',
     createdAt: new Date('2024-01-11T08:30:00'),
     updatedAt: new Date('2024-01-13T17:15:00'),
   },
@@ -243,7 +245,7 @@ const mockProductionNotes: Note[] = [
     description: 'Add cue lights to fly gallery and trap room',
     priority: 'medium',
     status: 'todo',
-    type: 'Stage Management',
+    type: 'stage_management',
     createdAt: new Date('2024-01-15T12:45:00'),
     updatedAt: new Date('2024-01-15T12:45:00'),
   },
@@ -256,7 +258,7 @@ const mockProductionNotes: Note[] = [
     description: 'Flying effects would interfere with lighting grid',
     priority: 'high',
     status: 'complete',
-    type: 'Directing',
+    type: 'directing',
     createdAt: new Date('2024-01-14T10:00:00'),
     updatedAt: new Date('2024-01-15T15:30:00'),
   },
@@ -268,7 +270,7 @@ const mockProductionNotes: Note[] = [
     description: 'Increase side light angle for Act 3 interrogation',
     priority: 'medium',
     status: 'cancelled',
-    type: 'Directing',
+    type: 'directing',
     createdAt: new Date('2024-01-12T19:30:00'),
     updatedAt: new Date('2024-01-14T13:45:00'),
   },
@@ -280,7 +282,7 @@ const mockProductionNotes: Note[] = [
     description: 'Warm wash with practical star effects overhead',
     priority: 'low',
     status: 'todo',
-    type: 'Directing',
+    type: 'directing',
     createdAt: new Date('2024-01-16T16:15:00'),
     updatedAt: new Date('2024-01-16T16:15:00'),
   },
@@ -293,7 +295,7 @@ const mockProductionNotes: Note[] = [
     description: 'New triangle formation needs 3 specials not 2',
     priority: 'medium',
     status: 'todo',
-    type: 'Choreography',
+    type: 'choreography',
     createdAt: new Date('2024-01-15T20:00:00'),
     updatedAt: new Date('2024-01-15T20:00:00'),
   },
@@ -305,7 +307,7 @@ const mockProductionNotes: Note[] = [
     description: 'Lighting follows dancers up to 8-foot platforms',
     priority: 'high',
     status: 'complete',
-    type: 'Choreography',
+    type: 'choreography',
     createdAt: new Date('2024-01-13T18:15:00'),
     updatedAt: new Date('2024-01-16T10:45:00'),
   },
@@ -317,7 +319,7 @@ const mockProductionNotes: Note[] = [
     description: 'Dancers slipping on glossy stage floor under lights',
     priority: 'low',
     status: 'cancelled',
-    type: 'Choreography',
+    type: 'choreography',
     createdAt: new Date('2024-01-10T13:30:00'),
     updatedAt: new Date('2024-01-12T09:45:00'),
   },
@@ -330,7 +332,7 @@ const mockProductionNotes: Note[] = [
     description: 'Additional LED fixtures pushed costs over by 8%',
     priority: 'medium',
     status: 'todo',
-    type: 'Production Management',
+    type: 'production_management',
     createdAt: new Date('2024-01-16T14:30:00'),
     updatedAt: new Date('2024-01-16T14:30:00'),
   },
@@ -342,7 +344,7 @@ const mockProductionNotes: Note[] = [
     description: 'Extended tech week requires additional crew hours',
     priority: 'high',
     status: 'complete',
-    type: 'Production Management',
+    type: 'production_management',
     createdAt: new Date('2024-01-12T16:00:00'),
     updatedAt: new Date('2024-01-14T08:30:00'),
   },
@@ -354,9 +356,610 @@ const mockProductionNotes: Note[] = [
     description: 'Storm damage to outdoor lighting rig last month',
     priority: 'low',
     status: 'cancelled',
-    type: 'Production Management',
+    type: 'production_management',
     createdAt: new Date('2024-01-08T12:15:00'),
     updatedAt: new Date('2024-01-10T15:45:00'),
+  },
+  // Additional production notes for testing
+  {
+    id: '28',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Coordinate fog machine timing with sound cues',
+    description: 'Atmospheric effects for ghost entrance',
+    priority: 'high',
+    status: 'todo',
+    type: 'sound',
+    createdAt: new Date('2024-01-17T09:30:00'),
+    updatedAt: new Date('2024-01-17T09:30:00'),
+  },
+  {
+    id: '29',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'New backdrop fabric testing complete',
+    description: 'Muslin accepts lighting colors better than canvas',
+    priority: 'medium',
+    status: 'complete',
+    type: 'scenic',
+    createdAt: new Date('2024-01-15T14:20:00'),
+    updatedAt: new Date('2024-01-16T11:45:00'),
+  },
+  {
+    id: '30',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Costume reflectivity causing hot spots',
+    description: 'Silver dress creates unwanted glare in Act 2',
+    priority: 'medium',
+    status: 'todo',
+    type: 'costumes',
+    createdAt: new Date('2024-01-17T10:15:00'),
+    updatedAt: new Date('2024-01-17T10:15:00'),
+  },
+  {
+    id: '31',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'LED house light conversion approved',
+    description: 'Board approved budget for energy-efficient upgrade',
+    priority: 'low',
+    status: 'complete',
+    type: 'lighting',
+    createdAt: new Date('2024-01-14T16:00:00'),
+    updatedAt: new Date('2024-01-15T13:30:00'),
+  },
+  {
+    id: '32',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Video projection alignment with lighting',
+    description: 'Projectors need repositioning to avoid wash spill',
+    priority: 'high',
+    status: 'complete',
+    type: 'video',
+    createdAt: new Date('2024-01-16T18:45:00'),
+    updatedAt: new Date('2024-01-17T12:20:00'),
+  },
+  {
+    id: '33',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Emergency evacuation lighting test',
+    description: 'Monthly safety inspection passed',
+    priority: 'critical',
+    status: 'complete',
+    type: 'stage_management',
+    createdAt: new Date('2024-01-15T08:00:00'),
+    updatedAt: new Date('2024-01-15T09:30:00'),
+  },
+  {
+    id: '34',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Director wants more intimate lighting',
+    description: 'Reduce area coverage for dialogue scenes',
+    priority: 'medium',
+    status: 'cancelled',
+    type: 'directing',
+    createdAt: new Date('2024-01-14T20:30:00'),
+    updatedAt: new Date('2024-01-16T14:15:00'),
+  },
+  {
+    id: '35',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Tap number requires floor lighting',
+    description: 'Low-angle side light to show feet clearly',
+    priority: 'high',
+    status: 'todo',
+    type: 'choreography',
+    createdAt: new Date('2024-01-17T11:00:00'),
+    updatedAt: new Date('2024-01-17T11:00:00'),
+  },
+  {
+    id: '36',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Budget increase for additional equipment',
+    description: 'Need approval for 8 more LED fixtures',
+    priority: 'high',
+    status: 'todo',
+    type: 'production_management',
+    createdAt: new Date('2024-01-17T08:15:00'),
+    updatedAt: new Date('2024-01-17T08:15:00'),
+  },
+  {
+    id: '37',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Microphone feedback eliminated',
+    description: 'Repositioned monitors away from light booth',
+    priority: 'medium',
+    status: 'complete',
+    type: 'sound',
+    createdAt: new Date('2024-01-15T19:30:00'),
+    updatedAt: new Date('2024-01-16T16:45:00'),
+  },
+  {
+    id: '38',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Platform height creates shadow issues',
+    description: 'Raised platform blocks downstage specials',
+    priority: 'high',
+    status: 'complete',
+    type: 'scenic',
+    createdAt: new Date('2024-01-16T12:30:00'),
+    updatedAt: new Date('2024-01-17T09:45:00'),
+  },
+  {
+    id: '39',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'White costume UV reactivity',
+    description: 'Test fabrics under blacklight for ghost scene',
+    priority: 'medium',
+    status: 'todo',
+    type: 'costumes',
+    createdAt: new Date('2024-01-17T13:20:00'),
+    updatedAt: new Date('2024-01-17T13:20:00'),
+  },
+  {
+    id: '40',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Circuit capacity analysis complete',
+    description: 'Current electrical can handle LED upgrade',
+    priority: 'medium',
+    status: 'complete',
+    type: 'lighting',
+    createdAt: new Date('2024-01-14T10:45:00'),
+    updatedAt: new Date('2024-01-15T17:20:00'),
+  },
+  {
+    id: '41',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Media server sync improvements',
+    description: 'SMPTE timecode now stable with console',
+    priority: 'low',
+    status: 'complete',
+    type: 'video',
+    createdAt: new Date('2024-01-13T15:00:00'),
+    updatedAt: new Date('2024-01-14T12:30:00'),
+  },
+  {
+    id: '42',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Fire marshal inspection scheduled',
+    description: 'Review all pyrotechnic and haze effects',
+    priority: 'critical',
+    status: 'todo',
+    type: 'stage_management',
+    createdAt: new Date('2024-01-17T07:30:00'),
+    updatedAt: new Date('2024-01-17T07:30:00'),
+  },
+  {
+    id: '43',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Approved scene change lighting',
+    description: 'Blue working light for scene transitions',
+    priority: 'low',
+    status: 'complete',
+    type: 'directing',
+    createdAt: new Date('2024-01-15T21:15:00'),
+    updatedAt: new Date('2024-01-16T08:45:00'),
+  },
+  {
+    id: '44',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Group dance formation lighting',
+    description: 'Even wash coverage for 16 dancers',
+    priority: 'medium',
+    status: 'complete',
+    type: 'choreography',
+    createdAt: new Date('2024-01-16T17:00:00'),
+    updatedAt: new Date('2024-01-17T14:30:00'),
+  },
+  {
+    id: '45',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Equipment rental contract signed',
+    description: 'Moving lights secured for 6-week run',
+    priority: 'medium',
+    status: 'complete',
+    type: 'production_management',
+    createdAt: new Date('2024-01-12T14:20:00'),
+    updatedAt: new Date('2024-01-13T11:00:00'),
+  },
+  {
+    id: '46',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Orchestra pit lighting adjustment',
+    description: 'Musicians need brighter music stand lights',
+    priority: 'medium',
+    status: 'todo',
+    type: 'sound',
+    createdAt: new Date('2024-01-17T15:45:00'),
+    updatedAt: new Date('2024-01-17T15:45:00'),
+  },
+  {
+    id: '47',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Set piece paint finish approved',
+    description: 'Matte finish reduces unwanted reflections',
+    priority: 'low',
+    status: 'complete',
+    type: 'scenic',
+    createdAt: new Date('2024-01-14T13:45:00'),
+    updatedAt: new Date('2024-01-15T10:30:00'),
+  },
+  {
+    id: '48',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Quick change booth lighting',
+    description: 'LED strips for costume changes stage left',
+    priority: 'high',
+    status: 'todo',
+    type: 'costumes',
+    createdAt: new Date('2024-01-17T12:00:00'),
+    updatedAt: new Date('2024-01-17T12:00:00'),
+  },
+  {
+    id: '49',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Dimmer room ventilation improved',
+    description: 'New fans prevent overheating during shows',
+    priority: 'high',
+    status: 'complete',
+    type: 'lighting',
+    createdAt: new Date('2024-01-15T06:30:00'),
+    updatedAt: new Date('2024-01-16T19:15:00'),
+  },
+  {
+    id: '50',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Projection surface texture testing',
+    description: 'Canvas vs screen material light interaction',
+    priority: 'medium',
+    status: 'cancelled',
+    type: 'video',
+    createdAt: new Date('2024-01-13T16:30:00'),
+    updatedAt: new Date('2024-01-15T09:00:00'),
+  },
+  {
+    id: '51',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Headset system expansion needed',
+    description: 'Add channels for fly gallery operators',
+    priority: 'medium',
+    status: 'todo',
+    type: 'stage_management',
+    createdAt: new Date('2024-01-17T14:15:00'),
+    updatedAt: new Date('2024-01-17T14:15:00'),
+  },
+  {
+    id: '52',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Director collaboration on mood',
+    description: 'Review color temperature for each scene',
+    priority: 'high',
+    status: 'complete',
+    type: 'directing',
+    createdAt: new Date('2024-01-16T10:00:00'),
+    updatedAt: new Date('2024-01-17T16:30:00'),
+  },
+  {
+    id: '53',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Partner lift safety lighting',
+    description: 'Bright wash for rehearsal safety',
+    priority: 'critical',
+    status: 'complete',
+    type: 'choreography',
+    createdAt: new Date('2024-01-15T18:00:00'),
+    updatedAt: new Date('2024-01-16T13:45:00'),
+  },
+  {
+    id: '54',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Insurance documentation updated',
+    description: 'New equipment added to policy',
+    priority: 'low',
+    status: 'complete',
+    type: 'production_management',
+    createdAt: new Date('2024-01-11T11:30:00'),
+    updatedAt: new Date('2024-01-14T15:20:00'),
+  },
+  {
+    id: '55',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Wireless microphone interference',
+    description: 'RF scan shows conflict with LED drivers',
+    priority: 'high',
+    status: 'todo',
+    type: 'sound',
+    createdAt: new Date('2024-01-17T16:00:00'),
+    updatedAt: new Date('2024-01-17T16:00:00'),
+  },
+  {
+    id: '56',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Masking adjustment for new lighting',
+    description: 'Additional borders needed to hide fixtures',
+    priority: 'medium',
+    status: 'todo',
+    type: 'scenic',
+    createdAt: new Date('2024-01-17T11:45:00'),
+    updatedAt: new Date('2024-01-17T11:45:00'),
+  },
+  {
+    id: '57',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Makeup compatibility with stage lights',
+    description: 'Test foundation colors under LED wash',
+    priority: 'medium',
+    status: 'complete',
+    type: 'costumes',
+    createdAt: new Date('2024-01-14T17:30:00'),
+    updatedAt: new Date('2024-01-15T14:45:00'),
+  },
+  {
+    id: '58',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Console programming backup',
+    description: 'Multiple save points for show files',
+    priority: 'critical',
+    status: 'complete',
+    type: 'lighting',
+    createdAt: new Date('2024-01-16T22:00:00'),
+    updatedAt: new Date('2024-01-17T01:15:00'),
+  },
+  {
+    id: '59',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Live camera feed integration',
+    description: 'Backstage monitor for cue calling',
+    priority: 'low',
+    status: 'cancelled',
+    type: 'video',
+    createdAt: new Date('2024-01-12T13:00:00'),
+    updatedAt: new Date('2024-01-14T10:30:00'),
+  },
+  {
+    id: '60',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Strike coordination meeting',
+    description: 'Plan equipment removal schedule',
+    priority: 'medium',
+    status: 'todo',
+    type: 'stage_management',
+    createdAt: new Date('2024-01-17T17:30:00'),
+    updatedAt: new Date('2024-01-17T17:30:00'),
+  },
+  {
+    id: '61',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Approved curtain call special effects',
+    description: 'Confetti cannon timing with lighting',
+    priority: 'medium',
+    status: 'complete',
+    type: 'directing',
+    createdAt: new Date('2024-01-15T22:00:00'),
+    updatedAt: new Date('2024-01-16T15:30:00'),
+  },
+  {
+    id: '62',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Rehearsal lighting schedule',
+    description: 'Coordinate tech time with other departments',
+    priority: 'high',
+    status: 'complete',
+    type: 'choreography',
+    createdAt: new Date('2024-01-14T09:15:00'),
+    updatedAt: new Date('2024-01-15T18:20:00'),
+  },
+  {
+    id: '63',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Venue rental negotiations',
+    description: 'Extended run approved through May',
+    priority: 'low',
+    status: 'complete',
+    type: 'production_management',
+    createdAt: new Date('2024-01-10T16:45:00'),
+    updatedAt: new Date('2024-01-12T10:20:00'),
+  },
+  {
+    id: '64',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Sound board integration test',
+    description: 'MIDI triggers for automated light cues',
+    priority: 'medium',
+    status: 'todo',
+    type: 'sound',
+    createdAt: new Date('2024-01-17T13:45:00'),
+    updatedAt: new Date('2024-01-17T13:45:00'),
+  },
+  {
+    id: '65',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Trap room lighting installation',
+    description: 'Work lights for below-stage access',
+    priority: 'high',
+    status: 'todo',
+    type: 'scenic',
+    createdAt: new Date('2024-01-17T09:00:00'),
+    updatedAt: new Date('2024-01-17T09:00:00'),
+  },
+  {
+    id: '66',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Hair styling heat compatibility',
+    description: 'Wigs must withstand stage light heat',
+    priority: 'low',
+    status: 'complete',
+    type: 'costumes',
+    createdAt: new Date('2024-01-13T14:30:00'),
+    updatedAt: new Date('2024-01-15T11:15:00'),
+  },
+  {
+    id: '67',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Energy audit for LED conversion',
+    description: 'Calculate power savings over season',
+    priority: 'low',
+    status: 'todo',
+    type: 'lighting',
+    createdAt: new Date('2024-01-17T14:45:00'),
+    updatedAt: new Date('2024-01-17T14:45:00'),
+  },
+  {
+    id: '68',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Rehearsal recording setup',
+    description: 'Document lighting states for reference',
+    priority: 'medium',
+    status: 'cancelled',
+    type: 'video',
+    createdAt: new Date('2024-01-11T19:00:00'),
+    updatedAt: new Date('2024-01-13T12:45:00'),
+  },
+  {
+    id: '69',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Cast safety briefing completed',
+    description: 'Emergency procedures and exit lighting',
+    priority: 'critical',
+    status: 'complete',
+    type: 'stage_management',
+    createdAt: new Date('2024-01-14T18:30:00'),
+    updatedAt: new Date('2024-01-15T12:00:00'),
+  },
+  {
+    id: '70',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Final dress rehearsal notes',
+    description: 'Last-minute lighting adjustments approved',
+    priority: 'high',
+    status: 'complete',
+    type: 'directing',
+    createdAt: new Date('2024-01-17T21:00:00'),
+    updatedAt: new Date('2024-01-17T23:45:00'),
+  },
+  {
+    id: '71',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Finale dance lighting effects',
+    description: 'Strobe and color chase sequences',
+    priority: 'medium',
+    status: 'complete',
+    type: 'choreography',
+    createdAt: new Date('2024-01-16T20:30:00'),
+    updatedAt: new Date('2024-01-17T17:15:00'),
+  },
+  {
+    id: '72',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Box office coordination',
+    description: 'House light timing for patron seating',
+    priority: 'low',
+    status: 'complete',
+    type: 'production_management',
+    createdAt: new Date('2024-01-13T10:00:00'),
+    updatedAt: new Date('2024-01-14T14:30:00'),
+  },
+  {
+    id: '73',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Monitor mix adjustment',
+    description: 'Stage monitors interfering with booth sightlines',
+    priority: 'medium',
+    status: 'todo',
+    type: 'sound',
+    createdAt: new Date('2024-01-17T18:15:00'),
+    updatedAt: new Date('2024-01-17T18:15:00'),
+  },
+  {
+    id: '74',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Fly system counterweight adjustment',
+    description: 'New lighting positions affect balance',
+    priority: 'high',
+    status: 'complete',
+    type: 'scenic',
+    createdAt: new Date('2024-01-15T07:45:00'),
+    updatedAt: new Date('2024-01-16T14:00:00'),
+  },
+  {
+    id: '75',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Wardrobe fitting under stage lights',
+    description: 'Final costume check under performance lighting',
+    priority: 'medium',
+    status: 'complete',
+    type: 'costumes',
+    createdAt: new Date('2024-01-16T19:00:00'),
+    updatedAt: new Date('2024-01-17T13:30:00'),
+  },
+  {
+    id: '76',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Maintenance schedule for run',
+    description: 'Weekly equipment checks during performances',
+    priority: 'critical',
+    status: 'todo',
+    type: 'lighting',
+    createdAt: new Date('2024-01-17T16:30:00'),
+    updatedAt: new Date('2024-01-17T16:30:00'),
+  },
+  {
+    id: '77',
+    productionId: 'prod-1',
+    moduleType: 'production',
+    title: 'Audience survey feedback',
+    description: 'Comments on lighting visibility and mood',
+    priority: 'low',
+    status: 'cancelled',
+    type: 'video',
+    createdAt: new Date('2024-01-10T12:30:00'),
+    updatedAt: new Date('2024-01-12T16:00:00'),
   },
 ]
 
@@ -370,6 +973,8 @@ export default function ProductionNotesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [dialogDefaultType, setDialogDefaultType] = useState<string>('lighting')
   const [editingNote, setEditingNote] = useState<Note | null>(null)
+  const [isEmailViewOpen, setIsEmailViewOpen] = useState(false)
+  const [isPrintViewOpen, setIsPrintViewOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
 
   // Handle client-side hydration for stores with skipHydration: true
@@ -437,127 +1042,144 @@ export default function ProductionNotesPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="grid grid-cols-[auto_1fr_auto] items-center border-b border-bg-tertiary pb-6">
-          {/* Left: Production Info */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
-              {logo.startsWith('data:') ? (
-                <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
-              ) : (
-                <span>{logo}</span>
-              )}
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-text-primary">{name}</h2>
-              <p className="text-text-secondary">{abbreviation}</p>
-            </div>
-          </div>
-
-          {/* Center: Module Heading */}
-          <div className="flex justify-center">
-            <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3 whitespace-nowrap">
-              <FileText className="h-8 w-8 text-modules-production" />
-              Production Notes
-            </h1>
-          </div>
-
-          {/* Right: Action Buttons */}
-          <div className="flex justify-end gap-3">
-            <Button
-              onClick={() => openQuickAdd('scenic')}
-              variant="production"
-            >
-              <Plus className="h-5 w-5" />
-              Add Production Note
-            </Button>
-          </div>
-        </div>
-
-        {/* Filters and Search */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="flex flex-wrap gap-4">
-            {/* Status Filters */}
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-text-secondary">Status</label>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => setFilterStatus('todo')}
-                  variant={filterStatus === 'todo' ? 'todo' : 'secondary'}
-                  size="sm"
-                >
-                  To Do
-                </Button>
-                <Button
-                  onClick={() => setFilterStatus('complete')}
-                  variant={filterStatus === 'complete' ? 'complete' : 'secondary'}
-                  size="sm"
-                >
-                  Complete
-                </Button>
-                <Button
-                  onClick={() => setFilterStatus('cancelled')}
-                  variant={filterStatus === 'cancelled' ? 'cancelled' : 'secondary'}
-                  size="sm"
-                >
-                  Cancelled
-                </Button>
+        {/* Sticky Header Container */}
+        <div className="sticky top-0 z-30 bg-bg-primary space-y-6 pb-4">
+          {/* Header */}
+          <div className="grid grid-cols-[auto_1fr_auto] items-center border-b border-bg-tertiary pb-6">
+            {/* Left: Production Info */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
+                {logo.startsWith('data:') ? (
+                  <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{logo}</span>
+                )}
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-text-primary">{name}</h2>
+                <p className="text-text-secondary">{abbreviation}</p>
               </div>
             </div>
 
-            {/* Type Filter */}
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-text-secondary">Type</label>
-              <MultiSelect
-                options={typeOptions}
-                selected={filterTypes}
-                onChange={setFilterTypes}
-                placeholder="All Types"
-                className="min-w-[140px]"
+            {/* Center: Module Heading */}
+            <div className="flex justify-center">
+              <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3 whitespace-nowrap">
+                <FileText className="h-8 w-8 text-modules-production" />
+                Production Notes
+              </h1>
+            </div>
+
+            {/* Right: Action Buttons */}
+            <div className="flex justify-end gap-3">
+              <Button
+                onClick={() => setIsPrintViewOpen(true)}
+                variant="secondary"
+              >
+                <Printer className="h-4 w-4" />
+                PDF
+              </Button>
+              <Button
+                onClick={() => setIsEmailViewOpen(true)}
+                variant="secondary"
+              >
+                <Mail className="h-4 w-4" />
+                Email
+              </Button>
+              <Button
+                onClick={() => openQuickAdd('scenic')}
+                variant="production"
+              >
+                <Plus className="h-5 w-5" />
+                Add Production Note
+              </Button>
+            </div>
+          </div>
+
+          {/* Filters and Search */}
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="flex flex-wrap gap-4">
+              {/* Status Filters */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-text-secondary">Status</label>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setFilterStatus('todo')}
+                    variant={filterStatus === 'todo' ? 'todo' : 'secondary'}
+                    size="sm"
+                  >
+                    To Do
+                  </Button>
+                  <Button
+                    onClick={() => setFilterStatus('complete')}
+                    variant={filterStatus === 'complete' ? 'complete' : 'secondary'}
+                    size="sm"
+                  >
+                    Complete
+                  </Button>
+                  <Button
+                    onClick={() => setFilterStatus('cancelled')}
+                    variant={filterStatus === 'cancelled' ? 'cancelled' : 'secondary'}
+                    size="sm"
+                  >
+                    Cancelled
+                  </Button>
+                </div>
+              </div>
+
+              {/* Type Filter */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-text-secondary">Type</label>
+                <MultiSelect
+                  options={typeOptions}
+                  selected={filterTypes}
+                  onChange={setFilterTypes}
+                  placeholder="All Types"
+                  className="min-w-[140px]"
+                />
+              </div>
+            </div>
+
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search production notes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full md:w-80 pl-10"
               />
             </div>
           </div>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search production notes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full md:w-80 pl-10"
-            />
-          </div>
+          {/* Quick Add Bar */}
+          {filterStatus === 'todo' && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-muted-foreground text-sm">Quick Add:</span>
+              {availableTypes.map(type => {
+                // Truncate long labels for quick add bar
+                const displayLabel = type.label.length > 12 
+                  ? type.label.substring(0, 10) + '...' 
+                  : type.label;
+                
+                return (
+                  <Button 
+                    key={type.id}
+                    onClick={() => openQuickAdd(type.value)} 
+                    size="xs"
+                    style={{ 
+                      backgroundColor: type.color,
+                      borderColor: type.color 
+                    }}
+                    className="text-white hover:opacity-80 transition-opacity"
+                    title={type.label} // Full name on hover
+                  >
+                    <Plus className="h-3 w-3" />{displayLabel}
+                  </Button>
+                );
+              })}
+            </div>
+          )}
         </div>
-
-        {/* Quick Add Bar */}
-        {filterStatus === 'todo' && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-muted-foreground text-sm">Quick Add:</span>
-            {availableTypes.map(type => {
-              // Truncate long labels for quick add bar
-              const displayLabel = type.label.length > 12 
-                ? type.label.substring(0, 10) + '...' 
-                : type.label;
-              
-              return (
-                <Button 
-                  key={type.id}
-                  onClick={() => openQuickAdd(type.value)} 
-                  size="xs"
-                  style={{ 
-                    backgroundColor: type.color,
-                    borderColor: type.color 
-                  }}
-                  className="text-white hover:opacity-80 transition-opacity"
-                  title={type.label} // Full name on hover
-                >
-                  <Plus className="h-3 w-3" />{displayLabel}
-                </Button>
-              );
-            })}
-          </div>
-        )}
 
 
         {/* Notes Table */}
@@ -584,6 +1206,18 @@ export default function ProductionNotesPage() {
         moduleType="production"
         defaultType={dialogDefaultType}
         editingNote={editingNote}
+      />
+      
+      <EmailNotesView
+        moduleType="production"
+        isOpen={isEmailViewOpen}
+        onClose={() => setIsEmailViewOpen(false)}
+      />
+      
+      <PrintNotesView
+        moduleType="production"
+        isOpen={isPrintViewOpen}
+        onClose={() => setIsPrintViewOpen(false)}
       />
     </DashboardLayout>
   )

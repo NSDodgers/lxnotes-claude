@@ -1,11 +1,14 @@
 'use client'
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
-import { Settings, Upload, Download, Mail, FileText, Palette, Lightbulb, Wrench, Users } from 'lucide-react'
+import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { TypesManager } from '@/components/types-manager'
 import { PrioritiesManager } from '@/components/priorities-manager'
+import { PageStylePresetsManager } from '@/components/page-style-presets-manager'
+import { FilterSortPresetsManager } from '@/components/filter-sort-presets-manager'
+import { EmailMessagePresetsManager } from '@/components/email-message-presets-manager'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general')
@@ -50,7 +53,6 @@ export default function SettingsPage() {
             { id: 'work-notes', label: 'Work Notes', icon: Wrench },
             { id: 'production-notes', label: 'Production Notes', icon: Users },
             { id: 'presets', label: 'Presets', icon: Palette },
-            { id: 'export', label: 'Export & Email', icon: Mail },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -181,124 +183,14 @@ export default function SettingsPage() {
 
           {activeTab === 'presets' && (
             <div className="space-y-6">
-              <div className="rounded-lg bg-bg-secondary p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-text-primary">Page Style Presets</h2>
-                  <button className="text-sm text-modules-production hover:text-modules-production/80">
-                    + Add Preset
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {['Letter Portrait', 'Letter Landscape', 'A4 Portrait'].map((preset) => (
-                    <div key={preset} className="flex items-center justify-between py-2 px-3 rounded bg-bg-tertiary">
-                      <span className="text-text-primary text-sm">{preset}</span>
-                      <button className="text-text-muted hover:text-text-secondary text-sm">Edit</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-bg-secondary p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-text-primary">Filter & Sort Presets</h2>
-                  <button className="text-sm text-modules-production hover:text-modules-production/80">
-                    + Add Preset
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {['High Priority First', 'Recent Updates', 'By Department'].map((preset) => (
-                    <div key={preset} className="flex items-center justify-between py-2 px-3 rounded bg-bg-tertiary">
-                      <span className="text-text-primary text-sm">{preset}</span>
-                      <button className="text-text-muted hover:text-text-secondary text-sm">Edit</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-bg-secondary p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-text-primary">Email Message Presets</h2>
-                  <button className="text-sm text-modules-production hover:text-modules-production/80">
-                    + Add Preset
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {['Daily Report', 'Tech Rehearsal Notes', 'Final Performance'].map((preset) => (
-                    <div key={preset} className="flex items-center justify-between py-2 px-3 rounded bg-bg-tertiary">
-                      <span className="text-text-primary text-sm">{preset}</span>
-                      <button className="text-text-muted hover:text-text-secondary text-sm">Edit</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <PageStylePresetsManager />
+              
+              <FilterSortPresetsManager />
+              
+              <EmailMessagePresetsManager />
             </div>
           )}
 
-          {activeTab === 'export' && (
-            <div className="space-y-6">
-              <div className="rounded-lg bg-bg-secondary p-6 space-y-4">
-                <h2 className="text-lg font-semibold text-text-primary">Export Settings</h2>
-                
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Default Export Format
-                    </label>
-                    <select className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production">
-                      <option>PDF</option>
-                      <option>CSV</option>
-                      <option>Excel</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Include in Exports
-                    </label>
-                    <div className="space-y-2">
-                      <label className="flex items-center gap-2">
-                        <input type="checkbox" defaultChecked className="rounded" />
-                        <span className="text-sm text-text-primary">Completed Notes</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input type="checkbox" defaultChecked className="rounded" />
-                        <span className="text-sm text-text-primary">Descriptions</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-lg bg-bg-secondary p-6 space-y-4">
-                <h2 className="text-lg font-semibold text-text-primary">Email Configuration</h2>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Default Recipients
-                    </label>
-                    <textarea
-                      placeholder="Enter email addresses, one per line"
-                      className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-modules-production"
-                      rows={3}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
-                      Email Signature
-                    </label>
-                    <textarea
-                      defaultValue="Best regards,
-LX Team"
-                      className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
-                      rows={3}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Auto-Save Info */}

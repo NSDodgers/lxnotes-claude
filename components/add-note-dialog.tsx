@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { useCueLookup } from '@/lib/services/cue-lookup'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { useLightwrightStore } from '@/lib/stores/lightwright-store'
+import { LightwrightSelector } from '@/components/lightwright-selector'
 import {
   Dialog,
   DialogContent,
@@ -27,16 +29,54 @@ import {
 interface AddNoteDialogProps {
   isOpen: boolean
   onClose: () => void
-  onAdd: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => void
+  onAdd: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>, lightwrightFixtureIds?: string[]) => void
   moduleType: ModuleType
   defaultType?: string
   editingNote?: Note | null
+}
+
+// Helper function to format channel numbers into expression string
+function formatChannelsAsExpression(channels: number[]): string {
+  if (channels.length === 0) return ''
+
+  const sorted = [...channels].sort((a, b) => a - b)
+  const ranges: string[] = []
+  let rangeStart = sorted[0]
+  let rangeEnd = sorted[0]
+
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === rangeEnd + 1) {
+      rangeEnd = sorted[i]
+    } else {
+      if (rangeStart === rangeEnd) {
+        ranges.push(rangeStart.toString())
+      } else if (rangeEnd === rangeStart + 1) {
+        ranges.push(rangeStart.toString(), rangeEnd.toString())
+      } else {
+        ranges.push(`${rangeStart}-${rangeEnd}`)
+      }
+      rangeStart = sorted[i]
+      rangeEnd = sorted[i]
+    }
+  }
+
+  if (rangeStart === rangeEnd) {
+    ranges.push(rangeStart.toString())
+  } else if (rangeEnd === rangeStart + 1) {
+    ranges.push(rangeStart.toString(), rangeEnd.toString())
+  } else {
+    ranges.push(`${rangeStart}-${rangeEnd}`)
+  }
+
+  return ranges.join(', ')
 }
 
 export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType, editingNote }: AddNoteDialogProps) {
   const { lookupCue } = useCueLookup()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
+  const { linkFixturesToWorkNote, getLinkedFixtures } = useLightwrightStore()
+  
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -47,6 +87,10 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     sceneSongId: '',
     lightwrightItemId: '',
   })
+  
+  // Lightwright selection state for work notes
+  const [selectedLightwrightIds, setSelectedLightwrightIds] = useState<string[]>([])
+  const [channelExpression, setChannelExpression] = useState('')
 
   // Populate form when editing
   useEffect(() => {
@@ -65,10 +109,26 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
         sceneSongId: editingNote.sceneSongId || '',
         lightwrightItemId: editingNote.lightwrightItemId || '',
       })
+      
+      // Load existing Lightwright selections for work notes
+      if (moduleType === 'work') {
+        const linkedFixtures = getLinkedFixtures(editingNote.id)
+        setSelectedLightwrightIds(linkedFixtures.map(f => f.id))
+        
+        // Set channel expression from linked fixtures
+        if (linkedFixtures.length > 0) {
+          const channels = linkedFixtures.map(f => f.channel).sort((a, b) => a - b)
+          // Use the formatting function from the store
+          setChannelExpression(formatChannelsAsExpression(channels))
+        }
+      }
     } else if (defaultType) {
       setFormData(prev => ({ ...prev, type: defaultType }))
+      // Reset Lightwright selections for new notes
+      setSelectedLightwrightIds([])
+      setChannelExpression('')
     }
-  }, [editingNote, defaultType])
+  }, [editingNote, defaultType, moduleType, getLinkedFixtures])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -85,9 +145,11 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       scriptPageId: formData.cueNumbers ? `cue-${formData.cueNumbers}` : undefined,
       sceneSongId: formData.sceneSongId || undefined,
       lightwrightItemId: formData.lightwrightItemId || undefined,
+      channelNumbers: moduleType === 'work' ? channelExpression : undefined,
     }
 
-    onAdd(noteData)
+    // Pass note data and fixture IDs to parent
+    onAdd(noteData, moduleType === 'work' ? selectedLightwrightIds : undefined)
     
     // Reset form
     setFormData({
@@ -100,6 +162,8 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       sceneSongId: '',
       lightwrightItemId: '',
     })
+    setSelectedLightwrightIds([])
+    setChannelExpression('')
     
     onClose()
   }
@@ -172,14 +236,16 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
 
           {moduleType === 'work' && (
             <div className="space-y-2">
-              <Label htmlFor="lightwrightId">Lightwright ID (optional)</Label>
-              <Input
-                id="lightwrightId"
-                type="text"
-                value={formData.lightwrightItemId}
-                onChange={(e) => setFormData({ ...formData, lightwrightItemId: e.target.value })}
-                placeholder="LW001"
-              />
+              <Label>Lightwright Fixtures (optional)</Label>
+              <div className="border rounded-lg p-4">
+                <LightwrightSelector
+                  productionId="prod-1"
+                  selectedFixtureIds={selectedLightwrightIds}
+                  onSelectionChange={setSelectedLightwrightIds}
+                  channelExpression={channelExpression}
+                  onChannelExpressionChange={setChannelExpression}
+                />
+              </div>
             </div>
           )}
 
