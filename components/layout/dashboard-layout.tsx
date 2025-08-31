@@ -11,6 +11,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-bg-primary">
       <Sidebar />
       <main 
+        data-testid="main-content"
         className={cn(
           'transition-all duration-300',
           sidebarCollapsed ? 'ml-16' : 'ml-64'

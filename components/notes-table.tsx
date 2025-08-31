@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { useCueLookup } from '@/lib/services/cue-lookup'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
+import { useLightwrightStore } from '@/lib/stores/lightwright-store'
+import { LightwrightAggregateDisplay } from '@/components/lightwright-aggregate-display'
 import {
   Table,
   TableBody,
@@ -32,6 +34,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
   const { lookupCue } = useCueLookup()
   const { getPriorities } = useCustomPrioritiesStore()
   const { getTypes } = useCustomTypesStore()
+  const { getAggregate } = useLightwrightStore()
   const [sortField, setSortField] = useState<SortField>('createdAt')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
   
@@ -101,7 +104,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
 
   const renderHeader = (label: string, field: SortField) => (
     <TableHead 
-      className="cursor-pointer hover:text-foreground transition-colors"
+      className="cursor-pointer hover:text-foreground transition-colors bg-bg-primary"
       onClick={() => handleSort(field)}
     >
       <div className="flex items-center gap-1">
@@ -138,29 +141,32 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
 
   return (
     <div className="rounded-lg border overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-20">Actions</TableHead>
+      <div className="max-h-[70vh] overflow-auto">
+        <Table>
+          <TableHeader className="sticky top-0 z-20 bg-bg-primary shadow-md border-b-2">
+            <TableRow>
+            <TableHead className="w-20 bg-bg-primary">Actions</TableHead>
             {renderHeader('Priority', 'priority')}
             {renderHeader('Type', 'type')}
             {moduleType === 'cue' && (
-              <TableHead>Cue #</TableHead>
+              <TableHead className="bg-bg-primary">Cue #</TableHead>
             )}
             {moduleType === 'work' && (
               <>
-                <TableHead>Channel #(s)</TableHead>
-                <TableHead>Position/Unit</TableHead>
+                <TableHead className="bg-bg-primary">Channels</TableHead>
+                <TableHead className="bg-bg-primary">Type</TableHead>
+                <TableHead className="bg-bg-primary">Purpose</TableHead>
+                <TableHead className="bg-bg-primary">Position</TableHead>
               </>
             )}
             {renderHeader('Note', 'title')}
             {moduleType === 'work' && (
-              <TableHead>Scenery Needs</TableHead>
+              <TableHead className="bg-bg-primary">Scenery Needs</TableHead>
             )}
             {moduleType === 'cue' && (
-              <TableHead>Script Page - Scene/Song</TableHead>
+              <TableHead className="bg-bg-primary">Script Page - Scene/Song</TableHead>
             )}
-            <TableHead>Who Created</TableHead>
+            <TableHead className="bg-bg-primary">Who Created</TableHead>
             {renderHeader('Created', 'createdAt')}
           </TableRow>
         </TableHeader>
@@ -209,7 +215,6 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
               </TableCell>
               <TableCell>
                 <Badge 
-                  variant={moduleType as any}
                   style={{ backgroundColor: getType(note.type || '')?.color || '#6B7280' }}
                   className="text-white"
                 >
@@ -221,16 +226,44 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                   {getReference(note) || '-'}
                 </TableCell>
               )}
-              {moduleType === 'work' && (
-                <>
-                  <TableCell className="text-sm">
-                    {note.channelNumbers || '-'}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {note.positionUnit || '-'}
-                  </TableCell>
-                </>
-              )}
+              {moduleType === 'work' && (() => {
+                const aggregate = getAggregate(note.id)
+                return (
+                  <>
+                    <TableCell className="text-sm">
+                      <LightwrightAggregateDisplay 
+                        aggregate={aggregate} 
+                        field="channels"
+                        className="text-sm"
+                      />
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <LightwrightAggregateDisplay 
+                        aggregate={aggregate} 
+                        field="fixtureTypes"
+                        className="text-sm"
+                        maxItems={2}
+                      />
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <LightwrightAggregateDisplay 
+                        aggregate={aggregate} 
+                        field="purposes"
+                        className="text-sm"
+                        maxItems={2}
+                      />
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <LightwrightAggregateDisplay 
+                        aggregate={aggregate} 
+                        field="positions"
+                        className="text-sm"
+                        maxItems={2}
+                      />
+                    </TableCell>
+                  </>
+                )
+              })()}
               <TableCell className="max-w-md">
                 <div className="font-medium">{note.title}</div>
               </TableCell>
@@ -279,7 +312,8 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+        </Table>
+      </div>
       {notes.length === 0 && (
         <div className="text-center py-12 text-muted-foreground">
           No notes found

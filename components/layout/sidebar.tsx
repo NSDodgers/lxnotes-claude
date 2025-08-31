@@ -31,6 +31,7 @@ export function Sidebar() {
 
   return (
     <aside
+      data-testid="sidebar"
       className={cn(
         'fixed left-0 top-0 z-40 h-screen bg-bg-secondary border-r border-bg-tertiary transition-all duration-300',
         collapsed ? 'w-16' : 'w-64'

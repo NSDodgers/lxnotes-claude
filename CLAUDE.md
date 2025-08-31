@@ -88,3 +88,6 @@ The app uses a development mode system:
 ### Path Aliases
 
 Uses `@/*` for absolute imports from project root via tsconfig paths.
+## Sessions System Behaviors
+
+@CLAUDE.sessions.md
