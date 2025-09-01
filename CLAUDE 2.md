@@ -16,12 +16,6 @@ npm start
 
 # Lint code
 npm run lint
-
-# End-to-end testing
-npm run test:e2e
-npm run test:e2e:headed    # Run tests with browser UI
-npm run test:e2e:ui        # Run tests with Playwright UI
-npm run test:report        # View test results
 ```
 
 ## Architecture Overview
@@ -37,8 +31,6 @@ This is **LX Notes**, a theatrical production notes management system built with
 - **Data Fetching**: TanStack Query
 - **Forms**: React Hook Form + Zod validation
 - **Database**: Supabase (with mock client for development)
-- **Testing**: Playwright for end-to-end tests
-- **Animation**: Framer Motion
 
 ### Module Structure
 
@@ -96,21 +88,6 @@ The app uses a development mode system:
 ### Path Aliases
 
 Uses `@/*` for absolute imports from project root via tsconfig paths.
-
-### Testing
-
-- End-to-end tests with Playwright in `tests/` directory
-- Tests run against local development server on port 3001
-- Use `npm run test:e2e:headed` for debugging tests with browser UI
-- Test reports available with `npm run test:report`
-
-### Data Integration
-
-- **Lightwright CSV Import**: Parse and display lighting equipment data
-- **PapaParse**: CSV parsing library for Lightwright data processing
-- Lightwright data displayed in aggregate views and selectors
-- Position formatting utilities for equipment location display
-
 ## Sessions System Behaviors
 
 @CLAUDE.sessions.md

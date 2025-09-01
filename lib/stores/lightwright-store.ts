@@ -6,6 +6,7 @@ import type {
   ParsedLightwrightRow,
   LightwrightUploadResult
 } from '@/types'
+import { PositionUnitFormatter } from '@/lib/services/lightwright-parser'
 
 interface LightwrightState {
   // Core data
@@ -288,6 +289,11 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
     const fixtureTypes = [...new Set(linkedFixtures.map(f => f.fixtureType).filter(Boolean))]
     const purposes = [...new Set(linkedFixtures.map(f => f.purpose).filter(Boolean))]
     
+    // Generate friendly position/unit display
+    const positionUnits = PositionUnitFormatter.formatPositionUnits(
+      linkedFixtures.map(f => ({ position: f.position, unitNumber: f.unitNumber }))
+    )
+    
     // Format universe/addresses
     const universeAddresses = linkedFixtures
       .filter(f => f.universe !== undefined || f.address !== undefined)
@@ -312,6 +318,7 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
       workNoteId,
       channels: channelExpression,
       positions,
+      positionUnits,
       fixtureTypes,
       purposes,
       universeAddresses: uniqueUniverseAddresses,

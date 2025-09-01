@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Printer, FileText, Eye, Download } from 'lucide-react'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
+import { useProductionStore } from '@/lib/stores/production-store'
 import { PresetSelector } from './preset-selector'
 import { QuickCreateFilterSortDialog } from './quick-create-filter-sort-dialog'
 import { QuickCreatePageStyleDialog } from './quick-create-page-style-dialog'
@@ -13,18 +14,21 @@ import {
   PresetDialogActions,
   PresetFormField
 } from './preset-dialog'
-import type { ModuleType, FilterSortPreset, PageStylePreset } from '@/types'
+import type { ModuleType, FilterSortPreset, PageStylePreset, Note } from '@/types'
 import { cn } from '@/lib/utils'
+import { generatePDF, downloadPDF, createPDFFilename } from '@/lib/services/pdf/pdf-generator'
 
 interface PrintNotesViewProps {
   moduleType: ModuleType
   isOpen: boolean
   onClose: () => void
+  notes: Note[] // Add notes prop
 }
 
-export function PrintNotesView({ moduleType, isOpen, onClose }: PrintNotesViewProps) {
+export function PrintNotesView({ moduleType, isOpen, onClose, notes }: PrintNotesViewProps) {
   const { presets: filterSortPresets, getPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
+  const { name: productionName, logo: productionLogo } = useProductionStore()
   
   const [selectedFilterPreset, setSelectedFilterPreset] = useState<FilterSortPreset | null>(null)
   const [selectedPageStylePreset, setSelectedPageStylePreset] = useState<PageStylePreset | null>(null)
@@ -40,16 +44,51 @@ export function PrintNotesView({ moduleType, isOpen, onClose }: PrintNotesViewPr
   const moduleFilterPresets = getPresetsByModule(moduleType)
 
   const handleGenerate = async () => {
+    if (!selectedFilterPreset || !selectedPageStylePreset) {
+      return
+    }
+    
     setIsGenerating(true)
     
-    // Simulate PDF generation
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // In a real implementation, this would generate and download/print the PDF
-    alert('PDF would be generated here!')
-    
-    setIsGenerating(false)
-    onClose()
+    try {
+      // Generate PDF (lookup data will be handled within the generator if needed)
+      const pdfBlob = await generatePDF({
+        notes,
+        moduleType,
+        filterPreset: selectedFilterPreset,
+        pageStylePreset: selectedPageStylePreset,
+        productionName: productionName || 'Production',
+        productionLogo: productionLogo,
+      })
+      
+      // Download PDF
+      const filename = createPDFFilename(moduleType, productionName)
+      downloadPDF(pdfBlob, filename)
+      
+      onClose()
+    } catch (error) {
+      console.error('Failed to generate PDF:', error)
+      console.error('Full error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        filterPreset: {
+          name: selectedFilterPreset?.name,
+          config: selectedFilterPreset?.config
+        },
+        pageStylePreset: {
+          name: selectedPageStylePreset?.name,
+          config: selectedPageStylePreset?.config
+        },
+        notesCount: notes.length,
+        moduleType,
+        productionName
+      })
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Failed to generate PDF: ${errorMessage}`)
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   const handleFilterPresetCreated = (preset: FilterSortPreset) => {

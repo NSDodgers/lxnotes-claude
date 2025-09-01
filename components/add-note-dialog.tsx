@@ -92,6 +92,50 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   const [selectedLightwrightIds, setSelectedLightwrightIds] = useState<string[]>([])
   const [channelExpression, setChannelExpression] = useState('')
 
+  // Add keyboard handler for Enter key submission
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only proceed if dialog is open
+      if (!isOpen) return
+      
+      // Check if Enter key was pressed
+      if (e.key === 'Enter') {
+        // Get the currently focused element
+        const activeElement = document.activeElement
+        
+        // Don't submit if typing in a text field
+        if (activeElement) {
+          const tagName = activeElement.tagName.toLowerCase()
+          
+          // Skip if in textarea
+          if (tagName === 'textarea') return
+          
+          // Skip if in text input (but allow submission from select dropdowns, buttons, etc.)
+          if (tagName === 'input') {
+            const inputType = (activeElement as HTMLInputElement).type
+            const textInputTypes = ['text', 'number', 'email', 'password', 'search', 'tel', 'url']
+            if (textInputTypes.includes(inputType)) return
+          }
+        }
+        
+        // Prevent default behavior and submit the form
+        e.preventDefault()
+        const formElement = document.querySelector('form') as HTMLFormElement
+        if (formElement) {
+          formElement.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+        }
+      }
+    }
+    
+    // Add event listener
+    document.addEventListener('keydown', handleKeyDown)
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen])
+
   // Populate form when editing
   useEffect(() => {
     if (editingNote) {
@@ -182,103 +226,110 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {editingNote ? 'Edit Note' : 'Add New Note'}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
+        <div className="p-6 pb-0">
+          <DialogHeader>
+            <DialogTitle>
+              {editingNote ? 'Edit Note' : 'Add New Note'}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTypes.map(type => (
-                    <SelectItem key={type.id} value={type.value}>{type.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="flex-1 overflow-y-auto px-6">
+          <form onSubmit={handleSubmit} className="space-y-6 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="type">Type</Label>
+                <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTypes.map(type => (
+                      <SelectItem key={type.id} value={type.value}>{type.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select value={formData.priority} onValueChange={(value: string) => setFormData({ ...formData, priority: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availablePriorities.map(priority => (
-                    <SelectItem key={priority.id} value={priority.value}>{priority.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {moduleType === 'cue' && (
-            <div className="space-y-2">
-              <Label htmlFor="cueNumbers">Cue Number(s)</Label>
-              <Input
-                id="cueNumbers"
-                type="text"
-                value={formData.cueNumbers}
-                onChange={(e) => setFormData({ ...formData, cueNumbers: e.target.value })}
-                placeholder="e.g., 127 or 45-47 or 89, 92, 95"
-              />
-              <p className="text-xs text-muted-foreground">Enter single number, range (10-15), or list (5, 8, 12)</p>
-            </div>
-          )}
-
-          {moduleType === 'work' && (
-            <div className="space-y-2">
-              <Label>Lightwright Fixtures (optional)</Label>
-              <div className="border rounded-lg p-4">
-                <LightwrightSelector
-                  productionId="prod-1"
-                  selectedFixtureIds={selectedLightwrightIds}
-                  onSelectionChange={setSelectedLightwrightIds}
-                  channelExpression={channelExpression}
-                  onChannelExpressionChange={setChannelExpression}
-                />
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Select value={formData.priority} onValueChange={(value: string) => setFormData({ ...formData, priority: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePriorities.map(priority => (
+                      <SelectItem key={priority.id} value={priority.value}>{priority.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Note Content</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Enter your lighting note here..."
-              className="min-h-[120px] resize-none"
-              required
-            />
-          </div>
+            {moduleType === 'cue' && (
+              <div className="space-y-2">
+                <Label htmlFor="cueNumbers">Cue Number(s)</Label>
+                <Input
+                  id="cueNumbers"
+                  type="text"
+                  value={formData.cueNumbers}
+                  onChange={(e) => setFormData({ ...formData, cueNumbers: e.target.value })}
+                  placeholder="e.g., 127 or 45-47 or 89, 92, 95"
+                />
+                <p className="text-xs text-muted-foreground">Enter single number, range (10-15), or list (5, 8, 12)</p>
+              </div>
+            )}
 
-          {moduleType === 'cue' && formData.cueNumbers && (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Script Location Preview:</p>
-              <div className="rounded-lg bg-muted border px-3 py-2">
-                <div className="text-sm text-muted-foreground">
-                  {(() => {
-                    const cueNumber = formData.cueNumbers.trim()
-                    if (!cueNumber) return 'Enter cue number to see location'
-                    
-                    const lookup = lookupCue(cueNumber)
-                    return lookup.display || 'No script location found'
-                  })()}
+            {moduleType === 'work' && (
+              <div className="space-y-2">
+                <Label>Lightwright Fixtures (optional)</Label>
+                <div className="border rounded-lg p-3">
+                  <LightwrightSelector
+                    productionId="prod-1"
+                    selectedFixtureIds={selectedLightwrightIds}
+                    onSelectionChange={setSelectedLightwrightIds}
+                    channelExpression={channelExpression}
+                    onChannelExpressionChange={setChannelExpression}
+                    autoSelectMatches={true}
+                  />
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="flex gap-3 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="description">Note Content</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Enter your lighting note here..."
+                className="min-h-[120px] resize-none"
+                required
+              />
+            </div>
+
+            {moduleType === 'cue' && formData.cueNumbers && (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">Script Location Preview:</p>
+                <div className="rounded-lg bg-muted border px-3 py-2">
+                  <div className="text-sm text-muted-foreground">
+                    {(() => {
+                      const cueNumber = formData.cueNumbers.trim()
+                      if (!cueNumber) return 'Enter cue number to see location'
+                      
+                      const lookup = lookupCue(cueNumber)
+                      return lookup.display || 'No script location found'
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
+          </form>
+        </div>
+
+        <div className="border-t bg-background p-6">
+          <div className="flex gap-3">
             <Button
               type="button"
               variant="secondary"
@@ -291,11 +342,12 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
               type="submit"
               variant={moduleType as any}
               className="flex-1"
+              onClick={handleSubmit}
             >
               {editingNote ? 'Update Note' : 'Create Note'}
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   )

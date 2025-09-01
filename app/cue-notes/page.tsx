@@ -9,7 +9,7 @@ import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesView } from '@/components/email-notes-view'
 import { PrintNotesView } from '@/components/print-notes-view'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { Plus, Search, Lightbulb, FileText, Mail, Printer } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
@@ -19,6 +19,8 @@ import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { useDemoData } from '@/lib/hooks/use-demo-data'
+import { DemoBanner } from '@/components/demo-banner'
 import Link from 'next/link'
 
 // Mock data for development
@@ -1748,8 +1750,16 @@ const mockCueNotes: Note[] = [
   }
 ]
 
-export default function CueNotesPage() {
-  const [notes, setNotes] = useState(mockCueNotes)
+interface CueNotesPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default function CueNotesPage({ searchParams }: CueNotesPageProps) {
+  // Check for demo mode from URL params (server-side safe)
+  const params = use(searchParams)
+  const isDemoFromUrl = params?.demo === 'true'
+  const { isDemo, getDemoNotes, getDemoProduction, isInitialized } = useDemoData()
+  const [notes, setNotes] = useState<Note[]>([])
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
   const customPrioritiesStore = useCustomPrioritiesStore()
@@ -1767,6 +1777,23 @@ export default function CueNotesPage() {
   useEffect(() => {
     setIsHydrated(true)
   }, [])
+
+  // Initialize notes data (demo or mock)
+  useEffect(() => {
+    if (isInitialized) {
+      if (isDemo) {
+        setNotes(getDemoNotes('cue'))
+      } else {
+        setNotes(mockCueNotes)
+      }
+    }
+  }, [isDemo, isInitialized]) // Removed getDemoNotes from dependencies to prevent infinite loop
+
+  // Get production info (demo or default)
+  const demoProduction = getDemoProduction()
+  const productionName = isDemo ? (demoProduction?.name || 'Romeo and Juliet') : name
+  const productionAbbr = isDemo ? (demoProduction?.abbreviation || 'R&J') : abbreviation
+  const productionLogo = isDemo ? '🎭' : logo
 
   // Get custom types and priorities from stores (only after hydration)
   const availableTypes = isHydrated ? customTypesStore.getTypes('cue') : []
@@ -1829,8 +1856,10 @@ export default function CueNotesPage() {
 
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <>
+      <DashboardLayout>
+        <DemoBanner isDemo={isDemoFromUrl} />
+        <div className="space-y-6">
         {/* Sticky Header Container */}
         <div className="sticky top-0 z-30 bg-bg-primary space-y-6 pb-4">
           {/* Header */}
@@ -1838,15 +1867,18 @@ export default function CueNotesPage() {
             {/* Left: Production Info */}
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
-                {logo.startsWith('data:') ? (
-                  <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
+                {productionLogo.startsWith('data:') ? (
+                  <img src={productionLogo} alt="Production logo" className="w-full h-full object-cover" />
                 ) : (
-                  <span>{logo}</span>
+                  <span>{productionLogo}</span>
                 )}
               </div>
               <div>
-                <h2 className="text-xl font-bold text-text-primary">{name}</h2>
-                <p className="text-text-secondary">{abbreviation}</p>
+                <h2 className="text-xl font-bold text-text-primary">{productionName}</h2>
+                <p className="text-text-secondary">{productionAbbr}</p>
+                {isDemo && (
+                  <p className="text-xs text-purple-400 font-medium">Demo Mode</p>
+                )}
               </div>
             </div>
 
@@ -2004,7 +2036,9 @@ export default function CueNotesPage() {
         moduleType="cue"
         isOpen={isPrintViewOpen}
         onClose={() => setIsPrintViewOpen(false)}
+        notes={filteredNotes}
       />
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   )
 }

@@ -497,3 +497,108 @@ export class ChannelExpressionParser {
     return ranges.join(', ')
   }
 }
+
+/**
+ * Format position and unit combinations into friendly readable format
+ */
+export class PositionUnitFormatter {
+  /**
+   * Format position/unit data into friendly strings like "DECK: #s 1-5" or "1E #11, Box Boom SR #1"
+   */
+  static formatPositionUnits(fixtures: Array<{ position: string; unitNumber: string }>): string {
+    try {
+      if (fixtures.length === 0) return ''
+
+      // Group fixtures by position
+      const positionGroups = new Map<string, number[]>()
+      
+      for (const fixture of fixtures) {
+        if (!fixture.position) continue
+        
+        const position = fixture.position.trim()
+        if (!position) continue
+        
+        // Parse unit number
+        const unitNum = parseInt(fixture.unitNumber?.trim() || '0', 10)
+        if (isNaN(unitNum) || unitNum <= 0) continue
+        
+        if (!positionGroups.has(position)) {
+          positionGroups.set(position, [])
+        }
+        
+        const units = positionGroups.get(position)!
+        if (!units.includes(unitNum)) {
+          units.push(unitNum)
+        }
+      }
+
+      if (positionGroups.size === 0) return ''
+
+      // Sort positions alphabetically and format each position's units
+      const sortedPositions = Array.from(positionGroups.keys()).sort()
+      const formattedParts: string[] = []
+
+      for (const position of sortedPositions) {
+        const units = positionGroups.get(position)!.sort((a, b) => a - b)
+        const formattedUnits = this.formatUnitNumbers(units)
+        
+        if (formattedUnits) {
+          if (units.length === 1) {
+            formattedParts.push(`${position} #${formattedUnits}`)
+          } else {
+            formattedParts.push(`${position}: #s ${formattedUnits}`)
+          }
+        }
+      }
+
+      return formattedParts.join('\n')
+    } catch (error) {
+      // Fallback to raw data if formatting fails
+      const uniquePositions = [...new Set(fixtures.map(f => f.position).filter(Boolean))]
+      return uniquePositions.join('\n')
+    }
+  }
+
+  /**
+   * Format unit numbers into ranges like "1-5, 7, 9-11"
+   * Reuses the same logic as channel formatting
+   */
+  private static formatUnitNumbers(units: number[]): string {
+    if (units.length === 0) return ''
+
+    const sorted = [...units].sort((a, b) => a - b)
+    const ranges: string[] = []
+    let rangeStart = sorted[0]
+    let rangeEnd = sorted[0]
+
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] === rangeEnd + 1) {
+        // Continue range
+        rangeEnd = sorted[i]
+      } else {
+        // End current range, start new one
+        if (rangeStart === rangeEnd) {
+          ranges.push(rangeStart.toString())
+        } else if (rangeEnd === rangeStart + 1) {
+          // Two consecutive numbers, list separately
+          ranges.push(rangeStart.toString(), rangeEnd.toString())
+        } else {
+          ranges.push(`${rangeStart}-${rangeEnd}`)
+        }
+        rangeStart = sorted[i]
+        rangeEnd = sorted[i]
+      }
+    }
+
+    // Add final range
+    if (rangeStart === rangeEnd) {
+      ranges.push(rangeStart.toString())
+    } else if (rangeEnd === rangeStart + 1) {
+      ranges.push(rangeStart.toString(), rangeEnd.toString())
+    } else {
+      ranges.push(`${rangeStart}-${rangeEnd}`)
+    }
+
+    return ranges.join(', ')
+  }
+}

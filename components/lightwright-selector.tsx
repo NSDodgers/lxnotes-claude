@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -18,6 +18,7 @@ interface LightwrightSelectorProps {
   channelExpression?: string
   onChannelExpressionChange?: (expression: string) => void
   className?: string
+  autoSelectMatches?: boolean
 }
 
 
@@ -27,12 +28,14 @@ export function LightwrightSelector({
   onSelectionChange,
   channelExpression = '',
   onChannelExpressionChange,
-  className
+  className,
+  autoSelectMatches = false
 }: LightwrightSelectorProps) {
   const { getFixturesByChannels, getFixturesByProduction } = useLightwrightStore()
   const [searchExpression, setSearchExpression] = useState(channelExpression)
   const [parsedExpression, setParsedExpression] = useState<ParsedChannelExpression | null>(null)
   const [availableFixtures, setAvailableFixtures] = useState<LightwrightInfo[]>([])
+  const lastAutoSelectedExpression = useRef<string>('')
 
   // Parse channel expression and fetch fixtures
   useEffect(() => {
@@ -43,14 +46,22 @@ export function LightwrightSelector({
       if (parsed.channels.length > 0) {
         const fixtures = getFixturesByChannels(productionId, parsed.channels)
         setAvailableFixtures(fixtures)
+        
+        // Auto-select all matching fixtures if enabled and not already done for this expression
+        if (autoSelectMatches && fixtures.length > 0 && lastAutoSelectedExpression.current !== searchExpression.trim()) {
+          lastAutoSelectedExpression.current = searchExpression.trim()
+          const newFixtureIds = fixtures.map(f => f.id)
+          onSelectionChange(currentIds => [...currentIds, ...newFixtureIds.filter(id => !currentIds.includes(id))])
+        }
       } else {
         setAvailableFixtures([])
       }
     } else {
       setParsedExpression(null)
       setAvailableFixtures([])
+      lastAutoSelectedExpression.current = ''
     }
-  }, [searchExpression, productionId, getFixturesByChannels])
+  }, [searchExpression, productionId, getFixturesByChannels, autoSelectMatches])
 
   // Update parent channel expression
   useEffect(() => {
@@ -95,7 +106,7 @@ export function LightwrightSelector({
   const renderFixtureRow = (fixture: LightwrightInfo) => (
     <div
       key={fixture.id}
-      className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-sm"
+      className="flex items-center gap-3 p-1 hover:bg-muted/50 rounded-sm"
     >
       <Checkbox
         id={fixture.id}
@@ -120,7 +131,7 @@ export function LightwrightSelector({
   )
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-2', className)}>
       {/* Channel Expression Input */}
       <div className="space-y-2">
         <label className="text-sm font-medium">
@@ -178,7 +189,7 @@ export function LightwrightSelector({
           </div>
 
           {/* Header Row */}
-          <div className="grid grid-cols-5 gap-4 text-xs font-medium text-muted-foreground border-b pb-2 ml-10">
+          <div className="grid grid-cols-5 gap-4 text-xs font-medium text-muted-foreground border-b pb-1 ml-9">
             <div>Channel</div>
             <div>Position</div>
             <div className="text-center">Unit (#)</div>
@@ -187,7 +198,7 @@ export function LightwrightSelector({
           </div>
 
           {/* Fixtures List */}
-          <div className="max-h-80 overflow-y-auto space-y-1">
+          <div className="max-h-40 overflow-y-auto">
             {availableFixtures
               .sort((a, b) => a.channel - b.channel)
               .map(renderFixtureRow)}
@@ -197,8 +208,8 @@ export function LightwrightSelector({
 
       {/* No Results Message */}
       {searchExpression.trim() && availableFixtures.length === 0 && parsedExpression?.channels.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+        <div className="text-center py-4 text-muted-foreground">
+          <Search className="h-6 w-6 mx-auto mb-2 opacity-50" />
           <p>No channels found for this expression</p>
           <p className="text-xs">Try a different channel expression</p>
         </div>
@@ -206,8 +217,8 @@ export function LightwrightSelector({
 
       {/* Invalid Expression Message */}
       {searchExpression.trim() && parsedExpression?.channels.length === 0 && parsedExpression?.invalid.length > 0 && (
-        <div className="text-center py-8 text-orange-600">
-          <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
+        <div className="text-center py-4 text-orange-600">
+          <AlertTriangle className="h-6 w-6 mx-auto mb-2" />
           <p>Invalid channel expression</p>
           <p className="text-xs">Check your syntax and try again</p>
         </div>
@@ -215,8 +226,8 @@ export function LightwrightSelector({
 
       {/* Empty State */}
       {!searchExpression.trim() && (
-        <div className="text-center py-8 text-muted-foreground">
-          <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+        <div className="text-center py-4 text-muted-foreground">
+          <Search className="h-6 w-6 mx-auto mb-2 opacity-50" />
           <p>Enter a channel expression to find fixtures</p>
           <p className="text-xs">Example: 1-5,21,45,67</p>
         </div>

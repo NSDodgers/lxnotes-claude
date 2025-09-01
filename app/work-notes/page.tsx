@@ -971,6 +971,13 @@ export default function WorkNotesPage() {
     setIsHydrated(true)
   }, [])
 
+  // Load test data in development mode
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DEV_MODE === 'true' || !process.env.NEXT_PUBLIC_DEV_MODE) {
+      loadTestData()
+    }
+  }, [])
+
   // Development helper - populate test data
   const loadTestData = () => {
     if (fixtures.length === 0) {
@@ -1108,7 +1115,7 @@ export default function WorkNotesPage() {
                 variant="secondary"
               >
                 <Database className="h-4 w-4" />
-                View Fixtures
+                View Lightwright Data
               </Button>
               <Button
                 onClick={() => setIsLightwrightDialogOpen(true)}
@@ -1243,6 +1250,7 @@ export default function WorkNotesPage() {
         moduleType="work"
         isOpen={isPrintViewOpen}
         onClose={() => setIsPrintViewOpen(false)}
+        notes={filteredNotes}
       />
       
       <LightwrightUploadDialog

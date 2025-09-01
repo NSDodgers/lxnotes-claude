@@ -141,8 +141,8 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
 
   return (
     <div className="rounded-lg border overflow-hidden">
-      <div className="max-h-[70vh] overflow-auto">
-        <Table>
+      <div className="max-h-[70vh] overflow-x-auto overflow-y-auto">
+        <Table className="min-w-[1200px]">
           <TableHeader className="sticky top-0 z-20 bg-bg-primary shadow-md border-b-2">
             <TableRow>
             <TableHead className="w-20 bg-bg-primary">Actions</TableHead>
@@ -153,10 +153,10 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
             )}
             {moduleType === 'work' && (
               <>
-                <TableHead className="bg-bg-primary">Channels</TableHead>
-                <TableHead className="bg-bg-primary">Type</TableHead>
-                <TableHead className="bg-bg-primary">Purpose</TableHead>
-                <TableHead className="bg-bg-primary">Position</TableHead>
+                <TableHead className="bg-bg-primary min-w-[100px]">Channels</TableHead>
+                <TableHead className="bg-bg-primary min-w-[120px]">Type</TableHead>
+                <TableHead className="bg-bg-primary min-w-[150px]">Purpose</TableHead>
+                <TableHead className="bg-bg-primary min-w-[200px] w-64">Position</TableHead>
               </>
             )}
             {renderHeader('Note', 'title')}
@@ -230,35 +230,34 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                 const aggregate = getAggregate(note.id)
                 return (
                   <>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-sm min-w-[100px]">
                       <LightwrightAggregateDisplay 
                         aggregate={aggregate} 
                         field="channels"
                         className="text-sm"
                       />
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-sm min-w-[120px]">
                       <LightwrightAggregateDisplay 
                         aggregate={aggregate} 
                         field="fixtureTypes"
                         className="text-sm"
-                        maxItems={2}
+                        maxItems={3}
                       />
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-sm min-w-[150px]">
                       <LightwrightAggregateDisplay 
                         aggregate={aggregate} 
                         field="purposes"
                         className="text-sm"
-                        maxItems={2}
+                        maxItems={5}
                       />
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-sm min-w-[200px] w-64">
                       <LightwrightAggregateDisplay 
                         aggregate={aggregate} 
-                        field="positions"
+                        field="positionUnits"
                         className="text-sm"
-                        maxItems={2}
                       />
                     </TableCell>
                   </>

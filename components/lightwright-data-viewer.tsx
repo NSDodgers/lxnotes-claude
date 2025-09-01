@@ -204,7 +204,7 @@ export function LightwrightDataViewer({
         <SheetHeader className="pb-6">
           <div className="flex items-center gap-2">
             <Database className="h-5 w-5 text-modules-work" />
-            <SheetTitle>Lightwright Fixtures</SheetTitle>
+            <SheetTitle>Lightwright Data</SheetTitle>
           </div>
           <SheetDescription className="space-y-2">
             {stats.lastUpload ? (
@@ -268,14 +268,32 @@ export function LightwrightDataViewer({
 
             {/* Data Table */}
             <div className="rounded-lg border max-h-[60vh] overflow-auto">
-              <Table>
+              <Table className="min-w-[800px]">
                 <TableHeader className="sticky top-0 bg-background border-b">
                   <TableRow>
                     <SortableHeader field="channel">Ch</SortableHeader>
-                    <SortableHeader field="position">Position</SortableHeader>
+                    <TableHead className="w-48 min-w-48 cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort('position')}>
+                      <div className="flex items-center gap-1">
+                        Position
+                        {sortField === 'position' && (
+                          <span className="ml-1 text-xs">
+                            {sortDirection === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </div>
+                    </TableHead>
                     <SortableHeader field="unitNumber">Unit #</SortableHeader>
                     <SortableHeader field="fixtureType">Type</SortableHeader>
-                    <SortableHeader field="purpose">Purpose</SortableHeader>
+                    <TableHead className="min-w-40 cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleSort('purpose')}>
+                      <div className="flex items-center gap-1">
+                        Purpose
+                        {sortField === 'purpose' && (
+                          <span className="ml-1 text-xs">
+                            {sortDirection === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </div>
+                    </TableHead>
                     <SortableHeader field="universe">U/A</SortableHeader>
                   </TableRow>
                 </TableHeader>
@@ -285,8 +303,10 @@ export function LightwrightDataViewer({
                       <TableCell className="font-medium font-mono">
                         {fixture.channel}
                       </TableCell>
-                      <TableCell className="font-medium">
-                        {fixture.position}
+                      <TableCell className="font-medium w-48 min-w-48">
+                        <div className="whitespace-pre-wrap break-words">
+                          {fixture.position}
+                        </div>
                       </TableCell>
                       <TableCell className="text-center">
                         {fixture.unitNumber || '—'}
@@ -296,8 +316,8 @@ export function LightwrightDataViewer({
                           {fixture.fixtureType || '—'}
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <div className="max-w-32 truncate" title={fixture.purpose}>
+                      <TableCell className="min-w-40">
+                        <div className="whitespace-normal break-words">
                           {fixture.purpose || '—'}
                         </div>
                       </TableCell>

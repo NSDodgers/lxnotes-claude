@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
+import { HomepageLayout } from '@/components/homepage/homepage-layout'
 
 export default function HomePage() {
-  redirect('/cue-notes')
+  return <HomepageLayout />
 }

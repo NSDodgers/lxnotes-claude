@@ -7,7 +7,7 @@ import type { LightwrightAggregate } from '@/types'
 
 interface LightwrightAggregateDisplayProps {
   aggregate: LightwrightAggregate | null
-  field: 'channels' | 'positions' | 'fixtureTypes' | 'purposes' | 'universeAddresses'
+  field: 'channels' | 'positions' | 'positionUnits' | 'fixtureTypes' | 'purposes' | 'universeAddresses'
   className?: string
   maxItems?: number
 }
@@ -26,6 +26,19 @@ export function LightwrightAggregateDisplay({
     <div className="flex items-center gap-2">
       <span className={cn('font-mono text-sm', className)}>
         {aggregate.channels || '—'}
+      </span>
+      {aggregate.hasInactive && (
+        <div title="Some fixtures are inactive">
+          <AlertTriangle className="h-3 w-3 text-orange-500" />
+        </div>
+      )}
+    </div>
+  )
+
+  const renderPositionUnits = () => (
+    <div className="flex items-center gap-2">
+      <span className={cn('text-sm whitespace-pre-wrap', className)}>
+        {aggregate.positionUnits || '—'}
       </span>
       {aggregate.hasInactive && (
         <div title="Some fixtures are inactive">
@@ -154,6 +167,8 @@ export function LightwrightAggregateDisplay({
       return renderChannels()
     case 'positions':
       return renderArray(aggregate.positions, 'Positions')
+    case 'positionUnits':
+      return renderPositionUnits()
     case 'fixtureTypes':
       return renderArray(aggregate.fixtureTypes, 'Fixture Types')
     case 'purposes':

@@ -257,6 +257,7 @@ export interface LightwrightAggregate {
   workNoteId: string
   channels: string // "1-5, 21, 45"
   positions: string[] // Unique positions
+  positionUnits: string // Friendly formatted position/units like "DECK: #s 1-5, 1E #11"
   fixtureTypes: string[] // Unique types
   purposes: string[] // Unique purposes
   universeAddresses: string[] // Formatted universe/address pairs

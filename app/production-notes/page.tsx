@@ -1218,6 +1218,7 @@ export default function ProductionNotesPage() {
         moduleType="production"
         isOpen={isPrintViewOpen}
         onClose={() => setIsPrintViewOpen(false)}
+        notes={filteredNotes}
       />
     </DashboardLayout>
   )
