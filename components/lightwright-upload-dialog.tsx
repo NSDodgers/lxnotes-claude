@@ -384,17 +384,6 @@ export function LightwrightUploadDialog({
         </div>
       )}
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={resetState}>
-          Back
-        </Button>
-        <Button 
-          onClick={handleProceedToPreview}
-          disabled={state.isProcessing || !state.headerMapping.lwid || !state.headerMapping.channel}
-        >
-          {state.isProcessing ? 'Analyzing data...' : 'Continue'}
-        </Button>
-      </div>
     </div>
   )
 
@@ -442,11 +431,6 @@ export function LightwrightUploadDialog({
         />
       )}
 
-      <div className="flex justify-start">
-        <Button variant="outline" onClick={() => setState(prev => ({ ...prev, step: 'mapping' }))}>
-          Back to Mapping
-        </Button>
-      </div>
     </div>
   )
 
@@ -567,37 +551,75 @@ export function LightwrightUploadDialog({
         </div>
       )}
 
-      <div className="flex justify-end">
-        <Button onClick={handleClose}>
-          Close
-        </Button>
-      </div>
     </div>
   )
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Import Lightwright CSV
-          </DialogTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClose}
-            className="absolute right-4 top-4"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </DialogHeader>
+      <DialogContent className="max-w-7xl max-h-[90vh] flex flex-col p-0">
+        <div className="p-6 pb-0">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              Import Lightwright CSV
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              className="absolute right-4 top-4"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogHeader>
+        </div>
 
-        <div className="mt-4">
+        <div className="flex-1 overflow-y-auto px-6">
           {state.step === 'upload' && renderUploadStep()}
           {state.step === 'mapping' && renderMappingStep()}
           {state.step === 'preview' && renderPreviewStep()}
           {state.step === 'result' && renderResultStep()}
+        </div>
+
+        {/* Sticky Bottom Actions */}
+        <div className="border-t bg-background p-6">
+          <div className="flex gap-3">
+            {state.step === 'mapping' && (
+              <>
+                <Button variant="outline" onClick={resetState} className="flex-1">
+                  Back
+                </Button>
+                <Button 
+                  onClick={handleProceedToPreview}
+                  disabled={state.isProcessing || !state.headerMapping.lwid || !state.headerMapping.channel}
+                  className="flex-1"
+                >
+                  {state.isProcessing ? 'Analyzing data...' : 'Continue'}
+                </Button>
+              </>
+            )}
+            
+            {state.step === 'preview' && (
+              <>
+                <Button variant="outline" onClick={() => setState(prev => ({ ...prev, step: 'mapping' }))} className="flex-1">
+                  Back to Mapping
+                </Button>
+                <Button 
+                  onClick={handleUpload}
+                  disabled={state.isProcessing}
+                  className="flex-1"
+                >
+                  {state.isProcessing ? 'Importing...' : 'Import'}
+                </Button>
+              </>
+            )}
+            
+            {state.step === 'result' && (
+              <Button onClick={handleClose} className="flex-1">
+                Close
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

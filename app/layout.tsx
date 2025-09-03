@@ -4,6 +4,13 @@ import './globals.css'
 import { Providers } from '@/components/providers'
 import { ErrorBoundary } from '@/components/error-boundary'
 
+// Import demo refresh utility in development
+if (process.env.NODE_ENV === 'development') {
+  import('@/lib/utils/demo-refresh').catch(() => {
+    // Ignore import errors in case file is not available
+  })
+}
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {

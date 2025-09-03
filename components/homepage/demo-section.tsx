@@ -22,10 +22,11 @@ export function DemoSection() {
     setStats(demoStats)
   }, [])
 
-  const handleViewDemo = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    // Direct navigation to demo page - let the page handle initialization
-    window.location.href = '/cue-notes?demo=true'
+  const handleViewDemo = () => {
+    // Initialize demo data first
+    initializeDemo()
+    // Navigate to demo page using Next.js router
+    router.push('/cue-notes?demo=true')
   }
 
   const demoFeatures = [

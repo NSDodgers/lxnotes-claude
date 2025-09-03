@@ -7,6 +7,8 @@ import { useScriptStore } from '@/lib/stores/script-store'
 import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, Edit3, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ScriptPage, SceneSong } from '@/types'
+import { useIsDemo } from '@/lib/stores/demo-store'
+import { DemoDataService } from '@/lib/services/demo-data-service'
 
 interface AddPageDialogProps {
   isOpen: boolean
@@ -45,35 +47,43 @@ function AddPageDialog({ isOpen, onClose, onAdd }: AddPageDialogProps) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-      <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-text-primary mb-4">Add Script Page</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              Page Number
-            </label>
-            <input
-              type="text"
-              value={pageNumber}
-              onChange={(e) => setPageNumber(e.target.value)}
-              placeholder="e.g., 1, 23a, 59-60"
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              First Cue Number (optional)
-            </label>
-            <input
-              type="text"
-              value={firstCueNumber}
-              onChange={(e) => setFirstCueNumber(e.target.value)}
-              placeholder="e.g., 127"
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
-            />
-          </div>
-          <div className="flex gap-3 pt-4">
+      <div className="bg-bg-secondary rounded-lg w-full max-w-md max-h-[90vh] flex flex-col">
+        <div className="p-6 pb-0">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Add Script Page</h3>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto px-6">
+          <form onSubmit={handleSubmit} className="space-y-4 py-4">
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">
+                Page Number
+              </label>
+              <input
+                type="text"
+                value={pageNumber}
+                onChange={(e) => setPageNumber(e.target.value)}
+                placeholder="e.g., 1, 23a, 59-60"
+                className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">
+                First Cue Number (optional)
+              </label>
+              <input
+                type="text"
+                value={firstCueNumber}
+                onChange={(e) => setFirstCueNumber(e.target.value)}
+                placeholder="e.g., 127"
+                className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+              />
+            </div>
+          </form>
+        </div>
+        
+        <div className="border-t bg-bg-primary p-6">
+          <div className="flex gap-3">
             <Button
               type="button"
               variant="secondary"
@@ -85,12 +95,13 @@ function AddPageDialog({ isOpen, onClose, onAdd }: AddPageDialogProps) {
             <Button
               type="submit"
               variant="cue"
+              onClick={handleSubmit}
               className="flex-1"
             >
               Add Page
             </Button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   )
@@ -174,132 +185,139 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-      <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-text-primary mb-4">
-          Add {type === 'scene' ? 'Scene' : 'Song'}
-        </h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              {type === 'scene' ? 'Scene' : 'Song'} Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={type === 'scene' ? 'e.g., Act 1, Scene 1' : 'e.g., Opening Number'}
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
-              required
-              disabled={isContinuation}
-            />
-          </div>
-
-          {/* Continuation Controls */}
-          {previousItems.length > 0 && (
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="isContinuation"
-                    checked={isContinuation}
-                    onChange={(e) => {
-                      setIsContinuation(e.target.checked)
-                      if (!e.target.checked) {
-                        setContinuesFromId('')
-                        setName('')
-                      }
-                    }}
-                    className="rounded"
-                  />
-                  <label htmlFor="isContinuation" className="text-sm text-text-secondary">
-                    Continue from previous page
-                  </label>
-                </div>
-                
-                {/* Smart suggestion indicator */}
-                {availableContinuations.length > 0 && !isContinuation && (
-                  <div className="text-xs text-modules-cue pl-6">
-                    💡 {availableContinuations.length} {type}(s) from previous page can be continued
-                    {suggestedContinuation && (
-                      <span className="font-medium"> • Suggested: "{suggestedContinuation.name}"</span>
-                    )}
-                  </div>
-                )}
-              </div>
-              
-              {isContinuation && (
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
-                    Select {type} to continue
-                  </label>
-                  <select
-                    value={continuesFromId}
-                    onChange={(e) => handleContinuationChange(e.target.value)}
-                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
-                    required={isContinuation}
-                  >
-                    <option value="">Select {type}...</option>
-                    {previousItems.map(item => {
-                      const status = getContinuationStatus(item.id, pageId)
-                      const statusIcon = status === 'available' ? '→' : status === 'already_here' ? '↺' : '✓'
-                      const statusText = status === 'available' ? 'Available' : status === 'already_here' ? 'Already here' : 'Continues elsewhere'
-                      
-                      return (
-                        <option 
-                          key={item.id} 
-                          value={item.id}
-                          disabled={status === 'already_here'}
-                        >
-                          {statusIcon} {item.name} {status !== 'available' ? `(${statusText})` : ''}
-                        </option>
-                      )
-                    })}
-                  </select>
-                  
-                  {/* Status Legend */}
-                  <div className="mt-2 text-xs text-text-muted space-y-1">
-                    <div>→ Available to continue • ✓ Already continues elsewhere • ↺ Already on this page</div>
-                    {availableContinuations.length === 0 && (
-                      <div className="text-yellow-600">No new continuations available from previous page</div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {pageCueNumber && (
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="usePageCue"
-                checked={usePageCue}
-                onChange={(e) => setUsePageCue(e.target.checked)}
-                className="rounded"
-              />
-              <label htmlFor="usePageCue" className="text-sm text-text-secondary">
-                Use page cue number ({pageCueNumber})
-              </label>
-            </div>
-          )}
-          
-          {!usePageCue && (
+      <div className="bg-bg-secondary rounded-lg w-full max-w-md max-h-[90vh] flex flex-col">
+        <div className="p-6 pb-0">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">
+            Add {type === 'scene' ? 'Scene' : 'Song'}
+          </h3>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto px-6">
+          <form onSubmit={handleSubmit} className="space-y-4 py-4">
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">
-                First Cue Number (optional)
+                {type === 'scene' ? 'Scene' : 'Song'} Name
               </label>
               <input
                 type="text"
-                value={firstCueNumber}
-                onChange={(e) => setFirstCueNumber(e.target.value)}
-                placeholder="e.g., 127"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={type === 'scene' ? 'e.g., Act 1, Scene 1' : 'e.g., Opening Number'}
                 className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+                required
+                disabled={isContinuation}
               />
             </div>
-          )}
-          
-          <div className="flex gap-3 pt-4">
+
+            {/* Continuation Controls */}
+            {previousItems.length > 0 && (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="isContinuation"
+                      checked={isContinuation}
+                      onChange={(e) => {
+                        setIsContinuation(e.target.checked)
+                        if (!e.target.checked) {
+                          setContinuesFromId('')
+                          setName('')
+                        }
+                      }}
+                      className="rounded"
+                    />
+                    <label htmlFor="isContinuation" className="text-sm text-text-secondary">
+                      Continue from previous page
+                    </label>
+                  </div>
+                  
+                  {/* Smart suggestion indicator */}
+                  {availableContinuations.length > 0 && !isContinuation && (
+                    <div className="text-xs text-modules-cue pl-6">
+                      💡 {availableContinuations.length} {type}(s) from previous page can be continued
+                      {suggestedContinuation && (
+                        <span className="font-medium"> • Suggested: "{suggestedContinuation.name}"</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {isContinuation && (
+                  <div>
+                    <label className="block text-sm font-medium text-text-secondary mb-2">
+                      Select {type} to continue
+                    </label>
+                    <select
+                      value={continuesFromId}
+                      onChange={(e) => handleContinuationChange(e.target.value)}
+                      className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+                      required={isContinuation}
+                    >
+                      <option value="">Select {type}...</option>
+                      {previousItems.map(item => {
+                        const status = getContinuationStatus(item.id, pageId)
+                        const statusIcon = status === 'available' ? '→' : status === 'already_here' ? '↺' : '✓'
+                        const statusText = status === 'available' ? 'Available' : status === 'already_here' ? 'Already here' : 'Continues elsewhere'
+                        
+                        return (
+                          <option 
+                            key={item.id} 
+                            value={item.id}
+                            disabled={status === 'already_here'}
+                          >
+                            {statusIcon} {item.name} {status !== 'available' ? `(${statusText})` : ''}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    
+                    {/* Status Legend */}
+                    <div className="mt-2 text-xs text-text-muted space-y-1">
+                      <div>→ Available to continue • ✓ Already continues elsewhere • ↺ Already on this page</div>
+                      {availableContinuations.length === 0 && (
+                        <div className="text-yellow-600">No new continuations available from previous page</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {pageCueNumber && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="usePageCue"
+                  checked={usePageCue}
+                  onChange={(e) => setUsePageCue(e.target.checked)}
+                  className="rounded"
+                />
+                <label htmlFor="usePageCue" className="text-sm text-text-secondary">
+                  Use page cue number ({pageCueNumber})
+                </label>
+              </div>
+            )}
+            
+            {!usePageCue && (
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  First Cue Number (optional)
+                </label>
+                <input
+                  type="text"
+                  value={firstCueNumber}
+                  onChange={(e) => setFirstCueNumber(e.target.value)}
+                  placeholder="e.g., 127"
+                  className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+                />
+              </div>
+            )}
+          </form>
+        </div>
+        
+        <div className="border-t bg-bg-primary p-6">
+          <div className="flex gap-3">
             <Button
               type="button"
               variant="secondary"
@@ -311,12 +329,13 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
             <Button
               type="submit"
               variant="cue"
+              onClick={handleSubmit}
               className="flex-1"
             >
               Add {type === 'scene' ? 'Scene' : 'Song'}
             </Button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   )
@@ -324,18 +343,21 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
 
 interface ScriptItemProps {
   page: ScriptPage
+  getPageScenes: (pageId: string) => SceneSong[]
+  getPageSongs: (pageId: string) => SceneSong[]
+  getSortedPages: () => ScriptPage[]
+  isDemo: boolean
 }
 
-function ScriptItem({ page }: ScriptItemProps) {
+function ScriptItem({ page, getPageScenes, getPageSongs, getSortedPages, isDemo }: ScriptItemProps) {
+  const scriptStore = useScriptStore()
   const { 
-    getPageScenes, 
-    getPageSongs, 
     updatePage, 
     deletePage,
     addSceneSong,
     validateCueNumber,
     validatePageOrder 
-  } = useScriptStore()
+  } = scriptStore
   
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [showAddDialog, setShowAddDialog] = useState<{ type: 'scene' | 'song' } | null>(null)
@@ -357,7 +379,6 @@ function ScriptItem({ page }: ScriptItemProps) {
   }, [page.firstCueNumber, page.id, page.pageNumber, validateCueNumber, validatePageOrder])
 
   // Re-validate when any page changes (to catch order conflicts resolved by other pages)
-  const { getSortedPages } = useScriptStore()
   const allPages = getSortedPages()
   useEffect(() => {
     if (page.firstCueNumber) {
@@ -507,6 +528,7 @@ function ScriptItem({ page }: ScriptItemProps) {
                       key={item.id} 
                       item={item} 
                       isLastItem={index === allItems.length - 1}
+                      getSortedPages={getSortedPages}
                     />
                   ))}
                 </div>
@@ -519,26 +541,36 @@ function ScriptItem({ page }: ScriptItemProps) {
       {/* Delete Confirmation */}
       {showConfirmDelete && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-text-primary mb-2">Delete Page?</h3>
-            <p className="text-text-secondary mb-4">
-              Are you sure you want to delete page "{page.pageNumber}"? This will also delete all scenes and songs on this page.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowConfirmDelete(false)}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                className="flex-1"
-              >
-                Delete
-              </Button>
+          <div className="bg-bg-secondary rounded-lg w-full max-w-sm max-h-[90vh] flex flex-col">
+            <div className="p-6 pb-0">
+              <h3 className="text-lg font-semibold text-text-primary mb-2">Delete Page?</h3>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto px-6">
+              <div className="py-4">
+                <p className="text-text-secondary">
+                  Are you sure you want to delete page "{page.pageNumber}"? This will also delete all scenes and songs on this page.
+                </p>
+              </div>
+            </div>
+            
+            <div className="border-t bg-bg-primary p-6">
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowConfirmDelete(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  className="flex-1"
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -562,10 +594,11 @@ function ScriptItem({ page }: ScriptItemProps) {
 interface SceneSongItemProps {
   item: SceneSong
   isLastItem?: boolean
+  getSortedPages: () => ScriptPage[]
 }
 
-function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
-  const { updateSceneSong, deleteSceneSong, validateCueNumber, validateSceneSongCueNumber, getSortedPages, getContinuationChain, getNextPage, createContinuation, updateContinuationChain } = useScriptStore()
+function SceneSongItem({ item, isLastItem = false, getSortedPages }: SceneSongItemProps) {
+  const { updateSceneSong, deleteSceneSong, validateCueNumber, validateSceneSongCueNumber, getContinuationChain, getNextPage, createContinuation, updateContinuationChain } = useScriptStore()
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
   
@@ -710,26 +743,36 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
       {/* Delete Confirmation */}
       {showConfirmDelete && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-text-primary mb-2">Delete {item.type}?</h3>
-            <p className="text-text-secondary mb-4">
-              Are you sure you want to delete {item.type} "{item.name}"?
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowConfirmDelete(false)}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                className="flex-1"
-              >
-                Delete
-              </Button>
+          <div className="bg-bg-secondary rounded-lg w-full max-w-sm max-h-[90vh] flex flex-col">
+            <div className="p-6 pb-0">
+              <h3 className="text-lg font-semibold text-text-primary mb-2">Delete {item.type}?</h3>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto px-6">
+              <div className="py-4">
+                <p className="text-text-secondary">
+                  Are you sure you want to delete {item.type} "{item.name}"?
+                </p>
+              </div>
+            </div>
+            
+            <div className="border-t bg-bg-primary p-6">
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowConfirmDelete(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  className="flex-1"
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -738,11 +781,72 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
   )
 }
 
+// Custom hook to get script data based on demo mode
+function useScriptData() {
+  const isDemo = useIsDemo()
+  const scriptStore = useScriptStore()
+  const [demoPages, setDemoPages] = useState<ScriptPage[]>([])
+  const [demoScenes, setDemoScenes] = useState<SceneSong[]>([])
+  const [demoSongs, setDemoSongs] = useState<SceneSong[]>([])
+
+  useEffect(() => {
+    if (isDemo) {
+      try {
+        const demoData = DemoDataService.getDemoData()
+        setDemoPages(demoData.scriptPages)
+        setDemoScenes(demoData.sceneSongs.filter((item: any) => item.type === 'scene'))
+        setDemoSongs(demoData.sceneSongs.filter((item: any) => item.type === 'song'))
+        console.log('🎭 Manage Script: Using Romeo & Juliet demo data')
+      } catch (error) {
+        console.warn('Failed to load demo data for manage script')
+      }
+    }
+  }, [isDemo])
+
+  if (isDemo && demoPages.length > 0) {
+    return {
+      pages: demoPages,
+      scenes: demoScenes,
+      songs: demoSongs,
+      getPageScenes: (pageId: string) => demoScenes.filter(scene => scene.scriptPageId === pageId),
+      getPageSongs: (pageId: string) => demoSongs.filter(song => song.scriptPageId === pageId),
+      getSortedPages: () => demoPages.sort((a, b) => {
+        const parsePageNumber = (pageNumber: string): { base: number; suffix: string } => {
+          const match = pageNumber.match(/^(\d+)(.*)$/)
+          if (match) {
+            return { base: parseInt(match[1], 10), suffix: match[2] }
+          }
+          return { base: 0, suffix: pageNumber }
+        }
+        const pageA = parsePageNumber(a.pageNumber)
+        const pageB = parsePageNumber(b.pageNumber)
+        if (pageA.base !== pageB.base) {
+          return pageA.base - pageB.base
+        }
+        return pageA.suffix.localeCompare(pageB.suffix)
+      })
+    }
+  }
+
+  return {
+    pages: scriptStore.pages,
+    scenes: scriptStore.scenes,
+    songs: scriptStore.songs,
+    getPageScenes: scriptStore.getPageScenes,
+    getPageSongs: scriptStore.getPageSongs,
+    getSortedPages: scriptStore.getSortedPages
+  }
+}
+
 export default function ManageScriptPage() {
-  const { getSortedPages, addPage } = useScriptStore()
+  const isDemo = useIsDemo()
+  const scriptStore = useScriptStore() 
+  const scriptData = useScriptData()
+  const { addPage } = scriptStore // Keep add functions from store
   const [showAddDialog, setShowAddDialog] = useState(false)
   
-  const pages = getSortedPages()
+  const pages = scriptData.getSortedPages()
+  const { getPageScenes, getPageSongs } = scriptData
 
   const handleAddPage = (pageData: { pageNumber: string; firstCueNumber?: string }) => {
     addPage({
@@ -798,7 +902,14 @@ export default function ManageScriptPage() {
               ) : (
                 <div className="space-y-4">
                   {pages.map(page => (
-                    <ScriptItem key={page.id} page={page} />
+                    <ScriptItem 
+                      key={page.id} 
+                      page={page} 
+                      getPageScenes={getPageScenes}
+                      getPageSongs={getPageSongs}
+                      getSortedPages={scriptData.getSortedPages}
+                      isDemo={isDemo}
+                    />
                   ))}
                 </div>
               )}

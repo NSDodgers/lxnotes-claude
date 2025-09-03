@@ -1,0 +1,152 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img "LX Notes" [ref=e6]
+          - button "Collapse sidebar" [ref=e7] [cursor=pointer]:
+            - img [ref=e8] [cursor=pointer]
+        - navigation [ref=e10]:
+          - link "Cue Notes" [ref=e11] [cursor=pointer]:
+            - /url: /cue-notes?demo=true
+            - img [ref=e12] [cursor=pointer]
+            - generic [ref=e14] [cursor=pointer]: Cue Notes
+          - link "Work Notes" [ref=e15] [cursor=pointer]:
+            - /url: /work-notes?demo=true
+            - img [ref=e16] [cursor=pointer]
+            - generic [ref=e18] [cursor=pointer]: Work Notes
+          - link "Production Notes" [ref=e19] [cursor=pointer]:
+            - /url: /production-notes?demo=true
+            - img [ref=e20] [cursor=pointer]
+            - generic [ref=e23] [cursor=pointer]: Production Notes
+          - link "Settings" [ref=e24] [cursor=pointer]:
+            - /url: /settings?demo=true
+            - img [ref=e25] [cursor=pointer]
+            - generic [ref=e28] [cursor=pointer]: Settings
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: Tablet Mode
+          - button [ref=e35] [cursor=pointer]
+        - generic [ref=e40]:
+          - paragraph [ref=e41]: Dev User
+          - paragraph [ref=e42]: dev@lxnotes.app
+    - main [ref=e43]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - generic [ref=e50]: 🎭
+              - generic [ref=e51]:
+                - heading "Romeo and Juliet" [level=2] [ref=e52]
+                - paragraph [ref=e53]: R&J
+                - paragraph [ref=e54]: Demo Mode
+            - heading "Cue Notes" [level=1] [ref=e56]:
+              - img [ref=e57]
+              - text: Cue Notes
+            - generic [ref=e59]:
+              - button "PDF" [ref=e60] [cursor=pointer]:
+                - img
+                - text: PDF
+              - button "Email" [ref=e61] [cursor=pointer]:
+                - img
+                - text: Email
+              - link "Manage Script" [ref=e62] [cursor=pointer]:
+                - /url: /manage-script
+                - button "Manage Script" [ref=e63] [cursor=pointer]:
+                  - img
+                  - text: Manage Script
+              - button "Add Cue Note" [ref=e64] [cursor=pointer]:
+                - img
+                - text: Add Cue Note
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]:
+                - generic [ref=e68]: Status
+                - generic [ref=e69]:
+                  - button "To Do" [ref=e70] [cursor=pointer]
+                  - button "Complete" [ref=e71] [cursor=pointer]
+                  - button "Cancelled" [ref=e72] [cursor=pointer]
+              - generic [ref=e73]:
+                - generic [ref=e74]: Type
+                - combobox [ref=e75] [cursor=pointer]:
+                  - generic [ref=e76] [cursor=pointer]: All Types
+                  - img
+            - generic [ref=e77]:
+              - img [ref=e78]
+              - textbox "Search cue notes..." [ref=e81]
+          - generic [ref=e82]:
+            - generic [ref=e83]: "Quick Add:"
+            - button "Cue" [ref=e84] [cursor=pointer]:
+              - img
+              - text: Cue
+            - button "Director" [ref=e85] [cursor=pointer]:
+              - img
+              - text: Director
+            - button "Choreographer" [ref=e86] [cursor=pointer]:
+              - img
+              - text: Choreographer
+            - button "Designer" [ref=e87] [cursor=pointer]:
+              - img
+              - text: Designer
+            - button "Stage Manager" [ref=e88] [cursor=pointer]:
+              - img
+              - text: Stage Manager
+            - button "Associate" [ref=e89] [cursor=pointer]:
+              - img
+              - text: Associate
+            - button "Assistant" [ref=e90] [cursor=pointer]:
+              - img
+              - text: Assistant
+            - button "Spot" [ref=e91] [cursor=pointer]:
+              - img
+              - text: Spot
+            - button "Programmer" [ref=e92] [cursor=pointer]:
+              - img
+              - text: Programmer
+            - button "Production" [ref=e93] [cursor=pointer]:
+              - img
+              - text: Production
+            - button "Paperwork" [ref=e94] [cursor=pointer]:
+              - img
+              - text: Paperwork
+            - button "Think" [ref=e95] [cursor=pointer]:
+              - img
+              - text: Think
+        - generic [ref=e96]:
+          - table [ref=e98]:
+            - rowgroup [ref=e99]:
+              - 'row "Actions Priority Type Cue # Note Script Page - Scene/Song Who Created Created" [ref=e100]':
+                - cell "Actions" [ref=e101]
+                - cell "Priority" [ref=e102] [cursor=pointer]:
+                  - generic [ref=e103] [cursor=pointer]:
+                    - text: Priority
+                    - img [ref=e104] [cursor=pointer]
+                - cell "Type" [ref=e107] [cursor=pointer]:
+                  - generic [ref=e108] [cursor=pointer]:
+                    - text: Type
+                    - img [ref=e109] [cursor=pointer]
+                - 'cell "Cue #" [ref=e112]'
+                - cell "Note" [ref=e113] [cursor=pointer]:
+                  - generic [ref=e114] [cursor=pointer]:
+                    - text: Note
+                    - img [ref=e115] [cursor=pointer]
+                - cell "Script Page - Scene/Song" [ref=e118]
+                - cell "Who Created" [ref=e119]
+                - cell "Created" [ref=e120] [cursor=pointer]:
+                  - generic [ref=e121] [cursor=pointer]:
+                    - text: Created
+                    - img [ref=e122] [cursor=pointer]
+            - rowgroup
+          - generic [ref=e125]: No notes found
+        - generic [ref=e126]:
+          - img [ref=e127]
+          - paragraph [ref=e129]: No cue notes found
+          - paragraph [ref=e130]: Try adjusting your filters or add a new note
+  - button "Open Next.js Dev Tools" [ref=e136] [cursor=pointer]:
+    - img [ref=e137] [cursor=pointer]
+  - alert [ref=e140]
+```

@@ -412,10 +412,10 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
       const nextPage = sortedPages[currentPageIndex + 1]
       if (nextPage.firstCueNumber) {
         const nextPageCue = parseCueNumber(nextPage.firstCueNumber)
-        if (cueNum >= nextPageCue) {
+        if (cueNum > nextPageCue) {
           return {
             valid: false,
-            message: `Cue ${cueNumber} is higher than or equal to next page ${nextPage.pageNumber} first cue (${nextPage.firstCueNumber})`
+            message: `Cue ${cueNumber} is higher than next page ${nextPage.pageNumber} first cue (${nextPage.firstCueNumber})`
           }
         }
       }

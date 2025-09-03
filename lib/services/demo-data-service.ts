@@ -25,14 +25,25 @@ export class DemoDataService {
   static initializeDemoData(): void {
     if (typeof window === 'undefined') return
 
+    // In development, always refresh demo data to pick up changes
+    if (process.env.NODE_ENV === 'development') {
+      this.clearDemoData()
+    }
+
     // Generate new session
     this.generateDemoSession()
 
-    // Store fresh demo data
-    localStorage.setItem(this.DEMO_DATA_KEY, JSON.stringify(romeoJulietDemoData))
-
     // Clear any existing app state that might interfere
     this.clearExistingAppState()
+
+    // Store fresh demo data
+    localStorage.setItem(this.DEMO_DATA_KEY, JSON.stringify(romeoJulietDemoData))
+    
+    console.log('✅ Demo data initialized with:')
+    console.log('  📄 Script Pages:', romeoJulietDemoData.scriptPages.length)
+    console.log('  🎭 Scenes/Songs:', romeoJulietDemoData.sceneSongs.length)
+    console.log('  💡 Cue Notes:', romeoJulietDemoData.cueNotes.length)
+    console.log('  🎪 Production:', romeoJulietDemoData.production.name)
   }
 
   // Get demo data (returns fresh copy each time)
@@ -77,7 +88,14 @@ export class DemoDataService {
   private static clearExistingAppState(): void {
     if (typeof window === 'undefined') return
 
-    // Clear any existing Zustand stores that might have persisted data
+    // In development, clear ALL localStorage to ensure fresh demo data
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🧹 Clearing all localStorage for fresh demo data (development mode)')
+      localStorage.clear()
+      return
+    }
+
+    // In production, only clear specific keys
     const keysToRemove: string[] = []
     
     for (let i = 0; i < localStorage.length; i++) {

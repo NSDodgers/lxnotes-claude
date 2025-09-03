@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useIsDemo } from '@/lib/stores/demo-store'
 
 const navigation = [
   { name: 'Cue Notes', href: '/cue-notes', icon: Lightbulb, color: 'text-modules-cue' },
@@ -28,6 +29,12 @@ export function Sidebar() {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
   const { isTabletMode, toggleTabletMode } = useTabletModeStore()
+  const isDemo = useIsDemo()
+  
+  // Helper function to add demo parameter to href if in demo mode
+  const getHref = (baseHref: string) => {
+    return isDemo ? `${baseHref}?demo=true` : baseHref
+  }
 
   return (
     <aside
@@ -83,7 +90,7 @@ export function Sidebar() {
             return (
               <Link
                 key={item.name}
-                href={item.href}
+                href={getHref(item.href)}
                 className={cn(
                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive
