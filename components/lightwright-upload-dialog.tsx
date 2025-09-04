@@ -9,6 +9,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogScrollableContent,
+  DialogStickyFooter,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { LightwrightParser } from '@/lib/services/lightwright-parser'
@@ -302,89 +304,95 @@ export function LightwrightUploadDialog({
     }
   }
 
-  const renderUploadStep = () => (
-    <div className="space-y-6">
-      <div
-        className={cn(
-          "relative border-2 border-dashed rounded-lg p-8 text-center transition-colors",
-          state.isDragOver 
-            ? "border-primary bg-primary/5" 
-            : "border-border",
-          state.error && "border-destructive"
-        )}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <div className="flex flex-col items-center gap-4">
-          <Upload className={cn(
-            "h-12 w-12",
-            state.isDragOver ? "text-primary" : "text-muted-foreground"
-          )} />
-          
-          <div>
-            <p className="text-lg font-medium text-foreground mb-2">
-              Drop your Lightwright CSV file here
-            </p>
-            <p className="text-muted-foreground text-sm mb-4">
-              or click to browse files
-            </p>
-            <Button 
-              variant="outline" 
-              onClick={handleBrowseFiles}
-              disabled={state.isProcessing}
-            >
-              {state.isProcessing ? 'Processing...' : 'Browse Files'}
-            </Button>
+  const renderUploadStep = () => ({
+    content: (
+      <div className="space-y-6">
+        <div
+          className={cn(
+            "relative border-2 border-dashed rounded-lg p-8 text-center transition-colors",
+            state.isDragOver 
+              ? "border-primary bg-primary/5" 
+              : "border-border",
+            state.error && "border-destructive"
+          )}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="flex flex-col items-center gap-4">
+            <Upload className={cn(
+              "h-12 w-12",
+              state.isDragOver ? "text-primary" : "text-muted-foreground"
+            )} />
+            
+            <div>
+              <p className="text-lg font-medium text-foreground mb-2">
+                Drop your Lightwright CSV file here
+              </p>
+              <p className="text-muted-foreground text-sm mb-4">
+                or click to browse files
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={handleBrowseFiles}
+                disabled={state.isProcessing}
+              >
+                {state.isProcessing ? 'Processing...' : 'Browse Files'}
+              </Button>
+            </div>
           </div>
         </div>
+
+        {state.error && (
+          <div className="flex items-center gap-2 text-destructive text-sm">
+            <AlertCircle className="h-4 w-4" />
+            {state.error}
+          </div>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv"
+          onChange={handleFileInputChange}
+          className="hidden"
+        />
       </div>
-
-      {state.error && (
-        <div className="flex items-center gap-2 text-destructive text-sm">
-          <AlertCircle className="h-4 w-4" />
-          {state.error}
-        </div>
-      )}
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".csv"
-        onChange={handleFileInputChange}
-        className="hidden"
-      />
-    </div>
-  )
+    ),
+    footer: null
+  })
 
   // Step 2: Header Mapping
-  const renderMappingStep = () => (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <FileText className="h-4 w-4" />
-        {state.file?.name}
-      </div>
-
-      <LightwrightHeaderMapping
-        headers={state.headers}
-        headerMapping={state.headerMapping}
-        onMappingChange={(mapping) => 
-          setState(prev => ({ ...prev, headerMapping: mapping }))
-        }
-        onAutoDetect={handleAutoDetect}
-      />
-
-      {/* Large file warning */}
-      {state.parsedCsvData && state.parsedCsvData.length > 1000 && (
-        <div className="p-3 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg">
-          <div className="text-sm text-orange-700 dark:text-orange-300">
-            <strong>Large file detected</strong> ({state.parsedCsvData.length.toLocaleString()} rows). 
-            Data processing may take a moment.
-          </div>
+  const renderMappingStep = () => ({
+    content: (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <FileText className="h-4 w-4" />
+          {state.file?.name}
         </div>
-      )}
 
-      <div className="flex justify-between">
+        <LightwrightHeaderMapping
+          headers={state.headers}
+          headerMapping={state.headerMapping}
+          onMappingChange={(mapping) => 
+            setState(prev => ({ ...prev, headerMapping: mapping }))
+          }
+          onAutoDetect={handleAutoDetect}
+        />
+
+        {/* Large file warning */}
+        {state.parsedCsvData && state.parsedCsvData.length > 1000 && (
+          <div className="p-3 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+            <div className="text-sm text-orange-700 dark:text-orange-300">
+              <strong>Large file detected</strong> ({state.parsedCsvData.length.toLocaleString()} rows). 
+              Data processing may take a moment.
+            </div>
+          </div>
+        )}
+      </div>
+    ),
+    footer: (
+      <div className="flex justify-between w-full">
         <Button variant="outline" onClick={resetState}>
           Back
         </Button>
@@ -395,210 +403,223 @@ export function LightwrightUploadDialog({
           {state.isProcessing ? 'Analyzing data...' : 'Continue'}
         </Button>
       </div>
-    </div>
-  )
+    )
+  })
 
   // Step 3: Data Preview
-  const renderPreviewStep = () => (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <FileText className="h-4 w-4" />
-        {state.file?.name}
+  const renderPreviewStep = () => ({
+    content: (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <FileText className="h-4 w-4" />
+          {state.file?.name}
+        </div>
+
+        {state.validation && (
+          <LightwrightDataPreview
+            validation={state.validation}
+            headerMapping={state.headerMapping}
+            allCsvData={state.parsedCsvData || undefined}
+            onRowToggleSkip={(rowNumber) => {
+              const currentSkip = state.importOptions.selectedRowsToSkip
+              const isCurrentlySkipped = currentSkip.includes(rowNumber)
+              
+              setState(prev => ({
+                ...prev,
+                importOptions: {
+                  ...prev.importOptions,
+                  selectedRowsToSkip: isCurrentlySkipped
+                    ? currentSkip.filter(row => row !== rowNumber)
+                    : [...currentSkip, rowNumber]
+                }
+              }))
+            }}
+            onBulkRowsSkip={(rowNumbers) => {
+              setState(prev => ({
+                ...prev,
+                importOptions: {
+                  ...prev.importOptions,
+                  selectedRowsToSkip: [
+                    ...new Set([...prev.importOptions.selectedRowsToSkip, ...rowNumbers])
+                  ]
+                }
+              }))
+            }}
+            selectedRowsToSkip={state.importOptions.selectedRowsToSkip}
+            onImport={handleUpload}
+            isProcessing={state.isProcessing}
+          />
+        )}
       </div>
-
-      {state.validation && (
-        <LightwrightDataPreview
-          validation={state.validation}
-          headerMapping={state.headerMapping}
-          allCsvData={state.parsedCsvData || undefined}
-          onRowToggleSkip={(rowNumber) => {
-            const currentSkip = state.importOptions.selectedRowsToSkip
-            const isCurrentlySkipped = currentSkip.includes(rowNumber)
-            
-            setState(prev => ({
-              ...prev,
-              importOptions: {
-                ...prev.importOptions,
-                selectedRowsToSkip: isCurrentlySkipped
-                  ? currentSkip.filter(row => row !== rowNumber)
-                  : [...currentSkip, rowNumber]
-              }
-            }))
-          }}
-          onBulkRowsSkip={(rowNumbers) => {
-            setState(prev => ({
-              ...prev,
-              importOptions: {
-                ...prev.importOptions,
-                selectedRowsToSkip: [
-                  ...new Set([...prev.importOptions.selectedRowsToSkip, ...rowNumbers])
-                ]
-              }
-            }))
-          }}
-          selectedRowsToSkip={state.importOptions.selectedRowsToSkip}
-          onImport={handleUpload}
-          isProcessing={state.isProcessing}
-        />
-      )}
-
-      <div className="flex justify-start">
+    ),
+    footer: (
+      <div className="flex justify-start w-full">
         <Button variant="outline" onClick={() => setState(prev => ({ ...prev, step: 'mapping' }))}>
           Back to Mapping
         </Button>
       </div>
-    </div>
-  )
+    )
+  })
 
 
-  const renderResultStep = () => (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        {state.result?.success ? (
-          <CheckCircle className="h-5 w-5 text-green-500" />
-        ) : (
-          <AlertCircle className="h-5 w-5 text-destructive" />
+  const renderResultStep = () => ({
+    content: (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          {state.result?.success ? (
+            <CheckCircle className="h-5 w-5 text-green-500" />
+          ) : (
+            <AlertCircle className="h-5 w-5 text-destructive" />
+          )}
+          <h3 className="font-medium">
+            {state.result?.success ? 'Upload Successful' : 'Upload Completed with Errors'}
+          </h3>
+        </div>
+
+        {state.result && (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-3 border rounded-lg text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {state.result.inserted}
+              </div>
+              <div className="text-sm text-muted-foreground">Inserted</div>
+            </div>
+            
+            <div className="p-3 border rounded-lg text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {state.result.updated}
+              </div>
+              <div className="text-sm text-muted-foreground">Updated</div>
+            </div>
+            
+            {state.result.inactivated > 0 && (
+              <div className="p-3 border rounded-lg text-center">
+                <div className="text-2xl font-bold text-orange-600">
+                  {state.result.inactivated}
+                </div>
+                <div className="text-sm text-muted-foreground">Inactivated</div>
+              </div>
+            )}
+            
+            {state.result.skippedInfrastructure > 0 && (
+              <div className="p-3 border rounded-lg text-center">
+                <div className="text-2xl font-bold text-muted-foreground">
+                  {state.result.skippedInfrastructure}
+                </div>
+                <div className="text-sm text-muted-foreground">Infrastructure Skipped</div>
+              </div>
+            )}
+            
+            {state.result.errors.length > 0 && (
+              <div className="p-3 border rounded-lg text-center">
+                <div className="text-2xl font-bold text-destructive">
+                  {state.result.errors.length}
+                </div>
+                <div className="text-sm text-muted-foreground">Errors</div>
+              </div>
+            )}
+          </div>
         )}
-        <h3 className="font-medium">
-          {state.result?.success ? 'Upload Successful' : 'Upload Completed with Errors'}
-        </h3>
-      </div>
 
-      {state.result && (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-3 border rounded-lg text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {state.result.inserted}
-            </div>
-            <div className="text-sm text-muted-foreground">Inserted</div>
-          </div>
-          
-          <div className="p-3 border rounded-lg text-center">
-            <div className="text-2xl font-bold text-blue-600">
-              {state.result.updated}
-            </div>
-            <div className="text-sm text-muted-foreground">Updated</div>
-          </div>
-          
-          {state.result.inactivated > 0 && (
-            <div className="p-3 border rounded-lg text-center">
-              <div className="text-2xl font-bold text-orange-600">
-                {state.result.inactivated}
+        {/* Enhanced Skip Reporting */}
+        {state.result && (state.result.skippedInfrastructure > 0 || state.importOptions.selectedRowsToSkip.length > 0) && (
+          <div className="space-y-3">
+            <h4 className="font-medium text-sm">Skipped Rows Summary</h4>
+            
+            {state.result.skippedInfrastructure > 0 && (
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="text-sm text-blue-700 dark:text-blue-300">
+                  <strong>{state.result.skippedInfrastructure} infrastructure rows</strong> were automatically skipped (circuits, power connections, etc. without channel numbers).
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">Inactivated</div>
-            </div>
-          )}
-          
-          {state.result.skippedInfrastructure > 0 && (
-            <div className="p-3 border rounded-lg text-center">
-              <div className="text-2xl font-bold text-muted-foreground">
-                {state.result.skippedInfrastructure}
-              </div>
-              <div className="text-sm text-muted-foreground">Infrastructure Skipped</div>
-            </div>
-          )}
-          
-          {state.result.errors.length > 0 && (
-            <div className="p-3 border rounded-lg text-center">
-              <div className="text-2xl font-bold text-destructive">
-                {state.result.errors.length}
-              </div>
-              <div className="text-sm text-muted-foreground">Errors</div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Enhanced Skip Reporting */}
-      {state.result && (state.result.skippedInfrastructure > 0 || state.importOptions.selectedRowsToSkip.length > 0) && (
-        <div className="space-y-3">
-          <h4 className="font-medium text-sm">Skipped Rows Summary</h4>
-          
-          {state.result.skippedInfrastructure > 0 && (
-            <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <div className="text-sm text-blue-700 dark:text-blue-300">
-                <strong>{state.result.skippedInfrastructure} infrastructure rows</strong> were automatically skipped (circuits, power connections, etc. without channel numbers).
-              </div>
-            </div>
-          )}
-          
-          {state.importOptions.selectedRowsToSkip.length > 0 && (
-            <div className="p-3 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg">
-              <div className="text-sm text-orange-700 dark:text-orange-300">
-                <strong>{state.importOptions.selectedRowsToSkip.length} rows with errors</strong> were manually skipped.
-                {state.validation && (
-                  <div className="mt-2 space-y-1">
-                    {state.validation.errors
-                      .filter(error => state.importOptions.selectedRowsToSkip.includes(error.row))
-                      .slice(0, 5)
-                      .map((error, index) => (
-                        <div key={index} className="text-xs">
-                          Row {error.row}: {error.message}
+            )}
+            
+            {state.importOptions.selectedRowsToSkip.length > 0 && (
+              <div className="p-3 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                <div className="text-sm text-orange-700 dark:text-orange-300">
+                  <strong>{state.importOptions.selectedRowsToSkip.length} rows with errors</strong> were manually skipped.
+                  {state.validation && (
+                    <div className="mt-2 space-y-1">
+                      {state.validation.errors
+                        .filter(error => state.importOptions.selectedRowsToSkip.includes(error.row))
+                        .slice(0, 5)
+                        .map((error, index) => (
+                          <div key={index} className="text-xs">
+                            Row {error.row}: {error.message}
+                          </div>
+                        ))
+                      }
+                      {state.validation.errors.filter(error => 
+                        state.importOptions.selectedRowsToSkip.includes(error.row)
+                      ).length > 5 && (
+                        <div className="text-xs">
+                          ... and {state.validation.errors.filter(error => 
+                            state.importOptions.selectedRowsToSkip.includes(error.row)
+                          ).length - 5} more
                         </div>
-                      ))
-                    }
-                    {state.validation.errors.filter(error => 
-                      state.importOptions.selectedRowsToSkip.includes(error.row)
-                    ).length > 5 && (
-                      <div className="text-xs">
-                        ... and {state.validation.errors.filter(error => 
-                          state.importOptions.selectedRowsToSkip.includes(error.row)
-                        ).length - 5} more
-                      </div>
-                    )}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {state.result?.errors && state.result.errors.length > 0 && (
-        <div>
-          <h4 className="font-medium mb-2">Errors</h4>
-          <div className="max-h-40 overflow-y-auto space-y-1">
-            {state.result.errors.map((error, index) => (
-              <div key={index} className="text-sm text-destructive bg-destructive/5 p-2 rounded">
-                Row {error.row}: {error.message}
-              </div>
-            ))}
+            )}
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="flex justify-end">
+        {state.result?.errors && state.result.errors.length > 0 && (
+          <div>
+            <h4 className="font-medium mb-2">Errors</h4>
+            <div className="max-h-40 overflow-y-auto space-y-1">
+              {state.result.errors.map((error, index) => (
+                <div key={index} className="text-sm text-destructive bg-destructive/5 p-2 rounded">
+                  Row {error.row}: {error.message}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    ),
+    footer: (
+      <div className="flex justify-end w-full">
         <Button onClick={handleClose}>
           Close
         </Button>
       </div>
-    </div>
-  )
+    )
+  })
+
+  const getCurrentStep = () => {
+    switch (state.step) {
+      case 'upload': return renderUploadStep()
+      case 'mapping': return renderMappingStep()
+      case 'preview': return renderPreviewStep()
+      case 'result': return renderResultStep()
+      default: return renderUploadStep()
+    }
+  }
+
+  const currentStep = getCurrentStep()
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
             Import Lightwright CSV
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClose}
-            className="absolute right-4 top-4"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
 
-        <div className="mt-4">
-          {state.step === 'upload' && renderUploadStep()}
-          {state.step === 'mapping' && renderMappingStep()}
-          {state.step === 'preview' && renderPreviewStep()}
-          {state.step === 'result' && renderResultStep()}
-        </div>
+        <DialogScrollableContent>
+          {currentStep.content}
+        </DialogScrollableContent>
+
+        {currentStep.footer && (
+          <DialogStickyFooter>
+            {currentStep.footer}
+          </DialogStickyFooter>
+        )}
       </DialogContent>
     </Dialog>
   )

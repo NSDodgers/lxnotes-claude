@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Search, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,7 @@ export function LightwrightSelector({
   const [searchExpression, setSearchExpression] = useState(channelExpression)
   const [parsedExpression, setParsedExpression] = useState<ParsedChannelExpression | null>(null)
   const [availableFixtures, setAvailableFixtures] = useState<LightwrightInfo[]>([])
+  const lastAutoSelectedRef = useRef<string>('')
 
   // Parse channel expression and fetch fixtures
   useEffect(() => {
@@ -43,14 +44,27 @@ export function LightwrightSelector({
       if (parsed.channels.length > 0) {
         const fixtures = getFixturesByChannels(productionId, parsed.channels)
         setAvailableFixtures(fixtures)
+        
+        // Automatically select all fixtures that match the channel expression
+        // Only auto-select if this is a new/different expression
+        if (fixtures.length > 0 && lastAutoSelectedRef.current !== searchExpression.trim()) {
+          const newFixtureIds = fixtures.map(f => f.id)
+          // Only add fixtures that aren't already selected to avoid duplicates
+          const uniqueNewIds = newFixtureIds.filter(id => !selectedFixtureIds.includes(id))
+          if (uniqueNewIds.length > 0) {
+            onSelectionChange([...selectedFixtureIds, ...uniqueNewIds])
+            lastAutoSelectedRef.current = searchExpression.trim()
+          }
+        }
       } else {
         setAvailableFixtures([])
       }
     } else {
       setParsedExpression(null)
       setAvailableFixtures([])
+      lastAutoSelectedRef.current = ''
     }
-  }, [searchExpression, productionId, getFixturesByChannels])
+  }, [searchExpression, productionId, getFixturesByChannels, selectedFixtureIds, onSelectionChange])
 
   // Update parent channel expression
   useEffect(() => {

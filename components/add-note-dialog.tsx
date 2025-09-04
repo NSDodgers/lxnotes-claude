@@ -14,6 +14,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogScrollableContent,
+  DialogStickyFooter,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -182,119 +184,123 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {editingNote ? 'Edit Note' : 'Add New Note'}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTypes.map(type => (
-                    <SelectItem key={type.id} value={type.value}>{type.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <form onSubmit={handleSubmit}>
+          <DialogScrollableContent className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="type">Type</Label>
+                <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTypes.map(type => (
+                      <SelectItem key={type.id} value={type.value}>{type.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select value={formData.priority} onValueChange={(value: string) => setFormData({ ...formData, priority: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availablePriorities.map(priority => (
-                    <SelectItem key={priority.id} value={priority.value}>{priority.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {moduleType === 'cue' && (
-            <div className="space-y-2">
-              <Label htmlFor="cueNumbers">Cue Number(s)</Label>
-              <Input
-                id="cueNumbers"
-                type="text"
-                value={formData.cueNumbers}
-                onChange={(e) => setFormData({ ...formData, cueNumbers: e.target.value })}
-                placeholder="e.g., 127 or 45-47 or 89, 92, 95"
-              />
-              <p className="text-xs text-muted-foreground">Enter single number, range (10-15), or list (5, 8, 12)</p>
-            </div>
-          )}
-
-          {moduleType === 'work' && (
-            <div className="space-y-2">
-              <Label>Lightwright Fixtures (optional)</Label>
-              <div className="border rounded-lg p-4">
-                <LightwrightSelector
-                  productionId="prod-1"
-                  selectedFixtureIds={selectedLightwrightIds}
-                  onSelectionChange={setSelectedLightwrightIds}
-                  channelExpression={channelExpression}
-                  onChannelExpressionChange={setChannelExpression}
-                />
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Select value={formData.priority} onValueChange={(value: string) => setFormData({ ...formData, priority: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availablePriorities.map(priority => (
+                      <SelectItem key={priority.id} value={priority.value}>{priority.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Note Content</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Enter your lighting note here..."
-              className="min-h-[120px] resize-none"
-              required
-            />
-          </div>
+            {moduleType === 'cue' && (
+              <div className="space-y-2">
+                <Label htmlFor="cueNumbers">Cue Number(s)</Label>
+                <Input
+                  id="cueNumbers"
+                  type="text"
+                  value={formData.cueNumbers}
+                  onChange={(e) => setFormData({ ...formData, cueNumbers: e.target.value })}
+                  placeholder="e.g., 127 or 45-47 or 89, 92, 95"
+                />
+                <p className="text-xs text-muted-foreground">Enter single number, range (10-15), or list (5, 8, 12)</p>
+              </div>
+            )}
 
-          {moduleType === 'cue' && formData.cueNumbers && (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">Script Location Preview:</p>
-              <div className="rounded-lg bg-muted border px-3 py-2">
-                <div className="text-sm text-muted-foreground">
-                  {(() => {
-                    const cueNumber = formData.cueNumbers.trim()
-                    if (!cueNumber) return 'Enter cue number to see location'
-                    
-                    const lookup = lookupCue(cueNumber)
-                    return lookup.display || 'No script location found'
-                  })()}
+            {moduleType === 'work' && (
+              <div className="space-y-2">
+                <Label>Lightwright Fixtures (optional)</Label>
+                <div className="border rounded-lg p-4">
+                  <LightwrightSelector
+                    productionId="prod-1"
+                    selectedFixtureIds={selectedLightwrightIds}
+                    onSelectionChange={setSelectedLightwrightIds}
+                    channelExpression={channelExpression}
+                    onChannelExpressionChange={setChannelExpression}
+                  />
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant={moduleType as any}
-              className="flex-1"
-            >
-              {editingNote ? 'Update Note' : 'Create Note'}
-            </Button>
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Note Content</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Enter your lighting note here..."
+                className="min-h-[120px] resize-none"
+                required
+              />
+            </div>
+
+            {moduleType === 'cue' && formData.cueNumbers && (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">Script Location Preview:</p>
+                <div className="rounded-lg bg-muted border px-3 py-2">
+                  <div className="text-sm text-muted-foreground">
+                    {(() => {
+                      const cueNumber = formData.cueNumbers.trim()
+                      if (!cueNumber) return 'Enter cue number to see location'
+                      
+                      const lookup = lookupCue(cueNumber)
+                      return lookup.display || 'No script location found'
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogScrollableContent>
+
+          <DialogStickyFooter>
+            <div className="flex gap-3 w-full">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onClose}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant={moduleType as any}
+                className="flex-1"
+              >
+                {editingNote ? 'Update Note' : 'Create Note'}
+              </Button>
+            </div>
+          </DialogStickyFooter>
         </form>
       </DialogContent>
     </Dialog>

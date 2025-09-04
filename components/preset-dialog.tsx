@@ -33,11 +33,11 @@ export function PresetDialog({
       
       {/* Dialog */}
       <div className={cn(
-        'relative bg-bg-secondary border border-bg-tertiary rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-hidden',
+        'relative bg-bg-secondary border border-bg-tertiary rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col',
         className
       )}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-bg-tertiary">
+        <div className="flex items-center justify-between p-6 border-b border-bg-tertiary flex-shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
             {description && (
@@ -53,7 +53,7 @@ export function PresetDialog({
         </div>
         
         {/* Content */}
-        <div className="max-h-[calc(90vh-120px)] overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           {children}
         </div>
       </div>
@@ -82,7 +82,7 @@ interface PresetDialogActionsProps {
 export function PresetDialogActions({ children, className }: PresetDialogActionsProps) {
   return (
     <div className={cn(
-      'flex items-center justify-end gap-3 p-6 border-t border-bg-tertiary bg-bg-primary',
+      'flex items-center justify-end gap-3 p-6 border-t border-bg-tertiary bg-bg-primary flex-shrink-0',
       className
     )}>
       {children}
