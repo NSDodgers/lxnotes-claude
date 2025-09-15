@@ -8,7 +8,8 @@ import { PrintNotesView } from '@/components/print-notes-view'
 import { LightwrightUploadDialog } from '@/components/lightwright-upload-dialog'
 import { LightwrightDataViewer } from '@/components/lightwright-data-viewer'
 import { useState, useEffect } from 'react'
-import { Plus, Search, Wrench, Upload, Mail, Printer, Database } from 'lucide-react'
+import { Plus, Search, Wrench, Upload, Mail, Printer, Database, ArrowUpDown } from 'lucide-react'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -324,7 +325,7 @@ const mockWorkNotes: Note[] = [
     description: 'Replace faded R80 with fresh color',
     priority: 'low',
     status: 'complete',
-    type: 'maintenance',
+    type: 'work',
     createdAt: new Date('2024-01-15T16:45:00'),
     updatedAt: new Date('2024-01-16T12:30:00'),
     lightwrightItemId: 'LW320',
@@ -382,7 +383,7 @@ const mockWorkNotes: Note[] = [
     description: 'Dust buildup affecting light quality',
     priority: 'medium',
     status: 'cancelled',
-    type: 'maintenance',
+    type: 'work',
     createdAt: new Date('2024-01-16T09:30:00'),
     updatedAt: new Date('2024-01-17T08:45:00'),
     lightwrightItemId: 'LW101',
@@ -438,7 +439,7 @@ const mockWorkNotes: Note[] = [
     description: 'Weekly safety check of emergency lighting',
     priority: 'critical',
     status: 'complete',
-    type: 'maintenance',
+    type: 'work',
     createdAt: new Date('2024-01-16T06:00:00'),
     updatedAt: new Date('2024-01-16T07:30:00'),
     channelNumbers: '501-520',
@@ -532,7 +533,7 @@ const mockWorkNotes: Note[] = [
     description: 'Preventive maintenance inspection',
     priority: 'medium',
     status: 'complete',
-    type: 'maintenance',
+    type: 'work',
     createdAt: new Date('2024-01-14T08:30:00'),
     updatedAt: new Date('2024-01-15T17:45:00'),
     channelNumbers: 'All positions',
@@ -629,7 +630,7 @@ const mockWorkNotes: Note[] = [
     description: 'Several frames cracked from heat',
     priority: 'medium',
     status: 'cancelled',
-    type: 'maintenance',
+    type: 'work',
     createdAt: new Date('2024-01-15T12:20:00'),
     updatedAt: new Date('2024-01-16T08:30:00'),
     lightwrightItemId: 'LW045',
@@ -705,7 +706,7 @@ const mockWorkNotes: Note[] = [
     description: 'End-of-show equipment maintenance',
     priority: 'low',
     status: 'todo',
-    type: 'maintenance',
+    type: 'work',
     createdAt: new Date('2024-01-17T17:00:00'),
     updatedAt: new Date('2024-01-17T17:00:00'),
   },
@@ -785,7 +786,7 @@ const mockWorkNotes: Note[] = [
     description: 'Annual equipment calibration due',
     priority: 'low',
     status: 'todo',
-    type: 'maintenance',
+    type: 'work',
     createdAt: new Date('2024-01-17T09:00:00'),
     updatedAt: new Date('2024-01-17T09:00:00'),
   },
@@ -825,7 +826,7 @@ const mockWorkNotes: Note[] = [
     description: 'Preventive maintenance on all RF equipment',
     priority: 'critical',
     status: 'complete',
-    type: 'maintenance',
+    type: 'work',
     createdAt: new Date('2024-01-16T08:00:00'),
     updatedAt: new Date('2024-01-16T12:00:00'),
   },
@@ -971,6 +972,13 @@ export default function WorkNotesPage() {
     setIsHydrated(true)
   }, [])
 
+  // Auto-load mock data in development mode
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && fixtures.length === 0) {
+      loadTestData()
+    }
+  }, [fixtures.length])
+
   // Development helper - populate test data
   const loadTestData = () => {
     if (fixtures.length === 0) {
@@ -1110,6 +1118,12 @@ export default function WorkNotesPage() {
                 <Database className="h-4 w-4" />
                 View Fixtures
               </Button>
+              <Link href="/positions">
+                <Button variant="secondary">
+                  <ArrowUpDown className="h-4 w-4" />
+                  Manage Positions
+                </Button>
+              </Link>
               <Button
                 onClick={() => setIsLightwrightDialogOpen(true)}
                 variant="outline"

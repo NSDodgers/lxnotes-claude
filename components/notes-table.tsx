@@ -10,6 +10,7 @@ import { useCueLookup } from '@/lib/services/cue-lookup'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useLightwrightStore } from '@/lib/stores/lightwright-store'
+import { usePositionStore } from '@/lib/stores/position-store'
 import { LightwrightAggregateDisplay } from '@/components/lightwright-aggregate-display'
 import {
   Table,
@@ -27,7 +28,7 @@ interface NotesTableProps {
   onEdit?: (note: Note) => void
 }
 
-type SortField = 'title' | 'priority' | 'status' | 'type' | 'createdAt'
+type SortField = 'title' | 'priority' | 'status' | 'type' | 'createdAt' | 'position'
 type SortDirection = 'asc' | 'desc'
 
 export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesTableProps) {
@@ -35,8 +36,13 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
   const { getPriorities } = useCustomPrioritiesStore()
   const { getTypes } = useCustomTypesStore()
   const { getAggregate } = useLightwrightStore()
+  const { getOrderedPositions } = usePositionStore()
   const [sortField, setSortField] = useState<SortField>('createdAt')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+
+  // Get production ID from first note (assuming all notes are from the same production)
+  const productionId = notes.length > 0 ? notes[0].productionId : 'prod-1'
+  const orderedPositions = getOrderedPositions(productionId)
   
   // Get custom priorities and types for this module
   const availablePriorities = getPriorities(moduleType)
@@ -85,6 +91,35 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
       bValue = priorityOrder[b.priority as keyof typeof priorityOrder] || 0
     }
 
+    if (sortField === 'position') {
+      // Extract positions from positionUnit field for work notes
+      const aPosition = moduleType === 'work' ? extractPositionFromUnit(a.positionUnit || '') : ''
+      const bPosition = moduleType === 'work' ? extractPositionFromUnit(b.positionUnit || '') : ''
+
+      if (orderedPositions.length > 0) {
+        // Use custom position order
+        const aIndex = orderedPositions.indexOf(aPosition)
+        const bIndex = orderedPositions.indexOf(bPosition)
+
+        // Items not in custom order go to the end, sorted alphabetically
+        if (aIndex === -1 && bIndex === -1) {
+          aValue = aPosition.toLowerCase()
+          bValue = bPosition.toLowerCase()
+        } else if (aIndex === -1) {
+          return sortDirection === 'asc' ? 1 : -1
+        } else if (bIndex === -1) {
+          return sortDirection === 'asc' ? -1 : 1
+        } else {
+          aValue = aIndex
+          bValue = bIndex
+        }
+      } else {
+        // Fallback to alphabetical sorting
+        aValue = aPosition.toLowerCase()
+        bValue = bPosition.toLowerCase()
+      }
+    }
+
     if (sortField === 'createdAt') {
       aValue = new Date(aValue).getTime()
       bValue = new Date(bValue).getTime()
@@ -101,6 +136,17 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
       return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
     }
   })
+
+  // Helper function to extract position from positionUnit field
+  const extractPositionFromUnit = (positionUnit: string): string => {
+    // positionUnit format is typically "Position Units X-Y" or "Position Unit X"
+    // We want to extract just the "Position" part
+    if (!positionUnit) return ''
+
+    // Split by "Unit" and take the first part, then trim
+    const parts = positionUnit.split(/\s+Unit/i)
+    return parts[0]?.trim() || positionUnit
+  }
 
   const renderHeader = (label: string, field: SortField) => (
     <TableHead 
@@ -156,7 +202,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                 <TableHead className="bg-bg-primary">Channels</TableHead>
                 <TableHead className="bg-bg-primary">Type</TableHead>
                 <TableHead className="bg-bg-primary">Purpose</TableHead>
-                <TableHead className="bg-bg-primary">Position</TableHead>
+                {renderHeader('Position', 'position')}
               </>
             )}
             {renderHeader('Note', 'title')}

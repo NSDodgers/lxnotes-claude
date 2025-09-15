@@ -6,17 +6,19 @@ import type {
   ParsedLightwrightRow,
   LightwrightUploadResult
 } from '@/types'
+import { usePositionStore, type UpdateResult } from './position-store'
 
 interface LightwrightState {
   // Core data
   fixtures: LightwrightInfo[]
   workNoteLinks: WorkNoteLightwrightLink[]
   aggregates: Record<string, LightwrightAggregate> // keyed by workNoteId
-  
+
   // Loading states
   isUploading: boolean
   isProcessing: boolean
   lastUploadResult: LightwrightUploadResult | null
+  lastPositionUpdate: UpdateResult | null
   
   // Actions
   uploadFixtures: (
@@ -38,6 +40,7 @@ interface LightwrightState {
   // Utility
   clearData: () => void
   getFixturesByProduction: (productionId: string) => LightwrightInfo[]
+  getUniquePositions: (productionId: string) => string[]
 }
 
 export const useLightwrightStore = create<LightwrightState>((set, get) => ({
@@ -48,6 +51,7 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
   isUploading: false,
   isProcessing: false,
   lastUploadResult: null,
+  lastPositionUpdate: null,
 
   // Upload fixtures with upsert logic
   uploadFixtures: (
@@ -156,21 +160,28 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
         })
       }
 
+      // Extract and update position ordering
+      const productionFixtures = updatedFixtures.filter(f => f.productionId === productionId && f.isActive)
+      const positionStore = usePositionStore.getState()
+      const uniquePositions = positionStore.extractUniquePositions(productionFixtures)
+      const positionUpdateResult = positionStore.handleCsvUpdate(productionId, uniquePositions)
+
       set({
         fixtures: updatedFixtures,
         lastUploadResult: result,
+        lastPositionUpdate: positionUpdateResult,
         isProcessing: false
       })
 
       // Update aggregates for affected work notes
       const affectedWorkNotes = state.workNoteLinks
-        .filter(link => 
-          updatedFixtures.some(f => 
+        .filter(link =>
+          updatedFixtures.some(f =>
             f.id === link.lightwrightInfoId && f.productionId === productionId
           )
         )
         .map(link => link.workNoteId)
-      
+
       const uniqueWorkNotes = [...new Set(affectedWorkNotes)]
       uniqueWorkNotes.forEach(workNoteId => {
         get().updateAggregates(workNoteId)
@@ -336,13 +347,21 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
     return get().fixtures.filter(f => f.productionId === productionId)
   },
 
+  // Get unique positions for a production
+  getUniquePositions: (productionId: string): string[] => {
+    const fixtures = get().fixtures.filter(f => f.productionId === productionId && f.isActive)
+    const positionStore = usePositionStore.getState()
+    return positionStore.extractUniquePositions(fixtures)
+  },
+
   // Clear all data
   clearData: (): void => {
     set({
       fixtures: [],
       workNoteLinks: [],
       aggregates: {},
-      lastUploadResult: null
+      lastUploadResult: null,
+      lastPositionUpdate: null
     })
   }
 }))

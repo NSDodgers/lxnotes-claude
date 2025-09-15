@@ -259,7 +259,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Enter your lighting note here..."
-                className="min-h-[120px] resize-none"
+                className="min-h-[80px] resize-none"
                 required
               />
             </div>

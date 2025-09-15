@@ -201,7 +201,7 @@ export function LightwrightSelector({
           </div>
 
           {/* Fixtures List */}
-          <div className="max-h-80 overflow-y-auto space-y-1">
+          <div className="max-h-40 overflow-y-auto space-y-1">
             {availableFixtures
               .sort((a, b) => a.channel - b.channel)
               .map(renderFixtureRow)}
