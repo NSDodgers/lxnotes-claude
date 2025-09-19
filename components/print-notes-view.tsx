@@ -4,27 +4,32 @@ import { useState } from 'react'
 import { Printer, FileText, Eye, Download } from 'lucide-react'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
+import { useProductionStore } from '@/lib/stores/production-store'
 import { PresetSelector } from './preset-selector'
 import { QuickCreateFilterSortDialog } from './quick-create-filter-sort-dialog'
 import { QuickCreatePageStyleDialog } from './quick-create-page-style-dialog'
-import { 
-  PresetDialog, 
-  PresetDialogContent, 
+import {
+  PresetDialog,
+  PresetDialogContent,
   PresetDialogActions,
   PresetFormField
 } from './preset-dialog'
-import type { ModuleType, FilterSortPreset, PageStylePreset } from '@/types'
+import type { ModuleType, FilterSortPreset, PageStylePreset, Note } from '@/types'
 import { cn } from '@/lib/utils'
+import { PDFGenerationService } from '@/lib/services/pdf'
+import { getMockNotes } from '@/lib/utils/mockNotesData'
 
 interface PrintNotesViewProps {
   moduleType: ModuleType
   isOpen: boolean
   onClose: () => void
+  notes?: Note[] // Optional: if provided, use these notes instead of mock data
 }
 
-export function PrintNotesView({ moduleType, isOpen, onClose }: PrintNotesViewProps) {
+export function PrintNotesView({ moduleType, isOpen, onClose, notes }: PrintNotesViewProps) {
   const { presets: filterSortPresets, getPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
+  const { name: productionName, logo: productionLogo } = useProductionStore()
   
   const [selectedFilterPreset, setSelectedFilterPreset] = useState<FilterSortPreset | null>(null)
   const [selectedPageStylePreset, setSelectedPageStylePreset] = useState<PageStylePreset | null>(null)
@@ -40,16 +45,48 @@ export function PrintNotesView({ moduleType, isOpen, onClose }: PrintNotesViewPr
   const moduleFilterPresets = getPresetsByModule(moduleType)
 
   const handleGenerate = async () => {
+    if (!selectedFilterPreset || !selectedPageStylePreset) {
+      return
+    }
+
     setIsGenerating(true)
-    
-    // Simulate PDF generation
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // In a real implementation, this would generate and download/print the PDF
-    alert('PDF would be generated here!')
-    
-    setIsGenerating(false)
-    onClose()
+
+    try {
+      // Use provided notes or fall back to mock data
+      const notesToUse = notes || getMockNotes(moduleType)
+
+      // Generate PDF using the service
+      const pdfService = PDFGenerationService.getInstance()
+      const result = await pdfService.generatePDF({
+        moduleType,
+        filterPreset: selectedFilterPreset,
+        pageStylePreset: selectedPageStylePreset,
+        notes: notesToUse,
+        productionName,
+        productionLogo
+      })
+
+      if (result.success && result.pdfBlob) {
+        // Create download link and trigger download
+        const url = URL.createObjectURL(result.pdfBlob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = result.filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+
+        onClose()
+      } else {
+        alert(`PDF generation failed: ${result.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('PDF generation error:', error)
+      alert('PDF generation failed. Please try again.')
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   const handleFilterPresetCreated = (preset: FilterSortPreset) => {
@@ -287,16 +324,24 @@ export function PrintNotesView({ moduleType, isOpen, onClose }: PrintNotesViewPr
       {/* Quick Create Filter/Sort Dialog */}
       <QuickCreateFilterSortDialog
         isOpen={showFilterQuickCreate}
-        onClose={() => setShowFilterQuickCreate(false)}
+        onClose={() => {
+          setShowFilterQuickCreate(false)
+          setEditingFilterPreset(null)
+        }}
         onPresetCreated={handleFilterPresetCreated}
         moduleType={moduleType}
+        editingPreset={editingFilterPreset}
       />
       
       {/* Quick Create Page Style Dialog */}
       <QuickCreatePageStyleDialog
         isOpen={showPageStyleQuickCreate}
-        onClose={() => setShowPageStyleQuickCreate(false)}
+        onClose={() => {
+          setShowPageStyleQuickCreate(false)
+          setEditingPageStylePreset(null)
+        }}
         onPresetCreated={handlePageStylePresetCreated}
+        editingPreset={editingPageStylePreset}
       />
     </PresetDialog>
   )

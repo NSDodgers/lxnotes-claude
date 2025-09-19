@@ -65,9 +65,12 @@ export function PageStylePresetsManager() {
     if (editingPreset) {
       // Update existing preset
       updatePreset(editingPreset.id, {
-        paperSize: data.paperSize,
-        orientation: data.orientation,
-        includeCheckboxes: data.includeCheckboxes,
+        name: data.name,
+        config: {
+          paperSize: data.paperSize,
+          orientation: data.orientation,
+          includeCheckboxes: data.includeCheckboxes,
+        }
       })
     } else {
       // Create new preset

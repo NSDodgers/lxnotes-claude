@@ -156,19 +156,6 @@ export const usePositionStore = create<PositionState>()(
     {
       name: 'position-orders',
       version: 1,
-      // Custom serialization for Date objects
-      serialize: (state) => JSON.stringify(state, (key, value) => {
-        if (value instanceof Date) {
-          return { __type: 'Date', value: value.toISOString() }
-        }
-        return value
-      }),
-      deserialize: (str) => JSON.parse(str, (key, value) => {
-        if (value && typeof value === 'object' && value.__type === 'Date') {
-          return new Date(value.value)
-        }
-        return value
-      })
     }
   )
 )

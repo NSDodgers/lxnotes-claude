@@ -5,13 +5,14 @@ import { Mail, Eye, Send } from 'lucide-react'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
+import { useProductionStore } from '@/lib/stores/production-store'
 import { PresetSelector } from './preset-selector'
 import { QuickCreateFilterSortDialog } from './quick-create-filter-sort-dialog'
 import { QuickCreatePageStyleDialog } from './quick-create-page-style-dialog'
 import { QuickCreateEmailMessageDialog } from './quick-create-email-message-dialog'
-import { 
-  PresetDialog, 
-  PresetDialogContent, 
+import {
+  PresetDialog,
+  PresetDialogContent,
   PresetDialogActions,
   PresetFormField,
   PresetFormInput,
@@ -20,6 +21,8 @@ import {
 } from './preset-dialog'
 import type { ModuleType, EmailMessagePreset, FilterSortPreset, PageStylePreset } from '@/types'
 import { cn } from '@/lib/utils'
+import { PDFGenerationService } from '@/lib/services/pdf'
+import { getMockNotes } from '@/lib/utils/mockNotesData'
 
 interface EmailNotesViewProps {
   moduleType: ModuleType
@@ -31,6 +34,7 @@ export function EmailNotesView({ moduleType, isOpen, onClose }: EmailNotesViewPr
   const { presets: emailPresets, resolvePlaceholders } = useEmailMessagePresetsStore()
   const { presets: filterSortPresets, getPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
+  const { name: productionName, logo: productionLogo } = useProductionStore()
   
   const [selectedEmailPreset, setSelectedEmailPreset] = useState<EmailMessagePreset | null>(null)
   const [selectedFilterPreset, setSelectedFilterPreset] = useState<string | null>(null)
@@ -77,7 +81,7 @@ export function EmailNotesView({ moduleType, isOpen, onClose }: EmailNotesViewPr
   }
 
   const getPreviewData = () => ({
-    productionTitle: 'Sample Production',
+    productionTitle: productionName,
     userFullName: 'Dev User',
     noteCount: 15,
     todoCount: 8,
@@ -88,10 +92,59 @@ export function EmailNotesView({ moduleType, isOpen, onClose }: EmailNotesViewPr
     dateRange: 'All dates',
   })
 
-  const handleSend = () => {
-    // In a real implementation, this would send the email
-    alert('Email would be sent here!')
-    onClose()
+  const handleSend = async () => {
+    if (!recipients || !subject || !message) {
+      return
+    }
+
+    try {
+      let pdfBlob: Blob | null = null
+
+      // Generate PDF attachment if requested
+      if (attachPdf && selectedFilterPreset && selectedPageStylePreset) {
+        const notes = getMockNotes(moduleType)
+        const filterPreset = filterSortPresets.find(p => p.id === selectedFilterPreset)
+        const pageStylePreset = pageStylePresets.find(p => p.id === selectedPageStylePreset)
+
+        if (filterPreset && pageStylePreset) {
+          const pdfService = PDFGenerationService.getInstance()
+          const result = await pdfService.generatePDF({
+            moduleType,
+            filterPreset,
+            pageStylePreset,
+            notes,
+            productionName,
+            productionLogo
+          })
+
+          if (result.success && result.pdfBlob) {
+            pdfBlob = result.pdfBlob
+          }
+        }
+      }
+
+      // In a real implementation, this would send the email with the PDF attachment
+      if (pdfBlob) {
+        // Create a temporary download link to show the PDF was generated
+        const url = URL.createObjectURL(pdfBlob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `${moduleType}_notes_attachment.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+
+        alert(`Email would be sent with PDF attachment!\n\nTo: ${recipients}\nSubject: ${subject}`)
+      } else {
+        alert(`Email would be sent!\n\nTo: ${recipients}\nSubject: ${subject}`)
+      }
+
+      onClose()
+    } catch (error) {
+      console.error('Email send error:', error)
+      alert('Failed to prepare email. Please try again.')
+    }
   }
 
   const handleFilterPresetCreated = (preset: FilterSortPreset) => {

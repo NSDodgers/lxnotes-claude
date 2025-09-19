@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Printer } from 'lucide-react'
@@ -25,16 +25,19 @@ interface QuickCreatePageStyleDialogProps {
   onClose: () => void
   onPresetCreated: (preset: PageStylePreset) => void
   defaultValues?: Partial<PageStyleFormData>
+  editingPreset?: PageStylePreset | null
 }
 
 export function QuickCreatePageStyleDialog({
   isOpen,
   onClose,
   onPresetCreated,
-  defaultValues = {}
+  defaultValues = {},
+  editingPreset = null
 }: QuickCreatePageStyleDialogProps) {
-  const { addPreset } = usePageStylePresetsStore()
+  const { addPreset, updatePreset } = usePageStylePresetsStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const isEditing = !!editingPreset
 
   const form = useForm<PageStyleFormData>({
     resolver: zodResolver(pageStyleFormSchema),
@@ -47,45 +50,126 @@ export function QuickCreatePageStyleDialog({
     },
   })
 
+  // Reset form when editingPreset changes
+  useEffect(() => {
+    if (editingPreset) {
+      form.reset({
+        name: editingPreset.name,
+        paperSize: editingPreset.config.paperSize,
+        orientation: editingPreset.config.orientation,
+        includeCheckboxes: editingPreset.config.includeCheckboxes,
+        ...defaultValues,
+      })
+    } else {
+      form.reset({
+        name: '',
+        paperSize: 'letter',
+        orientation: 'portrait',
+        includeCheckboxes: true,
+        ...defaultValues,
+      })
+    }
+  }, [editingPreset]) // Removed form and defaultValues from dependencies
+
   const handleSubmit = async (data: PageStyleFormData) => {
     setIsSubmitting(true)
-    
+
     try {
-      // Create preset using store
-      const newPresetData = {
-        type: 'page_style' as const,
-        moduleType: 'all' as const,
-        name: data.name,
-        productionId: 'prod-1', // TODO: Get from production context
-        config: {
-          paperSize: data.paperSize,
-          orientation: data.orientation,
-          includeCheckboxes: data.includeCheckboxes,
-        },
-        isDefault: false,
-        createdBy: 'user', // TODO: Get from auth
+      if (isEditing && editingPreset) {
+        if (editingPreset.isDefault) {
+          // Create new preset based on system default (don't modify original)
+          const newPresetData = {
+            type: 'page_style' as const,
+            moduleType: 'all' as const,
+            name: data.name,
+            productionId: 'prod-1', // TODO: Get from production context
+            config: {
+              paperSize: data.paperSize,
+              orientation: data.orientation,
+              includeCheckboxes: data.includeCheckboxes,
+            },
+            isDefault: false,
+            createdBy: 'user', // TODO: Get from auth
+          }
+
+          addPreset(newPresetData)
+
+          // Create the preset object to return
+          const createdPreset: PageStylePreset = {
+            id: `page-style-${Math.random().toString(36).substr(2, 9)}`,
+            productionId: 'prod-1', // TODO: Get from production context
+            type: 'page_style',
+            moduleType: 'all',
+            name: data.name,
+            config: newPresetData.config,
+            isDefault: false,
+            createdBy: 'user',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+
+          onPresetCreated(createdPreset)
+        } else {
+          // Update existing user preset
+          const updatedConfig = {
+            paperSize: data.paperSize,
+            orientation: data.orientation,
+            includeCheckboxes: data.includeCheckboxes,
+          }
+
+          updatePreset(editingPreset.id, {
+            name: data.name,
+            config: updatedConfig,
+          })
+
+          // Create updated preset object for callback
+          const updatedPreset: PageStylePreset = {
+            ...editingPreset,
+            name: data.name,
+            config: updatedConfig,
+            updatedAt: new Date(),
+          }
+
+          onPresetCreated(updatedPreset)
+        }
+      } else {
+        // Create new preset
+        const newPresetData = {
+          type: 'page_style' as const,
+          moduleType: 'all' as const,
+          name: data.name,
+          productionId: 'prod-1', // TODO: Get from production context
+          config: {
+            paperSize: data.paperSize,
+            orientation: data.orientation,
+            includeCheckboxes: data.includeCheckboxes,
+          },
+          isDefault: false,
+          createdBy: 'user', // TODO: Get from auth
+        }
+
+        addPreset(newPresetData)
+
+        // Create the preset object to return
+        const createdPreset: PageStylePreset = {
+          id: `page-style-${Math.random().toString(36).substr(2, 9)}`,
+          productionId: 'prod-1', // TODO: Get from production context
+          type: 'page_style',
+          moduleType: 'all',
+          name: data.name,
+          config: newPresetData.config,
+          isDefault: false,
+          createdBy: 'user',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+
+        onPresetCreated(createdPreset)
       }
-      
-      addPreset(newPresetData)
-      
-      // Create the preset object to return
-      const createdPreset: PageStylePreset = {
-        id: `page-style-${Math.random().toString(36).substr(2, 9)}`,
-        productionId: 'prod-1', // TODO: Get from production context
-        type: 'page_style',
-        moduleType: 'all',
-        name: data.name,
-        config: newPresetData.config,
-        isDefault: false,
-        createdBy: 'user',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      
-      onPresetCreated(createdPreset)
+
       onClose()
     } catch (error) {
-      console.error('Failed to create preset:', error)
+      console.error(`Failed to ${isEditing ? 'update' : 'create'} preset:`, error)
     } finally {
       setIsSubmitting(false)
     }
@@ -113,8 +197,12 @@ export function QuickCreatePageStyleDialog({
     <QuickCreatePresetDialog
       open={isOpen}
       onClose={handleCancel}
-      title="Create Page Style Preset"
-      description="Quick create for PDF formatting options"
+      title={isEditing && editingPreset?.isDefault ? "Copy System Page Style" :
+             isEditing ? "Edit Page Style Preset" : "Create Page Style Preset"}
+      description={isEditing && editingPreset?.isDefault ?
+                   `Create a custom copy of "${editingPreset?.name}" for PDF formatting` :
+                   isEditing ? 'Edit PDF formatting options' :
+                   'Quick create for PDF formatting options'}
       className="max-w-md"
     >
       <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -213,12 +301,14 @@ export function QuickCreatePageStyleDialog({
             {isSubmitting ? (
               <>
                 <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Creating...
+                {isEditing && editingPreset?.isDefault ? 'Saving Copy...' :
+                 isEditing ? 'Updating...' : 'Creating...'}
               </>
             ) : (
               <>
                 <Printer className="h-3 w-3" />
-                Create Preset
+                {isEditing && editingPreset?.isDefault ? 'Save as Copy' :
+                 isEditing ? 'Update Preset' : 'Create Preset'}
               </>
             )}
           </button>

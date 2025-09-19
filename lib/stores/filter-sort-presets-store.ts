@@ -26,7 +26,7 @@ interface FilterSortPresetsState {
 const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
   const baseDate = new Date()
   const productionId = 'prod-1' // TODO: Replace with actual production ID
-  
+
   switch (moduleType) {
     case 'cue':
       return [
@@ -38,8 +38,8 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           name: 'Outstanding Cues',
           config: {
             statusFilter: 'todo',
-            typeFilters: [],
-            priorityFilters: [],
+            typeFilters: ['cue', 'director', 'choreographer', 'designer', 'stage_manager', 'associate', 'assistant', 'spot', 'programmer', 'production', 'paperwork', 'think'],
+            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
             sortBy: 'priority',
             sortOrder: 'desc',
             groupByType: false,
@@ -57,8 +57,8 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           name: 'High Priority First',
           config: {
             statusFilter: null,
-            typeFilters: [],
-            priorityFilters: [],
+            typeFilters: ['cue', 'director', 'choreographer', 'designer', 'stage_manager', 'associate', 'assistant', 'spot', 'programmer', 'production', 'paperwork', 'think'],
+            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
             sortBy: 'priority',
             sortOrder: 'desc',
             groupByType: true,
@@ -68,8 +68,27 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           createdAt: baseDate,
           updatedAt: baseDate,
         },
+        {
+          id: 'sys-filter-cue-3',
+          productionId,
+          type: 'filter_sort',
+          moduleType: 'cue',
+          name: 'All Todo Notes',
+          config: {
+            statusFilter: 'todo',
+            typeFilters: ['cue', 'director', 'choreographer', 'designer', 'stage_manager', 'associate', 'assistant', 'spot', 'programmer', 'production', 'paperwork', 'think'],
+            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
+            sortBy: 'cue_number',
+            sortOrder: 'asc',
+            groupByType: false,
+          },
+          isDefault: true,
+          createdBy: 'system',
+          createdAt: baseDate,
+          updatedAt: baseDate,
+        },
       ]
-    
+
     case 'production':
       return [
         {
@@ -80,8 +99,8 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           name: 'Outstanding Issues',
           config: {
             statusFilter: 'todo',
-            typeFilters: [],
-            priorityFilters: [],
+            typeFilters: ['scenic', 'costumes', 'lighting', 'props', 'sound', 'video', 'stage_management', 'directing', 'choreography', 'production_management'],
+            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
             sortBy: 'priority',
             sortOrder: 'desc',
             groupByType: false,
@@ -99,8 +118,8 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           name: 'By Department',
           config: {
             statusFilter: null,
-            typeFilters: [],
-            priorityFilters: [],
+            typeFilters: ['scenic', 'costumes', 'lighting', 'props', 'sound', 'video', 'stage_management', 'directing', 'choreography', 'production_management'],
+            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
             sortBy: 'department',
             sortOrder: 'asc',
             groupByType: true,
@@ -110,8 +129,27 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           createdAt: baseDate,
           updatedAt: baseDate,
         },
+        {
+          id: 'sys-filter-prod-3',
+          productionId,
+          type: 'filter_sort',
+          moduleType: 'production',
+          name: 'All Todo Notes',
+          config: {
+            statusFilter: 'todo',
+            typeFilters: ['scenic', 'costumes', 'lighting', 'props', 'sound', 'video', 'stage_management', 'directing', 'choreography', 'production_management'],
+            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
+            sortBy: 'created_at',
+            sortOrder: 'desc',
+            groupByType: false,
+          },
+          isDefault: true,
+          createdBy: 'system',
+          createdAt: baseDate,
+          updatedAt: baseDate,
+        },
       ]
-    
+
     case 'work':
       return [
         {
@@ -122,8 +160,8 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           name: 'Outstanding Work',
           config: {
             statusFilter: 'todo',
-            typeFilters: [],
-            priorityFilters: [],
+            typeFilters: ['work', 'focus', 'paperwork', 'electrician', 'think'],
+            priorityFilters: ['critical', 'very_high', 'high', 'medium_high', 'medium', 'medium_low', 'low', 'very_low', 'uncritical'],
             sortBy: 'priority',
             sortOrder: 'desc',
             groupByType: false,
@@ -141,8 +179,8 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           name: 'By Channel',
           config: {
             statusFilter: null,
-            typeFilters: [],
-            priorityFilters: [],
+            typeFilters: ['work', 'focus', 'paperwork', 'electrician', 'think'],
+            priorityFilters: ['critical', 'very_high', 'high', 'medium_high', 'medium', 'medium_low', 'low', 'very_low', 'uncritical'],
             sortBy: 'channel',
             sortOrder: 'asc',
             groupByType: false,
@@ -152,8 +190,27 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           createdAt: baseDate,
           updatedAt: baseDate,
         },
+        {
+          id: 'sys-filter-work-3',
+          productionId,
+          type: 'filter_sort',
+          moduleType: 'work',
+          name: 'All Todo Notes',
+          config: {
+            statusFilter: 'todo',
+            typeFilters: ['work', 'focus', 'paperwork', 'electrician', 'think'],
+            priorityFilters: ['critical', 'very_high', 'high', 'medium_high', 'medium', 'medium_low', 'low', 'very_low', 'uncritical'],
+            sortBy: 'position',
+            sortOrder: 'asc',
+            groupByType: false,
+          },
+          isDefault: true,
+          createdBy: 'system',
+          createdAt: baseDate,
+          updatedAt: baseDate,
+        },
       ]
-    
+
     default:
       return []
   }

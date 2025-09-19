@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Filter, CheckSquare, Square } from 'lucide-react'
@@ -28,6 +28,7 @@ interface QuickCreateFilterSortDialogProps {
   onPresetCreated: (preset: FilterSortPreset) => void
   moduleType: ModuleType
   defaultValues?: Partial<FilterSortFormData>
+  editingPreset?: FilterSortPreset | null
 }
 
 export function QuickCreateFilterSortDialog({
@@ -35,13 +36,16 @@ export function QuickCreateFilterSortDialog({
   onClose,
   onPresetCreated,
   moduleType,
-  defaultValues = {}
+  defaultValues = {},
+  editingPreset = null
 }: QuickCreateFilterSortDialogProps) {
-  const { addPreset } = useFilterSortPresetsStore()
+  const { addPreset, updatePreset } = useFilterSortPresetsStore()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
   
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const isEditing = !!editingPreset
 
   const form = useForm<FilterSortFormData>({
     resolver: zodResolver(filterSortFormSchema),
@@ -57,6 +61,35 @@ export function QuickCreateFilterSortDialog({
       ...defaultValues,
     },
   })
+
+  // Reset form when editingPreset changes
+  useEffect(() => {
+    if (editingPreset) {
+      form.reset({
+        name: editingPreset.name,
+        moduleType,
+        statusFilter: editingPreset.config.statusFilter,
+        typeFilters: editingPreset.config.typeFilters,
+        priorityFilters: editingPreset.config.priorityFilters,
+        sortBy: editingPreset.config.sortBy,
+        sortOrder: editingPreset.config.sortOrder,
+        groupByType: editingPreset.config.groupByType,
+        ...defaultValues,
+      })
+    } else {
+      form.reset({
+        name: '',
+        moduleType,
+        statusFilter: null,
+        typeFilters: [],
+        priorityFilters: [],
+        sortBy: 'priority',
+        sortOrder: 'desc',
+        groupByType: false,
+        ...defaultValues,
+      })
+    }
+  }, [editingPreset, moduleType]) // Removed form and defaultValues from dependencies
 
   // Get available types and priorities for this module
   const availableTypes = useMemo(() => {
@@ -90,47 +123,112 @@ export function QuickCreateFilterSortDialog({
 
   const handleSubmit = async (data: FilterSortFormData) => {
     setIsSubmitting(true)
-    
+
     try {
-      // Create preset using store
-      const newPresetData = {
-        type: 'filter_sort' as const,
-        moduleType: data.moduleType,
-        name: data.name,
-        productionId: 'prod-1', // TODO: Get from production context
-        config: {
-          statusFilter: data.statusFilter,
-          typeFilters: data.typeFilters,
-          priorityFilters: data.priorityFilters,
-          sortBy: data.sortBy,
-          sortOrder: data.sortOrder,
-          groupByType: data.groupByType,
-        },
-        isDefault: false,
-        createdBy: 'user', // TODO: Get from auth
+      if (isEditing && editingPreset) {
+        if (editingPreset.isDefault) {
+          // Create new preset based on system default (don't modify original)
+          const newPresetData = {
+            type: 'filter_sort' as const,
+            moduleType: data.moduleType,
+            name: data.name,
+            productionId: 'prod-1', // TODO: Get from production context
+            config: {
+              statusFilter: data.statusFilter,
+              typeFilters: data.typeFilters,
+              priorityFilters: data.priorityFilters,
+              sortBy: data.sortBy,
+              sortOrder: data.sortOrder,
+              groupByType: data.groupByType,
+            },
+            isDefault: false,
+            createdBy: 'user', // TODO: Get from auth
+          }
+
+          addPreset(newPresetData)
+
+          // Create mock preset with the expected structure for callback
+          const createdPreset: FilterSortPreset = {
+            id: `filter-sort-${Math.random().toString(36).substr(2, 9)}`,
+            productionId: 'prod-1', // TODO: Get from production context
+            type: 'filter_sort',
+            moduleType: data.moduleType,
+            name: data.name,
+            config: newPresetData.config,
+            isDefault: false,
+            createdBy: 'user',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+
+          onPresetCreated(createdPreset)
+        } else {
+          // Update existing user preset
+          const updatedConfig = {
+            statusFilter: data.statusFilter,
+            typeFilters: data.typeFilters,
+            priorityFilters: data.priorityFilters,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            groupByType: data.groupByType,
+          }
+
+          updatePreset(editingPreset.id, {
+            name: data.name,
+            config: updatedConfig,
+          })
+
+          // Create updated preset object for callback
+          const updatedPreset: FilterSortPreset = {
+            ...editingPreset,
+            name: data.name,
+            config: updatedConfig,
+            updatedAt: new Date(),
+          }
+
+          onPresetCreated(updatedPreset)
+        }
+      } else {
+        // Create new preset
+        const newPresetData = {
+          type: 'filter_sort' as const,
+          moduleType: data.moduleType,
+          name: data.name,
+          productionId: 'prod-1', // TODO: Get from production context
+          config: {
+            statusFilter: data.statusFilter,
+            typeFilters: data.typeFilters,
+            priorityFilters: data.priorityFilters,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            groupByType: data.groupByType,
+          },
+          isDefault: false,
+          createdBy: 'user', // TODO: Get from auth
+        }
+
+        addPreset(newPresetData)
+
+        // Create mock preset with the expected structure for callback
+        const createdPreset: FilterSortPreset = {
+          id: `filter-sort-${Math.random().toString(36).substr(2, 9)}`,
+          productionId: 'prod-1', // TODO: Get from production context
+          type: 'filter_sort',
+          moduleType: data.moduleType,
+          name: data.name,
+          config: newPresetData.config,
+          isDefault: false,
+          createdBy: 'user',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+
+        onPresetCreated(createdPreset)
       }
-      
-      addPreset(newPresetData)
-      
-      // Get the created preset from store - it will have the generated ID
-      // For now, we'll create a mock preset with the expected structure
-      const createdPreset: FilterSortPreset = {
-        id: `filter-sort-${Math.random().toString(36).substr(2, 9)}`,
-        productionId: 'prod-1', // TODO: Get from production context
-        type: 'filter_sort',
-        moduleType: data.moduleType,
-        name: data.name,
-        config: newPresetData.config,
-        isDefault: false,
-        createdBy: 'user',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      
-      onPresetCreated(createdPreset)
+
       onClose()
     } catch (error) {
-      console.error('Failed to create preset:', error)
+      console.error(`Failed to ${isEditing ? 'update' : 'create'} preset:`, error)
     } finally {
       setIsSubmitting(false)
     }
@@ -187,8 +285,12 @@ export function QuickCreateFilterSortDialog({
     <QuickCreatePresetDialog
       open={isOpen}
       onClose={handleCancel}
-      title="Create Filter & Sort Preset"
-      description={`Quick create for ${moduleNames[moduleType]}`}
+      title={isEditing && editingPreset?.isDefault ? "Copy System Preset" :
+             isEditing ? "Edit Filter & Sort Preset" : "Create Filter & Sort Preset"}
+      description={isEditing && editingPreset?.isDefault ?
+                   `Create a custom copy of "${editingPreset?.name}" for ${moduleNames[moduleType]}` :
+                   isEditing ? `Edit preset for ${moduleNames[moduleType]}` :
+                   `Quick create for ${moduleNames[moduleType]}`}
       className="max-w-lg"
     >
       <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -379,12 +481,14 @@ export function QuickCreateFilterSortDialog({
             {isSubmitting ? (
               <>
                 <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Creating...
+                {isEditing && editingPreset?.isDefault ? 'Saving Copy...' :
+                 isEditing ? 'Updating...' : 'Creating...'}
               </>
             ) : (
               <>
                 <Filter className="h-3 w-3" />
-                Create Preset
+                {isEditing && editingPreset?.isDefault ? 'Save as Copy' :
+                 isEditing ? 'Update Preset' : 'Create Preset'}
               </>
             )}
           </button>

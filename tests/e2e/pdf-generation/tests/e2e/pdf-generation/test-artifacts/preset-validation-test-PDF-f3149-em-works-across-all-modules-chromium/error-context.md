@@ -1,0 +1,1437 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img "LX Notes" [ref=e6]
+          - button "Collapse sidebar" [ref=e7] [cursor=pointer]:
+            - img [ref=e8] [cursor=pointer]
+        - navigation [ref=e10]:
+          - link "Cue Notes" [ref=e11] [cursor=pointer]:
+            - /url: /cue-notes
+            - img [ref=e12] [cursor=pointer]
+            - generic [ref=e14] [cursor=pointer]: Cue Notes
+          - link "Work Notes" [ref=e15] [cursor=pointer]:
+            - /url: /work-notes
+            - img [ref=e16] [cursor=pointer]
+            - generic [ref=e18] [cursor=pointer]: Work Notes
+          - link "Production Notes" [ref=e19] [cursor=pointer]:
+            - /url: /production-notes
+            - img [ref=e20] [cursor=pointer]
+            - generic [ref=e23] [cursor=pointer]: Production Notes
+          - link "Settings" [ref=e24] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e25] [cursor=pointer]
+            - generic [ref=e28] [cursor=pointer]: Settings
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - generic [ref=e34]: Tablet Mode
+          - button [ref=e35] [cursor=pointer]
+        - generic [ref=e40]:
+          - paragraph [ref=e41]: Dev User
+          - paragraph [ref=e42]: dev@lxnotes.app
+    - main [ref=e43]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e48]:
+                - generic [ref=e50]: 🎭
+                - generic [ref=e51]:
+                  - heading "Joy!" [level=2] [ref=e52]
+                  - paragraph [ref=e53]: Joy
+              - heading "Cue Notes" [level=1] [ref=e55]:
+                - img [ref=e56]
+                - text: Cue Notes
+              - generic [ref=e58]:
+                - button "PDF" [active] [ref=e59] [cursor=pointer]:
+                  - img
+                  - text: PDF
+                - button "Email" [ref=e60] [cursor=pointer]:
+                  - img
+                  - text: Email
+                - link "Manage Script" [ref=e61] [cursor=pointer]:
+                  - /url: /manage-script
+                  - button "Manage Script" [ref=e62] [cursor=pointer]:
+                    - img
+                    - text: Manage Script
+                - button "Add Cue Note" [ref=e63] [cursor=pointer]:
+                  - img
+                  - text: Add Cue Note
+            - generic [ref=e64]:
+              - generic [ref=e65]:
+                - generic [ref=e66]:
+                  - generic [ref=e67]: Status
+                  - generic [ref=e68]:
+                    - button "To Do" [ref=e69] [cursor=pointer]
+                    - button "Complete" [ref=e70] [cursor=pointer]
+                    - button "Cancelled" [ref=e71] [cursor=pointer]
+                - generic [ref=e72]:
+                  - generic [ref=e73]: Type
+                  - combobox [ref=e74] [cursor=pointer]:
+                    - generic [ref=e75] [cursor=pointer]: All Types
+                    - img
+              - generic [ref=e76]:
+                - img [ref=e77]
+                - textbox "Search cue notes..." [ref=e80]
+            - generic [ref=e81]:
+              - generic [ref=e82]: "Quick Add:"
+              - button "Cue" [ref=e83] [cursor=pointer]:
+                - img
+                - text: Cue
+              - button "Director" [ref=e84] [cursor=pointer]:
+                - img
+                - text: Director
+              - button "Choreographer" [ref=e85] [cursor=pointer]:
+                - img
+                - text: Choreographer
+              - button "Designer" [ref=e86] [cursor=pointer]:
+                - img
+                - text: Designer
+              - button "Stage Manager" [ref=e87] [cursor=pointer]:
+                - img
+                - text: Stage Manager
+              - button "Associate" [ref=e88] [cursor=pointer]:
+                - img
+                - text: Associate
+              - button "Assistant" [ref=e89] [cursor=pointer]:
+                - img
+                - text: Assistant
+              - button "Spot" [ref=e90] [cursor=pointer]:
+                - img
+                - text: Spot
+              - button "Programmer" [ref=e91] [cursor=pointer]:
+                - img
+                - text: Programmer
+              - button "Production" [ref=e92] [cursor=pointer]:
+                - img
+                - text: Production
+              - button "Paperwork" [ref=e93] [cursor=pointer]:
+                - img
+                - text: Paperwork
+              - button "Think" [ref=e94] [cursor=pointer]:
+                - img
+                - text: Think
+          - table [ref=e97]:
+            - rowgroup [ref=e98]:
+              - 'row "Actions Priority Type Cue # Note Script Page - Scene/Song Who Created Created" [ref=e99]':
+                - cell "Actions" [ref=e100]
+                - cell "Priority" [ref=e101] [cursor=pointer]:
+                  - generic [ref=e102] [cursor=pointer]:
+                    - text: Priority
+                    - img [ref=e103] [cursor=pointer]
+                - cell "Type" [ref=e106] [cursor=pointer]:
+                  - generic [ref=e107] [cursor=pointer]:
+                    - text: Type
+                    - img [ref=e108] [cursor=pointer]
+                - 'cell "Cue #" [ref=e111] [cursor=pointer]':
+                  - generic [ref=e112] [cursor=pointer]:
+                    - text: "Cue #"
+                    - img [ref=e113] [cursor=pointer]
+                - cell "Note" [ref=e116] [cursor=pointer]:
+                  - generic [ref=e117] [cursor=pointer]:
+                    - text: Note
+                    - img [ref=e118] [cursor=pointer]
+                - cell "Script Page - Scene/Song" [ref=e121]
+                - cell "Who Created" [ref=e122]
+                - cell "Created" [ref=e123] [cursor=pointer]:
+                  - generic [ref=e124] [cursor=pointer]:
+                    - text: Created
+                    - img [ref=e125] [cursor=pointer]
+            - rowgroup [ref=e128]:
+              - row "Low Think 4200 Lighting career reflection Pg. 38a. Nick Solyom 1/17/2024, 10:00 PM" [ref=e129] [cursor=pointer]:
+                - cell [ref=e130] [cursor=pointer]:
+                  - generic [ref=e131] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e132] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e133] [cursor=pointer]:
+                      - img
+                - cell "Low" [ref=e134] [cursor=pointer]:
+                  - generic [ref=e135] [cursor=pointer]: Low
+                - cell "Think" [ref=e136] [cursor=pointer]:
+                  - generic [ref=e137] [cursor=pointer]: Think
+                - cell "4200" [ref=e138] [cursor=pointer]
+                - cell "Lighting career reflection" [ref=e139] [cursor=pointer]:
+                  - generic [ref=e140] [cursor=pointer]: Lighting career reflection
+                - cell "Pg. 38a." [ref=e141] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e142] [cursor=pointer]
+                - cell "1/17/2024, 10:00 PM" [ref=e143] [cursor=pointer]
+              - row "Low Stage Manager 3400 Archive show photos Pg. 38a. Nick Solyom 1/17/2024, 9:30 PM" [ref=e144] [cursor=pointer]:
+                - cell [ref=e145] [cursor=pointer]:
+                  - generic [ref=e146] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e147] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e148] [cursor=pointer]:
+                      - img
+                - cell "Low" [ref=e149] [cursor=pointer]:
+                  - generic [ref=e150] [cursor=pointer]: Low
+                - cell "Stage Manager" [ref=e151] [cursor=pointer]:
+                  - generic [ref=e152] [cursor=pointer]: Stage Manager
+                - cell "3400" [ref=e153] [cursor=pointer]
+                - cell "Archive show photos" [ref=e154] [cursor=pointer]:
+                  - generic [ref=e155] [cursor=pointer]: Archive show photos
+                - cell "Pg. 38a." [ref=e156] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e157] [cursor=pointer]
+                - cell "1/17/2024, 9:30 PM" [ref=e158] [cursor=pointer]
+              - row "Low Think 3000 Budget reconciliation Pg. 38a. Nick Solyom 1/17/2024, 9:00 PM" [ref=e159] [cursor=pointer]:
+                - cell [ref=e160] [cursor=pointer]:
+                  - generic [ref=e161] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e162] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e163] [cursor=pointer]:
+                      - img
+                - cell "Low" [ref=e164] [cursor=pointer]:
+                  - generic [ref=e165] [cursor=pointer]: Low
+                - cell "Think" [ref=e166] [cursor=pointer]:
+                  - generic [ref=e167] [cursor=pointer]: Think
+                - cell "3000" [ref=e168] [cursor=pointer]
+                - cell "Budget reconciliation" [ref=e169] [cursor=pointer]:
+                  - generic [ref=e170] [cursor=pointer]: Budget reconciliation
+                - cell "Pg. 38a." [ref=e171] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e172] [cursor=pointer]
+                - cell "1/17/2024, 9:00 PM" [ref=e173] [cursor=pointer]
+              - row "Medium Think 2100 Sidelight color consistency Pg. 38a. Nick Solyom 1/17/2024, 8:30 PM" [ref=e174] [cursor=pointer]:
+                - cell [ref=e175] [cursor=pointer]:
+                  - generic [ref=e176] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e177] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e178] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e179] [cursor=pointer]:
+                  - generic [ref=e180] [cursor=pointer]: Medium
+                - cell "Think" [ref=e181] [cursor=pointer]:
+                  - generic [ref=e182] [cursor=pointer]: Think
+                - cell "2100" [ref=e183] [cursor=pointer]
+                - cell "Sidelight color consistency" [ref=e184] [cursor=pointer]:
+                  - generic [ref=e185] [cursor=pointer]: Sidelight color consistency
+                - cell "Pg. 38a." [ref=e186] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e187] [cursor=pointer]
+                - cell "1/17/2024, 8:30 PM" [ref=e188] [cursor=pointer]
+              - row "Very High Associate 4000 Equipment return inspection Pg. 38a. Nick Solyom 1/17/2024, 8:30 PM" [ref=e189] [cursor=pointer]:
+                - cell [ref=e190] [cursor=pointer]:
+                  - generic [ref=e191] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e192] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e193] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e194] [cursor=pointer]:
+                  - generic [ref=e195] [cursor=pointer]: Very High
+                - cell "Associate" [ref=e196] [cursor=pointer]:
+                  - generic [ref=e197] [cursor=pointer]: Associate
+                - cell "4000" [ref=e198] [cursor=pointer]
+                - cell "Equipment return inspection" [ref=e199] [cursor=pointer]:
+                  - generic [ref=e200] [cursor=pointer]: Equipment return inspection
+                - cell "Pg. 38a." [ref=e201] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e202] [cursor=pointer]
+                - cell "1/17/2024, 8:30 PM" [ref=e203] [cursor=pointer]
+              - row "Critical Stage Manager 2200 Strike schedule coordination Pg. 38a. Nick Solyom 1/17/2024, 8:15 PM" [ref=e204] [cursor=pointer]:
+                - cell [ref=e205] [cursor=pointer]:
+                  - generic [ref=e206] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e207] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e208] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e209] [cursor=pointer]:
+                  - generic [ref=e210] [cursor=pointer]: Critical
+                - cell "Stage Manager" [ref=e211] [cursor=pointer]:
+                  - generic [ref=e212] [cursor=pointer]: Stage Manager
+                - cell "2200" [ref=e213] [cursor=pointer]
+                - cell "Strike schedule coordination" [ref=e214] [cursor=pointer]:
+                  - generic [ref=e215] [cursor=pointer]: Strike schedule coordination
+                - cell "Pg. 38a." [ref=e216] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e217] [cursor=pointer]
+                - cell "1/17/2024, 8:15 PM" [ref=e218] [cursor=pointer]
+              - row "Low Think 1400 LED color matching Pg. 38a. Nick Solyom 1/17/2024, 8:00 PM" [ref=e219] [cursor=pointer]:
+                - cell [ref=e220] [cursor=pointer]:
+                  - generic [ref=e221] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e222] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e223] [cursor=pointer]:
+                      - img
+                - cell "Low" [ref=e224] [cursor=pointer]:
+                  - generic [ref=e225] [cursor=pointer]: Low
+                - cell "Think" [ref=e226] [cursor=pointer]:
+                  - generic [ref=e227] [cursor=pointer]: Think
+                - cell "1400" [ref=e228] [cursor=pointer]
+                - cell "LED color matching" [ref=e229] [cursor=pointer]:
+                  - generic [ref=e230] [cursor=pointer]: LED color matching
+                - cell "Pg. 38a." [ref=e231] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e232] [cursor=pointer]
+                - cell "1/17/2024, 8:00 PM" [ref=e233] [cursor=pointer]
+              - row "Critical Stage Manager 1500 Backup power test Pg. 38a. Nick Solyom 1/17/2024, 7:45 PM" [ref=e234] [cursor=pointer]:
+                - cell [ref=e235] [cursor=pointer]:
+                  - generic [ref=e236] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e237] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e238] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e239] [cursor=pointer]:
+                  - generic [ref=e240] [cursor=pointer]: Critical
+                - cell "Stage Manager" [ref=e241] [cursor=pointer]:
+                  - generic [ref=e242] [cursor=pointer]: Stage Manager
+                - cell "1500" [ref=e243] [cursor=pointer]
+                - cell "Backup power test" [ref=e244] [cursor=pointer]:
+                  - generic [ref=e245] [cursor=pointer]: Backup power test
+                - cell "Pg. 38a." [ref=e246] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e247] [cursor=pointer]
+                - cell "1/17/2024, 7:45 PM" [ref=e248] [cursor=pointer]
+              - row "Medium Director 4400 Director collaboration notes Pg. 38a. Nick Solyom 1/17/2024, 7:45 PM" [ref=e249] [cursor=pointer]:
+                - cell [ref=e250] [cursor=pointer]:
+                  - generic [ref=e251] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e252] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e253] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e254] [cursor=pointer]:
+                  - generic [ref=e255] [cursor=pointer]: Medium
+                - cell "Director" [ref=e256] [cursor=pointer]:
+                  - generic [ref=e257] [cursor=pointer]: Director
+                - cell "4400" [ref=e258] [cursor=pointer]
+                - cell "Director collaboration notes" [ref=e259] [cursor=pointer]:
+                  - generic [ref=e260] [cursor=pointer]: Director collaboration notes
+                - cell "Pg. 38a." [ref=e261] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e262] [cursor=pointer]
+                - cell "1/17/2024, 7:45 PM" [ref=e263] [cursor=pointer]
+              - row "Medium Think 1 Automated vs manual cues Pg. 1 - Overture Nick Solyom 1/17/2024, 7:30 PM" [ref=e264] [cursor=pointer]:
+                - cell [ref=e265] [cursor=pointer]:
+                  - generic [ref=e266] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e267] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e268] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e269] [cursor=pointer]:
+                  - generic [ref=e270] [cursor=pointer]: Medium
+                - cell "Think" [ref=e271] [cursor=pointer]:
+                  - generic [ref=e272] [cursor=pointer]: Think
+                - cell "1" [ref=e273] [cursor=pointer]
+                - cell "Automated vs manual cues" [ref=e274] [cursor=pointer]:
+                  - generic [ref=e275] [cursor=pointer]: Automated vs manual cues
+                - cell "Pg. 1 - Overture" [ref=e276] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e277] [cursor=pointer]
+                - cell "1/17/2024, 7:30 PM" [ref=e278] [cursor=pointer]
+              - row "Medium Associate 2800 Season planning meeting Pg. 38a. Nick Solyom 1/17/2024, 7:30 PM" [ref=e279] [cursor=pointer]:
+                - cell [ref=e280] [cursor=pointer]:
+                  - generic [ref=e281] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e282] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e283] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e284] [cursor=pointer]:
+                  - generic [ref=e285] [cursor=pointer]: Medium
+                - cell "Associate" [ref=e286] [cursor=pointer]:
+                  - generic [ref=e287] [cursor=pointer]: Associate
+                - cell "2800" [ref=e288] [cursor=pointer]
+                - cell "Season planning meeting" [ref=e289] [cursor=pointer]:
+                  - generic [ref=e290] [cursor=pointer]: Season planning meeting
+                - cell "Pg. 38a." [ref=e291] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e292] [cursor=pointer]
+                - cell "1/17/2024, 7:30 PM" [ref=e293] [cursor=pointer]
+              - row "Medium Spot 3500 Final equipment clean Pg. 38a. Nick Solyom 1/17/2024, 7:15 PM" [ref=e294] [cursor=pointer]:
+                - cell [ref=e295] [cursor=pointer]:
+                  - generic [ref=e296] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e297] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e298] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e299] [cursor=pointer]:
+                  - generic [ref=e300] [cursor=pointer]: Medium
+                - cell "Spot" [ref=e301] [cursor=pointer]:
+                  - generic [ref=e302] [cursor=pointer]: Spot
+                - cell "3500" [ref=e303] [cursor=pointer]
+                - cell "Final equipment clean" [ref=e304] [cursor=pointer]:
+                  - generic [ref=e305] [cursor=pointer]: Final equipment clean
+                - cell "Pg. 38a." [ref=e306] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e307] [cursor=pointer]
+                - cell "1/17/2024, 7:15 PM" [ref=e308] [cursor=pointer]
+              - row "Low Think 999 Backup console programming Pg. 38a. Nick Solyom 1/17/2024, 7:00 PM" [ref=e309] [cursor=pointer]:
+                - cell [ref=e310] [cursor=pointer]:
+                  - generic [ref=e311] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e312] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e313] [cursor=pointer]:
+                      - img
+                - cell "Low" [ref=e314] [cursor=pointer]:
+                  - generic [ref=e315] [cursor=pointer]: Low
+                - cell "Think" [ref=e316] [cursor=pointer]:
+                  - generic [ref=e317] [cursor=pointer]: Think
+                - cell "999" [ref=e318] [cursor=pointer]
+                - cell "Backup console programming" [ref=e319] [cursor=pointer]:
+                  - generic [ref=e320] [cursor=pointer]: Backup console programming
+                - cell "Pg. 38a." [ref=e321] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e322] [cursor=pointer]
+                - cell "1/17/2024, 7:00 PM" [ref=e323] [cursor=pointer]
+              - row "Critical Stage Manager 900 Cue light malfunction Pg. 38a. Nick Solyom 1/17/2024, 7:00 PM" [ref=e324] [cursor=pointer]:
+                - cell [ref=e325] [cursor=pointer]:
+                  - generic [ref=e326] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e327] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e328] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e329] [cursor=pointer]:
+                  - generic [ref=e330] [cursor=pointer]: Critical
+                - cell "Stage Manager" [ref=e331] [cursor=pointer]:
+                  - generic [ref=e332] [cursor=pointer]: Stage Manager
+                - cell "900" [ref=e333] [cursor=pointer]
+                - cell "Cue light malfunction" [ref=e334] [cursor=pointer]:
+                  - generic [ref=e335] [cursor=pointer]: Cue light malfunction
+                - cell "Pg. 38a." [ref=e336] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e337] [cursor=pointer]
+                - cell "1/17/2024, 7:00 PM" [ref=e338] [cursor=pointer]
+              - 'row "Medium Associate 112 Library scene intimacy Pg. 19 - #4 THE SHAPE OF THINGS Nick Solyom 1/17/2024, 6:45 PM" [ref=e339] [cursor=pointer]':
+                - cell [ref=e340] [cursor=pointer]:
+                  - generic [ref=e341] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e342] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e343] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e344] [cursor=pointer]:
+                  - generic [ref=e345] [cursor=pointer]: Medium
+                - cell "Associate" [ref=e346] [cursor=pointer]:
+                  - generic [ref=e347] [cursor=pointer]: Associate
+                - cell "112" [ref=e348] [cursor=pointer]
+                - cell "Library scene intimacy" [ref=e349] [cursor=pointer]:
+                  - generic [ref=e350] [cursor=pointer]: Library scene intimacy
+                - 'cell "Pg. 19 - #4 THE SHAPE OF THINGS" [ref=e351] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e352] [cursor=pointer]
+                - cell "1/17/2024, 6:45 PM" [ref=e353] [cursor=pointer]
+              - 'row "Critical Stage Manager 89 Quick change timing Pg. 10 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 6:30 PM" [ref=e354] [cursor=pointer]':
+                - cell [ref=e355] [cursor=pointer]:
+                  - generic [ref=e356] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e357] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e358] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e359] [cursor=pointer]:
+                  - generic [ref=e360] [cursor=pointer]: Critical
+                - cell "Stage Manager" [ref=e361] [cursor=pointer]:
+                  - generic [ref=e362] [cursor=pointer]: Stage Manager
+                - cell "89" [ref=e363] [cursor=pointer]
+                - cell "Quick change timing" [ref=e364] [cursor=pointer]:
+                  - generic [ref=e365] [cursor=pointer]: Quick change timing
+                - 'cell "Pg. 10 - #2 WELCOME TO MY WORLD" [ref=e366] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e367] [cursor=pointer]
+                - cell "1/17/2024, 6:30 PM" [ref=e368] [cursor=pointer]
+              - row "Medium Director 3200 Thank you notes to crew Pg. 38a. Nick Solyom 1/17/2024, 6:30 PM" [ref=e369] [cursor=pointer]:
+                - cell [ref=e370] [cursor=pointer]:
+                  - generic [ref=e371] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e372] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e373] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e374] [cursor=pointer]:
+                  - generic [ref=e375] [cursor=pointer]: Medium
+                - cell "Director" [ref=e376] [cursor=pointer]:
+                  - generic [ref=e377] [cursor=pointer]: Director
+                - cell "3200" [ref=e378] [cursor=pointer]
+                - cell "Thank you notes to crew" [ref=e379] [cursor=pointer]:
+                  - generic [ref=e380] [cursor=pointer]: Thank you notes to crew
+                - cell "Pg. 38a." [ref=e381] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e382] [cursor=pointer]
+                - cell "1/17/2024, 6:30 PM" [ref=e383] [cursor=pointer]
+              - row "Very High Spot 2300 Followspot color wheel Pg. 38a. Nick Solyom 1/17/2024, 6:15 PM" [ref=e384] [cursor=pointer]:
+                - cell [ref=e385] [cursor=pointer]:
+                  - generic [ref=e386] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e387] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e388] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e389] [cursor=pointer]:
+                  - generic [ref=e390] [cursor=pointer]: Very High
+                - cell "Spot" [ref=e391] [cursor=pointer]:
+                  - generic [ref=e392] [cursor=pointer]: Spot
+                - cell "2300" [ref=e393] [cursor=pointer]
+                - cell "Followspot color wheel" [ref=e394] [cursor=pointer]:
+                  - generic [ref=e395] [cursor=pointer]: Followspot color wheel
+                - cell "Pg. 38a." [ref=e396] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e397] [cursor=pointer]
+                - cell "1/17/2024, 6:15 PM" [ref=e398] [cursor=pointer]
+              - 'row "Very High Assistant 23 Haze machine refill Pg. 4 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 6:00 PM" [ref=e399] [cursor=pointer]':
+                - cell [ref=e400] [cursor=pointer]:
+                  - generic [ref=e401] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e402] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e403] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e404] [cursor=pointer]:
+                  - generic [ref=e405] [cursor=pointer]: Very High
+                - cell "Assistant" [ref=e406] [cursor=pointer]:
+                  - generic [ref=e407] [cursor=pointer]: Assistant
+                - cell "23" [ref=e408] [cursor=pointer]
+                - cell "Haze machine refill" [ref=e409] [cursor=pointer]:
+                  - generic [ref=e410] [cursor=pointer]: Haze machine refill
+                - 'cell "Pg. 4 - #2 WELCOME TO MY WORLD" [ref=e411] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e412] [cursor=pointer]
+                - cell "1/17/2024, 6:00 PM" [ref=e413] [cursor=pointer]
+              - 'row "Medium Associate 89 Courtyard scene romance Pg. 10 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 6:00 PM" [ref=e414] [cursor=pointer]':
+                - cell [ref=e415] [cursor=pointer]:
+                  - generic [ref=e416] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e417] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e418] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e419] [cursor=pointer]:
+                  - generic [ref=e420] [cursor=pointer]: Medium
+                - cell "Associate" [ref=e421] [cursor=pointer]:
+                  - generic [ref=e422] [cursor=pointer]: Associate
+                - cell "89" [ref=e423] [cursor=pointer]
+                - cell "Courtyard scene romance" [ref=e424] [cursor=pointer]:
+                  - generic [ref=e425] [cursor=pointer]: Courtyard scene romance
+                - 'cell "Pg. 10 - #2 WELCOME TO MY WORLD" [ref=e426] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e427] [cursor=pointer]
+                - cell "1/17/2024, 6:00 PM" [ref=e428] [cursor=pointer]
+              - row "Low Programmer 3800 Programming techniques learned Pg. 38a. Nick Solyom 1/17/2024, 6:00 PM" [ref=e429] [cursor=pointer]:
+                - cell [ref=e430] [cursor=pointer]:
+                  - generic [ref=e431] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e432] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e433] [cursor=pointer]:
+                      - img
+                - cell "Low" [ref=e434] [cursor=pointer]:
+                  - generic [ref=e435] [cursor=pointer]: Low
+                - cell "Programmer" [ref=e436] [cursor=pointer]:
+                  - generic [ref=e437] [cursor=pointer]: Programmer
+                - cell "3800" [ref=e438] [cursor=pointer]
+                - cell "Programming techniques learned" [ref=e439] [cursor=pointer]:
+                  - generic [ref=e440] [cursor=pointer]: Programming techniques learned
+                - cell "Pg. 38a." [ref=e441] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e442] [cursor=pointer]
+                - cell "1/17/2024, 6:00 PM" [ref=e443] [cursor=pointer]
+              - row "Very High Spot 1600 Spot cue sheet missing Pg. 38a. Nick Solyom 1/17/2024, 5:45 PM" [ref=e444] [cursor=pointer]:
+                - cell [ref=e445] [cursor=pointer]:
+                  - generic [ref=e446] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e447] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e448] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e449] [cursor=pointer]:
+                  - generic [ref=e450] [cursor=pointer]: Very High
+                - cell "Spot" [ref=e451] [cursor=pointer]:
+                  - generic [ref=e452] [cursor=pointer]: Spot
+                - cell "1600" [ref=e453] [cursor=pointer]
+                - cell "Spot cue sheet missing" [ref=e454] [cursor=pointer]:
+                  - generic [ref=e455] [cursor=pointer]: Spot cue sheet missing
+                - cell "Pg. 38a." [ref=e456] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e457] [cursor=pointer]
+                - cell "1/17/2024, 5:45 PM" [ref=e458] [cursor=pointer]
+              - 'row "Critical Stage Manager 112 Fog machine timing Pg. 19 - #4 THE SHAPE OF THINGS Nick Solyom 1/17/2024, 5:30 PM" [ref=e459] [cursor=pointer]':
+                - cell [ref=e460] [cursor=pointer]:
+                  - generic [ref=e461] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e462] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e463] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e464] [cursor=pointer]:
+                  - generic [ref=e465] [cursor=pointer]: Critical
+                - cell "Stage Manager" [ref=e466] [cursor=pointer]:
+                  - generic [ref=e467] [cursor=pointer]: Stage Manager
+                - cell "112" [ref=e468] [cursor=pointer]
+                - cell "Fog machine timing" [ref=e469] [cursor=pointer]:
+                  - generic [ref=e470] [cursor=pointer]: Fog machine timing
+                - 'cell "Pg. 19 - #4 THE SHAPE OF THINGS" [ref=e471] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e472] [cursor=pointer]
+                - cell "1/17/2024, 5:30 PM" [ref=e473] [cursor=pointer]
+              - 'row "Medium Associate 45 Throne room majesty Pg. 7 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 5:15 PM" [ref=e474] [cursor=pointer]':
+                - cell [ref=e475] [cursor=pointer]:
+                  - generic [ref=e476] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e477] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e478] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e479] [cursor=pointer]:
+                  - generic [ref=e480] [cursor=pointer]: Medium
+                - cell "Associate" [ref=e481] [cursor=pointer]:
+                  - generic [ref=e482] [cursor=pointer]: Associate
+                - cell "45" [ref=e483] [cursor=pointer]
+                - cell "Throne room majesty" [ref=e484] [cursor=pointer]:
+                  - generic [ref=e485] [cursor=pointer]: Throne room majesty
+                - 'cell "Pg. 7 - #2 WELCOME TO MY WORLD" [ref=e486] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e487] [cursor=pointer]
+                - cell "1/17/2024, 5:15 PM" [ref=e488] [cursor=pointer]
+              - 'row "Low Think 78 Followspot iris size Pg. 10 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 5:00 PM" [ref=e489] [cursor=pointer]':
+                - cell [ref=e490] [cursor=pointer]:
+                  - generic [ref=e491] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e492] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e493] [cursor=pointer]:
+                      - img
+                - cell "Low" [ref=e494] [cursor=pointer]:
+                  - generic [ref=e495] [cursor=pointer]: Low
+                - cell "Think" [ref=e496] [cursor=pointer]:
+                  - generic [ref=e497] [cursor=pointer]: Think
+                - cell "78" [ref=e498] [cursor=pointer]
+                - cell "Followspot iris size" [ref=e499] [cursor=pointer]:
+                  - generic [ref=e500] [cursor=pointer]: Followspot iris size
+                - 'cell "Pg. 10 - #2 WELCOME TO MY WORLD" [ref=e501] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e502] [cursor=pointer]
+                - cell "1/17/2024, 5:00 PM" [ref=e503] [cursor=pointer]
+              - 'row "Medium Director 234 Actors missing light cues Pg. 35 - #7 AMAZING / DISAPPOINTING Nick Solyom 1/17/2024, 5:00 PM" [ref=e504] [cursor=pointer]':
+                - cell [ref=e505] [cursor=pointer]:
+                  - generic [ref=e506] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e507] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e508] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e509] [cursor=pointer]:
+                  - generic [ref=e510] [cursor=pointer]: Medium
+                - cell "Director" [ref=e511] [cursor=pointer]:
+                  - generic [ref=e512] [cursor=pointer]: Director
+                - cell "234" [ref=e513] [cursor=pointer]
+                - cell "Actors missing light cues" [ref=e514] [cursor=pointer]:
+                  - generic [ref=e515] [cursor=pointer]: Actors missing light cues
+                - 'cell "Pg. 35 - #7 AMAZING / DISAPPOINTING" [ref=e516] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e517] [cursor=pointer]
+                - cell "1/17/2024, 5:00 PM" [ref=e518] [cursor=pointer]
+              - row "Critical Programmer 2600 Console show file backup Pg. 38a. Nick Solyom 1/17/2024, 5:00 PM" [ref=e519] [cursor=pointer]:
+                - cell [ref=e520] [cursor=pointer]:
+                  - generic [ref=e521] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e522] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e523] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e524] [cursor=pointer]:
+                  - generic [ref=e525] [cursor=pointer]: Critical
+                - cell "Programmer" [ref=e526] [cursor=pointer]:
+                  - generic [ref=e527] [cursor=pointer]: Programmer
+                - cell "2600" [ref=e528] [cursor=pointer]
+                - cell "Console show file backup" [ref=e529] [cursor=pointer]:
+                  - generic [ref=e530] [cursor=pointer]: Console show file backup
+                - cell "Pg. 38a." [ref=e531] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e532] [cursor=pointer]
+                - cell "1/17/2024, 5:00 PM" [ref=e533] [cursor=pointer]
+              - 'row "Medium Associate 67 Balcony scene moonlight Pg. 9 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 4:45 PM" [ref=e534] [cursor=pointer]':
+                - cell [ref=e535] [cursor=pointer]:
+                  - generic [ref=e536] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e537] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e538] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e539] [cursor=pointer]:
+                  - generic [ref=e540] [cursor=pointer]: Medium
+                - cell "Associate" [ref=e541] [cursor=pointer]:
+                  - generic [ref=e542] [cursor=pointer]: Associate
+                - cell "67" [ref=e543] [cursor=pointer]
+                - cell "Balcony scene moonlight" [ref=e544] [cursor=pointer]:
+                  - generic [ref=e545] [cursor=pointer]: Balcony scene moonlight
+                - 'cell "Pg. 9 - #2 WELCOME TO MY WORLD" [ref=e546] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e547] [cursor=pointer]
+                - cell "1/17/2024, 4:45 PM" [ref=e548] [cursor=pointer]
+              - row "Medium Designer 4300 New designer opportunities Pg. 38a. Nick Solyom 1/17/2024, 4:45 PM" [ref=e549] [cursor=pointer]:
+                - cell [ref=e550] [cursor=pointer]:
+                  - generic [ref=e551] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e552] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e553] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e554] [cursor=pointer]:
+                  - generic [ref=e555] [cursor=pointer]: Medium
+                - cell "Designer" [ref=e556] [cursor=pointer]:
+                  - generic [ref=e557] [cursor=pointer]: Designer
+                - cell "4300" [ref=e558] [cursor=pointer]
+                - cell "New designer opportunities" [ref=e559] [cursor=pointer]:
+                  - generic [ref=e560] [cursor=pointer]: New designer opportunities
+                - cell "Pg. 38a." [ref=e561] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e562] [cursor=pointer]
+                - cell "1/17/2024, 4:45 PM" [ref=e563] [cursor=pointer]
+              - 'row "Very High Spot 123 Followspot iris adjustment Pg. 20 - #4 THE SHAPE OF THINGS Nick Solyom 1/17/2024, 4:30 PM" [ref=e564] [cursor=pointer]':
+                - cell [ref=e565] [cursor=pointer]:
+                  - generic [ref=e566] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e567] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e568] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e569] [cursor=pointer]:
+                  - generic [ref=e570] [cursor=pointer]: Very High
+                - cell "Spot" [ref=e571] [cursor=pointer]:
+                  - generic [ref=e572] [cursor=pointer]: Spot
+                - cell "123" [ref=e573] [cursor=pointer]
+                - cell "Followspot iris adjustment" [ref=e574] [cursor=pointer]:
+                  - generic [ref=e575] [cursor=pointer]: Followspot iris adjustment
+                - 'cell "Pg. 20 - #4 THE SHAPE OF THINGS" [ref=e576] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e577] [cursor=pointer]
+                - cell "1/17/2024, 4:30 PM" [ref=e578] [cursor=pointer]
+              - 'row "Critical Spot 45 Ghost light effect malfunction Pg. 7 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 4:20 PM" [ref=e579] [cursor=pointer]':
+                - cell [ref=e580] [cursor=pointer]:
+                  - generic [ref=e581] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e582] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e583] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e584] [cursor=pointer]:
+                  - generic [ref=e585] [cursor=pointer]: Critical
+                - cell "Spot" [ref=e586] [cursor=pointer]:
+                  - generic [ref=e587] [cursor=pointer]: Spot
+                - cell "45" [ref=e588] [cursor=pointer]
+                - cell "Ghost light effect malfunction" [ref=e589] [cursor=pointer]:
+                  - generic [ref=e590] [cursor=pointer]: Ghost light effect malfunction
+                - 'cell "Pg. 7 - #2 WELCOME TO MY WORLD" [ref=e591] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e592] [cursor=pointer]
+                - cell "1/17/2024, 4:20 PM" [ref=e593] [cursor=pointer]
+              - row "Medium Director 178 Crowd murmur timing Pg. 23 - 1.3 At home Nick Solyom 1/17/2024, 4:15 PM" [ref=e594] [cursor=pointer]:
+                - cell [ref=e595] [cursor=pointer]:
+                  - generic [ref=e596] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e597] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e598] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e599] [cursor=pointer]:
+                  - generic [ref=e600] [cursor=pointer]: Medium
+                - cell "Director" [ref=e601] [cursor=pointer]:
+                  - generic [ref=e602] [cursor=pointer]: Director
+                - cell "178" [ref=e603] [cursor=pointer]
+                - cell "Crowd murmur timing" [ref=e604] [cursor=pointer]:
+                  - generic [ref=e605] [cursor=pointer]: Crowd murmur timing
+                - cell "Pg. 23 - 1.3 At home" [ref=e606] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e607] [cursor=pointer]
+                - cell "1/17/2024, 4:15 PM" [ref=e608] [cursor=pointer]
+              - 'row "Medium Associate 56 Forest scene depth Pg. 8 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 4:00 PM" [ref=e609] [cursor=pointer]':
+                - cell [ref=e610] [cursor=pointer]:
+                  - generic [ref=e611] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e612] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e613] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e614] [cursor=pointer]:
+                  - generic [ref=e615] [cursor=pointer]: Medium
+                - cell "Associate" [ref=e616] [cursor=pointer]:
+                  - generic [ref=e617] [cursor=pointer]: Associate
+                - cell "56" [ref=e618] [cursor=pointer]
+                - cell "Forest scene depth" [ref=e619] [cursor=pointer]:
+                  - generic [ref=e620] [cursor=pointer]: Forest scene depth
+                - 'cell "Pg. 8 - #2 WELCOME TO MY WORLD" [ref=e621] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e622] [cursor=pointer]
+                - cell "1/17/2024, 4:00 PM" [ref=e623] [cursor=pointer]
+              - row "Low Programmer 1900 Fixture maintenance log Pg. 38a. Nick Solyom 1/17/2024, 4:00 PM" [ref=e624] [cursor=pointer]:
+                - cell [ref=e625] [cursor=pointer]:
+                  - generic [ref=e626] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e627] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e628] [cursor=pointer]:
+                      - img
+                - cell "Low" [ref=e629] [cursor=pointer]:
+                  - generic [ref=e630] [cursor=pointer]: Low
+                - cell "Programmer" [ref=e631] [cursor=pointer]:
+                  - generic [ref=e632] [cursor=pointer]: Programmer
+                - cell "1900" [ref=e633] [cursor=pointer]
+                - cell "Fixture maintenance log" [ref=e634] [cursor=pointer]:
+                  - generic [ref=e635] [cursor=pointer]: Fixture maintenance log
+                - cell "Pg. 38a." [ref=e636] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e637] [cursor=pointer]
+                - cell "1/17/2024, 4:00 PM" [ref=e638] [cursor=pointer]
+              - 'row "Medium Spot 156 Spot operator headset Pg. 21 - #4 THE SHAPE OF THINGS Nick Solyom 1/17/2024, 3:45 PM" [ref=e639] [cursor=pointer]':
+                - cell [ref=e640] [cursor=pointer]:
+                  - generic [ref=e641] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e642] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e643] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e644] [cursor=pointer]:
+                  - generic [ref=e645] [cursor=pointer]: Medium
+                - cell "Spot" [ref=e646] [cursor=pointer]:
+                  - generic [ref=e647] [cursor=pointer]: Spot
+                - cell "156" [ref=e648] [cursor=pointer]
+                - cell "Spot operator headset" [ref=e649] [cursor=pointer]:
+                  - generic [ref=e650] [cursor=pointer]: Spot operator headset
+                - 'cell "Pg. 21 - #4 THE SHAPE OF THINGS" [ref=e651] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e652] [cursor=pointer]
+                - cell "1/17/2024, 3:45 PM" [ref=e653] [cursor=pointer]
+              - row "Medium Designer 3100 Student designer feedback Pg. 38a. Nick Solyom 1/17/2024, 3:45 PM" [ref=e654] [cursor=pointer]:
+                - cell [ref=e655] [cursor=pointer]:
+                  - generic [ref=e656] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e657] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e658] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e659] [cursor=pointer]:
+                  - generic [ref=e660] [cursor=pointer]: Medium
+                - cell "Designer" [ref=e661] [cursor=pointer]:
+                  - generic [ref=e662] [cursor=pointer]: Designer
+                - cell "3100" [ref=e663] [cursor=pointer]
+                - cell "Student designer feedback" [ref=e664] [cursor=pointer]:
+                  - generic [ref=e665] [cursor=pointer]: Student designer feedback
+                - cell "Pg. 38a." [ref=e666] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e667] [cursor=pointer]
+                - cell "1/17/2024, 3:45 PM" [ref=e668] [cursor=pointer]
+              - 'row "Medium Associate 156 Final bow special sequence Pg. 21 - #4 THE SHAPE OF THINGS Nick Solyom 1/17/2024, 3:30 PM" [ref=e669] [cursor=pointer]':
+                - cell [ref=e670] [cursor=pointer]:
+                  - generic [ref=e671] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e672] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e673] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e674] [cursor=pointer]:
+                  - generic [ref=e675] [cursor=pointer]: Medium
+                - cell "Associate" [ref=e676] [cursor=pointer]:
+                  - generic [ref=e677] [cursor=pointer]: Associate
+                - cell "156" [ref=e678] [cursor=pointer]
+                - cell "Final bow special sequence" [ref=e679] [cursor=pointer]:
+                  - generic [ref=e680] [cursor=pointer]: Final bow special sequence
+                - 'cell "Pg. 21 - #4 THE SHAPE OF THINGS" [ref=e681] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e682] [cursor=pointer]
+                - cell "1/17/2024, 3:30 PM" [ref=e683] [cursor=pointer]
+              - row "Medium Programmer 1200 Color changer calibration Pg. 38a. Nick Solyom 1/17/2024, 3:15 PM" [ref=e684] [cursor=pointer]:
+                - cell [ref=e685] [cursor=pointer]:
+                  - generic [ref=e686] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e687] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e688] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e689] [cursor=pointer]:
+                  - generic [ref=e690] [cursor=pointer]: Medium
+                - cell "Programmer" [ref=e691] [cursor=pointer]:
+                  - generic [ref=e692] [cursor=pointer]: Programmer
+                - cell "1200" [ref=e693] [cursor=pointer]
+                - cell "Color changer calibration" [ref=e694] [cursor=pointer]:
+                  - generic [ref=e695] [cursor=pointer]: Color changer calibration
+                - cell "Pg. 38a." [ref=e696] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e697] [cursor=pointer]
+                - cell "1/17/2024, 3:15 PM" [ref=e698] [cursor=pointer]
+              - 'row "Very High Director 45 Villain entrance too subtle Pg. 7 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 3:00 PM" [ref=e699] [cursor=pointer]':
+                - cell [ref=e700] [cursor=pointer]:
+                  - generic [ref=e701] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e702] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e703] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e704] [cursor=pointer]:
+                  - generic [ref=e705] [cursor=pointer]: Very High
+                - cell "Director" [ref=e706] [cursor=pointer]:
+                  - generic [ref=e707] [cursor=pointer]: Director
+                - cell "45" [ref=e708] [cursor=pointer]
+                - cell "Villain entrance too subtle" [ref=e709] [cursor=pointer]:
+                  - generic [ref=e710] [cursor=pointer]: Villain entrance too subtle
+                - 'cell "Pg. 7 - #2 WELCOME TO MY WORLD" [ref=e711] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e712] [cursor=pointer]
+                - cell "1/17/2024, 3:00 PM" [ref=e713] [cursor=pointer]
+              - row "Medium Assistant 101 Mirror ball motor replacement Pg. 12 - 1.2 At Home Nick Solyom 1/17/2024, 2:45 PM" [ref=e714] [cursor=pointer]:
+                - cell [ref=e715] [cursor=pointer]:
+                  - generic [ref=e716] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e717] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e718] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e719] [cursor=pointer]:
+                  - generic [ref=e720] [cursor=pointer]: Medium
+                - cell "Assistant" [ref=e721] [cursor=pointer]:
+                  - generic [ref=e722] [cursor=pointer]: Assistant
+                - cell "101" [ref=e723] [cursor=pointer]
+                - cell "Mirror ball motor replacement" [ref=e724] [cursor=pointer]:
+                  - generic [ref=e725] [cursor=pointer]: Mirror ball motor replacement
+                - cell "Pg. 12 - 1.2 At Home" [ref=e726] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e727] [cursor=pointer]
+                - cell "1/17/2024, 2:45 PM" [ref=e728] [cursor=pointer]
+              - 'row "Medium Director 56 Actor cannot find mark Pg. 8 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 2:45 PM" [ref=e729] [cursor=pointer]':
+                - cell [ref=e730] [cursor=pointer]:
+                  - generic [ref=e731] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e732] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e733] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e734] [cursor=pointer]:
+                  - generic [ref=e735] [cursor=pointer]: Medium
+                - cell "Director" [ref=e736] [cursor=pointer]:
+                  - generic [ref=e737] [cursor=pointer]: Director
+                - cell "56" [ref=e738] [cursor=pointer]
+                - cell "Actor cannot find mark" [ref=e739] [cursor=pointer]:
+                  - generic [ref=e740] [cursor=pointer]: Actor cannot find mark
+                - 'cell "Pg. 8 - #2 WELCOME TO MY WORLD" [ref=e741] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e742] [cursor=pointer]
+                - cell "1/17/2024, 2:45 PM" [ref=e743] [cursor=pointer]
+              - 'row "Medium Spot 78 Followspot color correction Pg. 10 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 2:30 PM" [ref=e744] [cursor=pointer]':
+                - cell [ref=e745] [cursor=pointer]:
+                  - generic [ref=e746] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e747] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e748] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e749] [cursor=pointer]:
+                  - generic [ref=e750] [cursor=pointer]: Medium
+                - cell "Spot" [ref=e751] [cursor=pointer]:
+                  - generic [ref=e752] [cursor=pointer]: Spot
+                - cell "78" [ref=e753] [cursor=pointer]
+                - cell "Followspot color correction" [ref=e754] [cursor=pointer]:
+                  - generic [ref=e755] [cursor=pointer]: Followspot color correction
+                - 'cell "Pg. 10 - #2 WELCOME TO MY WORLD" [ref=e756] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e757] [cursor=pointer]
+                - cell "1/17/2024, 2:30 PM" [ref=e758] [cursor=pointer]
+              - 'row "Very High Designer 189 Masquerade ball sparkle Pg. 26 - #5 THIS IS Nick Solyom 1/17/2024, 2:30 PM" [ref=e759] [cursor=pointer]':
+                - cell [ref=e760] [cursor=pointer]:
+                  - generic [ref=e761] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e762] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e763] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e764] [cursor=pointer]:
+                  - generic [ref=e765] [cursor=pointer]: Very High
+                - cell "Designer" [ref=e766] [cursor=pointer]:
+                  - generic [ref=e767] [cursor=pointer]: Designer
+                - cell "189" [ref=e768] [cursor=pointer]
+                - cell "Masquerade ball sparkle" [ref=e769] [cursor=pointer]:
+                  - generic [ref=e770] [cursor=pointer]: Masquerade ball sparkle
+                - 'cell "Pg. 26 - #5 THIS IS" [ref=e771] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e772] [cursor=pointer]
+                - cell "1/17/2024, 2:30 PM" [ref=e773] [cursor=pointer]
+              - 'row "Very High Programmer 201 Strobe effect sequence Pg. 27 - #5 THIS IS Nick Solyom 1/17/2024, 2:15 PM" [ref=e774] [cursor=pointer]':
+                - cell [ref=e775] [cursor=pointer]:
+                  - generic [ref=e776] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e777] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e778] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e779] [cursor=pointer]:
+                  - generic [ref=e780] [cursor=pointer]: Very High
+                - cell "Programmer" [ref=e781] [cursor=pointer]:
+                  - generic [ref=e782] [cursor=pointer]: Programmer
+                - cell "201" [ref=e783] [cursor=pointer]
+                - cell "Strobe effect sequence" [ref=e784] [cursor=pointer]:
+                  - generic [ref=e785] [cursor=pointer]: Strobe effect sequence
+                - 'cell "Pg. 27 - #5 THIS IS" [ref=e786] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e787] [cursor=pointer]
+                - cell "1/17/2024, 2:15 PM" [ref=e788] [cursor=pointer]
+              - 'row "Very High Choreographer 89 Crowd scene visibility Pg. 10 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 2:00 PM" [ref=e789] [cursor=pointer]':
+                - cell [ref=e790] [cursor=pointer]:
+                  - generic [ref=e791] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e792] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e793] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e794] [cursor=pointer]:
+                  - generic [ref=e795] [cursor=pointer]: Very High
+                - cell "Choreographer" [ref=e796] [cursor=pointer]:
+                  - generic [ref=e797] [cursor=pointer]: Choreographer
+                - cell "89" [ref=e798] [cursor=pointer]
+                - cell "Crowd scene visibility" [ref=e799] [cursor=pointer]:
+                  - generic [ref=e800] [cursor=pointer]: Crowd scene visibility
+                - 'cell "Pg. 10 - #2 WELCOME TO MY WORLD" [ref=e801] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e802] [cursor=pointer]
+                - cell "1/17/2024, 2:00 PM" [ref=e803] [cursor=pointer]
+              - row "Critical Choreographer 34 Dance number cyc color change Pg. 5. Nick Solyom 1/17/2024, 1:45 PM" [ref=e804] [cursor=pointer]:
+                - cell [ref=e805] [cursor=pointer]:
+                  - generic [ref=e806] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e807] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e808] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e809] [cursor=pointer]:
+                  - generic [ref=e810] [cursor=pointer]: Critical
+                - cell "Choreographer" [ref=e811] [cursor=pointer]:
+                  - generic [ref=e812] [cursor=pointer]: Choreographer
+                - cell "34" [ref=e813] [cursor=pointer]
+                - cell "Dance number cyc color change" [ref=e814] [cursor=pointer]:
+                  - generic [ref=e815] [cursor=pointer]: Dance number cyc color change
+                - cell "Pg. 5." [ref=e816] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e817] [cursor=pointer]
+                - cell "1/17/2024, 1:45 PM" [ref=e818] [cursor=pointer]
+              - 'row "Very High Designer 156 Prison scene starkness Pg. 21 - #4 THE SHAPE OF THINGS Nick Solyom 1/17/2024, 1:45 PM" [ref=e819] [cursor=pointer]':
+                - cell [ref=e820] [cursor=pointer]:
+                  - generic [ref=e821] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e822] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e823] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e824] [cursor=pointer]:
+                  - generic [ref=e825] [cursor=pointer]: Very High
+                - cell "Designer" [ref=e826] [cursor=pointer]:
+                  - generic [ref=e827] [cursor=pointer]: Designer
+                - cell "156" [ref=e828] [cursor=pointer]
+                - cell "Prison scene starkness" [ref=e829] [cursor=pointer]:
+                  - generic [ref=e830] [cursor=pointer]: Prison scene starkness
+                - 'cell "Pg. 21 - #4 THE SHAPE OF THINGS" [ref=e831] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e832] [cursor=pointer]
+                - cell "1/17/2024, 1:45 PM" [ref=e833] [cursor=pointer]
+              - 'row "Medium Director 67 Comedic timing on pratfall Pg. 9 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 1:30 PM" [ref=e834] [cursor=pointer]':
+                - cell [ref=e835] [cursor=pointer]:
+                  - generic [ref=e836] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e837] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e838] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e839] [cursor=pointer]:
+                  - generic [ref=e840] [cursor=pointer]: Medium
+                - cell "Director" [ref=e841] [cursor=pointer]:
+                  - generic [ref=e842] [cursor=pointer]: Director
+                - cell "67" [ref=e843] [cursor=pointer]
+                - cell "Comedic timing on pratfall" [ref=e844] [cursor=pointer]:
+                  - generic [ref=e845] [cursor=pointer]: Comedic timing on pratfall
+                - 'cell "Pg. 9 - #2 WELCOME TO MY WORLD" [ref=e846] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e847] [cursor=pointer]
+                - cell "1/17/2024, 1:30 PM" [ref=e848] [cursor=pointer]
+              - 'row "Medium Spot 45 Gobos not sharp enough Pg. 7 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 1:15 PM" [ref=e849] [cursor=pointer]':
+                - cell [ref=e850] [cursor=pointer]:
+                  - generic [ref=e851] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e852] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e853] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e854] [cursor=pointer]:
+                  - generic [ref=e855] [cursor=pointer]: Medium
+                - cell "Spot" [ref=e856] [cursor=pointer]:
+                  - generic [ref=e857] [cursor=pointer]: Spot
+                - cell "45" [ref=e858] [cursor=pointer]
+                - cell "Gobos not sharp enough" [ref=e859] [cursor=pointer]:
+                  - generic [ref=e860] [cursor=pointer]: Gobos not sharp enough
+                - 'cell "Pg. 7 - #2 WELCOME TO MY WORLD" [ref=e861] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e862] [cursor=pointer]
+                - cell "1/17/2024, 1:15 PM" [ref=e863] [cursor=pointer]
+              - row "Medium Programmer 178 Moving light position preset Pg. 23 - 1.3 At home Nick Solyom 1/17/2024, 1:00 PM" [ref=e864] [cursor=pointer]:
+                - cell [ref=e865] [cursor=pointer]:
+                  - generic [ref=e866] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e867] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e868] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e869] [cursor=pointer]:
+                  - generic [ref=e870] [cursor=pointer]: Medium
+                - cell "Programmer" [ref=e871] [cursor=pointer]:
+                  - generic [ref=e872] [cursor=pointer]: Programmer
+                - cell "178" [ref=e873] [cursor=pointer]
+                - cell "Moving light position preset" [ref=e874] [cursor=pointer]:
+                  - generic [ref=e875] [cursor=pointer]: Moving light position preset
+                - cell "Pg. 23 - 1.3 At home" [ref=e876] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e877] [cursor=pointer]
+                - cell "1/17/2024, 1:00 PM" [ref=e878] [cursor=pointer]
+              - 'row "Very High Designer 134 Spooky graveyard mood Pg. 21 - #4 THE SHAPE OF THINGS Nick Solyom 1/17/2024, 12:45 PM" [ref=e879] [cursor=pointer]':
+                - cell [ref=e880] [cursor=pointer]:
+                  - generic [ref=e881] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e882] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e883] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e884] [cursor=pointer]:
+                  - generic [ref=e885] [cursor=pointer]: Very High
+                - cell "Designer" [ref=e886] [cursor=pointer]:
+                  - generic [ref=e887] [cursor=pointer]: Designer
+                - cell "134" [ref=e888] [cursor=pointer]
+                - cell "Spooky graveyard mood" [ref=e889] [cursor=pointer]:
+                  - generic [ref=e890] [cursor=pointer]: Spooky graveyard mood
+                - 'cell "Pg. 21 - #4 THE SHAPE OF THINGS" [ref=e891] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e892] [cursor=pointer]
+                - cell "1/17/2024, 12:45 PM" [ref=e893] [cursor=pointer]
+              - 'row "Medium Programmer 156 LED strip color calibration Pg. 21 - #4 THE SHAPE OF THINGS Nick Solyom 1/17/2024, 12:30 PM" [ref=e894] [cursor=pointer]':
+                - cell [ref=e895] [cursor=pointer]:
+                  - generic [ref=e896] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e897] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e898] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e899] [cursor=pointer]:
+                  - generic [ref=e900] [cursor=pointer]: Medium
+                - cell "Programmer" [ref=e901] [cursor=pointer]:
+                  - generic [ref=e902] [cursor=pointer]: Programmer
+                - cell "156" [ref=e903] [cursor=pointer]
+                - cell "LED strip color calibration" [ref=e904] [cursor=pointer]:
+                  - generic [ref=e905] [cursor=pointer]: LED strip color calibration
+                - 'cell "Pg. 21 - #4 THE SHAPE OF THINGS" [ref=e906] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e907] [cursor=pointer]
+                - cell "1/17/2024, 12:30 PM" [ref=e908] [cursor=pointer]
+              - 'row "Very High Designer 23 Castle scene grandeur Pg. 4 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 12:15 PM" [ref=e909] [cursor=pointer]':
+                - cell [ref=e910] [cursor=pointer]:
+                  - generic [ref=e911] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e912] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e913] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e914] [cursor=pointer]:
+                  - generic [ref=e915] [cursor=pointer]: Very High
+                - cell "Designer" [ref=e916] [cursor=pointer]:
+                  - generic [ref=e917] [cursor=pointer]: Designer
+                - cell "23" [ref=e918] [cursor=pointer]
+                - cell "Castle scene grandeur" [ref=e919] [cursor=pointer]:
+                  - generic [ref=e920] [cursor=pointer]: Castle scene grandeur
+                - 'cell "Pg. 4 - #2 WELCOME TO MY WORLD" [ref=e921] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e922] [cursor=pointer]
+                - cell "1/17/2024, 12:15 PM" [ref=e923] [cursor=pointer]
+              - row "Medium Designer 34 Tavern scene atmosphere Pg. 5. Nick Solyom 1/17/2024, 11:30 AM" [ref=e924] [cursor=pointer]:
+                - cell [ref=e925] [cursor=pointer]:
+                  - generic [ref=e926] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e927] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e928] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e929] [cursor=pointer]:
+                  - generic [ref=e930] [cursor=pointer]: Medium
+                - cell "Designer" [ref=e931] [cursor=pointer]:
+                  - generic [ref=e932] [cursor=pointer]: Designer
+                - cell "34" [ref=e933] [cursor=pointer]
+                - cell "Tavern scene atmosphere" [ref=e934] [cursor=pointer]:
+                  - generic [ref=e935] [cursor=pointer]: Tavern scene atmosphere
+                - cell "Pg. 5." [ref=e936] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e937] [cursor=pointer]
+                - cell "1/17/2024, 11:30 AM" [ref=e938] [cursor=pointer]
+              - 'row "Very High Programmer 123 Storm sequence programming Pg. 20 - #4 THE SHAPE OF THINGS Nick Solyom 1/17/2024, 11:00 AM" [ref=e939] [cursor=pointer]':
+                - cell [ref=e940] [cursor=pointer]:
+                  - generic [ref=e941] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e942] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e943] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e944] [cursor=pointer]:
+                  - generic [ref=e945] [cursor=pointer]: Very High
+                - cell "Programmer" [ref=e946] [cursor=pointer]:
+                  - generic [ref=e947] [cursor=pointer]: Programmer
+                - cell "123" [ref=e948] [cursor=pointer]
+                - cell "Storm sequence programming" [ref=e949] [cursor=pointer]:
+                  - generic [ref=e950] [cursor=pointer]: Storm sequence programming
+                - 'cell "Pg. 20 - #4 THE SHAPE OF THINGS" [ref=e951] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e952] [cursor=pointer]
+                - cell "1/17/2024, 11:00 AM" [ref=e953] [cursor=pointer]
+              - 'row "Medium Designer 56 Bedroom scene too dark Pg. 8 - #2 WELCOME TO MY WORLD Nick Solyom 1/17/2024, 10:30 AM" [ref=e954] [cursor=pointer]':
+                - cell [ref=e955] [cursor=pointer]:
+                  - generic [ref=e956] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e957] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e958] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e959] [cursor=pointer]:
+                  - generic [ref=e960] [cursor=pointer]: Medium
+                - cell "Designer" [ref=e961] [cursor=pointer]:
+                  - generic [ref=e962] [cursor=pointer]: Designer
+                - cell "56" [ref=e963] [cursor=pointer]
+                - cell "Bedroom scene too dark" [ref=e964] [cursor=pointer]:
+                  - generic [ref=e965] [cursor=pointer]: Bedroom scene too dark
+                - 'cell "Pg. 8 - #2 WELCOME TO MY WORLD" [ref=e966] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e967] [cursor=pointer]
+                - cell "1/17/2024, 10:30 AM" [ref=e968] [cursor=pointer]
+              - row "Very High Director 5 First entrance special needs focus Pg. 1 - Overture Nick Solyom 1/17/2024, 10:15 AM" [ref=e969] [cursor=pointer]:
+                - cell [ref=e970] [cursor=pointer]:
+                  - generic [ref=e971] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e972] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e973] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e974] [cursor=pointer]:
+                  - generic [ref=e975] [cursor=pointer]: Very High
+                - cell "Director" [ref=e976] [cursor=pointer]:
+                  - generic [ref=e977] [cursor=pointer]: Director
+                - cell "5" [ref=e978] [cursor=pointer]
+                - cell "First entrance special needs focus" [ref=e979] [cursor=pointer]:
+                  - generic [ref=e980] [cursor=pointer]: First entrance special needs focus
+                - cell "Pg. 1 - Overture" [ref=e981] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e982] [cursor=pointer]
+                - cell "1/17/2024, 10:15 AM" [ref=e983] [cursor=pointer]
+              - row "Medium Assistant 3700 Next show prep checklist Pg. 38a. Nick Solyom 1/17/2024, 10:00 AM" [ref=e984] [cursor=pointer]:
+                - cell [ref=e985] [cursor=pointer]:
+                  - generic [ref=e986] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e987] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e988] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e989] [cursor=pointer]:
+                  - generic [ref=e990] [cursor=pointer]: Medium
+                - cell "Assistant" [ref=e991] [cursor=pointer]:
+                  - generic [ref=e992] [cursor=pointer]: Assistant
+                - cell "3700" [ref=e993] [cursor=pointer]
+                - cell "Next show prep checklist" [ref=e994] [cursor=pointer]:
+                  - generic [ref=e995] [cursor=pointer]: Next show prep checklist
+                - cell "Pg. 38a." [ref=e996] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e997] [cursor=pointer]
+                - cell "1/17/2024, 10:00 AM" [ref=e998] [cursor=pointer]
+              - row "Medium Assistant 2500 Inventory return checklist Pg. 38a. Nick Solyom 1/17/2024, 9:30 AM" [ref=e999] [cursor=pointer]:
+                - cell [ref=e1000] [cursor=pointer]:
+                  - generic [ref=e1001] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1002] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1003] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e1004] [cursor=pointer]:
+                  - generic [ref=e1005] [cursor=pointer]: Medium
+                - cell "Assistant" [ref=e1006] [cursor=pointer]:
+                  - generic [ref=e1007] [cursor=pointer]: Assistant
+                - cell "2500" [ref=e1008] [cursor=pointer]
+                - cell "Inventory return checklist" [ref=e1009] [cursor=pointer]:
+                  - generic [ref=e1010] [cursor=pointer]: Inventory return checklist
+                - cell "Pg. 38a." [ref=e1011] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e1012] [cursor=pointer]
+                - cell "1/17/2024, 9:30 AM" [ref=e1013] [cursor=pointer]
+              - row "Medium Cue 1 Opening wash too bright Pg. 1 - Overture Nick Solyom 1/17/2024, 9:00 AM" [ref=e1014] [cursor=pointer]:
+                - cell [ref=e1015] [cursor=pointer]:
+                  - generic [ref=e1016] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1017] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1018] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e1019] [cursor=pointer]:
+                  - generic [ref=e1020] [cursor=pointer]: Medium
+                - cell "Cue" [ref=e1021] [cursor=pointer]:
+                  - generic [ref=e1022] [cursor=pointer]: Cue
+                - cell "1" [ref=e1023] [cursor=pointer]
+                - cell "Opening wash too bright" [ref=e1024] [cursor=pointer]:
+                  - generic [ref=e1025] [cursor=pointer]: Opening wash too bright
+                - cell "Pg. 1 - Overture" [ref=e1026] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e1027] [cursor=pointer]
+                - cell "1/17/2024, 9:00 AM" [ref=e1028] [cursor=pointer]
+              - row "Very High Assistant 1800 Extension cord inspection Pg. 38a. Nick Solyom 1/17/2024, 9:00 AM" [ref=e1029] [cursor=pointer]:
+                - cell [ref=e1030] [cursor=pointer]:
+                  - generic [ref=e1031] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1032] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1033] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e1034] [cursor=pointer]:
+                  - generic [ref=e1035] [cursor=pointer]: Very High
+                - cell "Assistant" [ref=e1036] [cursor=pointer]:
+                  - generic [ref=e1037] [cursor=pointer]: Assistant
+                - cell "1800" [ref=e1038] [cursor=pointer]
+                - cell "Extension cord inspection" [ref=e1039] [cursor=pointer]:
+                  - generic [ref=e1040] [cursor=pointer]: Extension cord inspection
+                - cell "Pg. 38a." [ref=e1041] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e1042] [cursor=pointer]
+                - cell "1/17/2024, 9:00 AM" [ref=e1043] [cursor=pointer]
+              - row "Medium Assistant 1100 Cable management backstage Pg. 38a. Nick Solyom 1/17/2024, 8:30 AM" [ref=e1044] [cursor=pointer]:
+                - cell [ref=e1045] [cursor=pointer]:
+                  - generic [ref=e1046] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1047] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1048] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e1049] [cursor=pointer]:
+                  - generic [ref=e1050] [cursor=pointer]: Medium
+                - cell "Assistant" [ref=e1051] [cursor=pointer]:
+                  - generic [ref=e1052] [cursor=pointer]: Assistant
+                - cell "1100" [ref=e1053] [cursor=pointer]
+                - cell "Cable management backstage" [ref=e1054] [cursor=pointer]:
+                  - generic [ref=e1055] [cursor=pointer]: Cable management backstage
+                - cell "Pg. 38a." [ref=e1056] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e1057] [cursor=pointer]
+                - cell "1/17/2024, 8:30 AM" [ref=e1058] [cursor=pointer]
+              - row "Very High Assistant 400 Dimmer rack maintenance Pg. 38a. Nick Solyom 1/17/2024, 8:00 AM" [ref=e1059] [cursor=pointer]:
+                - cell [ref=e1060] [cursor=pointer]:
+                  - generic [ref=e1061] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1062] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1063] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e1064] [cursor=pointer]:
+                  - generic [ref=e1065] [cursor=pointer]: Very High
+                - cell "Assistant" [ref=e1066] [cursor=pointer]:
+                  - generic [ref=e1067] [cursor=pointer]: Assistant
+                - cell "400" [ref=e1068] [cursor=pointer]
+                - cell "Dimmer rack maintenance" [ref=e1069] [cursor=pointer]:
+                  - generic [ref=e1070] [cursor=pointer]: Dimmer rack maintenance
+                - cell "Pg. 38a." [ref=e1071] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e1072] [cursor=pointer]
+                - cell "1/17/2024, 8:00 AM" [ref=e1073] [cursor=pointer]
+              - row "Very High Assistant 700 Circuit breaker test Pg. 38a. Nick Solyom 1/17/2024, 7:30 AM" [ref=e1074] [cursor=pointer]:
+                - cell [ref=e1075] [cursor=pointer]:
+                  - generic [ref=e1076] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1077] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1078] [cursor=pointer]:
+                      - img
+                - cell "Very High" [ref=e1079] [cursor=pointer]:
+                  - generic [ref=e1080] [cursor=pointer]: Very High
+                - cell "Assistant" [ref=e1081] [cursor=pointer]:
+                  - generic [ref=e1082] [cursor=pointer]: Assistant
+                - cell "700" [ref=e1083] [cursor=pointer]
+                - cell "Circuit breaker test" [ref=e1084] [cursor=pointer]:
+                  - generic [ref=e1085] [cursor=pointer]: Circuit breaker test
+                - cell "Pg. 38a." [ref=e1086] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e1087] [cursor=pointer]
+                - cell "1/17/2024, 7:30 AM" [ref=e1088] [cursor=pointer]
+              - 'row "Critical Stage Manager 145 Cue timing adjustments needed Pg. 21 - #4 THE SHAPE OF THINGS Nick Solyom 1/16/2024, 7:15 PM" [ref=e1089] [cursor=pointer]':
+                - cell [ref=e1090] [cursor=pointer]:
+                  - generic [ref=e1091] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1092] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1093] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e1094] [cursor=pointer]:
+                  - generic [ref=e1095] [cursor=pointer]: Critical
+                - cell "Stage Manager" [ref=e1096] [cursor=pointer]:
+                  - generic [ref=e1097] [cursor=pointer]: Stage Manager
+                - cell "145" [ref=e1098] [cursor=pointer]
+                - cell "Cue timing adjustments needed" [ref=e1099] [cursor=pointer]:
+                  - generic [ref=e1100] [cursor=pointer]: Cue timing adjustments needed
+                - 'cell "Pg. 21 - #4 THE SHAPE OF THINGS" [ref=e1101] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e1102] [cursor=pointer]
+                - cell "1/16/2024, 7:15 PM" [ref=e1103] [cursor=pointer]
+              - 'row "Medium Paperwork 189 Update lighting plot with changes Pg. 26 - #5 THIS IS Nick Solyom 1/16/2024, 4:00 PM" [ref=e1104] [cursor=pointer]':
+                - cell [ref=e1105] [cursor=pointer]:
+                  - generic [ref=e1106] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1107] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1108] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e1109] [cursor=pointer]:
+                  - generic [ref=e1110] [cursor=pointer]: Medium
+                - cell "Paperwork" [ref=e1111] [cursor=pointer]:
+                  - generic [ref=e1112] [cursor=pointer]: Paperwork
+                - cell "189" [ref=e1113] [cursor=pointer]
+                - cell "Update lighting plot with changes" [ref=e1114] [cursor=pointer]:
+                  - generic [ref=e1115] [cursor=pointer]: Update lighting plot with changes
+                - 'cell "Pg. 26 - #5 THIS IS" [ref=e1116] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e1117] [cursor=pointer]
+                - cell "1/16/2024, 4:00 PM" [ref=e1118] [cursor=pointer]
+              - row "Critical Programmer 98 Program backup sequences Pg. 12 - 1.2 At Home Nick Solyom 1/16/2024, 1:30 PM" [ref=e1119] [cursor=pointer]:
+                - cell [ref=e1120] [cursor=pointer]:
+                  - generic [ref=e1121] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1122] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1123] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e1124] [cursor=pointer]:
+                  - generic [ref=e1125] [cursor=pointer]: Critical
+                - cell "Programmer" [ref=e1126] [cursor=pointer]:
+                  - generic [ref=e1127] [cursor=pointer]: Programmer
+                - cell "98" [ref=e1128] [cursor=pointer]
+                - cell "Program backup sequences" [ref=e1129] [cursor=pointer]:
+                  - generic [ref=e1130] [cursor=pointer]: Program backup sequences
+                - cell "Pg. 12 - 1.2 At Home" [ref=e1131] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e1132] [cursor=pointer]
+                - cell "1/16/2024, 1:30 PM" [ref=e1133] [cursor=pointer]
+              - 'row "Critical Director 78 Need more dramatic lighting for death scene Pg. 10 - #2 WELCOME TO MY WORLD Nick Solyom 1/16/2024, 11:00 AM" [ref=e1134] [cursor=pointer]':
+                - cell [ref=e1135] [cursor=pointer]:
+                  - generic [ref=e1136] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1137] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1138] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e1139] [cursor=pointer]:
+                  - generic [ref=e1140] [cursor=pointer]: Critical
+                - cell "Director" [ref=e1141] [cursor=pointer]:
+                  - generic [ref=e1142] [cursor=pointer]: Director
+                - cell "78" [ref=e1143] [cursor=pointer]
+                - cell "Need more dramatic lighting for death scene" [ref=e1144] [cursor=pointer]:
+                  - generic [ref=e1145] [cursor=pointer]: Need more dramatic lighting for death scene
+                - 'cell "Pg. 10 - #2 WELCOME TO MY WORLD" [ref=e1146] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e1147] [cursor=pointer]
+                - cell "1/16/2024, 11:00 AM" [ref=e1148] [cursor=pointer]
+              - 'row "Critical Designer 112 Add texture to forest scene Pg. 19 - #4 THE SHAPE OF THINGS Nick Solyom 1/16/2024, 8:45 AM" [ref=e1149] [cursor=pointer]':
+                - cell [ref=e1150] [cursor=pointer]:
+                  - generic [ref=e1151] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1152] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1153] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e1154] [cursor=pointer]:
+                  - generic [ref=e1155] [cursor=pointer]: Critical
+                - cell "Designer" [ref=e1156] [cursor=pointer]:
+                  - generic [ref=e1157] [cursor=pointer]: Designer
+                - cell "112" [ref=e1158] [cursor=pointer]
+                - cell "Add texture to forest scene" [ref=e1159] [cursor=pointer]:
+                  - generic [ref=e1160] [cursor=pointer]: Add texture to forest scene
+                - 'cell "Pg. 19 - #4 THE SHAPE OF THINGS" [ref=e1161] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e1162] [cursor=pointer]
+                - cell "1/16/2024, 8:45 AM" [ref=e1163] [cursor=pointer]
+              - row "Critical Think 178 Consider alternative approach to storm scene Pg. 23 - 1.3 At home Nick Solyom 1/15/2024, 9:45 PM" [ref=e1164] [cursor=pointer]:
+                - cell [ref=e1165] [cursor=pointer]:
+                  - generic [ref=e1166] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1167] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1168] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e1169] [cursor=pointer]:
+                  - generic [ref=e1170] [cursor=pointer]: Critical
+                - cell "Think" [ref=e1171] [cursor=pointer]:
+                  - generic [ref=e1172] [cursor=pointer]: Think
+                - cell "178" [ref=e1173] [cursor=pointer]
+                - cell "Consider alternative approach to storm scene" [ref=e1174] [cursor=pointer]:
+                  - generic [ref=e1175] [cursor=pointer]: Consider alternative approach to storm scene
+                - cell "Pg. 23 - 1.3 At home" [ref=e1176] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e1177] [cursor=pointer]
+                - cell "1/15/2024, 9:45 PM" [ref=e1178] [cursor=pointer]
+              - 'row "Very Low Assistant 15 Cable management in booth Pg. 2 - #1 THE SHAPE OF THINGS Nick Solyom 1/15/2024, 12:15 PM" [ref=e1179] [cursor=pointer]':
+                - cell [ref=e1180] [cursor=pointer]:
+                  - generic [ref=e1181] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1182] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1183] [cursor=pointer]:
+                      - img
+                - cell "Very Low" [ref=e1184] [cursor=pointer]:
+                  - generic [ref=e1185] [cursor=pointer]: Very Low
+                - cell "Assistant" [ref=e1186] [cursor=pointer]:
+                  - generic [ref=e1187] [cursor=pointer]: Assistant
+                - cell "15" [ref=e1188] [cursor=pointer]
+                - cell "Cable management in booth" [ref=e1189] [cursor=pointer]:
+                  - generic [ref=e1190] [cursor=pointer]: Cable management in booth
+                - 'cell "Pg. 2 - #1 THE SHAPE OF THINGS" [ref=e1191] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e1192] [cursor=pointer]
+                - cell "1/15/2024, 12:15 PM" [ref=e1193] [cursor=pointer]
+              - 'row "Critical Cue 127 Fade house lights on page 23 Pg. 20 - #4 THE SHAPE OF THINGS Nick Solyom 1/15/2024, 10:30 AM" [ref=e1194] [cursor=pointer]':
+                - cell [ref=e1195] [cursor=pointer]:
+                  - generic [ref=e1196] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1197] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1198] [cursor=pointer]:
+                      - img
+                - cell "Critical" [ref=e1199] [cursor=pointer]:
+                  - generic [ref=e1200] [cursor=pointer]: Critical
+                - cell "Cue" [ref=e1201] [cursor=pointer]:
+                  - generic [ref=e1202] [cursor=pointer]: Cue
+                - cell "127" [ref=e1203] [cursor=pointer]
+                - cell "Fade house lights on page 23" [ref=e1204] [cursor=pointer]:
+                  - generic [ref=e1205] [cursor=pointer]: Fade house lights on page 23
+                - 'cell "Pg. 20 - #4 THE SHAPE OF THINGS" [ref=e1206] [cursor=pointer]'
+                - cell "Nick Solyom" [ref=e1207] [cursor=pointer]
+                - cell "1/15/2024, 10:30 AM" [ref=e1208] [cursor=pointer]
+              - row "Medium Choreographer 34 Dance number needs center special Pg. 5. Nick Solyom 1/15/2024, 9:20 AM" [ref=e1209] [cursor=pointer]:
+                - cell [ref=e1210] [cursor=pointer]:
+                  - generic [ref=e1211] [cursor=pointer]:
+                    - button "Mark as complete" [ref=e1212] [cursor=pointer]:
+                      - img
+                    - button "Cancel" [ref=e1213] [cursor=pointer]:
+                      - img
+                - cell "Medium" [ref=e1214] [cursor=pointer]:
+                  - generic [ref=e1215] [cursor=pointer]: Medium
+                - cell "Choreographer" [ref=e1216] [cursor=pointer]:
+                  - generic [ref=e1217] [cursor=pointer]: Choreographer
+                - cell "34" [ref=e1218] [cursor=pointer]
+                - cell "Dance number needs center special" [ref=e1219] [cursor=pointer]:
+                  - generic [ref=e1220] [cursor=pointer]: Dance number needs center special
+                - cell "Pg. 5." [ref=e1221] [cursor=pointer]
+                - cell "Nick Solyom" [ref=e1222] [cursor=pointer]
+                - cell "1/15/2024, 9:20 AM" [ref=e1223] [cursor=pointer]
+        - generic [ref=e1226]:
+          - generic [ref=e1227]:
+            - generic [ref=e1228]:
+              - heading "Print Cue Notes" [level=2] [ref=e1229]
+              - paragraph [ref=e1230]: Generate PDF report with custom formatting and filtering
+            - button [ref=e1231] [cursor=pointer]:
+              - img [ref=e1232] [cursor=pointer]
+          - generic [ref=e1235]:
+            - generic [ref=e1236]:
+              - generic [ref=e1237]:
+                - heading "Content Filtering" [level=3] [ref=e1239]:
+                  - img [ref=e1240]
+                  - text: Content Filtering
+                - generic [ref=e1243]:
+                  - generic [ref=e1244]:
+                    - text: Filter & Sort Preset
+                    - generic [ref=e1245]: "*"
+                  - paragraph [ref=e1246]: Choose which notes to include and how to organize them
+                  - button "Select filtering options..." [ref=e1248] [cursor=pointer]:
+                    - generic [ref=e1250] [cursor=pointer]: Select filtering options...
+                    - img [ref=e1251] [cursor=pointer]
+                - paragraph [ref=e1254]: Please select a filter preset
+              - generic [ref=e1255]:
+                - heading "Page Formatting" [level=3] [ref=e1256]:
+                  - img [ref=e1257]
+                  - text: Page Formatting
+                - generic [ref=e1261]:
+                  - generic [ref=e1262]:
+                    - text: Page Style Preset
+                    - generic [ref=e1263]: "*"
+                  - paragraph [ref=e1264]: Choose PDF layout and formatting options
+                  - button "Select page formatting..." [ref=e1266] [cursor=pointer]:
+                    - generic [ref=e1268] [cursor=pointer]: Select page formatting...
+                    - img [ref=e1269] [cursor=pointer]
+                - paragraph [ref=e1272]: Please select a page style preset
+              - generic [ref=e1273]:
+                - heading "Report Summary" [level=4] [ref=e1274]
+                - generic [ref=e1275]:
+                  - paragraph [ref=e1276]: "• Module: Cue Notes"
+                  - paragraph [ref=e1277]: "• Filter: Not selected (required)"
+                  - paragraph [ref=e1278]: "• Page Style: Not selected (required)"
+                  - paragraph [ref=e1279]: "• Estimated notes: ~15 items"
+            - generic [ref=e1280]:
+              - button "Cancel" [ref=e1281] [cursor=pointer]
+              - button "Generate PDF" [disabled] [ref=e1282]:
+                - img [ref=e1283]
+                - text: Generate PDF
+  - button "Open Next.js Dev Tools" [ref=e1291] [cursor=pointer]:
+    - img [ref=e1292] [cursor=pointer]
+  - alert [ref=e1295]
+```

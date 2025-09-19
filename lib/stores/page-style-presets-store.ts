@@ -8,7 +8,7 @@ interface PageStylePresetsState {
   
   // CRUD operations
   addPreset: (preset: Omit<PageStylePreset, 'id' | 'createdAt' | 'updatedAt'>) => void
-  updatePreset: (id: string, updates: Partial<PageStylePreset['config']>) => void
+  updatePreset: (id: string, updates: Partial<PageStylePreset>) => void
   deletePreset: (id: string) => void
   getPreset: (id: string) => PageStylePreset | undefined
   
@@ -100,11 +100,7 @@ export const usePageStylePresetsStore = create<PageStylePresetsState>()(
         set(state => ({
           presets: state.presets.map(preset =>
             preset.id === id
-              ? { 
-                  ...preset, 
-                  config: { ...preset.config, ...updates },
-                  updatedAt: new Date() 
-                }
+              ? { ...preset, ...updates, updatedAt: new Date() }
               : preset
           )
         }))

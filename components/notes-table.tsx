@@ -28,7 +28,7 @@ interface NotesTableProps {
   onEdit?: (note: Note) => void
 }
 
-type SortField = 'title' | 'priority' | 'status' | 'type' | 'createdAt' | 'position'
+type SortField = 'title' | 'priority' | 'status' | 'type' | 'createdAt' | 'positionUnit' | 'scriptPageId'
 type SortDirection = 'asc' | 'desc'
 
 export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesTableProps) {
@@ -82,8 +82,8 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
   }
 
   const sortedNotes = [...notes].sort((a, b) => {
-    let aValue: any = a[sortField]
-    let bValue: any = b[sortField]
+    let aValue: any = (a as any)[sortField]
+    let bValue: any = (b as any)[sortField]
 
     if (sortField === 'priority') {
       const priorityOrder = { high: 3, medium: 2, low: 1 }
@@ -91,7 +91,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
       bValue = priorityOrder[b.priority as keyof typeof priorityOrder] || 0
     }
 
-    if (sortField === 'position') {
+    if (sortField === 'positionUnit') {
       // Extract positions from positionUnit field for work notes
       const aPosition = moduleType === 'work' ? extractPositionFromUnit(a.positionUnit || '') : ''
       const bPosition = moduleType === 'work' ? extractPositionFromUnit(b.positionUnit || '') : ''
@@ -123,6 +123,17 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
     if (sortField === 'createdAt') {
       aValue = new Date(aValue).getTime()
       bValue = new Date(bValue).getTime()
+    }
+
+    if (sortField === 'scriptPageId') {
+      // Extract numeric part from scriptPageId for proper numerical sorting
+      const extractNumber = (scriptPageId: string): number => {
+        const match = scriptPageId?.match(/(\d+)/)
+        return match ? parseInt(match[1], 10) : 0
+      }
+
+      aValue = extractNumber(a.scriptPageId || '')
+      bValue = extractNumber(b.scriptPageId || '')
     }
 
     if (typeof aValue === 'string') {
@@ -195,14 +206,14 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
             {renderHeader('Priority', 'priority')}
             {renderHeader('Type', 'type')}
             {moduleType === 'cue' && (
-              <TableHead className="bg-bg-primary">Cue #</TableHead>
+              renderHeader('Cue #', 'scriptPageId')
             )}
             {moduleType === 'work' && (
               <>
                 <TableHead className="bg-bg-primary">Channels</TableHead>
                 <TableHead className="bg-bg-primary">Type</TableHead>
                 <TableHead className="bg-bg-primary">Purpose</TableHead>
-                {renderHeader('Position', 'position')}
+                {renderHeader('Position', 'positionUnit')}
               </>
             )}
             {renderHeader('Note', 'title')}

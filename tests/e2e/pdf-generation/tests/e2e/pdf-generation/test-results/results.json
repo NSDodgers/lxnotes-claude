@@ -1,0 +1,387 @@
+{
+  "config": {
+    "configFile": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/playwright.config.ts",
+    "rootDir": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 600000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "tests/e2e/pdf-generation/test-results"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/e2e/pdf-generation/test-results/results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/tests/e2e/pdf-generation/test-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.55.0",
+    "workers": 2,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://localhost:3000",
+      "reuseExistingServer": true,
+      "timeout": 30000
+    }
+  },
+  "suites": [
+    {
+      "title": "preset-validation-test.spec.ts",
+      "file": "preset-validation-test.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "PDF Preset Validation Tests",
+          "file": "preset-validation-test.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Can select and use filter presets in Cue Notes",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 445,
+                      "error": {
+                        "message": "Error: browserContext.grantPermissions: Unknown permission: downloads",
+                        "stack": "Error: browserContext.grantPermissions: Unknown permission: downloads\n    at /Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts:8:19",
+                        "location": {
+                          "file": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts",
+                          "column": 19,
+                          "line": 8
+                        },
+                        "snippet": "   6 |\n   7 |     // Set up download tracking\n>  8 |     await context.grantPermissions(['downloads'])\n     |                   ^\n   9 |\n  10 |     // Navigate to Cue Notes\n  11 |     await page.goto('http://localhost:3000/cue-notes')"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts",
+                            "column": 19,
+                            "line": 8
+                          },
+                          "message": "Error: browserContext.grantPermissions: Unknown permission: downloads\n\n   6 |\n   7 |     // Set up download tracking\n>  8 |     await context.grantPermissions(['downloads'])\n     |                   ^\n   9 |\n  10 |     // Navigate to Cue Notes\n  11 |     await page.goto('http://localhost:3000/cue-notes')\n    at /Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts:8:19"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🎭 Testing Cue Notes filter preset selection...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-19T19:30:17.101Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/tests/e2e/pdf-generation/test-artifacts/preset-validation-test-PDF-07d1a-filter-presets-in-Cue-Notes-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/tests/e2e/pdf-generation/test-artifacts/preset-validation-test-PDF-07d1a-filter-presets-in-Cue-Notes-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts",
+                        "column": 19,
+                        "line": 8
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "43ac39815bc9f8a4b2ce-989d6c71c38675d3a7c3",
+              "file": "preset-validation-test.spec.ts",
+              "line": 4,
+              "column": 7
+            },
+            {
+              "title": "Can attempt PDF generation with presets selected",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 407,
+                      "error": {
+                        "message": "Error: browserContext.grantPermissions: Unknown permission: downloads",
+                        "stack": "Error: browserContext.grantPermissions: Unknown permission: downloads\n    at /Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts:83:19",
+                        "location": {
+                          "file": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts",
+                          "column": 19,
+                          "line": 83
+                        },
+                        "snippet": "  81 |\n  82 |     // Set up download handling\n> 83 |     await context.grantPermissions(['downloads'])\n     |                   ^\n  84 |\n  85 |     // Navigate to Work Notes (has good sample data)\n  86 |     await page.goto('http://localhost:3000/work-notes')"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts",
+                            "column": 19,
+                            "line": 83
+                          },
+                          "message": "Error: browserContext.grantPermissions: Unknown permission: downloads\n\n  81 |\n  82 |     // Set up download handling\n> 83 |     await context.grantPermissions(['downloads'])\n     |                   ^\n  84 |\n  85 |     // Navigate to Work Notes (has good sample data)\n  86 |     await page.goto('http://localhost:3000/work-notes')\n    at /Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts:83:19"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "📄 Testing PDF generation with preset selection...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-19T19:30:18.205Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/tests/e2e/pdf-generation/test-artifacts/preset-validation-test-PDF-9656f-ation-with-presets-selected-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/tests/e2e/pdf-generation/test-artifacts/preset-validation-test-PDF-9656f-ation-with-presets-selected-chromium/video.webm"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts",
+                        "column": 19,
+                        "line": 83
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "43ac39815bc9f8a4b2ce-800209933ed6b007500c",
+              "file": "preset-validation-test.spec.ts",
+              "line": 79,
+              "column": 7
+            },
+            {
+              "title": "Verify preset system works across all modules",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 2657,
+                      "error": {
+                        "message": "Error: locator.isVisible: Error: strict mode violation: locator('button:has-text(\"Cancel\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 h-8 rounded-md px-3 text-xs\">Cancelled</button> aka getByRole('button', { name: 'Cancelled' })\n    2) <button class=\"px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50\">Cancel</button> aka getByText('Cancel', { exact: true })\n\nCall log:\n\u001b[2m    - checking visibility of locator('button:has-text(\"Cancel\")')\u001b[22m\n",
+                        "stack": "Error: locator.isVisible: Error: strict mode violation: locator('button:has-text(\"Cancel\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 h-8 rounded-md px-3 text-xs\">Cancelled</button> aka getByRole('button', { name: 'Cancelled' })\n    2) <button class=\"px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50\">Cancel</button> aka getByText('Cancel', { exact: true })\n\nCall log:\n\u001b[2m    - checking visibility of locator('button:has-text(\"Cancel\")')\u001b[22m\n\n    at /Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts:211:30",
+                        "location": {
+                          "file": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts",
+                          "column": 30,
+                          "line": 211
+                        },
+                        "snippet": "  209 |       // Close dialog for next test\n  210 |       const cancelButton = page.locator('button:has-text(\"Cancel\")')\n> 211 |       if (await cancelButton.isVisible()) {\n      |                              ^\n  212 |         await cancelButton.click()\n  213 |       } else {\n  214 |         await page.keyboard.press('Escape')"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts",
+                            "column": 30,
+                            "line": 211
+                          },
+                          "message": "Error: locator.isVisible: Error: strict mode violation: locator('button:has-text(\"Cancel\")') resolved to 2 elements:\n    1) <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 h-8 rounded-md px-3 text-xs\">Cancelled</button> aka getByRole('button', { name: 'Cancelled' })\n    2) <button class=\"px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors disabled:opacity-50\">Cancel</button> aka getByText('Cancel', { exact: true })\n\nCall log:\n\u001b[2m    - checking visibility of locator('button:has-text(\"Cancel\")')\u001b[22m\n\n\n  209 |       // Close dialog for next test\n  210 |       const cancelButton = page.locator('button:has-text(\"Cancel\")')\n> 211 |       if (await cancelButton.isVisible()) {\n      |                              ^\n  212 |         await cancelButton.click()\n  213 |       } else {\n  214 |         await page.keyboard.press('Escape')\n    at /Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts:211:30"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🎯 Testing preset functionality across all modules...\n"
+                        },
+                        {
+                          "text": "\n📋 Testing Cue Notes...\n"
+                        },
+                        {
+                          "text": "✅ Cue Notes PDF dialog opened\n"
+                        },
+                        {
+                          "text": "✅ Cue Notes has filter preset selector\n"
+                        },
+                        {
+                          "text": "✅ Cue Notes has page style preset selector\n"
+                        },
+                        {
+                          "text": "✅ Cue Notes has properly disabled Generate PDF button\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-19T19:30:19.225Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/tests/e2e/pdf-generation/test-artifacts/preset-validation-test-PDF-f3149-em-works-across-all-modules-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/tests/e2e/pdf-generation/test-artifacts/preset-validation-test-PDF-f3149-em-works-across-all-modules-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/tests/e2e/pdf-generation/test-artifacts/preset-validation-test-PDF-f3149-em-works-across-all-modules-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/nicksolyom/Documents/github/lxnotes-claude/tests/e2e/pdf-generation/preset-validation-test.spec.ts",
+                        "column": 30,
+                        "line": 211
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "43ac39815bc9f8a4b2ce-ed12b31679b23ec147e9",
+              "file": "preset-validation-test.spec.ts",
+              "line": 167,
+              "column": 7
+            },
+            {
+              "title": "Verify PDF generation service integration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1376,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔧 Testing PDF generation service integration...\n"
+                        },
+                        {
+                          "text": "✅ All PDF generation dependencies are available\n"
+                        },
+                        {
+                          "text": "✅ Browser supports blob creation and download\n"
+                        },
+                        {
+                          "text": "✅ PDF generation service integration verified\n"
+                        },
+                        {
+                          "text": "🎉 PDF generation service is properly integrated!\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-19T19:30:22.488Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43ac39815bc9f8a4b2ce-85f2eecb0a17c240caf5",
+              "file": "preset-validation-test.spec.ts",
+              "line": 223,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-09-19T19:30:16.481Z",
+    "duration": 7708.753000000001,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

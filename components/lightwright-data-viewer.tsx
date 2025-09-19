@@ -206,17 +206,19 @@ export function LightwrightDataViewer({
             <Database className="h-5 w-5 text-modules-work" />
             <SheetTitle>Lightwright Fixtures</SheetTitle>
           </div>
-          <SheetDescription className="space-y-2">
-            {stats.lastUpload ? (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4" />
-                <span>Last updated: {formatDate(stats.lastUpload)}</span>
+          <SheetDescription asChild>
+            <div className="space-y-2">
+              {stats.lastUpload ? (
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4" />
+                  <span>Last updated: {formatDate(stats.lastUpload)}</span>
+                </div>
+              ) : (
+                <div className="text-muted-foreground">No fixture data uploaded</div>
+              )}
+              <div className="flex items-center gap-4 text-sm">
+                <span className="text-muted-foreground">{stats.total} fixtures loaded</span>
               </div>
-            ) : (
-              <div className="text-muted-foreground">No fixture data uploaded</div>
-            )}
-            <div className="flex items-center gap-4 text-sm">
-              <span className="text-muted-foreground">{stats.total} fixtures loaded</span>
             </div>
           </SheetDescription>
         </SheetHeader>

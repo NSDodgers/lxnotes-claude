@@ -1257,6 +1257,7 @@ export default function WorkNotesPage() {
         moduleType="work"
         isOpen={isPrintViewOpen}
         onClose={() => setIsPrintViewOpen(false)}
+        notes={notes}
       />
       
       <LightwrightUploadDialog
