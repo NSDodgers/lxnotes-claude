@@ -7,9 +7,9 @@ import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-stor
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { PresetSelector } from './preset-selector'
-import { QuickCreateFilterSortDialog } from './quick-create-filter-sort-dialog'
-import { QuickCreatePageStyleDialog } from './quick-create-page-style-dialog'
-import { QuickCreateEmailMessageDialog } from './quick-create-email-message-dialog'
+import { QuickCreateFilterSortSidebar } from './quick-create-filter-sort-sidebar'
+import { QuickCreatePageStyleSidebar } from './quick-create-page-style-sidebar'
+import { QuickCreateEmailMessageSidebar } from './quick-create-email-message-sidebar'
 import {
   Sheet,
   SheetContent,
@@ -24,7 +24,7 @@ import { Label } from '@/components/ui/label'
 import type { ModuleType, EmailMessagePreset, FilterSortPreset, PageStylePreset } from '@/types'
 import { cn } from '@/lib/utils'
 import { PDFGenerationService } from '@/lib/services/pdf'
-import { getMockNotes } from '@/lib/utils/mockNotesData'
+import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 
 interface EmailNotesSidebarProps {
   moduleType: ModuleType
@@ -102,7 +102,8 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
 
       // Generate PDF attachment if requested
       if (attachPdf && selectedFilterPreset && selectedPageStylePreset) {
-        const notes = getMockNotes(moduleType)
+        const mockNotesStore = useMockNotesStore.getState()
+        const notes = mockNotesStore.getAllNotes(moduleType)
         const filterPreset = filterSortPresets.find(p => p.id === selectedFilterPreset)
         const pageStylePreset = pageStylePresets.find(p => p.id === selectedPageStylePreset)
 
@@ -432,9 +433,9 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
         </SheetContent>
       </Sheet>
 
-      {/* Quick Create Dialogs */}
+      {/* Quick Create Sidebars */}
       {showFilterQuickCreate && (
-        <QuickCreateFilterSortDialog
+        <QuickCreateFilterSortSidebar
           isOpen={showFilterQuickCreate}
           onClose={() => {
             setShowFilterQuickCreate(false)
@@ -447,7 +448,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       )}
 
       {showPageStyleQuickCreate && (
-        <QuickCreatePageStyleDialog
+        <QuickCreatePageStyleSidebar
           isOpen={showPageStyleQuickCreate}
           onClose={() => {
             setShowPageStyleQuickCreate(false)
@@ -459,7 +460,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       )}
 
       {showEmailMessageQuickCreate && (
-        <QuickCreateEmailMessageDialog
+        <QuickCreateEmailMessageSidebar
           isOpen={showEmailMessageQuickCreate}
           onClose={() => {
             setShowEmailMessageQuickCreate(false)

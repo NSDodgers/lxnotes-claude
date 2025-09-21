@@ -23,6 +23,7 @@ import {
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
+import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 
 // Mock data for development
 const mockProductionNotes: Note[] = [
@@ -964,7 +965,15 @@ const mockProductionNotes: Note[] = [
 ]
 
 export default function ProductionNotesPage() {
-  const [notes, setNotes] = useState(mockProductionNotes)
+  const mockNotesStore = useMockNotesStore()
+
+  // Get notes directly from store instead of local state
+  const notes = mockNotesStore.getAllNotes('production')
+
+  // Initialize mock data only once
+  useEffect(() => {
+    mockNotesStore.initializeWithMockData()
+  }, [])
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
   const [searchTerm, setSearchTerm] = useState('')
@@ -1006,9 +1015,7 @@ export default function ProductionNotesPage() {
   }
 
   const updateNoteStatus = (noteId: string, status: NoteStatus) => {
-    setNotes(notes.map(note => 
-      note.id === noteId ? { ...note, status, updatedAt: new Date() } : note
-    ))
+    mockNotesStore.updateNote(noteId, { status })
   }
 
   const handleEditNote = (note: Note) => {
@@ -1020,21 +1027,10 @@ export default function ProductionNotesPage() {
   const handleDialogAdd = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingNote) {
       // Update existing note
-      const updatedNote: Note = {
-        ...editingNote,
-        ...noteData,
-        updatedAt: new Date(),
-      }
-      setNotes(notes.map(note => note.id === editingNote.id ? updatedNote : note))
+      mockNotesStore.updateNote(editingNote.id, noteData)
     } else {
       // Create new note
-      const note: Note = {
-        ...noteData,
-        id: Date.now().toString(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      setNotes([note, ...notes])
+      mockNotesStore.addNote(noteData)
     }
     setEditingNote(null)
   }
@@ -1049,7 +1045,7 @@ export default function ProductionNotesPage() {
             {/* Left: Production Info */}
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
-                {logo.startsWith('data:') ? (
+                {logo && (logo.startsWith('data:') || logo.startsWith('/') || logo.startsWith('http')) ? (
                   <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
                 ) : (
                   <span>{logo}</span>

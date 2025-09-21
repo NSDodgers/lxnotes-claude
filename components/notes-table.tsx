@@ -28,7 +28,7 @@ interface NotesTableProps {
   onEdit?: (note: Note) => void
 }
 
-type SortField = 'title' | 'priority' | 'status' | 'type' | 'createdAt' | 'positionUnit' | 'scriptPageId'
+type SortField = 'title' | 'priority' | 'status' | 'type' | 'createdAt' | 'positionUnit' | 'scriptPageId' | 'channels'
 type SortDirection = 'asc' | 'desc'
 
 export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesTableProps) {
@@ -57,6 +57,35 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
     // Split by "Unit" and take the first part, then trim
     const parts = positionUnit.split(/\s+Unit/i)
     return parts[0]?.trim() || positionUnit
+  }
+
+  // Helper function to extract lowest channel number from channel expressions
+  const extractLowestChannelNumber = (channelExpression: string): number => {
+    if (!channelExpression) return 0
+
+    // Handle expressions like "1-5, 21, 45" or "1, 3-7, 12"
+    const channels: number[] = []
+
+    // Split by commas and process each part
+    const parts = channelExpression.split(',')
+
+    for (const part of parts) {
+      const trimmed = part.trim()
+
+      // Check if it's a range (e.g., "1-5")
+      if (trimmed.includes('-')) {
+        const [start, end] = trimmed.split('-').map(s => parseInt(s.trim(), 10))
+        if (!isNaN(start)) channels.push(start)
+        if (!isNaN(end)) channels.push(end)
+      } else {
+        // Single number
+        const num = parseInt(trimmed, 10)
+        if (!isNaN(num)) channels.push(num)
+      }
+    }
+
+    // Return the lowest channel number, or 0 if none found
+    return channels.length > 0 ? Math.min(...channels) : 0
   }
 
   const getStatusIcon = (status: NoteStatus) => {
@@ -93,70 +122,96 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
   }
 
   const sortedNotes = [...notes].sort((a, b) => {
-    let aValue: any = (a as any)[sortField]
-    let bValue: any = (b as any)[sortField]
+    // Helper function to get sort value for a given field and note
+    const getSortValue = (note: Note, field: SortField): any => {
+      switch (field) {
+        case 'priority':
+          const priority = availablePriorities.find(p => p.value === note.priority)
+          return priority ? priority.sortOrder : 999
 
-    if (sortField === 'priority') {
-      const priorityOrder = { high: 3, medium: 2, low: 1 }
-      aValue = priorityOrder[a.priority as keyof typeof priorityOrder] || 0
-      bValue = priorityOrder[b.priority as keyof typeof priorityOrder] || 0
+        case 'positionUnit':
+          const position = moduleType === 'work' ? extractPositionFromUnit(note.positionUnit || '') : ''
+          if (orderedPositions.length > 0) {
+            const index = orderedPositions.indexOf(position)
+            return index === -1 ? 9999 : index
+          }
+          return position.toLowerCase()
+
+        case 'createdAt':
+          return new Date(note.createdAt).getTime()
+
+        case 'scriptPageId':
+          // For cue notes, sort by cueNumber if available
+          if (moduleType === 'cue' && note.cueNumber) {
+            const cueNum = parseInt(note.cueNumber, 10)
+            return isNaN(cueNum) ? 0 : cueNum
+          }
+          // Fallback for legacy data
+          const match = note.scriptPageId?.match(/(\d+)/)
+          return match ? parseInt(match[1], 10) : 0
+
+        case 'channels':
+          // Get channel from fixture aggregate for work notes
+          const aggregate = moduleType === 'work' ? getAggregate(note.id) : null
+          return aggregate ? extractLowestChannelNumber(aggregate.channels) : 0
+
+        case 'type':
+          return (note.type || '').toLowerCase()
+
+        case 'title':
+          return note.title.toLowerCase()
+
+        case 'status':
+          return note.status
+
+        default:
+          return (note as any)[field] || ''
+      }
     }
 
-    if (sortField === 'positionUnit') {
-      // Extract positions from positionUnit field for work notes
-      const aPosition = moduleType === 'work' ? extractPositionFromUnit(a.positionUnit || '') : ''
-      const bPosition = moduleType === 'work' ? extractPositionFromUnit(b.positionUnit || '') : ''
-
-      if (orderedPositions.length > 0) {
-        // Use custom position order
-        const aIndex = orderedPositions.indexOf(aPosition)
-        const bIndex = orderedPositions.indexOf(bPosition)
-
-        // Items not in custom order go to the end, sorted alphabetically
-        if (aIndex === -1 && bIndex === -1) {
-          aValue = aPosition.toLowerCase()
-          bValue = bPosition.toLowerCase()
-        } else if (aIndex === -1) {
-          return sortDirection === 'asc' ? 1 : -1
-        } else if (bIndex === -1) {
-          return sortDirection === 'asc' ? -1 : 1
-        } else {
-          aValue = aIndex
-          bValue = bIndex
+    // Determine secondary sort field based on module and primary sort
+    const getSecondarySort = (primaryField: SortField): SortField | null => {
+      if (moduleType === 'cue') {
+        if (primaryField === 'priority' || primaryField === 'type') {
+          return 'scriptPageId' // Cue number
         }
-      } else {
-        // Fallback to alphabetical sorting
-        aValue = aPosition.toLowerCase()
-        bValue = bPosition.toLowerCase()
+      } else if (moduleType === 'work') {
+        if (primaryField === 'priority' || primaryField === 'type' || primaryField === 'positionUnit') {
+          return 'channels'
+        }
       }
+      return null
     }
 
-    if (sortField === 'createdAt') {
-      aValue = new Date(aValue).getTime()
-      bValue = new Date(bValue).getTime()
-    }
+    // Get primary sort values
+    const aPrimary = getSortValue(a, sortField)
+    const bPrimary = getSortValue(b, sortField)
 
-    if (sortField === 'scriptPageId') {
-      // Extract numeric part from scriptPageId for proper numerical sorting
-      const extractNumber = (scriptPageId: string): number => {
-        const match = scriptPageId?.match(/(\d+)/)
-        return match ? parseInt(match[1], 10) : 0
-      }
-
-      aValue = extractNumber(a.scriptPageId || '')
-      bValue = extractNumber(b.scriptPageId || '')
-    }
-
-    if (typeof aValue === 'string') {
-      aValue = aValue.toLowerCase()
-      bValue = bValue.toLowerCase()
-    }
-
-    if (sortDirection === 'asc') {
-      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0
+    // Compare primary values
+    let primaryComparison = 0
+    if (typeof aPrimary === 'string') {
+      primaryComparison = aPrimary.localeCompare(bPrimary)
     } else {
-      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
+      primaryComparison = aPrimary - bPrimary
     }
+
+    // If primary values are equal, use secondary sort
+    if (primaryComparison === 0) {
+      const secondaryField = getSecondarySort(sortField)
+      if (secondaryField) {
+        const aSecondary = getSortValue(a, secondaryField)
+        const bSecondary = getSortValue(b, secondaryField)
+
+        if (typeof aSecondary === 'string') {
+          primaryComparison = aSecondary.localeCompare(bSecondary)
+        } else {
+          primaryComparison = aSecondary - bSecondary
+        }
+      }
+    }
+
+    // Apply sort direction
+    return sortDirection === 'desc' ? -primaryComparison : primaryComparison
   })
 
   const renderHeader = (label: string, field: SortField) => (
@@ -173,6 +228,11 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
 
   const getReference = (note: Note) => {
     if (moduleType === 'cue') {
+      // Use cueNumber field directly for cue notes
+      if (note.cueNumber) {
+        return note.cueNumber
+      }
+      // Fallback for legacy data
       if (note.scriptPageId && note.scriptPageId.startsWith('cue-')) {
         return note.scriptPageId.split('cue-')[1]
       }
@@ -210,13 +270,13 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
             )}
             {moduleType === 'work' && (
               <>
-                <TableHead className="bg-bg-primary">Channels</TableHead>
+                {renderHeader('Channels', 'channels')}
                 <TableHead className="bg-bg-primary">Type</TableHead>
                 <TableHead className="bg-bg-primary">Purpose</TableHead>
                 {renderHeader('Position', 'positionUnit')}
               </>
             )}
-            {renderHeader('Note', 'title')}
+            <TableHead className="bg-bg-primary">Note</TableHead>
             {moduleType === 'work' && (
               <TableHead className="bg-bg-primary">Scenery Needs</TableHead>
             )}
@@ -244,7 +304,12 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                       onStatusUpdate(note.id, note.status === 'complete' ? 'todo' : 'complete')
                     }}
                     title={note.status === 'complete' ? 'Mark as todo' : 'Mark as complete'}
-                    className={cn("h-7 w-7", note.status !== 'complete' && "opacity-60 hover:opacity-100")}
+                    className={cn(
+                      "h-7 w-7",
+                      note.status === 'complete'
+                        ? "bg-status-complete/20 border-status-complete text-status-complete shadow-sm"
+                        : "opacity-60 hover:opacity-100"
+                    )}
                   >
                     <Check className="h-3 w-3" />
                   </Button>
@@ -256,7 +321,12 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                       onStatusUpdate(note.id, note.status === 'cancelled' ? 'todo' : 'cancelled')
                     }}
                     title={note.status === 'cancelled' ? 'Reopen' : 'Cancel'}
-                    className={cn("h-7 w-7", note.status !== 'cancelled' && "opacity-60 hover:opacity-100")}
+                    className={cn(
+                      "h-7 w-7",
+                      note.status === 'cancelled'
+                        ? "bg-status-cancelled/20 border-status-cancelled text-status-cancelled shadow-sm"
+                        : "opacity-60 hover:opacity-100"
+                    )}
                   >
                     <X className="h-3 w-3" />
                   </Button>
@@ -332,22 +402,28 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
               {moduleType === 'cue' && (
                 <TableCell className="text-sm text-muted-foreground">
                   {(() => {
-                    // Extract cue number from scriptPageId if it exists
+                    // Use cueNumber field for script lookups
+                    if (note.cueNumber) {
+                      const lookup = lookupCue(note.cueNumber)
+                      return lookup.display || '-'
+                    }
+
+                    // Extract cue number from scriptPageId if it exists (legacy data)
                     if (note.scriptPageId && note.scriptPageId.startsWith('cue-')) {
                       const cueNumber = note.scriptPageId.replace('cue-', '')
                       const lookup = lookupCue(cueNumber)
                       return lookup.display || '-'
                     }
-                    
+
                     // Fallback for existing data format
-                    const scriptPage = note.scriptPageId ? 
-                      (note.scriptPageId.startsWith('page-') ? 
-                        `Pg. ${note.scriptPageId.replace('page-', '')}` : 
-                        note.scriptPageId.startsWith('cue-') ? 
-                          note.scriptPageId.replace('cue-', '') : 
+                    const scriptPage = note.scriptPageId ?
+                      (note.scriptPageId.startsWith('page-') ?
+                        `Pg. ${note.scriptPageId.replace('page-', '')}` :
+                        note.scriptPageId.startsWith('cue-') ?
+                          note.scriptPageId.replace('cue-', '') :
                           note.scriptPageId) : '';
                     const sceneSong = note.sceneSongId || '';
-                    
+
                     if (scriptPage && sceneSong) {
                       return `${scriptPage} - ${sceneSong}`;
                     } else if (scriptPage) {

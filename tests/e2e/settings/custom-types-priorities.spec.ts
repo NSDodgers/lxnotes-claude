@@ -8,7 +8,7 @@ test.describe('Custom Types & Priorities Settings', () => {
     helpers = new TestHelpers(page);
     await page.goto('/');
     await helpers.waitForAppReady();
-    await helpers.navigateToSettingsTab('customization');
+    await helpers.navigateToSettingsTab('general');
   });
 
   test('should display customization settings page', async ({ page }) => {
@@ -274,7 +274,7 @@ test.describe('Custom Types & Priorities Settings', () => {
       // Reload page
       await page.reload();
       await helpers.waitForAppReady();
-      await helpers.navigateToSettingsTab('customization');
+      await helpers.navigateToSettingsTab('general');
       
       // Should still be there
       await expect(page.locator('[data-testid="custom-types-manager"]')).toContainText('Persistent Type');

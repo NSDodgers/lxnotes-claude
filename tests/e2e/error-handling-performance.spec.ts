@@ -140,7 +140,7 @@ test.describe('Error Handling & Performance', () => {
       await filterSection.locator('[data-testid="add-preset"]').click();
       let dialog = page.locator('[data-testid="preset-dialog"]');
       await dialog.locator('[data-testid="preset-name"]').fill('Error Test Preset');
-      await dialog.selectOption('[data-testid="module-type"]', 'cue');
+      await dialog.selectOption('[data-testid="module-type"]', 'cue' as any);
       await dialog.locator('[data-testid="save-button"]').click();
 
       // Now try to delete it
@@ -276,7 +276,7 @@ test.describe('Error Handling & Performance', () => {
     });
 
     test('should handle rapid navigation efficiently', async ({ page }) => {
-      const modules = ['cue-notes', 'work-notes', 'production-notes'];
+      const modules: ('cue-notes' | 'work-notes' | 'production-notes')[] = ['cue-notes', 'work-notes', 'production-notes'];
       const navigationTimes: number[] = [];
 
       // Test rapid switching between modules
@@ -415,7 +415,7 @@ test.describe('Error Handling & Performance', () => {
 
         const dialog = page.locator('[data-testid="preset-dialog"]');
         await dialog.locator('[data-testid="preset-name"]').fill(`Performance Test ${i}`);
-        await dialog.selectOption('[data-testid="module-type"]', 'cue');
+        await dialog.selectOption('[data-testid="module-type"]', 'cue' as any);
         await dialog.locator('[data-testid="save-button"]').click();
 
         // Wait for preset to appear
@@ -448,7 +448,7 @@ test.describe('Error Handling & Performance', () => {
         await helpers.closeDialog();
 
         // Navigate between modules
-        const modules = ['cue-notes', 'work-notes', 'production-notes'];
+        const modules: ('cue-notes' | 'work-notes' | 'production-notes')[] = ['cue-notes', 'work-notes', 'production-notes'];
         await helpers.navigateToModule(modules[i % modules.length]);
 
         // Perform searches

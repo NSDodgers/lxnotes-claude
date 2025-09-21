@@ -33,41 +33,41 @@ const getSystemDefaults = (moduleType: ModuleType): CustomType[] => {
   switch (moduleType) {
     case 'cue':
       return [
-        { id: 'sys-cue-1', productionId, moduleType, value: 'cue', label: 'Cue', color: '#3B82F6', isSystem: true, isHidden: false, sortOrder: 1, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-2', productionId, moduleType, value: 'director', label: 'Director', color: '#EF4444', isSystem: true, isHidden: false, sortOrder: 2, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-3', productionId, moduleType, value: 'choreographer', label: 'Choreographer', color: '#22C55E', isSystem: true, isHidden: false, sortOrder: 3, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-4', productionId, moduleType, value: 'designer', label: 'Designer', color: '#F59E0B', isSystem: true, isHidden: false, sortOrder: 4, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-5', productionId, moduleType, value: 'stage_manager', label: 'Stage Manager', color: '#8B5CF6', isSystem: true, isHidden: false, sortOrder: 5, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-6', productionId, moduleType, value: 'associate', label: 'Associate', color: '#06B6D4', isSystem: true, isHidden: false, sortOrder: 6, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-7', productionId, moduleType, value: 'assistant', label: 'Assistant', color: '#EC4899', isSystem: true, isHidden: false, sortOrder: 7, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-8', productionId, moduleType, value: 'spot', label: 'Spot', color: '#F97316', isSystem: true, isHidden: false, sortOrder: 8, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-9', productionId, moduleType, value: 'programmer', label: 'Programmer', color: '#6366F1', isSystem: true, isHidden: false, sortOrder: 9, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-10', productionId, moduleType, value: 'production', label: 'Production', color: '#6B7280', isSystem: true, isHidden: false, sortOrder: 10, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-11', productionId, moduleType, value: 'paperwork', label: 'Paperwork', color: '#84CC16', isSystem: true, isHidden: false, sortOrder: 11, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-cue-12', productionId, moduleType, value: 'think', label: 'Think', color: '#14B8A6', isSystem: true, isHidden: false, sortOrder: 12, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-1', productionId, moduleType, value: 'cue', label: 'Cue', color: '#2563EB', isSystem: true, isHidden: false, sortOrder: 1, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-2', productionId, moduleType, value: 'director', label: 'Director', color: '#B91C1C', isSystem: true, isHidden: false, sortOrder: 2, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-3', productionId, moduleType, value: 'choreographer', label: 'Choreographer', color: '#15803D', isSystem: true, isHidden: false, sortOrder: 3, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-4', productionId, moduleType, value: 'designer', label: 'Designer', color: '#B45309', isSystem: true, isHidden: false, sortOrder: 4, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-5', productionId, moduleType, value: 'stage_manager', label: 'Stage Manager', color: '#6D28D9', isSystem: true, isHidden: false, sortOrder: 5, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-6', productionId, moduleType, value: 'associate', label: 'Associate', color: '#0E7490', isSystem: true, isHidden: false, sortOrder: 6, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-7', productionId, moduleType, value: 'assistant', label: 'Assistant', color: '#BE185D', isSystem: true, isHidden: false, sortOrder: 7, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-8', productionId, moduleType, value: 'spot', label: 'Spot', color: '#C2410C', isSystem: true, isHidden: false, sortOrder: 8, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-9', productionId, moduleType, value: 'programmer', label: 'Programmer', color: '#4338CA', isSystem: true, isHidden: false, sortOrder: 9, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-10', productionId, moduleType, value: 'production', label: 'Production', color: '#4B5563', isSystem: true, isHidden: false, sortOrder: 10, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-11', productionId, moduleType, value: 'paperwork', label: 'Paperwork', color: '#4D7C0F', isSystem: true, isHidden: false, sortOrder: 11, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-cue-12', productionId, moduleType, value: 'think', label: 'Think', color: '#0F766E', isSystem: true, isHidden: false, sortOrder: 12, createdAt: baseDate, updatedAt: baseDate },
       ]
     
     case 'production':
       return [
-        { id: 'sys-prod-1', productionId, moduleType, value: 'scenic', label: 'Scenic', color: '#6A4C93', isSystem: true, isHidden: false, sortOrder: 1, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-prod-2', productionId, moduleType, value: 'costumes', label: 'Costumes', color: '#DB5461', isSystem: true, isHidden: false, sortOrder: 2, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-prod-3', productionId, moduleType, value: 'lighting', label: 'Lighting', color: '#F2CC8F', isSystem: true, isHidden: false, sortOrder: 3, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-prod-4', productionId, moduleType, value: 'props', label: 'Props', color: '#81B29A', isSystem: true, isHidden: false, sortOrder: 4, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-prod-5', productionId, moduleType, value: 'sound', label: 'Sound', color: '#6E44FF', isSystem: true, isHidden: false, sortOrder: 5, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-prod-6', productionId, moduleType, value: 'video', label: 'Video', color: '#FF6B6B', isSystem: true, isHidden: false, sortOrder: 6, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-prod-7', productionId, moduleType, value: 'stage_management', label: 'Stage Management', color: '#B8D4E3', isSystem: true, isHidden: false, sortOrder: 7, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-prod-8', productionId, moduleType, value: 'directing', label: 'Directing', color: '#2E86AB', isSystem: true, isHidden: false, sortOrder: 8, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-prod-9', productionId, moduleType, value: 'choreography', label: 'Choreography', color: '#A23B72', isSystem: true, isHidden: false, sortOrder: 9, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-prod-10', productionId, moduleType, value: 'production_management', label: 'Production Management', color: '#73AB84', isSystem: true, isHidden: false, sortOrder: 10, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-1', productionId, moduleType, value: 'scenic', label: 'Scenic', color: '#4C366D', isSystem: true, isHidden: false, sortOrder: 1, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-2', productionId, moduleType, value: 'costumes', label: 'Costumes', color: '#9F1239', isSystem: true, isHidden: false, sortOrder: 2, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-3', productionId, moduleType, value: 'lighting', label: 'Lighting', color: '#B45309', isSystem: true, isHidden: false, sortOrder: 3, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-4', productionId, moduleType, value: 'props', label: 'Props', color: '#5B8767', isSystem: true, isHidden: false, sortOrder: 4, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-5', productionId, moduleType, value: 'sound', label: 'Sound', color: '#4C1D95', isSystem: true, isHidden: false, sortOrder: 5, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-6', productionId, moduleType, value: 'video', label: 'Video', color: '#B91C1C', isSystem: true, isHidden: false, sortOrder: 6, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-7', productionId, moduleType, value: 'stage_management', label: 'Stage Management', color: '#6B7280', isSystem: true, isHidden: false, sortOrder: 7, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-8', productionId, moduleType, value: 'directing', label: 'Directing', color: '#1E5E8E', isSystem: true, isHidden: false, sortOrder: 8, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-9', productionId, moduleType, value: 'choreography', label: 'Choreography', color: '#7E1E53', isSystem: true, isHidden: false, sortOrder: 9, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-10', productionId, moduleType, value: 'production_management', label: 'Production Management', color: '#4D7C5A', isSystem: true, isHidden: false, sortOrder: 10, createdAt: baseDate, updatedAt: baseDate },
       ]
     
     case 'work':
       return [
-        { id: 'sys-work-1', productionId, moduleType, value: 'work', label: 'Work', color: '#6B7280', isSystem: true, isHidden: false, sortOrder: 1, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-2', productionId, moduleType, value: 'focus', label: 'Focus', color: '#DC2626', isSystem: true, isHidden: false, sortOrder: 2, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-3', productionId, moduleType, value: 'paperwork', label: 'Paperwork', color: '#2563EB', isSystem: true, isHidden: false, sortOrder: 3, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-4', productionId, moduleType, value: 'electrician', label: 'Electrician', color: '#10B981', isSystem: true, isHidden: false, sortOrder: 4, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-5', productionId, moduleType, value: 'think', label: 'Think', color: '#F59E0B', isSystem: true, isHidden: false, sortOrder: 5, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-1', productionId, moduleType, value: 'work', label: 'Work', color: '#4B5563', isSystem: true, isHidden: false, sortOrder: 1, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-2', productionId, moduleType, value: 'focus', label: 'Focus', color: '#991B1B', isSystem: true, isHidden: false, sortOrder: 2, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-3', productionId, moduleType, value: 'paperwork', label: 'Paperwork', color: '#1E3A8A', isSystem: true, isHidden: false, sortOrder: 3, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-4', productionId, moduleType, value: 'electrician', label: 'Electrician', color: '#047857', isSystem: true, isHidden: false, sortOrder: 4, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-5', productionId, moduleType, value: 'think', label: 'Think', color: '#92400E', isSystem: true, isHidden: false, sortOrder: 5, createdAt: baseDate, updatedAt: baseDate },
       ]
     
     default:

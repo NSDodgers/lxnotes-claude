@@ -4,17 +4,16 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { 
-  Lightbulb, 
-  Wrench, 
-  FileText, 
+import {
+  Lightbulb,
+  Wrench,
+  FileText,
   Settings,
   ChevronLeft,
   ChevronRight,
   Menu,
   Tablet
 } from 'lucide-react'
-import { useState } from 'react'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
 
 const navigation = [
@@ -24,9 +23,13 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+  collapsed: boolean
+  onCollapsedChange: (collapsed: boolean) => void
+}
+
+export function Sidebar({ collapsed, onCollapsedChange }: SidebarProps) {
   const pathname = usePathname()
-  const [collapsed, setCollapsed] = useState(false)
   const { isTabletMode, toggleTabletMode } = useTabletModeStore()
 
   return (
@@ -63,7 +66,7 @@ export function Sidebar() {
             />
           )}
           <button
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={() => onCollapsedChange(!collapsed)}
             className={cn(
               "hover:bg-bg-tertiary rounded-lg transition-colors",
               collapsed

@@ -34,7 +34,7 @@ export class PDFTemplateEngine {
 
     if (hasLogo) {
       // Logo + Production Name side-by-side layout
-      if (this.isBase64Image(this.config.productionLogo)) {
+      if (this.config.productionLogo && this.isBase64Image(this.config.productionLogo)) {
         // Handle base64 image data
         try {
           this.doc.addImage(this.config.productionLogo, 'JPEG', 40, yPos - 30, 30, 30)
@@ -47,7 +47,7 @@ export class PDFTemplateEngine {
           this.doc.text('🎭', 40, yPos)
           yPos += 35
         }
-      } else {
+      } else if (this.config.productionLogo) {
         // Handle text/emoji logo
         this.doc.setFontSize(30)
         this.doc.setFont('helvetica', 'normal')
@@ -298,11 +298,13 @@ export class PDFTemplateEngine {
   private formatPriority(priority: string): string {
     const priorityMap: Record<string, string> = {
       'critical': 'CRITICAL',
+      'very_high': 'VERY_HIGH',
       'high': 'HIGH',
       'medium': 'MEDIUM',
       'low': 'LOW',
       'very_low': 'VERY_LOW'
     }
+
     return priorityMap[priority] || priority.toUpperCase()
   }
 
@@ -347,8 +349,6 @@ export class PDFTemplateEngine {
     return text
       .normalize('NFD') // Normalize Unicode
       .replace(/[\u0300-\u036f]/g, '') // Remove combining diacritical marks
-      // Remove common encoding artifacts that often appear before text
-      .replace(/^[^\w\s]*(?=\w)/, '') // Remove non-word characters at the start before first word character
       .replace(/[^\x00-\x7F]/g, (char) => {
         // Handle common special characters that might cause encoding issues
         const charMap: Record<string, string> = {
@@ -361,8 +361,17 @@ export class PDFTemplateEngine {
           '\u2013': '-',
           '\u2014': '-',
           '\u2026': '...',
+          // Preserve common emojis used as logos
+          '🎭': '🎭',
+          '🎪': '🎪',
+          '🎵': '🎵',
+          '🎼': '🎼',
+          '🎤': '🎤',
+          '🎬': '🎬',
+          '⭐': '⭐',
+          '✨': '✨',
         }
-        return charMap[char] || '' // Return empty string for unmapped characters instead of preserving them
+        return charMap[char] || char // Preserve unmapped characters instead of removing them
       })
       .trim() // Remove any leading/trailing whitespace
   }

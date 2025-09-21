@@ -23,9 +23,9 @@ const buttonVariants = cva(
         cue: "bg-modules-cue text-white shadow hover:bg-modules-cue/90",
         work: "bg-modules-work text-white shadow hover:bg-modules-work/90", 
         production: "bg-modules-production text-white shadow hover:bg-modules-production/90",
-        // Status variants
-        complete: "bg-status-complete text-white shadow hover:bg-status-complete/90",
-        cancelled: "bg-status-cancelled text-white shadow hover:bg-status-cancelled/90",
+        // Status variants - dark mode optimized
+        complete: "bg-transparent border border-status-complete/30 text-status-complete hover:bg-status-complete/10 hover:border-status-complete/50 transition-all duration-200",
+        cancelled: "bg-transparent border border-status-cancelled/30 text-status-cancelled hover:bg-status-cancelled/10 hover:border-status-cancelled/50 transition-all duration-200",
         todo: "bg-status-todo text-white shadow hover:bg-status-todo/90",
         // Priority variants for quick add buttons
         priority_high: "bg-priority-high text-white shadow hover:bg-priority-high/90",

@@ -5,7 +5,7 @@ import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
-import { HookupUploadDialog } from '@/components/hookup-upload-dialog'
+import { HookupImportSidebar } from '@/components/hookup-import-sidebar'
 import { FixtureDataViewer } from '@/components/fixture-data-viewer'
 import { PositionManager } from '@/components/position-manager'
 import {
@@ -34,6 +34,7 @@ import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 
 // Mock data for development
@@ -957,7 +958,15 @@ const mockWorkNotes: Note[] = [
 ]
 
 export default function WorkNotesPage() {
-  const [notes, setNotes] = useState(mockWorkNotes)
+  const mockNotesStore = useMockNotesStore()
+
+  // Get notes directly from store instead of local state
+  const notes = mockNotesStore.getAllNotes('work')
+
+  // Initialize mock data only once
+  useEffect(() => {
+    mockNotesStore.initializeWithMockData()
+  }, [])
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
   const { fixtures, uploadFixtures, linkFixturesToWorkNote, getHasBeenDeleted } = useFixtureStore()
@@ -1030,9 +1039,7 @@ export default function WorkNotesPage() {
   }
 
   const updateNoteStatus = (noteId: string, status: NoteStatus) => {
-    setNotes(notes.map(note => 
-      note.id === noteId ? { ...note, status, updatedAt: new Date() } : note
-    ))
+    mockNotesStore.updateNote(noteId, { status })
   }
 
   const handleEditNote = (note: Note) => {
@@ -1044,27 +1051,16 @@ export default function WorkNotesPage() {
   const handleDialogAdd = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>, lightwrightFixtureIds?: string[]) => {
     if (editingNote) {
       // Update existing note
-      const updatedNote: Note = {
-        ...editingNote,
-        ...noteData,
-        updatedAt: new Date(),
-      }
-      setNotes(notes.map(note => note.id === editingNote.id ? updatedNote : note))
-      
+      mockNotesStore.updateNote(editingNote.id, noteData)
+
       // Handle fixture linking for work notes
       if (noteData.moduleType === 'work' && lightwrightFixtureIds) {
         linkFixturesToWorkNote(editingNote.id, lightwrightFixtureIds)
       }
     } else {
       // Create new note
-      const note: Note = {
-        ...noteData,
-        id: Date.now().toString(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      setNotes([note, ...notes])
-      
+      const note = mockNotesStore.addNote(noteData)
+
       // Handle fixture linking for work notes
       if (noteData.moduleType === 'work' && lightwrightFixtureIds && lightwrightFixtureIds.length > 0) {
         linkFixturesToWorkNote(note.id, lightwrightFixtureIds)
@@ -1083,7 +1079,7 @@ export default function WorkNotesPage() {
             {/* Left: Production Info */}
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
-                {logo.startsWith('data:') ? (
+                {logo && (logo.startsWith('data:') || logo.startsWith('/') || logo.startsWith('http')) ? (
                   <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
                 ) : (
                   <span>{logo}</span>
@@ -1269,7 +1265,7 @@ export default function WorkNotesPage() {
         notes={notes}
       />
       
-      <HookupUploadDialog
+      <HookupImportSidebar
         isOpen={isLightwrightDialogOpen}
         onClose={() => setIsLightwrightDialogOpen(false)}
         productionId="prod-1"

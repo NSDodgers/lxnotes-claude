@@ -6,8 +6,8 @@ import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-stor
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { PresetSelector } from './preset-selector'
-import { QuickCreateFilterSortDialog } from './quick-create-filter-sort-dialog'
-import { QuickCreatePageStyleDialog } from './quick-create-page-style-dialog'
+import { QuickCreateFilterSortSidebar } from './quick-create-filter-sort-sidebar'
+import { QuickCreatePageStyleSidebar } from './quick-create-page-style-sidebar'
 import {
   Sheet,
   SheetContent,
@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 import type { ModuleType, FilterSortPreset, PageStylePreset, Note } from '@/types'
 import { cn } from '@/lib/utils'
 import { PDFGenerationService } from '@/lib/services/pdf'
-import { getMockNotes } from '@/lib/utils/mockNotesData'
+import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 
 interface PrintNotesSidebarProps {
   moduleType: ModuleType
@@ -52,8 +52,9 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes }: PrintN
     setIsGenerating(true)
 
     try {
-      // Use provided notes or fall back to mock data
-      const notesToUse = notes || getMockNotes(moduleType)
+      // Use provided notes or fall back to mock data from store
+      const mockNotesStore = useMockNotesStore.getState()
+      const notesToUse = notes || mockNotesStore.getAllNotes(moduleType)
 
       // Generate PDF using the service
       const pdfService = PDFGenerationService.getInstance()
@@ -323,9 +324,9 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes }: PrintN
         </SheetContent>
       </Sheet>
 
-      {/* Quick Create Dialogs */}
+      {/* Quick Create Sidebars */}
       {showFilterQuickCreate && (
-        <QuickCreateFilterSortDialog
+        <QuickCreateFilterSortSidebar
           isOpen={showFilterQuickCreate}
           onClose={() => {
             setShowFilterQuickCreate(false)
@@ -338,7 +339,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes }: PrintN
       )}
 
       {showPageStyleQuickCreate && (
-        <QuickCreatePageStyleDialog
+        <QuickCreatePageStyleSidebar
           isOpen={showPageStyleQuickCreate}
           onClose={() => {
             setShowPageStyleQuickCreate(false)

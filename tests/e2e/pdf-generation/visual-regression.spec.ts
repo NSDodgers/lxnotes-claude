@@ -76,7 +76,7 @@ test.describe('Visual Regression Testing for PDF Generation', () => {
       const baselineFiles = fs.readdirSync(baselineDir).filter(file => file.endsWith('.pdf'))
 
       if (baselineFiles.length === 0) {
-        test.skip('No baseline files found. Run baseline generation first.')
+        test.skip(true, 'No baseline files found. Run baseline generation first.');
       }
 
       const regressions: Array<{ file: string; issue: string }> = []

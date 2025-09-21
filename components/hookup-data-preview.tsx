@@ -1,17 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertTriangle, CheckCircle, Database, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Database, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -48,18 +41,7 @@ export function HookupDataPreview({
   onImport,
   isProcessing = false
 }: HookupDataPreviewProps) {
-  // Pagination state for Valid Records
-  const [currentPage, setCurrentPage] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
   const [showRawHeaders, setShowRawHeaders] = useState(true)
-  
-  // Pagination state for Data Issues
-  const [errorsCurrentPage, setErrorsCurrentPage] = useState(0)
-  const [errorsPageSize, setErrorsPageSize] = useState(10)
-  
-  // Pagination state for Records to be Skipped
-  const [skippedCurrentPage, setSkippedCurrentPage] = useState(0)
-  const [skippedPageSize, setSkippedPageSize] = useState(10)
 
   // Use all CSV data if available, otherwise fall back to validation sample
   const allDisplayData = allCsvData || validation.sampleData
@@ -78,31 +60,15 @@ export function HookupDataPreview({
     // Only show records that have both LWID and Channel
     return (channelStr && channelStr !== '—') && (lwid && lwid !== '—')
   })
-  
-  const totalRows = validRecords.length
-  const totalPages = Math.ceil(totalRows / pageSize)
-  const startRow = currentPage * pageSize
-  const endRow = Math.min(startRow + pageSize, totalRows)
-  const currentPageData = validRecords.slice(startRow, endRow)
 
-  // Navigation functions
-  const goToFirstPage = () => setCurrentPage(0)
-  const goToPreviousPage = () => setCurrentPage(Math.max(0, currentPage - 1))
-  const goToNextPage = () => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))
-  const goToLastPage = () => setCurrentPage(totalPages - 1)
-  
-  // Reset to first page when page size changes
-  const handlePageSizeChange = (newSize: string) => {
-    setPageSize(parseInt(newSize))
-    setCurrentPage(0)
-  }
+  const totalRows = validRecords.length
 
   // Get actual row number in the original dataset for valid records
-  const getActualRowNumber = (pageIndex: number) => {
+  const getActualRowNumber = (validRecordIndex: number) => {
     // Find the original row number from the filtered valid record
-    const validRecord = currentPageData[pageIndex]
-    if (!validRecord) return startRow + pageIndex + 1
-    
+    const validRecord = validRecords[validRecordIndex]
+    if (!validRecord) return validRecordIndex + 1
+
     // Find this record's position in the original dataset
     const originalIndex = allDisplayData.findIndex(row => row === validRecord)
     return originalIndex + 1
@@ -114,18 +80,18 @@ export function HookupDataPreview({
   }
 
   // Get row status for display
-  const getRowStatus = (actualRowNumber: number, pageIndex: number) => {
+  const getRowStatus = (actualRowNumber: number, validRecordIndex: number) => {
     const error = getRowError(actualRowNumber)
     const isSkipped = selectedRowsToSkip.includes(actualRowNumber)
-    
+
     if (isSkipped) {
       return { type: 'skipped', message: 'Will be skipped', color: 'text-muted-foreground' }
     }
-    
-    // For paginated data, we need to check if this row would be parsed
-    const row = currentPageData[pageIndex]
+
+    // Check if this row would be parsed
+    const row = validRecords[validRecordIndex]
     const channelStr = getCellValue(row, 'channel')
-    
+
     if (!channelStr || channelStr === '—') {
       return { type: 'infrastructure', message: 'Record without a channel number (will be skipped)', color: 'text-blue-600' }
     }
@@ -243,51 +209,15 @@ export function HookupDataPreview({
             </Button>
           </div>
           
-          {/* Navigation Controls */}
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">
-              Showing {startRow + 1}-{endRow} of {totalRows} rows
-            </span>
-            
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToPreviousPage}
-                disabled={currentPage === 0}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              
-              <span className="text-xs text-muted-foreground px-2">
-                Page {currentPage + 1} of {totalPages}
-              </span>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToNextPage}
-                disabled={currentPage === totalPages - 1}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              
-              <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
-                <SelectTrigger className="w-20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="5">5</SelectItem>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Row Count Display */}
+          <div className="text-sm text-muted-foreground">
+            Showing 1-{totalRows} of {totalRows} rows
           </div>
         </div>
         
         <div className="border rounded-lg overflow-hidden">
-          <Table>
+          <div className="overflow-x-auto max-h-96 overflow-y-auto">
+            <Table>
             <TableHeader>
               {/* Raw CSV Headers Row */}
               {showRawHeaders && (
@@ -334,10 +264,10 @@ export function HookupDataPreview({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentPageData.map((row, pageIndex) => {
-                const actualRowNumber = getActualRowNumber(pageIndex)
+              {validRecords.map((row, validRecordIndex) => {
+                const actualRowNumber = getActualRowNumber(validRecordIndex)
                 const error = getRowError(actualRowNumber)
-                const status = getRowStatus(actualRowNumber, pageIndex)
+                const status = getRowStatus(actualRowNumber, validRecordIndex)
                 const isSkipped = selectedRowsToSkip.includes(actualRowNumber)
                 
                 return (
@@ -389,6 +319,7 @@ export function HookupDataPreview({
               })}
             </TableBody>
           </Table>
+          </div>
         </div>
       </div>
 
@@ -428,56 +359,13 @@ export function HookupDataPreview({
               )}
             </div>
             
-            {/* Navigation Controls for Errors */}
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">
-                Showing {errorsCurrentPage * errorsPageSize + 1}-{Math.min((errorsCurrentPage + 1) * errorsPageSize, validation.errors.length)} of {validation.errors.length} issues
-              </span>
-              
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setErrorsCurrentPage(Math.max(0, errorsCurrentPage - 1))}
-                  disabled={errorsCurrentPage === 0}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                
-                <span className="text-xs text-muted-foreground px-2">
-                  Page {errorsCurrentPage + 1} of {Math.ceil(validation.errors.length / errorsPageSize)}
-                </span>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setErrorsCurrentPage(Math.min(Math.ceil(validation.errors.length / errorsPageSize) - 1, errorsCurrentPage + 1))}
-                  disabled={errorsCurrentPage === Math.ceil(validation.errors.length / errorsPageSize) - 1}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-                
-                <Select 
-                  value={errorsPageSize.toString()} 
-                  onValueChange={(value) => {
-                    setErrorsPageSize(parseInt(value))
-                    setErrorsCurrentPage(0)
-                  }}
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5</SelectItem>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Error Count Display */}
+            <div className="text-sm text-muted-foreground">
+              Showing 1-{validation.errors.length} of {validation.errors.length} issues
             </div>
           </div>
-          <div className="space-y-1 border rounded-lg p-3">
-            {validation.errors.slice(errorsCurrentPage * errorsPageSize, (errorsCurrentPage + 1) * errorsPageSize).map((error, index) => {
+          <div className="space-y-1 border rounded-lg p-3 max-h-48 overflow-y-auto">
+            {validation.errors.map((error, index) => {
               const isSkipped = selectedRowsToSkip.includes(error.row)
               
               return (
@@ -540,56 +428,14 @@ export function HookupDataPreview({
                 Records to be Skipped ({skippedRecords.length})
               </h4>
               
-              {/* Navigation Controls for Skipped Records */}
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">
-                  Showing {skippedCurrentPage * skippedPageSize + 1}-{Math.min((skippedCurrentPage + 1) * skippedPageSize, skippedRecords.length)} of {skippedRecords.length} records
-                </span>
-                
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSkippedCurrentPage(Math.max(0, skippedCurrentPage - 1))}
-                    disabled={skippedCurrentPage === 0}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  
-                  <span className="text-xs text-muted-foreground px-2">
-                    Page {skippedCurrentPage + 1} of {Math.ceil(skippedRecords.length / skippedPageSize)}
-                  </span>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSkippedCurrentPage(Math.min(Math.ceil(skippedRecords.length / skippedPageSize) - 1, skippedCurrentPage + 1))}
-                    disabled={skippedCurrentPage === Math.ceil(skippedRecords.length / skippedPageSize) - 1}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                  
-                  <Select 
-                    value={skippedPageSize.toString()} 
-                    onValueChange={(value) => {
-                      setSkippedPageSize(parseInt(value))
-                      setSkippedCurrentPage(0)
-                    }}
-                  >
-                    <SelectTrigger className="w-20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="5">5</SelectItem>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="25">25</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Skipped Records Count Display */}
+              <div className="text-sm text-muted-foreground">
+                Showing 1-{skippedRecords.length} of {skippedRecords.length} records
               </div>
             </div>
             <div className="border rounded-lg overflow-hidden">
-              <Table>
+              <div className="overflow-x-auto max-h-48 overflow-y-auto">
+                <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">
                     <TableHead className="w-12">Row</TableHead>
@@ -603,7 +449,7 @@ export function HookupDataPreview({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {skippedRecords.slice(skippedCurrentPage * skippedPageSize, (skippedCurrentPage + 1) * skippedPageSize).map((row, index) => {
+                  {skippedRecords.map((row, index) => {
                     const channelStr = getCellValue(row, 'channel')
                     const lwid = getCellValue(row, 'lwid')
                     const originalRowNumber = allDisplayData.findIndex(r => r === row) + 1
@@ -648,6 +494,7 @@ export function HookupDataPreview({
                   })}
                 </TableBody>
               </Table>
+              </div>
             </div>
           </div>
         )

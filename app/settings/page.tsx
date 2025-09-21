@@ -1,9 +1,9 @@
 'use client'
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
-import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users } from 'lucide-react'
+import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users, X } from 'lucide-react'
 import { useState } from 'react'
-import { useProductionStore } from '@/lib/stores/production-store'
+import { useProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { TypesManager } from '@/components/types-manager'
 import { PrioritiesManager } from '@/components/priorities-manager'
 import { PageStylePresetsManager } from '@/components/page-style-presets-manager'
@@ -12,7 +12,7 @@ import { EmailMessagePresetsManager } from '@/components/email-message-presets-m
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general')
-  const { name, abbreviation, logo, updateProduction } = useProductionStore()
+  const { name, abbreviation, logo, updateProduction, clearLogo } = useProductionStore()
   const [logoPreview, setLogoPreview] = useState(logo)
 
 
@@ -29,6 +29,11 @@ export default function SettingsPage() {
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  const handleClearLogo = () => {
+    clearLogo()
+    setLogoPreview(DEFAULT_PRODUCTION_LOGO)
   }
 
   return (
@@ -113,19 +118,31 @@ export default function SettingsPage() {
                     </label>
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-lg bg-bg-tertiary border-2 border-dashed border-bg-hover flex items-center justify-center text-text-muted overflow-hidden">
-                        {logoPreview.startsWith('data:') ? (
+                        {logoPreview && (logoPreview.startsWith('data:') || logoPreview.startsWith('/') || logoPreview.startsWith('http')) ? (
                           <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
                         ) : (
                           <span className="text-2xl">{logoPreview}</span>
                         )}
                       </div>
                       <div className="flex-1">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoUpload}
-                          className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-modules-production file:text-white file:text-sm hover:file:bg-modules-production/90"
-                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            className="flex-1 rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-modules-production file:text-white file:text-sm hover:file:bg-modules-production/90"
+                          />
+                          {logoPreview && logoPreview !== DEFAULT_PRODUCTION_LOGO && (
+                            <button
+                              onClick={handleClearLogo}
+                              className="px-3 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors flex items-center gap-1"
+                              title="Clear logo"
+                            >
+                              <X className="h-4 w-4" />
+                              Clear
+                            </button>
+                          )}
+                        </div>
                         <p className="text-xs text-text-muted mt-1">Recommended: Square format (1:1 ratio) for best display</p>
                       </div>
                     </div>

@@ -12,7 +12,7 @@ test.describe('Print & Email Integration', () => {
 
   test.describe('Print Notes View', () => {
     test('should access print view from each module', async ({ page }) => {
-      const modules = ['cue-notes', 'work-notes', 'production-notes'];
+      const modules: ('cue-notes' | 'work-notes' | 'production-notes')[] = ['cue-notes', 'work-notes', 'production-notes'];
       
       for (const module of modules) {
         await helpers.navigateToModule(module);
@@ -335,7 +335,7 @@ test.describe('Print & Email Integration', () => {
 
   test.describe('Cross-Module Integration', () => {
     test('should apply module-specific filtering across print/email', async ({ page }) => {
-      const modules = ['cue-notes', 'work-notes', 'production-notes'];
+      const modules: ('cue-notes' | 'work-notes' | 'production-notes')[] = ['cue-notes', 'work-notes', 'production-notes'];
       
       for (const module of modules) {
         await helpers.navigateToModule(module);

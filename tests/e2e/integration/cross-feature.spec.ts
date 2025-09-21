@@ -12,8 +12,7 @@ test.describe('Cross-Feature Integration', () => {
 
   test.describe('Notes & Presets Integration', () => {
     test('should use custom types in filter presets', async ({ page }) => {
-      // First create a custom type
-      await helpers.navigateToSettingsTab('customization');
+      await helpers.navigateToSettingsTab('presets');
       
       const typesManager = page.locator('[data-testid="custom-types-manager"]');
       await typesManager.locator('[data-testid="add-type-button"]').click();
@@ -31,10 +30,10 @@ test.describe('Cross-Feature Integration', () => {
       
       const presetDialog = page.locator('[data-testid="preset-dialog"]');
       await presetDialog.locator('[data-testid="preset-name"]').fill('Custom Type Filter');
-      await presetDialog.selectOption('[data-testid="module-type"]', 'cue');
+      await presetDialog.selectOption('[data-testid="module-type"]', 'cue' as any);
       
       // Should see the custom type in filter options
-      await presetDialog.check('[data-testid="type-filter-Integration Test Type"]');
+      await presetDialog.locator('[data-testid="type-filter-Integration Test Type"]').check();
       await presetDialog.locator('[data-testid="save-button"]').click();
       
       // Verify the preset was created
@@ -43,7 +42,7 @@ test.describe('Cross-Feature Integration', () => {
 
     test('should use custom priorities in notes creation', async ({ page }) => {
       // Create a custom priority
-      await helpers.navigateToSettingsTab('customization');
+      await helpers.navigateToSettingsTab('presets');
       
       const prioritiesManager = page.locator('[data-testid="custom-priorities-manager"]');
       await prioritiesManager.locator('[data-testid="add-priority-button"]').click();
@@ -84,8 +83,8 @@ test.describe('Cross-Feature Integration', () => {
       
       let dialog = page.locator('[data-testid="preset-dialog"]');
       await dialog.locator('[data-testid="preset-name"]').fill('Test Filter Preset');
-      await dialog.selectOption('[data-testid="module-type"]', 'production');
-      await dialog.selectOption('[data-testid="status-filter"]', 'todo');
+      await dialog.selectOption('[data-testid="module-type"]', 'production' as any);
+      await dialog.selectOption('[data-testid="status-filter"]', 'todo' as any);
       await dialog.locator('[data-testid="save-button"]').click();
       
       // Create email preset that links to the filter preset
@@ -119,7 +118,7 @@ test.describe('Cross-Feature Integration', () => {
       
       let dialog = page.locator('[data-testid="preset-dialog"]');
       await dialog.locator('[data-testid="preset-name"]').fill('Base Filter Preset');
-      await dialog.selectOption('[data-testid="module-type"]', 'work');
+      await dialog.selectOption('[data-testid="module-type"]', 'work' as any);
       await dialog.locator('[data-testid="save-button"]').click();
       
       // Create email preset linking to it
@@ -228,7 +227,7 @@ test.describe('Cross-Feature Integration', () => {
 
   test.describe('Theme and UI Consistency', () => {
     test('should maintain module colors across all interfaces', async ({ page }) => {
-      const modules = [
+      const modules: { name: 'cue-notes' | 'work-notes' | 'production-notes'; colorClass: string; theme: string; }[] = [
         { name: 'cue-notes', colorClass: 'text-modules-cue', theme: 'purple' },
         { name: 'work-notes', colorClass: 'text-modules-work', theme: 'blue' },
         { name: 'production-notes', colorClass: 'text-modules-production', theme: 'cyan' }

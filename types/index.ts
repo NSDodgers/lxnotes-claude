@@ -88,6 +88,7 @@ export interface Note {
   dueDate?: Date
   
   // Module-specific fields
+  cueNumber?: string // Cue number for cue notes (system looks up script context from this)
   scriptPageId?: string
   sceneSongId?: string
   lightwrightItemId?: string

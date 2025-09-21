@@ -19,6 +19,7 @@ import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { ScriptManager } from '@/components/script-manager'
 
 // Mock data for development
@@ -1749,7 +1750,15 @@ const mockCueNotes: Note[] = [
 ]
 
 export default function CueNotesPage() {
-  const [notes, setNotes] = useState(mockCueNotes)
+  const mockNotesStore = useMockNotesStore()
+
+  // Get notes directly from store instead of local state
+  const notes = mockNotesStore.getAllNotes('cue')
+
+  // Initialize mock data only once
+  useEffect(() => {
+    mockNotesStore.initializeWithMockData()
+  }, [])
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
   const customPrioritiesStore = useCustomPrioritiesStore()
@@ -1792,21 +1801,10 @@ export default function CueNotesPage() {
   const handleAddNote = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingNote) {
       // Update existing note
-      const updatedNote: Note = {
-        ...editingNote,
-        ...noteData,
-        updatedAt: new Date(),
-      }
-      setNotes(notes.map(note => note.id === editingNote.id ? updatedNote : note))
+      mockNotesStore.updateNote(editingNote.id, noteData)
     } else {
       // Create new note
-      const note: Note = {
-        ...noteData,
-        id: Date.now().toString(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-      setNotes([note, ...notes])
+      mockNotesStore.addNote(noteData)
     }
   }
 
@@ -1823,9 +1821,7 @@ export default function CueNotesPage() {
   }
 
   const updateNoteStatus = (noteId: string, status: NoteStatus) => {
-    setNotes(notes.map(note => 
-      note.id === noteId ? { ...note, status, updatedAt: new Date() } : note
-    ))
+    mockNotesStore.updateNote(noteId, { status })
   }
 
 
@@ -1839,7 +1835,7 @@ export default function CueNotesPage() {
             {/* Left: Production Info */}
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
-                {logo.startsWith('data:') ? (
+                {logo && (logo.startsWith('data:') || logo.startsWith('/') || logo.startsWith('http')) ? (
                   <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
                 ) : (
                   <span>{logo}</span>
