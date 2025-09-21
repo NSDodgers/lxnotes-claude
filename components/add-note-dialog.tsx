@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button'
 import { useCueLookup } from '@/lib/services/cue-lookup'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import { useLightwrightStore } from '@/lib/stores/lightwright-store'
-import { LightwrightSelector } from '@/components/lightwright-selector'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { FixtureSelector } from '@/components/fixture-selector'
 import {
   Dialog,
   DialogContent,
@@ -77,7 +77,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   const { lookupCue } = useCueLookup()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
-  const { linkFixturesToWorkNote, getLinkedFixtures } = useLightwrightStore()
+  const { linkFixturesToWorkNote, getLinkedFixtures } = useFixtureStore()
   
   const [formData, setFormData] = useState({
     title: '',
@@ -239,9 +239,9 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
 
             {moduleType === 'work' && (
               <div className="space-y-2">
-                <Label>Lightwright Fixtures (optional)</Label>
+                <Label>Fixture Selection (optional)</Label>
                 <div className="border rounded-lg p-4">
-                  <LightwrightSelector
+                  <FixtureSelector
                     productionId="prod-1"
                     selectedFixtureIds={selectedLightwrightIds}
                     onSelectionChange={setSelectedLightwrightIds}

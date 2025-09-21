@@ -1,6 +1,6 @@
-import type { LightwrightInfo } from '@/types'
+import type { FixtureInfo } from '@/types'
 
-export const sampleLightwrightData: Omit<LightwrightInfo, 'id' | 'createdAt' | 'updatedAt'>[] = [
+export const sampleFixtureData: Omit<FixtureInfo, 'id' | 'createdAt' | 'updatedAt'>[] = [
   {
     productionId: 'prod-1',
     lwid: '5A984A:1735:19:1B:Vecto',
@@ -4675,11 +4675,11 @@ export const sampleLightwrightData: Omit<LightwrightInfo, 'id' | 'createdAt' | '
   }
 ]
 
-// Helper function to generate complete LightwrightInfo objects
-export function generateSampleFixtures(): LightwrightInfo[] {
+// Helper function to generate complete FixtureInfo objects
+export function generateSampleFixtures(): FixtureInfo[] {
   const now = new Date()
 
-  return sampleLightwrightData.map((fixture, index) => ({
+  return sampleFixtureData.map((fixture, index) => ({
     ...fixture,
     id: `test-fixture-${index + 1}`,
     createdAt: now,

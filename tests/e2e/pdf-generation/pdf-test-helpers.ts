@@ -122,7 +122,7 @@ export class PDFTestHelpers {
     }
   ): Promise<void> {
     // Click quick create button for page style
-    await this.page.locator('[data-testid="quick-create-page-style"], button:has-text("New Page Style")', { timeout: 5000 }).click()
+    await this.page.locator('[data-testid="quick-create-page-style"], button:has-text("New Page Style")').click({ timeout: 5000 })
 
     // Fill in the form
     await this.page.fill('[data-testid="preset-name"], input[placeholder*="name"]', name)
@@ -164,7 +164,7 @@ export class PDFTestHelpers {
     }
   ): Promise<void> {
     // Click quick create button for filter
-    await this.page.locator('[data-testid="quick-create-filter"], button:has-text("New Filter")', { timeout: 5000 }).click()
+    await this.page.locator('[data-testid="quick-create-filter"], button:has-text("New Filter")').click({ timeout: 5000 })
 
     // Fill in the form
     await this.page.fill('[data-testid="preset-name"], input[placeholder*="name"]', name)
@@ -259,7 +259,7 @@ export class PDFTestHelpers {
       return {
         success: errors.length === 0,
         errors,
-        pdfBlob: new Blob([pdfBlob], { type: 'application/pdf' })
+        pdfBlob: new Blob([new Uint8Array(pdfBlob)], { type: 'application/pdf' })
       }
 
     } catch (error) {

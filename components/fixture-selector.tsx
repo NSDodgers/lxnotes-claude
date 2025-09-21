@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
-import { ChannelExpressionParser } from '@/lib/services/lightwright-parser'
-import { useLightwrightStore } from '@/lib/stores/lightwright-store'
-import type { LightwrightInfo, ParsedChannelExpression } from '@/types'
+import { ChannelExpressionParser } from '@/lib/services/hookup-parser'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
+import type { FixtureInfo, ParsedChannelExpression } from '@/types'
 
-interface LightwrightSelectorProps {
+interface FixtureSelectorProps {
   productionId: string
   selectedFixtureIds: string[]
   onSelectionChange: (fixtureIds: string[]) => void
@@ -21,18 +21,18 @@ interface LightwrightSelectorProps {
 }
 
 
-export function LightwrightSelector({
+export function FixtureSelector({
   productionId,
   selectedFixtureIds,
   onSelectionChange,
   channelExpression = '',
   onChannelExpressionChange,
   className
-}: LightwrightSelectorProps) {
-  const { getFixturesByChannels, getFixturesByProduction } = useLightwrightStore()
+}: FixtureSelectorProps) {
+  const { getFixturesByChannels, getFixturesByProduction } = useFixtureStore()
   const [searchExpression, setSearchExpression] = useState(channelExpression)
   const [parsedExpression, setParsedExpression] = useState<ParsedChannelExpression | null>(null)
-  const [availableFixtures, setAvailableFixtures] = useState<LightwrightInfo[]>([])
+  const [availableFixtures, setAvailableFixtures] = useState<FixtureInfo[]>([])
   const lastAutoSelectedRef = useRef<string>('')
 
   // Parse channel expression and fetch fixtures
@@ -106,7 +106,7 @@ export function LightwrightSelector({
     return 'partial'
   }
 
-  const renderFixtureRow = (fixture: LightwrightInfo) => (
+  const renderFixtureRow = (fixture: FixtureInfo) => (
     <div
       key={fixture.id}
       className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-sm"

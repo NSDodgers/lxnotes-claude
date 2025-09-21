@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { usePositionStore } from '@/lib/stores/position-store'
-import { useLightwrightStore } from '@/lib/stores/lightwright-store'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
 import {
   DndContext,
   closestCenter,
@@ -79,8 +79,8 @@ function SortableItem({ id, position, index }: SortableItemProps) {
 
 export function PositionManager() {
   const { name: productionName } = useProductionStore()
-  const { getOrderedPositions, updateOrder, clearOrder } = usePositionStore()
-  const { getUniquePositions, lastPositionUpdate } = useLightwrightStore()
+  const { getOrderedPositions, updateOrder, clearOrder, orders } = usePositionStore()
+  const { getUniquePositions, lastPositionUpdate } = useFixtureStore()
 
   // Use a hardcoded production ID for demo - in real app this would come from context
   const productionId = 'prod-1'
@@ -88,6 +88,9 @@ export function PositionManager() {
   const [orderedPositions, setOrderedPositions] = useState<string[]>([])
   const [availablePositions, setAvailablePositions] = useState<string[]>([])
   const [showUpdateAlert, setShowUpdateAlert] = useState(false)
+
+  // Get the current position order to check if it's from CSV
+  const currentOrder = orders[productionId]
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -134,9 +137,9 @@ export function PositionManager() {
         const newIndex = items.indexOf(over.id as string)
         const newOrder = arrayMove(items, oldIndex, newIndex)
 
-        // Save to store in next tick to avoid React warning
+        // Save to store in next tick to avoid React warning - mark as custom since user manually reordered
         setTimeout(() => {
-          updateOrder(productionId, newOrder)
+          updateOrder(productionId, newOrder, 'custom')
         }, 0)
 
         return newOrder
@@ -148,7 +151,29 @@ export function PositionManager() {
     // Reset to alphabetical order
     const alphabetical = [...availablePositions].sort()
     setOrderedPositions(alphabetical)
-    updateOrder(productionId, alphabetical)
+    updateOrder(productionId, alphabetical, 'alphabetical')
+  }
+
+  const handleResetToCsvOrder = () => {
+    // Reset to CSV order if available
+    if (currentOrder?.positionOrderMap) {
+      const csvOrdered = [...availablePositions].sort((a, b) => {
+        const aOrder = currentOrder.positionOrderMap![a]
+        const bOrder = currentOrder.positionOrderMap![b]
+
+        if (aOrder !== undefined && bOrder !== undefined) {
+          return aOrder - bOrder
+        } else if (aOrder !== undefined && bOrder === undefined) {
+          return -1
+        } else if (aOrder === undefined && bOrder !== undefined) {
+          return 1
+        } else {
+          return a.localeCompare(b)
+        }
+      })
+      setOrderedPositions(csvOrdered)
+      updateOrder(productionId, csvOrdered, 'csv')
+    }
   }
 
   const handleClearOrder = () => {
@@ -182,7 +207,7 @@ export function PositionManager() {
         <Eye className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
         <h3 className="text-lg font-semibold mb-2">No Position Data Found</h3>
         <p className="text-muted-foreground mb-4">
-          Upload Lightwright CSV data to manage position sorting
+          Upload hookup CSV data to manage position sorting
         </p>
         <Button variant="outline" asChild>
           <a href="/work-notes">Go to Work Notes</a>
@@ -222,15 +247,30 @@ export function PositionManager() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Position Sort Order</h2>
-          <p className="text-muted-foreground">
-            Drag and drop to customize the sort order for Work Notes
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-muted-foreground">
+              Drag and drop to customize the sort order for Work Notes
+            </p>
+            {currentOrder?.orderSource && (
+              <Badge variant="outline" className="text-xs">
+                {currentOrder.orderSource === 'csv' && 'From CSV'}
+                {currentOrder.orderSource === 'custom' && 'Custom Order'}
+                {currentOrder.orderSource === 'alphabetical' && 'A-Z'}
+              </Badge>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={exportOrder}>
             <Download className="h-4 w-4 mr-2" />
             Export Order
           </Button>
+          {currentOrder?.positionOrderMap && (
+            <Button variant="outline" size="sm" onClick={handleResetToCsvOrder}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Reset to CSV Order
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={handleResetOrder}>
             <RotateCcw className="h-4 w-4 mr-2" />
             Reset to A-Z
@@ -288,6 +328,9 @@ export function PositionManager() {
       {/* Help Text */}
       <div className="text-sm text-muted-foreground bg-bg-secondary p-4 rounded-lg">
         <strong>How it works:</strong> This order will be used when sorting Work Notes by position.
+        {currentOrder?.positionOrderMap && (
+          <span> If your hookup CSV includes a "Position Order" column, that order is used as the starting point. </span>
+        )}
         Positions not in your custom order will appear at the end, sorted alphabetically.
         Changes are saved automatically.
       </div>

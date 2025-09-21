@@ -87,7 +87,7 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
       className
     )}>
       <div 
-        className="p-4 cursor-pointer"
+        className="p-compact-3 cursor-pointer"
         onClick={() => showDetails && setExpanded(!expanded)}
       >
         <div className="flex items-start justify-between">
@@ -110,7 +110,7 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
           <div className="flex items-center gap-2 ml-4">
             <button
               onClick={handleEdit}
-              className="p-1 hover:bg-bg-tertiary rounded transition-colors"
+              className="p-compact-1 hover:bg-bg-tertiary rounded transition-colors"
               title="Edit preset"
             >
               <Edit2 className="h-4 w-4 text-text-secondary" />
@@ -118,7 +118,7 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
             {!preset.isDefault && (
               <button
                 onClick={handleDelete}
-                className="p-1 hover:bg-bg-tertiary rounded transition-colors"
+                className="p-compact-1 hover:bg-bg-tertiary rounded transition-colors"
                 title="Delete preset"
               >
                 <Trash2 className="h-4 w-4 text-destructive" />
@@ -130,7 +130,7 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
                   e.stopPropagation()
                   setExpanded(!expanded)
                 }}
-                className="p-1 hover:bg-bg-tertiary rounded transition-colors"
+                className="p-compact-1 hover:bg-bg-tertiary rounded transition-colors"
                 title={expanded ? 'Collapse' : 'Expand'}
               >
                 {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -141,7 +141,7 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
       </div>
       
       {showDetails && expanded && (
-        <div className="border-t border-bg-tertiary p-4">
+        <div className="border-t border-bg-tertiary p-compact-3">
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-text-secondary">Created:</span>
@@ -160,7 +160,7 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
             {preset.type === 'email_message' && (
               <div className="mt-4 space-y-2">
                 <div className="text-text-secondary">Subject:</div>
-                <div className="text-text-primary font-mono text-xs bg-bg-tertiary p-2 rounded">
+                <div className="text-text-primary font-mono text-xs bg-bg-tertiary p-compact-2 rounded">
                   {(preset as EmailMessagePreset).config.subject}
                 </div>
               </div>

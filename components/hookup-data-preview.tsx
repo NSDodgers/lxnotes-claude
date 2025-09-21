@@ -21,24 +21,24 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import type { 
-  LightwrightCSVRow, 
-  ParsedLightwrightRow, 
+  HookupCSVRow, 
+  ParsedHookupRow, 
   ValidationResult, 
   RowError 
 } from '@/types'
 
-interface LightwrightDataPreviewProps {
+interface HookupDataPreviewProps {
   validation: ValidationResult
   headerMapping: Record<string, string>
   onRowToggleSkip?: (rowNumber: number) => void
   onBulkRowsSkip?: (rowNumbers: number[]) => void
   selectedRowsToSkip?: number[]
-  allCsvData?: LightwrightCSVRow[] // Full CSV data for pagination
+  allCsvData?: HookupCSVRow[] // Full CSV data for pagination
   onImport?: () => void
   isProcessing?: boolean
 }
 
-export function LightwrightDataPreview({
+export function HookupDataPreview({
   validation,
   headerMapping,
   onRowToggleSkip,
@@ -47,7 +47,7 @@ export function LightwrightDataPreview({
   allCsvData,
   onImport,
   isProcessing = false
-}: LightwrightDataPreviewProps) {
+}: HookupDataPreviewProps) {
   // Pagination state for Valid Records
   const [currentPage, setCurrentPage] = useState(0)
   const [pageSize, setPageSize] = useState(10)
@@ -65,7 +65,7 @@ export function LightwrightDataPreview({
   const allDisplayData = allCsvData || validation.sampleData
   
   // Helper function to get cell value (moved up to avoid lexical declaration error)
-  const getCellValue = (row: LightwrightCSVRow, field: string) => {
+  const getCellValue = (row: HookupCSVRow, field: string) => {
     const headerName = headerMapping[field]
     if (!headerName) return '—'
     return row[headerName] || '—'
@@ -302,6 +302,9 @@ export function LightwrightDataPreview({
                   <TableHead className="font-mono">
                     {headerMapping.position || <span className="text-muted-foreground">—</span>}
                   </TableHead>
+                  <TableHead className="w-20 font-mono">
+                    {headerMapping.positionOrder || <span className="text-muted-foreground">—</span>}
+                  </TableHead>
                   <TableHead className="font-mono">
                     {headerMapping.unitNumber || <span className="text-muted-foreground">—</span>}
                   </TableHead>
@@ -323,6 +326,7 @@ export function LightwrightDataPreview({
                 <TableHead>LWID</TableHead>
                 <TableHead className="w-20">Channel</TableHead>
                 <TableHead>Position</TableHead>
+                <TableHead className="w-20">Pos Order</TableHead>
                 <TableHead>Unit #</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Purpose</TableHead>
@@ -360,7 +364,11 @@ export function LightwrightDataPreview({
                     <TableCell className="max-w-32 truncate">
                       {getCellValue(row, 'position')}
                     </TableCell>
-                    
+
+                    <TableCell className="text-center font-mono text-xs">
+                      {getCellValue(row, 'positionOrder')}
+                    </TableCell>
+
                     <TableCell className="text-center">
                       {getCellValue(row, 'unitNumber')}
                     </TableCell>
@@ -588,6 +596,7 @@ export function LightwrightDataPreview({
                     <TableHead>LWID</TableHead>
                     <TableHead className="w-20">Channel</TableHead>
                     <TableHead>Position</TableHead>
+                    <TableHead className="w-20">Pos Order</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Purpose</TableHead>
                     <TableHead>Reason</TableHead>
@@ -619,6 +628,9 @@ export function LightwrightDataPreview({
                         </TableCell>
                         <TableCell className="max-w-32 truncate">
                           {getCellValue(row, 'position')}
+                        </TableCell>
+                        <TableCell className="text-center font-mono text-xs">
+                          {getCellValue(row, 'positionOrder')}
                         </TableCell>
                         <TableCell className="max-w-32 truncate">
                           {getCellValue(row, 'fixtureType')}

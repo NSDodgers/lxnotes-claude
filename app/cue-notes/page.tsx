@@ -7,8 +7,8 @@
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
-import { EmailNotesView } from '@/components/email-notes-view'
-import { PrintNotesView } from '@/components/print-notes-view'
+import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
+import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
 import { useState, useEffect } from 'react'
 import { Plus, Search, Lightbulb, FileText, Mail, Printer } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -19,7 +19,7 @@ import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import Link from 'next/link'
+import { ScriptManager } from '@/components/script-manager'
 
 // Mock data for development
 const mockCueNotes: Note[] = [
@@ -1761,6 +1761,7 @@ export default function CueNotesPage() {
   const [editingNote, setEditingNote] = useState<Note | null>(null)
   const [isEmailViewOpen, setIsEmailViewOpen] = useState(false)
   const [isPrintViewOpen, setIsPrintViewOpen] = useState(false)
+  const [isScriptManagerOpen, setIsScriptManagerOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
 
   // Handle client-side hydration for stores with skipHydration: true
@@ -1874,12 +1875,13 @@ export default function CueNotesPage() {
                 <Mail className="h-4 w-4" />
                 Email
               </Button>
-              <Link href="/manage-script">
-                <Button variant="secondary">
-                  <FileText className="h-5 w-5" />
-                  Manage Script
-                </Button>
-              </Link>
+              <Button
+                variant="secondary"
+                onClick={() => setIsScriptManagerOpen(true)}
+              >
+                <FileText className="h-5 w-5" />
+                Manage Script
+              </Button>
               <Button
                 onClick={() => openDialog()}
                 variant="cue"
@@ -1935,13 +1937,13 @@ export default function CueNotesPage() {
             </div>
 
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search cue notes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full md:w-80 pl-10"
+                className="w-full md:w-80 pl-8 font-medium"
               />
             </div>
           </div>
@@ -1994,17 +1996,22 @@ export default function CueNotesPage() {
         editingNote={editingNote}
       />
       
-      <EmailNotesView
+      <EmailNotesSidebar
         moduleType="cue"
         isOpen={isEmailViewOpen}
         onClose={() => setIsEmailViewOpen(false)}
       />
-      
-      <PrintNotesView
+
+      <PrintNotesSidebar
         moduleType="cue"
         isOpen={isPrintViewOpen}
         onClose={() => setIsPrintViewOpen(false)}
         notes={notes}
+      />
+
+      <ScriptManager
+        isOpen={isScriptManagerOpen}
+        onClose={() => setIsScriptManagerOpen(false)}
       />
     </DashboardLayout>
   )

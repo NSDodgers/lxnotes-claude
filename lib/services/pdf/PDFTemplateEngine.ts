@@ -29,9 +29,11 @@ export class PDFTemplateEngine {
 
   private addHeader(noteCount: number): void {
     let yPos = 40
+    const pageWidth = this.doc.internal.pageSize.getWidth()
+    const hasLogo = !!this.config.productionLogo
 
-    // Add production logo if available (like "🎭" or base64 image)
-    if (this.config.productionLogo) {
+    if (hasLogo) {
+      // Logo + Production Name side-by-side layout
       if (this.isBase64Image(this.config.productionLogo)) {
         // Handle base64 image data
         try {
@@ -52,34 +54,51 @@ export class PDFTemplateEngine {
         this.doc.text(this.config.productionLogo, 40, yPos)
         yPos += 35
       }
+
+      // Production title next to logo
+      this.doc.setFontSize(24)
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.text(this.sanitizeText(this.config.productionName), 75, yPos - 35)
+      yPos += 25
+    } else {
+      // No logo - centered layout with more visual prominence
+      // Production title - centered and larger
+      this.doc.setFontSize(28)
+      this.doc.setFont('helvetica', 'bold')
+      this.doc.text(this.sanitizeText(this.config.productionName), pageWidth / 2, yPos, { align: 'center' })
+      yPos += 35
+
+      // Add a subtle decorative line under the production name
+      this.doc.setLineWidth(1)
+      this.doc.setDrawColor(180, 180, 180)
+      const sanitizedProductionName = this.sanitizeText(this.config.productionName)
+      const lineWidth = Math.min(200, this.doc.getTextWidth(sanitizedProductionName) + 40)
+      const lineX = (pageWidth - lineWidth) / 2
+      this.doc.line(lineX, yPos - 10, lineX + lineWidth, yPos - 10)
+      yPos += 10
     }
 
-    // Production title (show name) - larger and more prominent like the example
-    this.doc.setFontSize(24)
-    this.doc.setFont('helvetica', 'bold')
-    this.doc.text(this.config.productionName, this.config.productionLogo ? 75 : 40, this.config.productionLogo ? yPos - 35 : yPos)
-    yPos += 25
-
-    // Module title as subtitle
+    // Module title as subtitle - always centered for consistency
     this.doc.setFontSize(16)
     this.doc.setFont('helvetica', 'normal')
-    this.doc.text(`${this.strategy.getModuleTitle()} Report`, 40, yPos)
-    yPos += 20
+    this.doc.text(`${this.strategy.getModuleTitle()} Report`, pageWidth / 2, yPos, { align: 'center' })
+    yPos += 25
 
-    // Generation metadata line matching the example format
+    // Generation metadata line - centered for better balance
     this.doc.setFontSize(10)
     this.doc.setFont('helvetica', 'normal')
     this.doc.setTextColor(100, 100, 100)
-    
+
     const dateStr = this.formatDateLikeExample(this.config.dateGenerated)
     const timeStr = this.formatTimeLikeExample(this.config.dateGenerated)
-    
+
     // Format: "Generated: Sep 1, 25 at 9:56 AM • Status: Todo • Total: X notes"
     const metadataText = `Generated: ${dateStr} at ${timeStr} • Status: Todo • Total: ${noteCount} notes`
-    this.doc.text(metadataText, 40, yPos)
+    this.doc.text(metadataText, pageWidth / 2, yPos, { align: 'center' })
 
-    // Reset text color
+    // Reset text color and drawing color
     this.doc.setTextColor(0, 0, 0)
+    this.doc.setDrawColor(0, 0, 0)
   }
 
   private formatDateLikeExample(date: Date): string {
@@ -133,13 +152,15 @@ export class PDFTemplateEngine {
         // Add checkboxes in first column when enabled
         if (this.config.includeCheckboxes && data.column.index === 0 && data.section === 'body') {
           const note = notes[data.row.index]
-          this.addCheckbox(data.cell.x + 3, data.cell.y + 6, note.status)
+          if (note && note.status) {
+            this.addCheckbox(data.cell.x + 3, data.cell.y + 6, note.status)
+          }
         }
-        
+
         // Add colored type badges like in the example
         if (data.column.index === 2 && data.section === 'body') {
           const note = notes[data.row.index]
-          if (note.type) {
+          if (note && note.type) {
             this.addColoredTypeBadge(data.cell.x + 2, data.cell.y + 2, data.cell.width - 4, data.cell.height - 4, note.type)
           }
         }
@@ -318,5 +339,31 @@ export class PDFTemplateEngine {
   private isBase64Image(str: string): boolean {
     // Check if the string is a base64 data URL
     return str.startsWith('data:image/') && str.includes('base64,')
+  }
+
+  private sanitizeText(text: string): string {
+    // Ensure proper text encoding for PDF generation
+    // Convert any problematic characters to their safe equivalents
+    return text
+      .normalize('NFD') // Normalize Unicode
+      .replace(/[\u0300-\u036f]/g, '') // Remove combining diacritical marks
+      // Remove common encoding artifacts that often appear before text
+      .replace(/^[^\w\s]*(?=\w)/, '') // Remove non-word characters at the start before first word character
+      .replace(/[^\x00-\x7F]/g, (char) => {
+        // Handle common special characters that might cause encoding issues
+        const charMap: Record<string, string> = {
+          '!': '!',
+          '?': '?',
+          '\u201c': '"',
+          '\u201d': '"',
+          '\u2018': "'",
+          '\u2019': "'",
+          '\u2013': '-',
+          '\u2014': '-',
+          '\u2026': '...',
+        }
+        return charMap[char] || '' // Return empty string for unmapped characters instead of preserving them
+      })
+      .trim() // Remove any leading/trailing whitespace
   }
 }

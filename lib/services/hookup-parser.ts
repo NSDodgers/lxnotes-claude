@@ -1,8 +1,8 @@
 import Papa from 'papaparse'
 import type {
-  LightwrightCSVRow,
-  ParsedLightwrightRow,
-  LightwrightUploadResult,
+  HookupCSVRow,
+  ParsedHookupRow,
+  HookupUploadResult,
   ParsedChannelExpression,
   ChannelRange,
   ValidationResult,
@@ -19,16 +19,17 @@ const HEADER_MAPPINGS = {
   unitNumber: ['Unit Number', 'Unit', 'Unit #', 'Unit(#)', 'Unit (#)'],
   fixtureType: ['Fixture Type', 'Type', 'Instrument Type', 'Fixture', 'Instrument'],
   purpose: ['Purpose', 'Purp', 'Use'],
-  universeAddress: ['Universe/Address', 'U/A', 'Address', 'DMX Address', 'Universe', 'DMX']
+  universeAddress: ['Universe/Address', 'U/A', 'Address', 'DMX Address', 'Universe', 'DMX'],
+  positionOrder: ['Position Order', 'Position Sort', 'Pos Order', 'Position Sort Order', 'Sort Order']
 }
 
-export class LightwrightParser {
+export class HookupParser {
   /**
    * Parse CSV file and return structured data
    */
   static async parseCSV(file: File): Promise<{
     headers: string[]
-    rows: LightwrightCSVRow[]
+    rows: HookupCSVRow[]
     headerMapping: Record<string, string>
   }> {
     return new Promise((resolve, reject) => {
@@ -43,7 +44,7 @@ export class LightwrightParser {
           }
 
           const headers = results.meta.fields || []
-          const rows = results.data as LightwrightCSVRow[]
+          const rows = results.data as HookupCSVRow[]
           const headerMapping = this.detectHeaderMapping(headers)
 
           resolve({ headers, rows, headerMapping })
@@ -92,7 +93,7 @@ export class LightwrightParser {
    * Pre-validate CSV data and return detailed results (async chunked processing)
    */
   static async validateRows(
-    rows: LightwrightCSVRow[],
+    rows: HookupCSVRow[],
     headerMapping: Record<string, string>,
     chunkSize: number = 100
   ): Promise<ValidationResult> {
@@ -229,7 +230,7 @@ export class LightwrightParser {
    * Validate and parse rows with header mapping
    */
   static parseRows(
-    rows: LightwrightCSVRow[],
+    rows: HookupCSVRow[],
     headerMapping: Record<string, string>,
     options: ImportOptions = {
       skipInvalidChannels: true,
@@ -238,8 +239,8 @@ export class LightwrightParser {
       deactivateMissing: true,
       selectedRowsToSkip: []
     }
-  ): LightwrightUploadResult {
-    const result: LightwrightUploadResult = {
+  ): HookupUploadResult {
+    const result: HookupUploadResult = {
       success: true,
       processed: 0,
       inserted: 0,
@@ -250,7 +251,7 @@ export class LightwrightParser {
       warnings: []
     }
 
-    const parsedRows: ParsedLightwrightRow[] = []
+    const parsedRows: ParsedHookupRow[] = []
 
     rows.forEach((row, index) => {
       const rowNumber = index + 1
@@ -308,10 +309,10 @@ export class LightwrightParser {
    * Parse a single row
    */
   private static parseRow(
-    row: LightwrightCSVRow,
+    row: HookupCSVRow,
     headerMapping: Record<string, string>,
     rowNumber: number
-  ): ParsedLightwrightRow | null {
+  ): ParsedHookupRow | null {
     // Extract fields
     const lwid = this.getFieldValue(row, headerMapping, 'lwid')
     const channelStr = this.getFieldValue(row, headerMapping, 'channel')
@@ -338,9 +339,19 @@ export class LightwrightParser {
     const fixtureType = this.getFieldValue(row, headerMapping, 'fixtureType') || ''
     const purpose = this.getFieldValue(row, headerMapping, 'purpose') || ''
     const universeAddressRaw = this.getFieldValue(row, headerMapping, 'universeAddress') || ''
+    const positionOrderStr = this.getFieldValue(row, headerMapping, 'positionOrder') || ''
 
     // Parse universe/address
     const { universe, address } = this.parseUniverseAddress(universeAddressRaw)
+
+    // Parse position order (optional field)
+    let positionOrder: number | undefined
+    if (positionOrderStr) {
+      const parsed = parseInt(positionOrderStr, 10)
+      if (!isNaN(parsed)) {
+        positionOrder = parsed
+      }
+    }
 
     return {
       lwid,
@@ -351,7 +362,8 @@ export class LightwrightParser {
       purpose,
       universeAddressRaw,
       universe,
-      address
+      address,
+      positionOrder
     }
   }
 
@@ -359,7 +371,7 @@ export class LightwrightParser {
    * Get field value from row using header mapping
    */
   private static getFieldValue(
-    row: LightwrightCSVRow,
+    row: HookupCSVRow,
     headerMapping: Record<string, string>,
     fieldName: string
   ): string {

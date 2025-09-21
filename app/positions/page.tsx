@@ -21,7 +21,7 @@ export default function PositionsPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Position Management</h1>
             <p className="text-muted-foreground">
-              Customize the sort order of positions from your Lightwright data
+              Customize the sort order of positions from your fixture data
             </p>
           </div>
         </div>

@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1.35rem", // Compact padding (was 2rem)
       screens: {
         "2xl": "1400px",
       },
@@ -85,8 +85,31 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      spacing: {
+        'compact-1': 'var(--space-compact-1)',
+        'compact-2': 'var(--space-compact-2)',
+        'compact-3': 'var(--space-compact-3)',
+        'compact-4': 'var(--space-compact-4)',
+        'compact-6': 'var(--space-compact-6)',
+        'compact-8': 'var(--space-compact-8)',
+      },
+      height: {
+        'compact-7': '1.575rem',
+        'compact-8': '1.8rem',
+        'compact-9': '2.025rem',
+        'compact-10': '2.25rem',
+      },
       fontFamily: {
-        sans: ['Roboto Condensed', 'Arial Narrow', 'Condensed', 'system-ui', 'sans-serif'],
+        sans: [
+          'Roboto Condensed', 
+          'Arial Narrow', 
+          'Helvetica Neue', 
+          'Arial', 
+          'system-ui', 
+          '-apple-system', 
+          'BlinkMacSystemFont', 
+          'sans-serif'
+        ],
       },
       keyframes: {
         "accordion-down": {

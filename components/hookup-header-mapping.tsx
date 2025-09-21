@@ -22,13 +22,14 @@ const REQUIRED_FIELDS = [
   { key: 'lwid', label: 'LWID', required: true },
   { key: 'channel', label: 'Channel', required: true },
   { key: 'position', label: 'Position', required: false },
+  { key: 'positionOrder', label: 'Position Order', required: false },
   { key: 'unitNumber', label: 'Unit Number', required: false },
   { key: 'fixtureType', label: 'Fixture Type', required: false },
   { key: 'purpose', label: 'Purpose', required: false },
   { key: 'universeAddress', label: 'Universe/Address', required: false }
 ]
 
-export function LightwrightHeaderMapping({
+export function HookupHeaderMapping({
   headers,
   headerMapping,
   onMappingChange,

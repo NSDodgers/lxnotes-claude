@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Search, Database, Download, Calendar } from 'lucide-react'
+import { Search, Database, Download, Calendar, Trash2, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,6 +13,14 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
@@ -28,10 +36,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { useLightwrightStore } from '@/lib/stores/lightwright-store'
-import type { LightwrightInfo } from '@/types'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { usePositionStore } from '@/lib/stores/position-store'
+import type { FixtureInfo } from '@/types'
 
-interface LightwrightDataViewerProps {
+interface FixtureDataViewerProps {
   isOpen: boolean
   onClose: () => void
   productionId: string
@@ -40,15 +49,17 @@ interface LightwrightDataViewerProps {
 type SortField = 'channel' | 'position' | 'unitNumber' | 'fixtureType' | 'purpose' | 'universe'
 type SortDirection = 'asc' | 'desc'
 
-export function LightwrightDataViewer({
+export function FixtureDataViewer({
   isOpen,
   onClose,
   productionId
-}: LightwrightDataViewerProps) {
-  const { getFixturesByProduction } = useLightwrightStore()
+}: FixtureDataViewerProps) {
+  const { getFixturesByProduction, clearData } = useFixtureStore()
+  const { clearOrder } = usePositionStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [sortField, setSortField] = useState<SortField>('channel')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   // Get fixtures for this production
   const allFixtures = getFixturesByProduction(productionId)
@@ -171,7 +182,7 @@ export function LightwrightDataViewer({
     }).format(date)
   }
 
-  const formatUniverseAddress = (fixture: LightwrightInfo) => {
+  const formatUniverseAddress = (fixture: FixtureInfo) => {
     if (fixture.universe !== undefined && fixture.address !== undefined) {
       return `${fixture.universe}/${fixture.address}`
     } else if (fixture.universeAddressRaw) {
@@ -198,13 +209,82 @@ export function LightwrightDataViewer({
     </TableHead>
   )
 
+  const handleDeleteAllFixtures = () => {
+    // Clear fixture data and position order
+    clearData()
+    clearOrder(productionId)
+
+    // Close the confirmation dialog and the viewer
+    setShowDeleteConfirm(false)
+    onClose()
+  }
+
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:max-w-4xl max-w-none">
+    <>
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Delete All Fixtures
+            </DialogTitle>
+            <DialogDescription>
+              This will permanently delete all fixture data from the system.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <div className="font-medium text-foreground mb-2">What will happen:</div>
+              <ul className="text-sm space-y-1 ml-4">
+                <li>• All fixture information will be removed</li>
+                <li>• Position sort order will be cleared</li>
+                <li>• Work notes will keep their LWID references</li>
+                <li>• This action cannot be undone</li>
+              </ul>
+            </div>
+
+            <div>
+              <div className="font-medium text-foreground mb-2">Work notes will NOT be affected:</div>
+              <ul className="text-sm space-y-1 ml-4">
+                <li>• Your work notes remain intact</li>
+                <li>• They will automatically reconnect when you re-upload fixtures with matching LWIDs</li>
+              </ul>
+            </div>
+
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded">
+              <div className="text-sm text-blue-700 dark:text-blue-300">
+                <strong>To update fixtures:</strong> Re-upload a new CSV file with current data.
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAllFixtures}
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete All Fixtures
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Sheet open={isOpen} onOpenChange={onClose}>
+        <SheetContent side="right" className="w-full sm:max-w-4xl max-w-none">
         <SheetHeader className="pb-6">
           <div className="flex items-center gap-2">
             <Database className="h-5 w-5 text-modules-work" />
-            <SheetTitle>Lightwright Fixtures</SheetTitle>
+            <SheetTitle>Fixtures</SheetTitle>
           </div>
           <SheetDescription asChild>
             <div className="space-y-2">
@@ -228,7 +308,7 @@ export function LightwrightDataViewer({
             <Database className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
             <h3 className="text-lg font-medium mb-2">No Fixture Data</h3>
             <p className="text-muted-foreground mb-4">
-              Upload a Lightwright CSV file to view fixture data here.
+              Upload a hookup CSV file to view fixture data here.
             </p>
             <Button onClick={onClose} variant="outline">
               Close
@@ -318,9 +398,29 @@ export function LightwrightDataViewer({
                 <p>No fixtures match your search criteria</p>
               </div>
             )}
+
+            {/* Delete All Fixtures Button */}
+            {allFixtures.length > 0 && (
+              <div className="mt-8 pt-6 border-t">
+                <div className="flex justify-center">
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete All Fixtures
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  This will remove all fixture data. Work notes will keep their LWID references.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </SheetContent>
     </Sheet>
+    </>
   )
 }

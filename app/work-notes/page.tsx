@@ -3,13 +3,20 @@
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
-import { EmailNotesView } from '@/components/email-notes-view'
-import { PrintNotesView } from '@/components/print-notes-view'
-import { LightwrightUploadDialog } from '@/components/lightwright-upload-dialog'
-import { LightwrightDataViewer } from '@/components/lightwright-data-viewer'
+import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
+import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
+import { HookupUploadDialog } from '@/components/hookup-upload-dialog'
+import { FixtureDataViewer } from '@/components/fixture-data-viewer'
+import { PositionManager } from '@/components/position-manager'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet'
 import { useState, useEffect } from 'react'
 import { Plus, Search, Wrench, Upload, Mail, Printer, Database, ArrowUpDown } from 'lucide-react'
-import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -26,8 +33,8 @@ import {
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
-import { useLightwrightStore } from '@/lib/stores/lightwright-store'
-import { generateSampleFixtures } from '@/lib/test-data/sample-lightwright-data'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 
 // Mock data for development
 const mockWorkNotes: Note[] = [
@@ -953,13 +960,14 @@ export default function WorkNotesPage() {
   const [notes, setNotes] = useState(mockWorkNotes)
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
-  const { fixtures, uploadFixtures, linkFixturesToWorkNote } = useLightwrightStore()
+  const { fixtures, uploadFixtures, linkFixturesToWorkNote, getHasBeenDeleted } = useFixtureStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
   const [showImport, setShowImport] = useState(false)
   const [isLightwrightDialogOpen, setIsLightwrightDialogOpen] = useState(false)
   const [isLightwrightViewerOpen, setIsLightwrightViewerOpen] = useState(false)
+  const [isPositionManagerOpen, setIsPositionManagerOpen] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [dialogDefaultType, setDialogDefaultType] = useState<string>('Work')
   const [editingNote, setEditingNote] = useState<Note | null>(null)
@@ -974,10 +982,10 @@ export default function WorkNotesPage() {
 
   // Auto-load mock data in development mode
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && fixtures.length === 0) {
+    if (process.env.NODE_ENV === 'development' && fixtures.length === 0 && !getHasBeenDeleted()) {
       loadTestData()
     }
-  }, [fixtures.length])
+  }, [fixtures.length, getHasBeenDeleted])
 
   // Development helper - populate test data
   const loadTestData = () => {
@@ -1116,20 +1124,21 @@ export default function WorkNotesPage() {
                 variant="secondary"
               >
                 <Database className="h-4 w-4" />
-                View Fixtures
+                View Hookup
               </Button>
-              <Link href="/positions">
-                <Button variant="secondary">
-                  <ArrowUpDown className="h-4 w-4" />
-                  Manage Positions
-                </Button>
-              </Link>
+              <Button
+                variant="secondary"
+                onClick={() => setIsPositionManagerOpen(true)}
+              >
+                <ArrowUpDown className="h-4 w-4" />
+                Manage Positions
+              </Button>
               <Button
                 onClick={() => setIsLightwrightDialogOpen(true)}
                 variant="outline"
               >
                 <Upload className="h-5 w-5" />
-                Import Lightwright
+                Import Hookup CSV
               </Button>
               <Button
                 onClick={() => openQuickAdd('work')}
@@ -1187,13 +1196,13 @@ export default function WorkNotesPage() {
             </div>
 
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search work notes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full md:w-80 pl-10"
+                className="w-full md:w-80 pl-8 font-medium"
               />
             </div>
           </div>
@@ -1247,30 +1256,46 @@ export default function WorkNotesPage() {
         editingNote={editingNote}
       />
       
-      <EmailNotesView
+      <EmailNotesSidebar
         moduleType="work"
         isOpen={isEmailViewOpen}
         onClose={() => setIsEmailViewOpen(false)}
       />
-      
-      <PrintNotesView
+
+      <PrintNotesSidebar
         moduleType="work"
         isOpen={isPrintViewOpen}
         onClose={() => setIsPrintViewOpen(false)}
         notes={notes}
       />
       
-      <LightwrightUploadDialog
+      <HookupUploadDialog
         isOpen={isLightwrightDialogOpen}
         onClose={() => setIsLightwrightDialogOpen(false)}
         productionId="prod-1"
       />
-      
-      <LightwrightDataViewer
+
+      <FixtureDataViewer
         isOpen={isLightwrightViewerOpen}
         onClose={() => setIsLightwrightViewerOpen(false)}
         productionId="prod-1"
       />
+
+      <Sheet open={isPositionManagerOpen} onOpenChange={setIsPositionManagerOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-4xl max-w-none">
+          <SheetHeader className="pb-6">
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-5 w-5 text-modules-work" />
+              <SheetTitle>Position Management</SheetTitle>
+            </div>
+            <SheetDescription>
+              Customize the sort order of positions from your fixture data
+            </SheetDescription>
+          </SheetHeader>
+
+          <PositionManager />
+        </SheetContent>
+      </Sheet>
     </DashboardLayout>
   )
 }

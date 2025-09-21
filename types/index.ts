@@ -226,11 +226,11 @@ export interface User {
   createdAt: Date
 }
 
-// Lightwright integration types
-export interface LightwrightInfo {
+// Fixture integration types
+export interface FixtureInfo {
   id: string
   productionId: string
-  lwid: string // Stable Lightwright ID
+  lwid: string // Stable Fixture ID
   channel: number
   position: string
   unitNumber: string
@@ -239,21 +239,22 @@ export interface LightwrightInfo {
   universe?: number
   address?: number
   universeAddressRaw: string
+  positionOrder?: number // Order from CSV
   isActive: boolean
-  source: string // e.g., 'Lightwright'
+  source: string // e.g., 'Hookup CSV'
   sourceUploadedAt: Date
   createdAt: Date
   updatedAt: Date
   removedAt?: Date
 }
 
-export interface WorkNoteLightwrightLink {
+export interface WorkNoteFixtureLink {
   workNoteId: string
-  lightwrightInfoId: string
+  fixtureInfoId: string
   createdAt: Date
 }
 
-export interface LightwrightAggregate {
+export interface FixtureAggregate {
   workNoteId: string
   channels: string // "1-5, 21, 45"
   positions: string[] // Unique positions
@@ -264,11 +265,11 @@ export interface LightwrightAggregate {
 }
 
 // CSV parsing types
-export interface LightwrightCSVRow {
+export interface HookupCSVRow {
   [key: string]: string
 }
 
-export interface ParsedLightwrightRow {
+export interface ParsedHookupRow {
   lwid: string
   channel: number
   position: string
@@ -278,9 +279,10 @@ export interface ParsedLightwrightRow {
   universeAddressRaw: string
   universe?: number
   address?: number
+  positionOrder?: number
 }
 
-export interface LightwrightUploadResult {
+export interface HookupUploadResult {
   success: boolean
   processed: number
   inserted: number
@@ -333,8 +335,8 @@ export interface ValidationResult {
   infrastructureRows: number
   errorRows: number
   errors: RowError[]
-  sampleData: LightwrightCSVRow[] // First few rows for preview
-  parsedSamples: (ParsedLightwrightRow | null)[] // Parsed versions of samples
+  sampleData: HookupCSVRow[] // First few rows for preview
+  parsedSamples: (ParsedHookupRow | null)[] // Parsed versions of samples
 }
 
 export interface ImportOptions {

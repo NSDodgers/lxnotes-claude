@@ -13,13 +13,13 @@ import {
   DialogStickyFooter,
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
-import { LightwrightParser } from '@/lib/services/lightwright-parser'
-import { useLightwrightStore } from '@/lib/stores/lightwright-store'
-import { LightwrightHeaderMapping } from '@/components/lightwright-header-mapping'
-import { LightwrightDataPreview } from '@/components/lightwright-data-preview'
-import type { LightwrightUploadResult, ValidationResult, ImportOptions, LightwrightCSVRow } from '@/types'
+import { HookupParser } from '@/lib/services/hookup-parser'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { HookupHeaderMapping } from '@/components/hookup-header-mapping'
+import { HookupDataPreview } from '@/components/hookup-data-preview'
+import type { HookupUploadResult, ValidationResult, ImportOptions, HookupCSVRow } from '@/types'
 
-interface LightwrightUploadDialogProps {
+interface HookupUploadDialogProps {
   isOpen: boolean
   onClose: () => void
   productionId: string
@@ -31,21 +31,21 @@ interface UploadState {
   file: File | null
   headers: string[]
   headerMapping: Record<string, string>
-  parsedCsvData: LightwrightCSVRow[] | null
+  parsedCsvData: HookupCSVRow[] | null
   validation: ValidationResult | null
   importOptions: ImportOptions
-  result: LightwrightUploadResult | null
+  result: HookupUploadResult | null
   error: string | null
   step: 'upload' | 'mapping' | 'preview' | 'result'
 }
 
-export function LightwrightUploadDialog({ 
+export function HookupUploadDialog({ 
   isOpen, 
   onClose, 
   productionId 
-}: LightwrightUploadDialogProps) {
+}: HookupUploadDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { uploadFixtures, isProcessing } = useLightwrightStore()
+  const { uploadFixtures, isProcessing } = useFixtureStore()
   
   const [state, setState] = useState<UploadState>({
     isDragOver: false,
@@ -139,7 +139,7 @@ export function LightwrightUploadDialog({
     setState(prev => ({ ...prev, isProcessing: true, error: null, file }))
 
     try {
-      const { headers, rows, headerMapping } = await LightwrightParser.parseCSV(file)
+      const { headers, rows, headerMapping } = await HookupParser.parseCSV(file)
       
       // Validate row count (max 10,000 rows)
       const maxRows = 10000
@@ -190,7 +190,7 @@ export function LightwrightUploadDialog({
     
     try {
       // Use cached data instead of re-parsing
-      const headerMapping = LightwrightParser.detectHeaderMapping(state.headers)
+      const headerMapping = HookupParser.detectHeaderMapping(state.headers)
       setState(prev => ({
         ...prev,
         headerMapping,
@@ -213,7 +213,7 @@ export function LightwrightUploadDialog({
     
     try {
       // Use cached data instead of re-parsing (now async)
-      const validation = await LightwrightParser.validateRows(state.parsedCsvData, state.headerMapping)
+      const validation = await HookupParser.validateRows(state.parsedCsvData, state.headerMapping)
       
       setState(prev => ({
         ...prev,
@@ -238,7 +238,7 @@ export function LightwrightUploadDialog({
 
     try {
       // Use cached data instead of re-parsing
-      const parseResult = LightwrightParser.parseRows(state.parsedCsvData, state.headerMapping, state.importOptions)
+      const parseResult = HookupParser.parseRows(state.parsedCsvData, state.headerMapping, state.importOptions)
       
       // Extract the successfully parsed rows for store upload
       const validParsedRows: any[] = []
@@ -264,6 +264,16 @@ export function LightwrightUploadDialog({
         
         // Only include valid fixture rows
         if (lwid && !isNaN(channel)) {
+          // Parse position order if available
+          const positionOrderStr = row[state.headerMapping.positionOrder] || ''
+          let positionOrder: number | undefined
+          if (positionOrderStr) {
+            const parsed = parseInt(positionOrderStr, 10)
+            if (!isNaN(parsed)) {
+              positionOrder = parsed
+            }
+          }
+
           validParsedRows.push({
             lwid,
             channel,
@@ -273,7 +283,8 @@ export function LightwrightUploadDialog({
             purpose: row[state.headerMapping.purpose] || '',
             universeAddressRaw: row[state.headerMapping.universeAddress] || '',
             universe: undefined,
-            address: undefined
+            address: undefined,
+            positionOrder
           })
         }
       })
@@ -327,7 +338,7 @@ export function LightwrightUploadDialog({
             
             <div>
               <p className="text-lg font-medium text-foreground mb-2">
-                Drop your Lightwright CSV file here
+                Drop your hookup CSV file here
               </p>
               <p className="text-muted-foreground text-sm mb-4">
                 or click to browse files
@@ -371,7 +382,7 @@ export function LightwrightUploadDialog({
           {state.file?.name}
         </div>
 
-        <LightwrightHeaderMapping
+        <HookupHeaderMapping
           headers={state.headers}
           headerMapping={state.headerMapping}
           onMappingChange={(mapping) => 
@@ -416,7 +427,7 @@ export function LightwrightUploadDialog({
         </div>
 
         {state.validation && (
-          <LightwrightDataPreview
+          <HookupDataPreview
             validation={state.validation}
             headerMapping={state.headerMapping}
             allCsvData={state.parsedCsvData || undefined}
@@ -607,7 +618,7 @@ export function LightwrightUploadDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
-            Import Lightwright CSV
+            Import Hookup CSV
           </DialogTitle>
         </DialogHeader>
 

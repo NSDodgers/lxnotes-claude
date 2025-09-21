@@ -40,10 +40,10 @@ export function Sidebar() {
       <div className="flex h-full flex-col">
         {/* Header */}
         <div className={cn(
-          "flex items-center px-4 transition-all duration-300",
-          collapsed 
-            ? "h-20 flex-col justify-center gap-2" 
-            : "h-16 justify-between"
+          "flex items-center px-compact-4 transition-all duration-300",
+          collapsed
+            ? "h-compact-18 flex-col justify-center gap-compact-2"
+            : "h-compact-14 justify-between"
         )}>
           {collapsed ? (
             <Image
@@ -66,9 +66,9 @@ export function Sidebar() {
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
               "hover:bg-bg-tertiary rounded-lg transition-colors",
-              collapsed 
-                ? "p-1.5" 
-                : "p-2"
+              collapsed
+                ? "p-compact-1"
+                : "p-compact-2"
             )}
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
@@ -77,7 +77,7 @@ export function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-2 py-4">
+        <nav className="flex-1 space-y-1 px-compact-2 py-compact-4">
           {navigation.map((item) => {
             const isActive = pathname === item.href
             return (
@@ -85,7 +85,7 @@ export function Sidebar() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  'flex items-center gap-compact-3 rounded-lg px-compact-3 py-compact-2 text-sm font-medium transition-colors',
                   isActive
                     ? 'bg-bg-tertiary text-text-primary'
                     : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary',
@@ -100,13 +100,13 @@ export function Sidebar() {
         </nav>
 
         {/* Tablet Mode Toggle */}
-        <div className="border-t border-bg-tertiary p-4">
+        <div className="border-t border-bg-tertiary p-compact-4">
           <div className={cn(
-            'flex items-center gap-3 mb-4',
+            'flex items-center gap-compact-3 mb-compact-4',
             collapsed ? 'justify-center' : 'justify-between'
           )}>
             {!collapsed && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-compact-2">
                 <Tablet className="h-4 w-4 text-text-secondary" />
                 <span className="text-sm text-text-secondary">Tablet Mode</span>
               </div>
@@ -131,9 +131,9 @@ export function Sidebar() {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-bg-tertiary p-4">
+        <div className="border-t border-bg-tertiary p-compact-4">
           <div className={cn(
-            'flex items-center gap-3',
+            'flex items-center gap-compact-3',
             collapsed && 'justify-center'
           )}>
             <div className="h-8 w-8 rounded-full bg-bg-tertiary" />

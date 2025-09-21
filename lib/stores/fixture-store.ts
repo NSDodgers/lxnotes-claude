@@ -1,49 +1,51 @@
 import { create } from 'zustand'
 import type {
-  LightwrightInfo,
-  WorkNoteLightwrightLink,
-  LightwrightAggregate,
-  ParsedLightwrightRow,
-  LightwrightUploadResult
+  FixtureInfo,
+  WorkNoteFixtureLink,
+  FixtureAggregate,
+  ParsedHookupRow,
+  HookupUploadResult
 } from '@/types'
 import { usePositionStore, type UpdateResult } from './position-store'
 
-interface LightwrightState {
+interface FixtureState {
   // Core data
-  fixtures: LightwrightInfo[]
-  workNoteLinks: WorkNoteLightwrightLink[]
-  aggregates: Record<string, LightwrightAggregate> // keyed by workNoteId
+  fixtures: FixtureInfo[]
+  workNoteLinks: WorkNoteFixtureLink[]
+  aggregates: Record<string, FixtureAggregate> // keyed by workNoteId
 
   // Loading states
   isUploading: boolean
   isProcessing: boolean
-  lastUploadResult: LightwrightUploadResult | null
+  lastUploadResult: HookupUploadResult | null
   lastPositionUpdate: UpdateResult | null
-  
+  hasBeenDeleted: boolean // Track when data was intentionally deleted
+
   // Actions
   uploadFixtures: (
     productionId: string,
-    parsedRows: ParsedLightwrightRow[],
+    parsedRows: ParsedHookupRow[],
     deactivateMissing?: boolean
-  ) => LightwrightUploadResult
-  
-  getFixturesByChannels: (productionId: string, channels: number[]) => LightwrightInfo[]
-  getFixturesByIds: (fixtureIds: string[]) => LightwrightInfo[]
-  
+  ) => HookupUploadResult
+
+  getFixturesByChannels: (productionId: string, channels: number[]) => FixtureInfo[]
+  getFixturesByIds: (fixtureIds: string[]) => FixtureInfo[]
+
   linkFixturesToWorkNote: (workNoteId: string, fixtureIds: string[]) => void
   unlinkFixturesFromWorkNote: (workNoteId: string, fixtureIds?: string[]) => void
-  getLinkedFixtures: (workNoteId: string) => LightwrightInfo[]
-  
+  getLinkedFixtures: (workNoteId: string) => FixtureInfo[]
+
   updateAggregates: (workNoteId: string) => void
-  getAggregate: (workNoteId: string) => LightwrightAggregate | null
-  
+  getAggregate: (workNoteId: string) => FixtureAggregate | null
+
   // Utility
   clearData: () => void
-  getFixturesByProduction: (productionId: string) => LightwrightInfo[]
+  getFixturesByProduction: (productionId: string) => FixtureInfo[]
   getUniquePositions: (productionId: string) => string[]
+  getHasBeenDeleted: () => boolean
 }
 
-export const useLightwrightStore = create<LightwrightState>((set, get) => ({
+export const useFixtureStore = create<FixtureState>((set, get) => ({
   // Initial state
   fixtures: [],
   workNoteLinks: [],
@@ -52,17 +54,18 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
   isProcessing: false,
   lastUploadResult: null,
   lastPositionUpdate: null,
+  hasBeenDeleted: false,
 
   // Upload fixtures with upsert logic
   uploadFixtures: (
     productionId: string,
-    parsedRows: ParsedLightwrightRow[],
+    parsedRows: ParsedHookupRow[],
     deactivateMissing = true
-  ): LightwrightUploadResult => {
+  ): HookupUploadResult => {
     const state = get()
     const now = new Date()
     
-    const result: LightwrightUploadResult = {
+    const result: HookupUploadResult = {
       success: true,
       processed: parsedRows.length,
       inserted: 0,
@@ -103,6 +106,7 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
               universe: row.universe,
               address: row.address,
               universeAddressRaw: row.universeAddressRaw,
+              positionOrder: row.positionOrder,
               isActive: true,
               sourceUploadedAt: now,
               updatedAt: now,
@@ -111,7 +115,7 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
             result.updated++
           } else {
             // Insert new fixture
-            const newFixture: LightwrightInfo = {
+            const newFixture: FixtureInfo = {
               id: `lw-${productionId}-${row.lwid}-${Date.now()}`,
               productionId,
               lwid: row.lwid,
@@ -123,8 +127,9 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
               universe: row.universe,
               address: row.address,
               universeAddressRaw: row.universeAddressRaw,
+              positionOrder: row.positionOrder,
               isActive: true,
-              source: 'Lightwright',
+              source: 'Hookup CSV',
               sourceUploadedAt: now,
               createdAt: now,
               updatedAt: now
@@ -160,24 +165,24 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
         })
       }
 
-      // Extract and update position ordering
+      // Extract and update position ordering with position order data
       const productionFixtures = updatedFixtures.filter(f => f.productionId === productionId && f.isActive)
       const positionStore = usePositionStore.getState()
-      const uniquePositions = positionStore.extractUniquePositions(productionFixtures)
-      const positionUpdateResult = positionStore.handleCsvUpdate(productionId, uniquePositions)
+      const positionUpdateResult = positionStore.handleCsvUpdateWithOrder(productionId, productionFixtures)
 
       set({
         fixtures: updatedFixtures,
         lastUploadResult: result,
         lastPositionUpdate: positionUpdateResult,
-        isProcessing: false
+        isProcessing: false,
+        hasBeenDeleted: false // Reset deletion flag when new fixtures are uploaded
       })
 
       // Update aggregates for affected work notes
       const affectedWorkNotes = state.workNoteLinks
         .filter(link =>
           updatedFixtures.some(f =>
-            f.id === link.lightwrightInfoId && f.productionId === productionId
+            f.id === link.fixtureInfoId && f.productionId === productionId
           )
         )
         .map(link => link.workNoteId)
@@ -205,7 +210,7 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
   },
 
   // Get fixtures by channel numbers
-  getFixturesByChannels: (productionId: string, channels: number[]): LightwrightInfo[] => {
+  getFixturesByChannels: (productionId: string, channels: number[]): FixtureInfo[] => {
     const { fixtures } = get()
     return fixtures.filter(
       f => f.productionId === productionId && 
@@ -215,7 +220,7 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
   },
 
   // Get fixtures by IDs
-  getFixturesByIds: (fixtureIds: string[]): LightwrightInfo[] => {
+  getFixturesByIds: (fixtureIds: string[]): FixtureInfo[] => {
     const { fixtures } = get()
     return fixtures.filter(f => fixtureIds.includes(f.id))
   },
@@ -229,9 +234,9 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
     const existingLinks = state.workNoteLinks.filter(link => link.workNoteId !== workNoteId)
     
     // Add new links
-    const newLinks: WorkNoteLightwrightLink[] = fixtureIds.map(fixtureId => ({
+    const newLinks: WorkNoteFixtureLink[] = fixtureIds.map(fixtureId => ({
       workNoteId,
-      lightwrightInfoId: fixtureId,
+      fixtureInfoId: fixtureId,
       createdAt: now
     }))
     
@@ -247,12 +252,12 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
   unlinkFixturesFromWorkNote: (workNoteId: string, fixtureIds?: string[]): void => {
     const state = get()
     
-    let filteredLinks: WorkNoteLightwrightLink[]
+    let filteredLinks: WorkNoteFixtureLink[]
     
     if (fixtureIds) {
       // Remove specific fixtures
       filteredLinks = state.workNoteLinks.filter(
-        link => !(link.workNoteId === workNoteId && fixtureIds.includes(link.lightwrightInfoId))
+        link => !(link.workNoteId === workNoteId && fixtureIds.includes(link.fixtureInfoId))
       )
     } else {
       // Remove all links for this work note
@@ -266,12 +271,12 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
   },
 
   // Get linked fixtures for work note
-  getLinkedFixtures: (workNoteId: string): LightwrightInfo[] => {
+  getLinkedFixtures: (workNoteId: string): FixtureInfo[] => {
     const { workNoteLinks, fixtures } = get()
     
     const linkedIds = workNoteLinks
       .filter(link => link.workNoteId === workNoteId)
-      .map(link => link.lightwrightInfoId)
+      .map(link => link.fixtureInfoId)
     
     return fixtures
       .filter(f => linkedIds.includes(f.id))
@@ -319,7 +324,7 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
     // Check for inactive fixtures
     const hasInactive = linkedFixtures.some(f => !f.isActive)
     
-    const aggregate: LightwrightAggregate = {
+    const aggregate: FixtureAggregate = {
       workNoteId,
       channels: channelExpression,
       positions,
@@ -338,12 +343,12 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
   },
 
   // Get aggregate for work note
-  getAggregate: (workNoteId: string): LightwrightAggregate | null => {
+  getAggregate: (workNoteId: string): FixtureAggregate | null => {
     return get().aggregates[workNoteId] || null
   },
 
   // Get fixtures by production
-  getFixturesByProduction: (productionId: string): LightwrightInfo[] => {
+  getFixturesByProduction: (productionId: string): FixtureInfo[] => {
     return get().fixtures.filter(f => f.productionId === productionId)
   },
 
@@ -361,8 +366,14 @@ export const useLightwrightStore = create<LightwrightState>((set, get) => ({
       workNoteLinks: [],
       aggregates: {},
       lastUploadResult: null,
-      lastPositionUpdate: null
+      lastPositionUpdate: null,
+      hasBeenDeleted: true
     })
+  },
+
+  // Get deletion status
+  getHasBeenDeleted: (): boolean => {
+    return get().hasBeenDeleted
   }
 }))
 

@@ -3,8 +3,8 @@
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { NotesTable } from '@/components/notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
-import { EmailNotesView } from '@/components/email-notes-view'
-import { PrintNotesView } from '@/components/print-notes-view'
+import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
+import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
 import { useState, useEffect } from 'react'
 import { Plus, Search, FileText, Users, Mail, Printer } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -1140,13 +1140,13 @@ export default function ProductionNotesPage() {
             </div>
 
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search production notes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full md:w-80 pl-10"
+                className="w-full md:w-80 pl-8 font-medium"
               />
             </div>
           </div>
@@ -1208,13 +1208,13 @@ export default function ProductionNotesPage() {
         editingNote={editingNote}
       />
       
-      <EmailNotesView
+      <EmailNotesSidebar
         moduleType="production"
         isOpen={isEmailViewOpen}
         onClose={() => setIsEmailViewOpen(false)}
       />
-      
-      <PrintNotesView
+
+      <PrintNotesSidebar
         moduleType="production"
         isOpen={isPrintViewOpen}
         onClose={() => setIsPrintViewOpen(false)}

@@ -9,9 +9,9 @@ import { Badge } from '@/components/ui/badge'
 import { useCueLookup } from '@/lib/services/cue-lookup'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
-import { useLightwrightStore } from '@/lib/stores/lightwright-store'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { usePositionStore } from '@/lib/stores/position-store'
-import { LightwrightAggregateDisplay } from '@/components/lightwright-aggregate-display'
+import { FixtureAggregateDisplay } from '@/components/fixture-aggregate-display'
 import {
   Table,
   TableBody,
@@ -35,7 +35,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
   const { lookupCue } = useCueLookup()
   const { getPriorities } = useCustomPrioritiesStore()
   const { getTypes } = useCustomTypesStore()
-  const { getAggregate } = useLightwrightStore()
+  const { getAggregate } = useFixtureStore()
   const { getOrderedPositions } = usePositionStore()
   const [sortField, setSortField] = useState<SortField>('createdAt')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
@@ -47,6 +47,17 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
   // Get custom priorities and types for this module
   const availablePriorities = getPriorities(moduleType)
   const availableTypes = getTypes(moduleType)
+
+  // Helper function to extract position from positionUnit field
+  const extractPositionFromUnit = (positionUnit: string): string => {
+    // positionUnit format is typically "Position Units X-Y" or "Position Unit X"
+    // We want to extract just the "Position" part
+    if (!positionUnit) return ''
+
+    // Split by "Unit" and take the first part, then trim
+    const parts = positionUnit.split(/\s+Unit/i)
+    return parts[0]?.trim() || positionUnit
+  }
 
   const getStatusIcon = (status: NoteStatus) => {
     switch (status) {
@@ -147,17 +158,6 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
       return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
     }
   })
-
-  // Helper function to extract position from positionUnit field
-  const extractPositionFromUnit = (positionUnit: string): string => {
-    // positionUnit format is typically "Position Units X-Y" or "Position Unit X"
-    // We want to extract just the "Position" part
-    if (!positionUnit) return ''
-
-    // Split by "Unit" and take the first part, then trim
-    const parts = positionUnit.split(/\s+Unit/i)
-    return parts[0]?.trim() || positionUnit
-  }
 
   const renderHeader = (label: string, field: SortField) => (
     <TableHead 
@@ -288,14 +288,14 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                 return (
                   <>
                     <TableCell className="text-sm">
-                      <LightwrightAggregateDisplay 
+                      <FixtureAggregateDisplay 
                         aggregate={aggregate} 
                         field="channels"
                         className="text-sm"
                       />
                     </TableCell>
                     <TableCell className="text-sm">
-                      <LightwrightAggregateDisplay 
+                      <FixtureAggregateDisplay 
                         aggregate={aggregate} 
                         field="fixtureTypes"
                         className="text-sm"
@@ -303,7 +303,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                       />
                     </TableCell>
                     <TableCell className="text-sm">
-                      <LightwrightAggregateDisplay 
+                      <FixtureAggregateDisplay 
                         aggregate={aggregate} 
                         field="purposes"
                         className="text-sm"
@@ -311,7 +311,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
                       />
                     </TableCell>
                     <TableCell className="text-sm">
-                      <LightwrightAggregateDisplay 
+                      <FixtureAggregateDisplay 
                         aggregate={aggregate} 
                         field="positions"
                         className="text-sm"

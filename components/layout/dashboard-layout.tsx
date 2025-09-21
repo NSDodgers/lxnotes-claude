@@ -17,7 +17,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           sidebarCollapsed ? 'ml-16' : 'ml-64'
         )}
       >
-        <div className="p-6">
+        <div className="p-compact-4">
           {children}
         </div>
       </main>

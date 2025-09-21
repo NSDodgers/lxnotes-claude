@@ -3,21 +3,21 @@
 import { AlertTriangle, Info } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import type { LightwrightAggregate } from '@/types'
+import type { FixtureAggregate } from '@/types'
 
-interface LightwrightAggregateDisplayProps {
-  aggregate: LightwrightAggregate | null
+interface FixtureAggregateDisplayProps {
+  aggregate: FixtureAggregate | null
   field: 'channels' | 'positions' | 'fixtureTypes' | 'purposes' | 'universeAddresses'
   className?: string
   maxItems?: number
 }
 
-export function LightwrightAggregateDisplay({
+export function FixtureAggregateDisplay({
   aggregate,
   field,
   className,
   maxItems = 3
-}: LightwrightAggregateDisplayProps) {
+}: FixtureAggregateDisplayProps) {
   if (!aggregate) {
     return <span className={cn('text-muted-foreground', className)}>—</span>
   }
@@ -28,7 +28,7 @@ export function LightwrightAggregateDisplay({
         {aggregate.channels || '—'}
       </span>
       {aggregate.hasInactive && (
-        <div title="Some fixtures are inactive">
+        <div title="Some hookup items are inactive">
           <AlertTriangle className="h-3 w-3 text-orange-500" />
         </div>
       )}
@@ -45,7 +45,7 @@ export function LightwrightAggregateDisplay({
         <div className="flex items-center gap-2">
           <span className={className}>{items[0]}</span>
           {aggregate.hasInactive && (
-            <div title="Some fixtures are inactive">
+            <div title="Some hookup items are inactive">
               <AlertTriangle className="h-3 w-3 text-orange-500" />
             </div>
           )}
@@ -71,7 +71,7 @@ export function LightwrightAggregateDisplay({
         )}
         
         {aggregate.hasInactive && (
-          <div title="Some fixtures are inactive">
+          <div title="Some hookup items are inactive">
             <AlertTriangle className="h-3 w-3 text-orange-500" />
           </div>
         )}
@@ -113,7 +113,7 @@ export function LightwrightAggregateDisplay({
               U{universe}: {addresses.join(', ')}
             </span>
             {aggregate.hasInactive && (
-              <div title="Some fixtures are inactive">
+              <div title="Some hookup items are inactive">
             <AlertTriangle className="h-3 w-3 text-orange-500" />
           </div>
             )}
@@ -141,7 +141,7 @@ export function LightwrightAggregateDisplay({
         )}
         
         {aggregate.hasInactive && (
-          <div title="Some fixtures are inactive">
+          <div title="Some hookup items are inactive">
             <AlertTriangle className="h-3 w-3 text-orange-500" />
           </div>
         )}
@@ -165,17 +165,17 @@ export function LightwrightAggregateDisplay({
   }
 }
 
-interface LightwrightSummaryDisplayProps {
-  aggregate: LightwrightAggregate | null
+interface FixtureSummaryDisplayProps {
+  aggregate: FixtureAggregate | null
   className?: string
   maxItems?: number
 }
 
-export function LightwrightSummaryDisplay({
+export function FixtureSummaryDisplay({
   aggregate,
   className,
   maxItems = 2
-}: LightwrightSummaryDisplayProps) {
+}: FixtureSummaryDisplayProps) {
   if (!aggregate) {
     return <span className={cn('text-muted-foreground text-sm', className)}>No fixtures linked</span>
   }
@@ -225,11 +225,11 @@ export function LightwrightSummaryDisplay({
   )
 }
 
-interface LightwrightTooltipContentProps {
-  aggregate: LightwrightAggregate
+interface FixtureTooltipContentProps {
+  aggregate: FixtureAggregate
 }
 
-export function LightwrightTooltipContent({ aggregate }: LightwrightTooltipContentProps) {
+export function FixtureTooltipContent({ aggregate }: FixtureTooltipContentProps) {
   return (
     <div className="space-y-2 text-xs">
       <div>
