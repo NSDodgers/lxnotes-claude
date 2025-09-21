@@ -24,12 +24,12 @@ npx playwright test --ui                  # Interactive test runner
 npx playwright show-report                # View test results
 
 # Playwright MCP (Interactive Browser Control)
-# MCP tools are available directly in Claude Code sessions:
+# MCP tools available when specifically requested by the user:
 # - mcp__playwright__browser_navigate      # Navigate to URLs
 # - mcp__playwright__browser_snapshot      # Get page structure
 # - mcp__playwright__browser_click         # Click elements
 # - mcp__playwright__browser_take_screenshot # Capture visuals
-# Use these for real-time debugging and exploration during development
+# Note: Only use MCP tools when user explicitly requests browser testing/interaction
 ```
 
 ## Architecture Overview
@@ -105,7 +105,7 @@ Uses `@/*` for absolute imports from project root via tsconfig paths.
 
 ## Playwright E2E Testing Integration
 
-This project uses Playwright for comprehensive end-to-end testing. When working on features, you should leverage the existing test infrastructure for development, validation, and quality assurance.
+This project uses Playwright for comprehensive end-to-end testing. **CRITICAL: Do NOT use Playwright or browser automation tools unless the user explicitly requests it.** The testing infrastructure is available for development, validation, and quality assurance only when specifically asked for by the user.
 
 ### Test Architecture
 
@@ -372,7 +372,7 @@ Remember: Playwright tests provide reliable automation, comprehensive coverage, 
 
 ## Playwright MCP Integration
 
-This project leverages Playwright MCP (Model Context Protocol) for interactive browser automation and real-time debugging during development. MCP complements traditional Playwright testing by providing immediate browser control within Claude Code sessions.
+This project has Playwright MCP (Model Context Protocol) available for interactive browser automation. **CRITICAL: Do NOT use MCP browser tools unless the user explicitly requests browser testing, debugging, or interaction.** Never use MCP tools proactively. MCP complements traditional Playwright testing by providing immediate browser control within Claude Code sessions only when specifically requested.
 
 ### MCP vs Traditional Testing
 
@@ -381,10 +381,10 @@ This project leverages Playwright MCP (Model Context Protocol) for interactive b
 - Regression testing and validation
 - Batch execution of test scenarios
 
-**Playwright MCP** (interactive):
-- Real-time browser exploration and debugging
-- Interactive feature development and testing
-- Immediate feedback during development sessions
+**Playwright MCP** (interactive, ONLY when user explicitly requests):
+- Real-time browser exploration and debugging (ONLY when user explicitly requests it)
+- Interactive feature development and testing (ONLY when user explicitly requests it)
+- Immediate feedback during development sessions (ONLY when user explicitly requests it)
 
 ### Available MCP Tools
 
@@ -661,7 +661,7 @@ await mcp__playwright__browser_network_requests();
 // Useful for debugging API calls, image loading, etc.
 ```
 
-Remember: MCP provides immediate feedback and interactive debugging capabilities that complement the comprehensive test suite. Use MCP for exploration and rapid iteration, then codify stable patterns into traditional test files for CI/CD integration.
+Remember: MCP provides immediate feedback and interactive debugging capabilities that complement the comprehensive test suite. **CRITICAL: Only use MCP tools when the user explicitly and specifically requests browser testing or interaction. Never use MCP tools proactively or for testing unless explicitly asked.** Use MCP for exploration and rapid iteration only when requested, then codify stable patterns into traditional test files for CI/CD integration.
 
 ## Sessions System Behaviors
 
