@@ -1,7 +1,7 @@
 'use client'
 
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
-import { NotesTable } from '@/components/notes-table'
+import { ProductionNotesTable } from '@/components/notes-table/production-notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
@@ -1037,9 +1037,9 @@ export default function ProductionNotesPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="flex flex-col h-[calc(100vh-4rem)]">
         {/* Sticky Header Container */}
-        <div className="sticky top-0 z-30 bg-bg-primary space-y-6 pb-4">
+        <div className="flex-none space-y-6 pb-4">
           {/* Header */}
           <div className="grid grid-cols-[auto_1fr_auto] items-center border-b border-bg-tertiary pb-6">
             {/* Left: Production Info */}
@@ -1178,21 +1178,22 @@ export default function ProductionNotesPage() {
         </div>
 
 
-        {/* Notes Table */}
-        <NotesTable 
-          notes={filteredNotes}
-          moduleType="production"
-          onStatusUpdate={updateNoteStatus}
-          onEdit={handleEditNote}
-        />
+        {/* Notes Table - Fills remaining space */}
+        <div className="flex-1 min-h-0">
+          <ProductionNotesTable
+            notes={filteredNotes}
+            onStatusUpdate={updateNoteStatus}
+            onEdit={handleEditNote}
+          />
 
-        {filteredNotes.length === 0 && (
-          <div className="text-center py-12">
-            <FileText className="h-12 w-12 text-text-muted mx-auto mb-4" />
-            <p className="text-text-secondary">No production notes found</p>
-            <p className="text-text-muted text-sm mt-1">Try adjusting your filters or add a new note</p>
-          </div>
-        )}
+          {filteredNotes.length === 0 && (
+            <div className="text-center py-12">
+              <FileText className="h-12 w-12 text-text-muted mx-auto mb-4" />
+              <p className="text-text-secondary">No production notes found</p>
+              <p className="text-text-muted text-sm mt-1">Try adjusting your filters or add a new note</p>
+            </div>
+          )}
+        </div>
       </div>
 
       <AddNoteDialog
