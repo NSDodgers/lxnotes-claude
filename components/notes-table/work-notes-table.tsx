@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -19,19 +19,32 @@ import {
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
 import { createWorkColumns } from './columns/work-columns'
+import { ColumnResizeHandle } from './column-resize-handle'
+import { useColumnSizing } from '@/hooks/use-column-sizing'
 
 interface WorkNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit?: (note: Note) => void
+  onMountResetFn?: (resetFn: () => void) => void
 }
 
-export function WorkNotesTable({ notes, onStatusUpdate, onEdit }: WorkNotesTableProps) {
+export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }: WorkNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createWorkColumns({ onStatusUpdate }),
     [onStatusUpdate]
   )
+
+  // Column sizing state with localStorage persistence
+  const { columnSizing, onColumnSizingChange, resetColumnSizes } = useColumnSizing('work')
+
+  // Expose reset function to parent via callback on mount
+  useEffect(() => {
+    if (onMountResetFn) {
+      onMountResetFn(resetColumnSizes)
+    }
+  }, [onMountResetFn, resetColumnSizes])
 
   // Create table instance with TanStack
   const table = useReactTable({
@@ -42,12 +55,18 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit }: WorkNotesTable
     // Enable multi-sort (hold shift and click to add secondary sort)
     enableMultiSort: true,
     maxMultiSortColCount: 2,
+    // Column resizing - onChange provides live visual feedback during drag
+    columnResizeMode: 'onChange',
     // Default sort by channels ascending
     initialState: {
       sorting: [
         { id: 'channels', desc: false }
       ]
     },
+    state: {
+      columnSizing,
+    },
+    onColumnSizingChange,
   })
 
   /**
@@ -105,6 +124,9 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit }: WorkNotesTable
                             header.getContext()
                           )}
                           {canSort && renderSortIndicator(isSorted, sortIndex)}
+                          {header.column.getCanResize() && (
+                            <ColumnResizeHandle header={header} />
+                          )}
                         </div>
                       )}
                     </TableHead>

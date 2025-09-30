@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -20,19 +20,32 @@ import {
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
 import { createCueColumns } from './columns/cue-columns'
+import { ColumnResizeHandle } from './column-resize-handle'
+import { useColumnSizing } from '@/hooks/use-column-sizing'
 
 interface CueNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit?: (note: Note) => void
+  onMountResetFn?: (resetFn: () => void) => void
 }
 
-export function CueNotesTable({ notes, onStatusUpdate, onEdit }: CueNotesTableProps) {
+export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }: CueNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createCueColumns({ onStatusUpdate }),
     [onStatusUpdate]
   )
+
+  // Column sizing state with localStorage persistence
+  const { columnSizing, onColumnSizingChange, resetColumnSizes } = useColumnSizing('cue')
+
+  // Expose reset function to parent via callback on mount
+  useEffect(() => {
+    if (onMountResetFn) {
+      onMountResetFn(resetColumnSizes)
+    }
+  }, [onMountResetFn, resetColumnSizes])
 
   // Create table instance with TanStack
   const table = useReactTable({
@@ -43,12 +56,18 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit }: CueNotesTablePr
     // Enable multi-sort (hold shift and click to add secondary sort)
     enableMultiSort: true,
     maxMultiSortColCount: 2,
+    // Column resizing - onChange provides live visual feedback during drag
+    columnResizeMode: 'onChange',
     // Default sort by cue number ascending
     initialState: {
       sorting: [
         { id: 'cueNumber', desc: false }
       ]
     },
+    state: {
+      columnSizing,
+    },
+    onColumnSizingChange,
   })
 
   /**
@@ -106,6 +125,9 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit }: CueNotesTablePr
                             header.getContext()
                           )}
                           {canSort && renderSortIndicator(isSorted, sortIndex)}
+                          {header.column.getCanResize() && (
+                            <ColumnResizeHandle header={header} />
+                          )}
                         </div>
                       )}
                     </TableHead>

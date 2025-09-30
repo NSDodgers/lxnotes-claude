@@ -163,4 +163,41 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-bg-hover;
   }
+
+  /* Column resize handle styles */
+  .resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 5px;
+    cursor: col-resize;
+    user-select: none;
+    touch-action: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+  }
+
+  /* Show on header hover */
+  th:hover .resize-handle {
+    opacity: 1;
+    background: hsl(var(--border));
+  }
+
+  /* Active resize state */
+  .resize-handle.is-resizing {
+    opacity: 1;
+    background: hsl(var(--primary));
+  }
+
+  /* Visual feedback on hover */
+  .resize-handle:hover {
+    background: hsl(var(--primary) / 0.7);
+  }
+
+  /* Make table headers position relative for resize handle positioning */
+  th {
+    position: relative;
+  }
 }

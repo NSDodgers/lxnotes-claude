@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -19,19 +19,32 @@ import {
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
 import { createProductionColumns } from './columns/production-columns'
+import { ColumnResizeHandle } from './column-resize-handle'
+import { useColumnSizing } from '@/hooks/use-column-sizing'
 
 interface ProductionNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit?: (note: Note) => void
+  onMountResetFn?: (resetFn: () => void) => void
 }
 
-export function ProductionNotesTable({ notes, onStatusUpdate, onEdit }: ProductionNotesTableProps) {
+export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }: ProductionNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createProductionColumns({ onStatusUpdate }),
     [onStatusUpdate]
   )
+
+  // Column sizing state with localStorage persistence
+  const { columnSizing, onColumnSizingChange, resetColumnSizes } = useColumnSizing('production')
+
+  // Expose reset function to parent via callback on mount
+  useEffect(() => {
+    if (onMountResetFn) {
+      onMountResetFn(resetColumnSizes)
+    }
+  }, [onMountResetFn, resetColumnSizes])
 
   // Create table instance with TanStack
   const table = useReactTable({
@@ -42,12 +55,18 @@ export function ProductionNotesTable({ notes, onStatusUpdate, onEdit }: Producti
     // Enable multi-sort (hold shift and click to add secondary sort)
     enableMultiSort: true,
     maxMultiSortColCount: 2,
+    // Column resizing - onChange provides live visual feedback during drag
+    columnResizeMode: 'onChange',
     // Default sort by created date descending
     initialState: {
       sorting: [
         { id: 'createdAt', desc: true }
       ]
     },
+    state: {
+      columnSizing,
+    },
+    onColumnSizingChange,
   })
 
   /**
@@ -105,6 +124,9 @@ export function ProductionNotesTable({ notes, onStatusUpdate, onEdit }: Producti
                             header.getContext()
                           )}
                           {canSort && renderSortIndicator(isSorted, sortIndex)}
+                          {header.column.getCanResize() && (
+                            <ColumnResizeHandle header={header} />
+                          )}
                         </div>
                       )}
                     </TableHead>

@@ -5,8 +5,8 @@ import { ProductionNotesTable } from '@/components/notes-table/production-notes-
 import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
-import { useState, useEffect } from 'react'
-import { Plus, Search, FileText, Users, Mail, Printer } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Plus, Search, FileText, Users, Mail, Printer, RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -985,6 +985,7 @@ export default function ProductionNotesPage() {
   const [isEmailViewOpen, setIsEmailViewOpen] = useState(false)
   const [isPrintViewOpen, setIsPrintViewOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
+  const resetColumnsRef = useRef<(() => void) | null>(null)
 
   // Handle client-side hydration for stores with skipHydration: true
   useEffect(() => {
@@ -1135,15 +1136,29 @@ export default function ProductionNotesPage() {
               </div>
             </div>
 
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search production notes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full md:w-80 pl-8 font-medium"
-              />
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search production notes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full md:w-80 pl-8 font-medium"
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (resetColumnsRef.current) {
+                    resetColumnsRef.current()
+                  }
+                }}
+                title="Reset column widths to defaults"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
@@ -1184,6 +1199,9 @@ export default function ProductionNotesPage() {
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
             onEdit={handleEditNote}
+            onMountResetFn={(resetFn) => {
+              resetColumnsRef.current = resetFn
+            }}
           />
 
           {filteredNotes.length === 0 && (
