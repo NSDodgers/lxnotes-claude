@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Search, Database, Download, Calendar, Trash2, AlertTriangle } from 'lucide-react'
+import { Search, Database, Download, Calendar, Trash2, AlertTriangle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,18 +36,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+} from '@tanstack/react-table'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { usePositionStore } from '@/lib/stores/position-store'
 import type { FixtureInfo } from '@/types'
+import { createFixtureColumns } from '@/components/notes-table/columns/fixture-columns'
 
 interface FixtureDataViewerProps {
   isOpen: boolean
   onClose: () => void
   productionId: string
 }
-
-type SortField = 'channel' | 'position' | 'unitNumber' | 'fixtureType' | 'purpose' | 'universe'
-type SortDirection = 'asc' | 'desc'
 
 export function FixtureDataViewer({
   isOpen,
@@ -57,8 +61,6 @@ export function FixtureDataViewer({
   const { getFixturesByProduction, clearData } = useFixtureStore()
   const { clearOrder } = usePositionStore()
   const [searchTerm, setSearchTerm] = useState('')
-  const [sortField, setSortField] = useState<SortField>('channel')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   // Get fixtures for this production
@@ -76,14 +78,14 @@ export function FixtureDataViewer({
     }
   }, [allFixtures])
 
-  // Filter and sort fixtures
-  const filteredAndSortedFixtures = useMemo(() => {
+  // Filter fixtures based on search term
+  const filteredFixtures = useMemo(() => {
     let filtered = allFixtures
 
     // Apply search filter
     if (searchTerm.trim()) {
       const search = searchTerm.toLowerCase()
-      filtered = filtered.filter(fixture => 
+      filtered = filtered.filter(fixture =>
         fixture.channel.toString().includes(search) ||
         fixture.position.toLowerCase().includes(search) ||
         fixture.unitNumber.toLowerCase().includes(search) ||
@@ -93,49 +95,55 @@ export function FixtureDataViewer({
       )
     }
 
+    return filtered
+  }, [allFixtures, searchTerm])
 
-    // Apply sorting
-    const sorted = [...filtered].sort((a, b) => {
-      let aValue: any
-      let bValue: any
+  // Memoize columns
+  const columns = useMemo(() => createFixtureColumns(), [])
 
-      switch (sortField) {
-        case 'channel':
-          aValue = a.channel
-          bValue = b.channel
-          break
-        case 'universe':
-          aValue = a.universe || 0
-          bValue = b.universe || 0
-          break
-        default:
-          aValue = (a[sortField] || '').toString().toLowerCase()
-          bValue = (b[sortField] || '').toString().toLowerCase()
-      }
+  // Create table instance with TanStack
+  const table = useReactTable({
+    data: filteredFixtures,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    enableMultiSort: true,
+    maxMultiSortColCount: 2,
+    initialState: {
+      sorting: [
+        { id: 'channel', desc: false }
+      ]
+    },
+  })
 
-      if (sortDirection === 'asc') {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
-      }
-    })
-
-    return sorted
-  }, [allFixtures, searchTerm, sortField, sortDirection])
-
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortField(field)
-      setSortDirection('asc')
+  /**
+   * Renders the sort indicator for a header
+   */
+  function renderSortIndicator(isSorted: false | 'asc' | 'desc', sortIndex?: number) {
+    if (!isSorted) {
+      return <ArrowUpDown className="h-3 w-3 opacity-50" />
     }
+
+    const isMultiSort = sortIndex !== undefined && sortIndex >= 0
+
+    return (
+      <div className="flex items-center gap-1">
+        {isSorted === 'asc' ? (
+          <ArrowUp className="h-3 w-3" />
+        ) : (
+          <ArrowDown className="h-3 w-3" />
+        )}
+        {isMultiSort && (
+          <span className="text-xs font-bold">{sortIndex + 1}</span>
+        )}
+      </div>
+    )
   }
 
   const handleExportCSV = () => {
     const csvHeaders = [
       'Channel',
-      'Position', 
+      'Position',
       'Unit Number',
       'Fixture Type',
       'Purpose',
@@ -145,17 +153,20 @@ export function FixtureDataViewer({
       'LWID'
     ]
 
-    const csvData = filteredAndSortedFixtures.map(fixture => [
-      fixture.channel,
-      fixture.position,
-      fixture.unitNumber,
-      fixture.fixtureType,
-      fixture.purpose,
-      fixture.universe || '',
-      fixture.address || '',
-      fixture.universeAddressRaw,
-      fixture.lwid
-    ])
+    const csvData = table.getRowModel().rows.map(row => {
+      const fixture = row.original
+      return [
+        fixture.channel,
+        fixture.position,
+        fixture.unitNumber,
+        fixture.fixtureType,
+        fixture.purpose,
+        fixture.universe || '',
+        fixture.address || '',
+        fixture.universeAddressRaw,
+        fixture.lwid
+      ]
+    })
 
     const csvContent = [
       csvHeaders.join(','),
@@ -181,33 +192,6 @@ export function FixtureDataViewer({
       hour12: true
     }).format(date)
   }
-
-  const formatUniverseAddress = (fixture: FixtureInfo) => {
-    if (fixture.universe !== undefined && fixture.address !== undefined) {
-      return `${fixture.universe}/${fixture.address}`
-    } else if (fixture.universeAddressRaw) {
-      return fixture.universeAddressRaw
-    } else if (fixture.address !== undefined) {
-      return fixture.address.toString()
-    }
-    return '—'
-  }
-
-  const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
-    <TableHead 
-      className="cursor-pointer hover:bg-muted/50 transition-colors"
-      onClick={() => handleSort(field)}
-    >
-      <div className="flex items-center gap-1">
-        {children}
-        {sortField === field && (
-          <span className="ml-1 text-xs">
-            {sortDirection === 'asc' ? '↑' : '↓'}
-          </span>
-        )}
-      </div>
-    </TableHead>
-  )
 
   const handleDeleteAllFixtures = () => {
     // Clear fixture data and position order
@@ -333,7 +317,7 @@ export function FixtureDataViewer({
                   onClick={handleExportCSV}
                   variant="outline"
                   size="default"
-                  disabled={filteredAndSortedFixtures.length === 0}
+                  disabled={table.getRowModel().rows.length === 0}
                 >
                   <Download className="h-4 w-4" />
                   Export CSV
@@ -344,60 +328,76 @@ export function FixtureDataViewer({
             {/* Results count */}
             {searchTerm ? (
               <div className="text-sm text-muted-foreground">
-                Showing {filteredAndSortedFixtures.length} of {allFixtures.length} fixtures
+                Showing {table.getRowModel().rows.length} of {allFixtures.length} fixtures
               </div>
             ) : null}
 
             {/* Data Table */}
             <div className="rounded-lg border max-h-[60vh] overflow-auto">
               <Table>
-                <TableHeader className="sticky top-0 bg-background border-b">
-                  <TableRow>
-                    <SortableHeader field="channel">Ch</SortableHeader>
-                    <SortableHeader field="position">Position</SortableHeader>
-                    <SortableHeader field="unitNumber">Unit #</SortableHeader>
-                    <SortableHeader field="fixtureType">Type</SortableHeader>
-                    <SortableHeader field="purpose">Purpose</SortableHeader>
-                    <SortableHeader field="universe">U/A</SortableHeader>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAndSortedFixtures.map((fixture) => (
-                    <TableRow key={fixture.id}>
-                      <TableCell className="font-medium font-mono">
-                        {fixture.channel}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {fixture.position}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {fixture.unitNumber || '—'}
-                      </TableCell>
-                      <TableCell>
-                        <div className="max-w-32 truncate" title={fixture.fixtureType}>
-                          {fixture.fixtureType || '—'}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="max-w-32 truncate" title={fixture.purpose}>
-                          {fixture.purpose || '—'}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {formatUniverseAddress(fixture)}
-                      </TableCell>
+                <TableHeader className="sticky top-0 bg-background border-b z-10">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        const canSort = header.column.getCanSort()
+                        const isSorted = header.column.getIsSorted()
+                        const sortIndex = header.column.getSortIndex()
+
+                        return (
+                          <TableHead
+                            key={header.id}
+                            className={cn(
+                              canSort && 'cursor-pointer hover:bg-muted/50 transition-colors'
+                            )}
+                            onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                            style={{
+                              width: header.getSize(),
+                            }}
+                          >
+                            {header.isPlaceholder ? null : (
+                              <div className="flex items-center gap-1">
+                                {flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                                {canSort && renderSortIndicator(isSorted, sortIndex)}
+                              </div>
+                            )}
+                          </TableHead>
+                        )
+                      })}
                     </TableRow>
                   ))}
+                </TableHeader>
+                <TableBody>
+                  {table.getRowModel().rows.length > 0 ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow key={row.id}>
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell
+                            key={cell.id}
+                            style={{
+                              width: cell.column.getSize(),
+                            }}
+                          >
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center text-muted-foreground"
+                      >
+                        {searchTerm ? 'No fixtures match your search criteria' : 'No fixtures found'}
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>
-
-            {filteredAndSortedFixtures.length === 0 && searchTerm && (
-              <div className="text-center py-8 text-muted-foreground">
-                <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No fixtures match your search criteria</p>
-              </div>
-            )}
 
             {/* Delete All Fixtures Button */}
             {allFixtures.length > 0 && (
