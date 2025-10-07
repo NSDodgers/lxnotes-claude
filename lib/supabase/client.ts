@@ -6,7 +6,7 @@ export function createClient() {
   
   if (isDev) {
     // Return a mock client for development
-    return {
+    const mockClient = {
       auth: {
         getUser: async () => ({ data: { user: { id: 'dev-user', email: 'dev@lxnotes.app' } }, error: null }),
         signIn: async () => ({ data: {}, error: null }),
@@ -20,11 +20,13 @@ export function createClient() {
           }),
           execute: async () => ({ data: [], error: null }),
         }),
-        insert: async (data: any) => ({ data, error: null }),
-        update: async (data: any) => ({ data, error: null }),
+        insert: async <T extends Record<string, unknown>>(data: T) => ({ data, error: null }),
+        update: async <T extends Record<string, unknown>>(data: T) => ({ data, error: null }),
         delete: async () => ({ data: null, error: null }),
       }),
-    } as any
+    }
+
+    return mockClient as unknown as ReturnType<typeof createBrowserClient>
   }
 
   // Real Supabase client for production

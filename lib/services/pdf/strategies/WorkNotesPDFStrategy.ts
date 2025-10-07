@@ -35,7 +35,7 @@ export class WorkNotesPDFStrategy implements PDFStrategy {
     return 'Work Notes'
   }
 
-  formatModuleSpecificData(note: Note): Record<string, any> {
+  formatModuleSpecificData(note: Note): Record<string, unknown> {
     return {
       channels: note.channelNumbers || '-',
       positionUnit: note.positionUnit || '-',

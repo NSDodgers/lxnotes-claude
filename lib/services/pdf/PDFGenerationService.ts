@@ -1,4 +1,4 @@
-import type { Note, ModuleType } from '@/types'
+import type { Note, ModuleType, FilterSortPreset, CustomPriority } from '@/types'
 import type { PDFGenerationRequest, PDFGenerationResult, PDFStrategy } from './types'
 import { PDFTemplateEngine } from './PDFTemplateEngine'
 import { CueNotesPDFStrategy } from './strategies/CueNotesPDFStrategy'
@@ -79,7 +79,7 @@ export class PDFGenerationService {
     }
   }
 
-  private filterNotes(notes: Note[], filterPreset: any): Note[] {
+  private filterNotes(notes: Note[], filterPreset: FilterSortPreset): Note[] {
     return notes.filter(note => {
       // Status filter
       if (filterPreset.config.statusFilter && note.status !== filterPreset.config.statusFilter) {
@@ -88,7 +88,7 @@ export class PDFGenerationService {
 
       // Type filters
       if (filterPreset.config.typeFilters.length > 0 &&
-          !filterPreset.config.typeFilters.includes(note.type)) {
+          !filterPreset.config.typeFilters.includes(note.type || '')) {
         return false
       }
 
@@ -102,7 +102,11 @@ export class PDFGenerationService {
     })
   }
 
-  private sortNotes(notes: Note[], filterPreset: any, customPriorities: any[]): Note[] {
+  private sortNotes(
+    notes: Note[],
+    filterPreset: FilterSortPreset,
+    customPriorities: CustomPriority[]
+  ): Note[] {
     const sortedNotes = [...notes]
     const { sortBy, sortOrder, groupByType } = filterPreset.config
     const moduleType = filterPreset.moduleType
@@ -124,15 +128,17 @@ export class PDFGenerationService {
       }
 
       // Helper function to get sort value for a given field
-      const getSortValue = (note: Note, field: string): any => {
+      const getSortValue = (note: Note, field: string): number | string => {
         switch (field) {
           case 'priority':
             const priority = customPriorities.find(p => p.value === note.priority)
-            return priority ? priority.sortOrder : 999
+            return priority ? priority.sortOrder : 999 // Fallback for unknown priorities
           case 'created_at':
             return note.createdAt.getTime()
           case 'completed_at':
             return note.completedAt?.getTime() || 0
+          case 'cancelled_at':
+            return note.updatedAt.getTime()
           case 'channel':
             // Extract lowest channel number from channelNumbers field
             return this.extractLowestChannelNumber(note.channelNumbers || '')
@@ -146,8 +152,8 @@ export class PDFGenerationService {
             return (note.type || '').toLowerCase()
           default:
             return note.title
-        }
       }
+    }
 
       // Determine secondary sort field based on module and primary sort
       const getSecondarySort = (primaryField: string): string | null => {

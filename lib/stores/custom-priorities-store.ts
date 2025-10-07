@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { createSafeStorage } from '@/lib/storage/safe-storage'
 import type { CustomPriority, ModuleType, SystemOverride } from '@/types'
 
 interface CustomPrioritiesState {
@@ -60,6 +61,12 @@ const getSystemDefaults = (moduleType: ModuleType): CustomPriority[] => {
     default:
       return []
   }
+}
+
+// Check if we're in demo mode
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return false
+  return window.location.pathname.startsWith('/demo')
 }
 
 export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
@@ -222,6 +229,12 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
     }),
     {
       name: 'custom-priorities-storage',
+      storage: createJSONStorage(() =>
+        createSafeStorage(
+          'custom-priorities-storage',
+          isDemoMode() ? 'session' : 'local'
+        )
+      ),
       skipHydration: true,
     }
   )

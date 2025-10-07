@@ -1,6 +1,21 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { createSafeStorage } from '@/lib/storage/safe-storage'
 import type { EmailMessagePreset, PlaceholderDefinition } from '@/types'
+
+interface PlaceholderValues {
+  productionTitle?: string
+  userFirstName?: string
+  userLastName?: string
+  userFullName?: string
+  noteCount?: number
+  todoCount?: number
+  completeCount?: number
+  cancelledCount?: number
+  filterDescription?: string
+  sortDescription?: string
+  dateRange?: string
+}
 
 interface EmailMessagePresetsState {
   presets: EmailMessagePreset[]
@@ -14,7 +29,7 @@ interface EmailMessagePresetsState {
   
   // Placeholder management
   getAvailablePlaceholders: () => PlaceholderDefinition[]
-  resolvePlaceholders: (text: string, data?: Record<string, any>) => string
+  resolvePlaceholders: (text: string, data?: PlaceholderValues) => string
   
   // System defaults
   getSystemDefaults: () => EmailMessagePreset[]
@@ -118,7 +133,7 @@ Thanks,
 }
 
 // Simple placeholder resolution (in a real app, this would use actual data)
-const resolvePlaceholders = (text: string, data?: Record<string, any>): string => {
+const resolvePlaceholders = (text: string, data?: PlaceholderValues): string => {
   const placeholders: Record<string, string> = {
     '{{PRODUCTION_TITLE}}': data?.productionTitle || 'Sample Production',
     '{{USER_FIRST_NAME}}': data?.userFirstName || 'Dev',
@@ -141,6 +156,12 @@ const resolvePlaceholders = (text: string, data?: Record<string, any>): string =
   })
   
   return resolved
+}
+
+// Check if we're in demo mode
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return false
+  return window.location.pathname.startsWith('/demo')
 }
 
 export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
@@ -201,6 +222,12 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
     }),
     {
       name: 'email-message-presets-storage',
+      storage: createJSONStorage(() =>
+        createSafeStorage(
+          'email-message-presets-storage',
+          isDemoMode() ? 'session' : 'local'
+        )
+      ),
       skipHydration: true,
     }
   )

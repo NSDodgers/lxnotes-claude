@@ -233,7 +233,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
                   <div className="text-xs text-modules-cue pl-6">
                     💡 {availableContinuations.length} {type}(s) from previous page can be continued
                     {suggestedContinuation && (
-                      <span className="font-medium"> • Suggested: "{suggestedContinuation.name}"</span>
+                      <span className="font-medium"> • Suggested: &quot;{suggestedContinuation.name}&quot;</span>
                     )}
                   </div>
                 )}
@@ -430,30 +430,30 @@ function ScriptItem({ page }: ScriptItemProps) {
       <div className="rounded-lg bg-bg-secondary border border-bg-tertiary shadow-sm">
         {/* Page Header */}
         <div className="flex items-center justify-between p-4 border-b border-bg-tertiary bg-bg-secondary/50">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-compact-3">
+            <div className="flex items-center gap-compact-2">
               <FileText className="h-5 w-5 text-modules-cue" />
-              <span className="text-lg font-semibold text-text-primary">Page</span>
+              <span className="text-sm font-semibold text-text-primary">Page</span>
               <input
                 type="text"
                 value={page.pageNumber}
                 onChange={(e) => handlePageNumberChange(e.target.value)}
-                className="bg-bg-tertiary border border-bg-hover rounded px-3 py-1 text-lg font-bold text-text-primary focus:outline-none focus:border-modules-cue min-w-[80px] cursor-text"
+                className="h-compact-7 bg-bg-tertiary border border-bg-hover rounded px-compact-3 text-sm font-semibold text-text-primary focus:outline-none focus:border-modules-cue min-w-[80px] cursor-text"
                 title="Click to edit page number"
               />
             </div>
 
             {/* First Cue */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-compact-2">
               <span className="text-sm text-text-secondary">First Cue:</span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-compact-1">
                 <input
                   type="text"
                   value={page.firstCueNumber || ''}
                   onChange={(e) => handleCueNumberChange(e.target.value)}
                   placeholder="None"
                   className={cn(
-                    "bg-bg-tertiary border rounded px-2 py-1 text-sm text-text-primary focus:outline-none w-20 cursor-text",
+                    "h-compact-7 bg-bg-tertiary border rounded px-compact-2 text-sm text-text-primary focus:outline-none w-20 cursor-text",
                     (cueValidation || orderValidation) ? "border-yellow-500 focus:border-yellow-500" : "border-bg-hover focus:border-modules-cue"
                   )}
                   title="Click to edit first cue number"
@@ -473,7 +473,7 @@ function ScriptItem({ page }: ScriptItemProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-compact-2">
             <Button
               size="sm"
               variant="secondary"
@@ -533,7 +533,7 @@ function ScriptItem({ page }: ScriptItemProps) {
           <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold text-text-primary mb-2">Delete Page?</h3>
             <p className="text-text-secondary mb-4">
-              Are you sure you want to delete page "{page.pageNumber}"? This will also delete all scenes and songs on this page.
+              Are you sure you want to delete page &quot;{page.pageNumber}&quot;? This will also delete all scenes and songs on this page.
             </p>
             <div className="flex gap-3">
               <Button
@@ -638,9 +638,9 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
 
   return (
     <>
-      <div className="flex items-center gap-3 py-2 px-3 rounded bg-bg-tertiary/50 border border-bg-hover/30">
+      <div className="flex items-center gap-compact-3 py-compact-2 px-compact-3 rounded bg-bg-tertiary/50 border border-bg-hover/30">
         {/* Name with continuation indicators */}
-        <div className="flex items-center gap-2 flex-1">
+        <div className="flex items-center gap-compact-2 flex-1">
           {isContinuation && (
             <span className="text-xs text-modules-production font-mono" title="Continued from previous page">
               ←
@@ -651,7 +651,7 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
             value={item.name}
             onChange={(e) => handleNameChange(e.target.value)}
             className={cn(
-              "border rounded px-2 py-1 text-sm text-text-primary focus:outline-none focus:border-modules-cue flex-1 cursor-text",
+              "h-compact-7 border rounded px-compact-2 text-sm text-text-primary focus:outline-none focus:border-modules-cue flex-1 cursor-text",
               isContinuation
                 ? "bg-modules-production/10 border-modules-production/30"
                 : "bg-bg-tertiary border-bg-hover"
@@ -666,16 +666,16 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
         </div>
 
         {/* First Cue */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-compact-2">
           <span className="text-xs text-text-secondary">Cue:</span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-compact-1">
             <input
               type="text"
               value={item.firstCueNumber || ''}
               onChange={(e) => handleCueNumberChange(e.target.value)}
               placeholder="None"
               className={cn(
-                "bg-bg-tertiary border rounded px-2 py-1 text-sm text-text-primary focus:outline-none w-16 cursor-text",
+                "h-compact-7 bg-bg-tertiary border rounded px-compact-2 text-sm text-text-primary focus:outline-none w-16 cursor-text",
                 cueValidation ? "border-yellow-500 focus:border-yellow-500" : "border-bg-hover focus:border-modules-cue"
               )}
               title="Click to edit cue number"
@@ -694,7 +694,7 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-compact-2">
           {canContinue && (
             <Button
               size="sm"
@@ -724,7 +724,7 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
           <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold text-text-primary mb-2">Delete {item.type}?</h3>
             <p className="text-text-secondary mb-4">
-              Are you sure you want to delete {item.type} "{item.name}"?
+            Are you sure you want to delete {item.type} &quot;{item.name}&quot;?
             </p>
             <div className="flex gap-3">
               <Button

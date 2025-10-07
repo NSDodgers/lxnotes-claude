@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import type { CellHookData } from 'jspdf-autotable'
 import type { PDFConfiguration, PDFFormattedNote, PDFStrategy } from './types'
 
 export class PDFTemplateEngine {
@@ -148,7 +149,7 @@ export class PDFTemplateEngine {
         5: { cellWidth: 'auto' }, // Note
         6: { cellWidth: 60 }, // Created
       },
-      didDrawCell: (data: any) => {
+      didDrawCell: (data: CellHookData<PDFFormattedNote>) => {
         // Add checkboxes in first column when enabled
         if (this.config.includeCheckboxes && data.column.index === 0 && data.section === 'body') {
           const note = notes[data.row.index]
@@ -217,30 +218,38 @@ export class PDFTemplateEngine {
 
       // New column structure: [Checkbox, Priority, Type, Cue#, Scene/Song, Note, Created]
       if (moduleType === 'cue') {
+        const moduleData = note.moduleSpecificData || {}
+        const scriptPage = typeof moduleData.scriptPage === 'string' ? moduleData.scriptPage : '-'
+        const sceneSong = typeof moduleData.sceneSong === 'string' ? moduleData.sceneSong : '-'
         return [
           '', // Checkbox column (handled in didDrawCell)
           this.formatPriority(note.priority),
           this.formatType(note.type || '-'),
-          note.moduleSpecificData.scriptPage || '-',
-          note.moduleSpecificData.sceneSong || '-',
+          scriptPage,
+          sceneSong,
           noteText,
           this.formatDateLikeExample(note.createdAt)
         ]
       } else if (moduleType === 'work') {
+        const moduleData = note.moduleSpecificData || {}
+        const channels = typeof moduleData.channels === 'string' ? moduleData.channels : '-'
+        const positionUnit = typeof moduleData.positionUnit === 'string' ? moduleData.positionUnit : '-'
         return [
           '', // Checkbox column
           this.formatPriority(note.priority),
           this.formatType(note.type || '-'),
-          note.moduleSpecificData.channels || '-',
-          note.moduleSpecificData.positionUnit || '-',
+          channels,
+          positionUnit,
           noteText,
           this.formatDateLikeExample(note.createdAt)
         ]
       } else { // production
+        const moduleData = note.moduleSpecificData || {}
+        const department = typeof moduleData.department === 'string' ? moduleData.department : note.type || '-'
         return [
           '', // Checkbox column
           this.formatPriority(note.priority),
-          this.formatType(note.type || '-'),
+          this.formatType(department || '-'),
           noteText,
           this.formatDateLikeExample(note.createdAt)
         ]
@@ -275,7 +284,10 @@ export class PDFTemplateEngine {
   }
 
   private addFooter(): void {
-    const pageCount = (this.doc as any).getNumberOfPages()
+    const docWithPages = this.doc as jsPDF & { getNumberOfPages?: () => number }
+    const pageCount = typeof docWithPages.getNumberOfPages === 'function'
+      ? docWithPages.getNumberOfPages()
+      : 1
     const pageWidth = this.doc.internal.pageSize.getWidth()
     const pageHeight = this.doc.internal.pageSize.getHeight()
 

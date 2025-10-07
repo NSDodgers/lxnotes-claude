@@ -1,5 +1,11 @@
 import { create } from 'zustand'
-import type { Note, ModuleType } from '@/types'
+import type {
+  Note,
+  ModuleType,
+  ScriptPage,
+  SceneSong,
+  FixtureInfo
+} from '@/types'
 import { useScriptStore } from './script-store'
 import { useFixtureStore } from './fixture-store'
 
@@ -26,20 +32,13 @@ interface MockNotesState {
 }
 
 interface ScriptContext {
-  page?: any
-  scene?: any
-  song?: any
+  page?: ScriptPage
+  scene?: SceneSong
+  song?: SceneSong
   cueRange?: { min: number; max: number }
 }
 
-interface FixtureContext {
-  lwid: string
-  channel: number
-  position: string
-  unitNumber: string
-  fixtureType: string
-  purpose: string
-}
+type FixtureContext = Pick<FixtureInfo, 'lwid' | 'channel' | 'position' | 'unitNumber' | 'fixtureType' | 'purpose'>
 
 export const useMockNotesStore = create<MockNotesState>((set, get) => ({
   notes: {

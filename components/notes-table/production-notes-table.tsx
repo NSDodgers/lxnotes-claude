@@ -116,6 +116,7 @@ export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onMountRes
                       style={{
                         width: header.getSize(),
                       }}
+                      suppressHydrationWarning
                     >
                       {header.isPlaceholder ? null : (
                         <div className="flex items-center gap-1">
@@ -149,6 +150,7 @@ export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onMountRes
                       style={{
                         width: cell.column.getSize(),
                       }}
+                      suppressHydrationWarning
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>

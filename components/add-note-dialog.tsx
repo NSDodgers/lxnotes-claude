@@ -294,7 +294,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
               </Button>
               <Button
                 type="submit"
-                variant={moduleType as any}
+                variant={moduleType}
                 className="flex-1"
               >
                 {editingNote ? 'Update Note' : 'Create Note'}

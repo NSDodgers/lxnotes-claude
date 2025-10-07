@@ -15,13 +15,7 @@ import {
   Tablet
 } from 'lucide-react'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
-
-const navigation = [
-  { name: 'Cue Notes', href: '/cue-notes', icon: Lightbulb, color: 'text-modules-cue' },
-  { name: 'Work Notes', href: '/work-notes', icon: Wrench, color: 'text-modules-work' },
-  { name: 'Production Notes', href: '/production-notes', icon: FileText, color: 'text-modules-production' },
-  { name: 'Settings', href: '/settings', icon: Settings },
-]
+import { PolicyFooter } from './policy-footer'
 
 interface SidebarProps {
   collapsed: boolean
@@ -30,13 +24,26 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onCollapsedChange }: SidebarProps) {
   const pathname = usePathname()
+
+  // Detect if we're in demo mode
+  const isDemoMode = pathname.startsWith('/demo')
+  const baseUrl = isDemoMode ? '/demo' : ''
+
+  // Navigation items with demo mode support
+  const navigation = [
+    { name: 'Cue Notes', href: `${baseUrl}/cue-notes`, icon: Lightbulb, color: 'text-modules-cue' },
+    { name: 'Work Notes', href: `${baseUrl}/work-notes`, icon: Wrench, color: 'text-modules-work' },
+    { name: 'Production Notes', href: `${baseUrl}/production-notes`, icon: FileText, color: 'text-modules-production' },
+    { name: 'Settings', href: `${baseUrl}/settings`, icon: Settings },
+  ]
   const { isTabletMode, toggleTabletMode } = useTabletModeStore()
 
   return (
     <aside
       data-testid="sidebar"
       className={cn(
-        'fixed left-0 top-0 z-40 h-screen bg-bg-secondary border-r border-bg-tertiary transition-all duration-300',
+        'fixed left-0 z-40 bg-bg-secondary border-r border-bg-tertiary transition-all duration-300',
+        isDemoMode ? 'top-[36px] h-[calc(100vh-36px)]' : 'top-0 h-screen',
         collapsed ? 'w-16' : 'w-64'
       )}
     >
@@ -45,8 +52,8 @@ export function Sidebar({ collapsed, onCollapsedChange }: SidebarProps) {
         <div className={cn(
           "flex items-center px-compact-4 transition-all duration-300",
           collapsed
-            ? "h-compact-18 flex-col justify-center gap-compact-2"
-            : "h-compact-14 justify-between"
+            ? "h-compact-18 flex-col justify-center gap-compact-2 pt-compact-4"
+            : "h-compact-14 justify-between pt-compact-3"
         )}>
           {collapsed ? (
             <Image
@@ -123,7 +130,7 @@ export function Sidebar({ collapsed, onCollapsedChange }: SidebarProps) {
               )}
               title={collapsed ? 'Toggle Tablet Mode' : undefined}
             >
-              <span 
+              <span
                 className={cn(
                   'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
                   isTabletMode ? 'translate-x-6' : 'translate-x-1'
@@ -132,6 +139,13 @@ export function Sidebar({ collapsed, onCollapsedChange }: SidebarProps) {
             </button>
           </div>
         </div>
+
+        {/* Policy Links */}
+        {!collapsed && (
+          <div className="border-t border-bg-tertiary px-compact-4 py-compact-3">
+            <PolicyFooter layout="vertical" />
+          </div>
+        )}
 
         {/* Footer */}
         <div className="border-t border-bg-tertiary p-compact-4">

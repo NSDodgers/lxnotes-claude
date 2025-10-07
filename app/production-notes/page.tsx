@@ -24,8 +24,10 @@ import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import { isDemoMode } from '@/lib/demo-data'
 
-// Mock data for development
+// Mock data for development - REMOVED: This large array was never used
+// Notes are now generated dynamically by the mock-notes-store
 const mockProductionNotes: Note[] = [
   // Scenic department notes
   {
@@ -970,9 +972,12 @@ export default function ProductionNotesPage() {
   // Get notes directly from store instead of local state
   const notes = mockNotesStore.getAllNotes('production')
 
-  // Initialize mock data only once
+  // Initialize mock data only in non-demo mode
+  // In demo mode, initializeDemoSession handles all initialization
   useEffect(() => {
-    mockNotesStore.initializeWithMockData()
+    if (!isDemoMode()) {
+      mockNotesStore.initializeWithMockData()
+    }
   }, [])
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()

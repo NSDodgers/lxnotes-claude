@@ -222,7 +222,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
                   <div className="text-xs text-modules-cue pl-6">
                     💡 {availableContinuations.length} {type}(s) from previous page can be continued
                     {suggestedContinuation && (
-                      <span className="font-medium"> • Suggested: "{suggestedContinuation.name}"</span>
+                      <span className="font-medium"> • Suggested: &quot;{suggestedContinuation.name}&quot;</span>
                     )}
                   </div>
                 )}
@@ -522,7 +522,7 @@ function ScriptItem({ page }: ScriptItemProps) {
           <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold text-text-primary mb-2">Delete Page?</h3>
             <p className="text-text-secondary mb-4">
-              Are you sure you want to delete page "{page.pageNumber}"? This will also delete all scenes and songs on this page.
+              Are you sure you want to delete page &quot;{page.pageNumber}&quot;? This will also delete all scenes and songs on this page.
             </p>
             <div className="flex gap-3">
               <Button
@@ -713,7 +713,7 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
           <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold text-text-primary mb-2">Delete {item.type}?</h3>
             <p className="text-text-secondary mb-4">
-              Are you sure you want to delete {item.type} "{item.name}"?
+            Are you sure you want to delete {item.type} &quot;{item.name}&quot;?
             </p>
             <div className="flex gap-3">
               <Button

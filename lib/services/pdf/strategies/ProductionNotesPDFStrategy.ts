@@ -33,7 +33,7 @@ export class ProductionNotesPDFStrategy implements PDFStrategy {
     return 'Production Notes'
   }
 
-  formatModuleSpecificData(note: Note): Record<string, any> {
+  formatModuleSpecificData(note: Note): Record<string, unknown> {
     return {
       department: note.type || 'General'
     }

@@ -35,7 +35,7 @@ export class CueNotesPDFStrategy implements PDFStrategy {
     return 'Cue Notes'
   }
 
-  formatModuleSpecificData(note: Note): Record<string, any> {
+  formatModuleSpecificData(note: Note): Record<string, unknown> {
     let scriptPage = '-'
 
     if (note.scriptPageId) {

@@ -329,7 +329,7 @@ export function PositionManager() {
       <div className="text-sm text-muted-foreground bg-bg-secondary p-4 rounded-lg">
         <strong>How it works:</strong> This order will be used when sorting Work Notes by position.
         {currentOrder?.positionOrderMap && (
-          <span> If your hookup CSV includes a "Position Order" column, that order is used as the starting point. </span>
+          <span> If your hookup CSV includes a &quot;Position Order&quot; column, that order is used as the starting point. </span>
         )}
         Positions not in your custom order will appear at the end, sorted alphabetically.
         Changes are saved automatically.

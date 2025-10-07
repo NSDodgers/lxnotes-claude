@@ -250,9 +250,9 @@ export function QuickCreatePageStyleSidebar({
               required
             >
               <PresetFormSelect {...form.register('paperSize')} disabled={isSubmitting}>
-                <option value="letter">Letter (8.5" × 11")</option>
+                <option value="letter">Letter (8.5&quot; × 11&quot;)</option>
                 <option value="a4">A4 (210mm × 297mm)</option>
-                <option value="legal">Legal (8.5" × 14")</option>
+                <option value="legal">Legal (8.5&quot; × 14&quot;)</option>
               </PresetFormSelect>
             </PresetFormField>
 

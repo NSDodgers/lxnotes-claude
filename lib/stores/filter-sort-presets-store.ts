@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { createSafeStorage } from '@/lib/storage/safe-storage'
 import type { FilterSortPreset, ModuleType, NoteStatus } from '@/types'
 
 interface FilterSortPresetsState {
@@ -216,6 +217,12 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
   }
 }
 
+// Check if we're in demo mode
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return false
+  return window.location.pathname.startsWith('/demo')
+}
+
 export const useFilterSortPresetsStore = create<FilterSortPresetsState>()(
   persist(
     (set, get) => ({
@@ -274,6 +281,12 @@ export const useFilterSortPresetsStore = create<FilterSortPresetsState>()(
     }),
     {
       name: 'filter-sort-presets-storage',
+      storage: createJSONStorage(() =>
+        createSafeStorage(
+          'filter-sort-presets-storage',
+          isDemoMode() ? 'session' : 'local'
+        )
+      ),
       skipHydration: true,
     }
   )

@@ -192,7 +192,7 @@ export function EmailMessagePresetsManager() {
           <div className="space-y-3">
             {presets.length === 0 ? (
               <p className="text-text-secondary text-sm py-4">
-                No email message presets created yet. Click "Add Preset" to create your first one.
+                No email message presets created yet. Click &quot;Add Preset&quot; to create your first one.
               </p>
             ) : (
               <>

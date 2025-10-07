@@ -130,7 +130,7 @@ export function PageStylePresetsManager() {
           <div className="space-y-3">
             {presets.length === 0 ? (
               <p className="text-text-secondary text-sm py-4">
-                No page style presets created yet. Click "Add Preset" to create your first one.
+                No page style presets created yet. Click &quot;Add Preset&quot; to create your first one.
               </p>
             ) : (
               <>
@@ -204,9 +204,9 @@ export function PageStylePresetsManager() {
                 description="Choose the paper size for PDF generation"
               >
                 <PresetFormSelect {...form.register('paperSize')}>
-                  <option value="letter">Letter (8.5" × 11")</option>
+                  <option value="letter">Letter (8.5&quot; × 11&quot;)</option>
                   <option value="a4">A4 (210mm × 297mm)</option>
-                  <option value="legal">Legal (8.5" × 14")</option>
+                  <option value="legal">Legal (8.5&quot; × 14&quot;)</option>
                 </PresetFormSelect>
                 {form.formState.errors.paperSize && (
                   <p className="text-sm text-destructive mt-1">

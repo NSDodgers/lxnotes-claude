@@ -17,7 +17,13 @@ import { HookupParser } from '@/lib/services/hookup-parser'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { HookupHeaderMapping } from '@/components/hookup-header-mapping'
 import { HookupDataPreview } from '@/components/hookup-data-preview'
-import type { HookupUploadResult, ValidationResult, ImportOptions, HookupCSVRow } from '@/types'
+import type {
+  HookupUploadResult,
+  ValidationResult,
+  ImportOptions,
+  HookupCSVRow,
+  ParsedHookupRow
+} from '@/types'
 
 interface HookupUploadDialogProps {
   isOpen: boolean
@@ -241,7 +247,7 @@ export function HookupUploadDialog({
       const parseResult = HookupParser.parseRows(state.parsedCsvData, state.headerMapping, state.importOptions)
       
       // Extract the successfully parsed rows for store upload
-      const validParsedRows: any[] = []
+      const validParsedRows: ParsedHookupRow[] = []
       
       state.parsedCsvData.forEach((row, index) => {
         const rowNumber = index + 1

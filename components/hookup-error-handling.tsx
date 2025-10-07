@@ -233,7 +233,7 @@ export function LightwrightErrorHandling({
                       
                       {error.value && (
                         <div className="text-xs text-muted-foreground mt-1">
-                          Value: <span className="font-mono">'{error.value}'</span>
+                          Value: <span className="font-mono">&apos;{error.value}&apos;</span>
                         </div>
                       )}
                     </div>

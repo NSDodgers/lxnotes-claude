@@ -120,7 +120,7 @@ export function PresetFormField({
   )
 }
 
-interface PresetFormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+type PresetFormInputProps = React.InputHTMLAttributes<HTMLInputElement>
 
 export const PresetFormInput = React.forwardRef<HTMLInputElement, PresetFormInputProps>(
   ({ className, ...props }, ref) => {
@@ -139,7 +139,7 @@ export const PresetFormInput = React.forwardRef<HTMLInputElement, PresetFormInpu
 )
 PresetFormInput.displayName = 'PresetFormInput'
 
-interface PresetFormTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+type PresetFormTextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>
 
 export const PresetFormTextarea = React.forwardRef<HTMLTextAreaElement, PresetFormTextareaProps>(
   ({ className, ...props }, ref) => {

@@ -378,7 +378,9 @@ export function HookupDataPreview({
                 >
                   <span className={isSkipped ? "line-through" : ""}>
                     <strong>Row {error.row}:</strong> {error.message}
-                    {error.value && <span className="text-muted-foreground"> ('{error.value}')</span>}
+                    {error.value && (
+                      <span className="text-muted-foreground"> (&apos;{error.value}&apos;)</span>
+                    )}
                   </span>
                   
                   <div className="flex items-center gap-2">
@@ -453,10 +455,10 @@ export function HookupDataPreview({
                     const channelStr = getCellValue(row, 'channel')
                     const lwid = getCellValue(row, 'lwid')
                     const originalRowNumber = allDisplayData.findIndex(r => r === row) + 1
-                    
-                    let reason = []
-                    if (!channelStr || channelStr === '—') reason.push('No channel')
-                    if (!lwid || lwid === '—') reason.push('No LWID')
+
+                    const reasons: string[] = []
+                    if (!channelStr || channelStr === '—') reasons.push('No channel')
+                    if (!lwid || lwid === '—') reasons.push('No LWID')
                     
                     return (
                       <TableRow 
@@ -486,7 +488,7 @@ export function HookupDataPreview({
                         </TableCell>
                         <TableCell>
                           <div className="text-xs text-muted-foreground">
-                            {reason.join(', ')}
+                            {reasons.join(', ')}
                           </div>
                         </TableCell>
                       </TableRow>

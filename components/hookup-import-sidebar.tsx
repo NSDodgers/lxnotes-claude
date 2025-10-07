@@ -17,7 +17,13 @@ import { HookupParser } from '@/lib/services/hookup-parser'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { HookupHeaderMapping } from '@/components/hookup-header-mapping'
 import { HookupDataPreview } from '@/components/hookup-data-preview'
-import type { HookupUploadResult, ValidationResult, ImportOptions, HookupCSVRow } from '@/types'
+import type {
+  HookupUploadResult,
+  ValidationResult,
+  ImportOptions,
+  HookupCSVRow,
+  ParsedHookupRow
+} from '@/types'
 
 interface HookupImportSidebarProps {
   isOpen: boolean
@@ -293,7 +299,7 @@ export function HookupImportSidebar({
       const parseResult = HookupParser.parseRows(state.parsedCsvData, state.headerMapping, state.importOptions)
 
       // Extract the successfully parsed rows for store upload
-      const validParsedRows: any[] = []
+      const validParsedRows: ParsedHookupRow[] = []
 
       state.parsedCsvData.forEach((row, index) => {
         const rowNumber = index + 1
@@ -741,7 +747,7 @@ export function HookupImportSidebar({
               {state.step === 'preview' && canProceedFromPreview && (
                 <div className="text-right">
                   <p className="text-sm text-text-secondary mb-2">
-                    Ready to import {state.validation?.validRows.length || 0} fixtures
+                    Ready to import {state.validation?.validRows || 0} fixtures
                   </p>
                   <Button
                     onClick={handleUpload}

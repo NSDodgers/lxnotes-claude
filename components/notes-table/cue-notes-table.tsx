@@ -117,6 +117,7 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }:
                       style={{
                         width: header.getSize(),
                       }}
+                      suppressHydrationWarning
                     >
                       {header.isPlaceholder ? null : (
                         <div className="flex items-center gap-1">
@@ -150,6 +151,7 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }:
                       style={{
                         width: cell.column.getSize(),
                       }}
+                      suppressHydrationWarning
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>

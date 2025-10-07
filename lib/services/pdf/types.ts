@@ -28,7 +28,7 @@ export interface PDFFormattedNote {
   completedAt?: Date
   dueDate?: Date
   assignedTo?: string
-  moduleSpecificData: Record<string, any>
+  moduleSpecificData: Record<string, string | number | boolean | null | undefined>
 }
 
 export interface PDFConfiguration {
@@ -45,5 +45,5 @@ export interface PDFStrategy {
   formatNotes(notes: Note[]): PDFFormattedNote[]
   getColumnHeaders(): string[]
   getModuleTitle(): string
-  formatModuleSpecificData(note: Note): Record<string, any>
+  formatModuleSpecificData(note: Note): Record<string, string | number | boolean | null | undefined>
 }

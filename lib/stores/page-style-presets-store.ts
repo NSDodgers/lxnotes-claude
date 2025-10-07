@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { createSafeStorage } from '@/lib/storage/safe-storage'
 import type { PageStylePreset, ModuleType } from '@/types'
 
 interface PageStylePresetsState {
@@ -76,6 +77,12 @@ const getSystemDefaults = (): PageStylePreset[] => {
   ]
 }
 
+// Check if we're in demo mode
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return false
+  return window.location.pathname.startsWith('/demo')
+}
+
 export const usePageStylePresetsStore = create<PageStylePresetsState>()(
   persist(
     (set, get) => ({
@@ -126,6 +133,12 @@ export const usePageStylePresetsStore = create<PageStylePresetsState>()(
     }),
     {
       name: 'page-style-presets-storage',
+      storage: createJSONStorage(() =>
+        createSafeStorage(
+          'page-style-presets-storage',
+          isDemoMode() ? 'session' : 'local'
+        )
+      ),
       skipHydration: true,
     }
   )

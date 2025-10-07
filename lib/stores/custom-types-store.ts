@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { createSafeStorage } from '@/lib/storage/safe-storage'
 import type { CustomType, ModuleType, SystemOverride } from '@/types'
 
 interface CustomTypesState {
@@ -73,6 +74,12 @@ const getSystemDefaults = (moduleType: ModuleType): CustomType[] => {
     default:
       return []
   }
+}
+
+// Check if we're in demo mode
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return false
+  return window.location.pathname.startsWith('/demo')
 }
 
 export const useCustomTypesStore = create<CustomTypesState>()(
@@ -208,6 +215,12 @@ export const useCustomTypesStore = create<CustomTypesState>()(
     }),
     {
       name: 'custom-types-storage',
+      storage: createJSONStorage(() =>
+        createSafeStorage(
+          'custom-types-storage',
+          isDemoMode() ? 'session' : 'local'
+        )
+      ),
       skipHydration: true,
     }
   )

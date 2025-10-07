@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { ScriptPage, SceneSong } from '@/types'
+import { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from '@/lib/demo-data'
 
 interface ScriptState {
   pages: ScriptPage[]
@@ -55,104 +56,10 @@ const parseCueNumber = (cueNumber: string): number => {
 }
 
 export const useScriptStore = create<ScriptState>((set, get) => ({
-  pages: [
-    // Joy! Musical - Mock data from production
-    { id: 'page-1', productionId: 'prod-1', pageNumber: '1', firstCueNumber: '1', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-2', productionId: 'prod-1', pageNumber: '2', firstCueNumber: '11', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-3', productionId: 'prod-1', pageNumber: '3', firstCueNumber: '17', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-4', productionId: 'prod-1', pageNumber: '4', firstCueNumber: '22', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-5', productionId: 'prod-1', pageNumber: '5', firstCueNumber: '32', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-6', productionId: 'prod-1', pageNumber: '6', firstCueNumber: '39', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-7', productionId: 'prod-1', pageNumber: '7', firstCueNumber: '43', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-8', productionId: 'prod-1', pageNumber: '8', firstCueNumber: '52', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-9', productionId: 'prod-1', pageNumber: '9', firstCueNumber: '63', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-10', productionId: 'prod-1', pageNumber: '10', firstCueNumber: '68', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-11', productionId: 'prod-1', pageNumber: '11', firstCueNumber: '91', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-12', productionId: 'prod-1', pageNumber: '12', firstCueNumber: '93', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-16', productionId: 'prod-1', pageNumber: '16', firstCueNumber: '105', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-17-18', productionId: 'prod-1', pageNumber: '17-18', firstCueNumber: '106', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-17-18a', productionId: 'prod-1', pageNumber: '17-18a', firstCueNumber: '107', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-17-18b', productionId: 'prod-1', pageNumber: '17-18b', firstCueNumber: '110', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-19', productionId: 'prod-1', pageNumber: '19', firstCueNumber: '111', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-20', productionId: 'prod-1', pageNumber: '20', firstCueNumber: '115', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-21', productionId: 'prod-1', pageNumber: '21', firstCueNumber: '133', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-22', productionId: 'prod-1', pageNumber: '22', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-23', productionId: 'prod-1', pageNumber: '23', firstCueNumber: '175', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-25', productionId: 'prod-1', pageNumber: '25', firstCueNumber: '181', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-26', productionId: 'prod-1', pageNumber: '26', firstCueNumber: '189', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-27', productionId: 'prod-1', pageNumber: '27', firstCueNumber: '194', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-28', productionId: 'prod-1', pageNumber: '28', firstCueNumber: '205', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-30', productionId: 'prod-1', pageNumber: '30', firstCueNumber: '208', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-31', productionId: 'prod-1', pageNumber: '31', firstCueNumber: '211', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-33', productionId: 'prod-1', pageNumber: '33', firstCueNumber: '220', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-34', productionId: 'prod-1', pageNumber: '34', firstCueNumber: '224', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-35', productionId: 'prod-1', pageNumber: '35', firstCueNumber: '228', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-36', productionId: 'prod-1', pageNumber: '36', firstCueNumber: '242', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-37', productionId: 'prod-1', pageNumber: '37', firstCueNumber: '257', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-38', productionId: 'prod-1', pageNumber: '38', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'page-38a', productionId: 'prod-1', pageNumber: '38a', firstCueNumber: '260', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-  ],
-  
-  scenes: [
-    // Joy! Musical - Scenes from production with continuation chains
-    { id: 'scene-1', scriptPageId: 'page-1', name: 'Preshow', type: 'scene', firstCueNumber: '7', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    // "1.2 At Home" continuation chain: page-11 → page-12 → page-16
-    { id: 'scene-2', scriptPageId: 'page-11', name: '1.2 At Home', type: 'scene', firstCueNumber: '91', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'scene-3', scriptPageId: 'page-12', name: '1.2 At Home', type: 'scene', firstCueNumber: '93', orderIndex: 0, continuesFromId: 'scene-2', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'scene-4', scriptPageId: 'page-16', name: '1.2 At Home', type: 'scene', firstCueNumber: '105', orderIndex: 0, continuesFromId: 'scene-3', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    { id: 'scene-5', scriptPageId: 'page-23', name: '1.3 At home', type: 'scene', firstCueNumber: '175', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    // "SCENE AFTER THIS IS" continuation chain: page-28 → page-30
-    { id: 'scene-6', scriptPageId: 'page-28', name: 'SCENE AFTER THIS IS', type: 'scene', firstCueNumber: '205', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'scene-7', scriptPageId: 'page-30', name: 'SCENE AFTER THIS IS', type: 'scene', firstCueNumber: '208', orderIndex: 0, continuesFromId: 'scene-6', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    { id: 'scene-8', scriptPageId: 'page-31', name: 'SCENE AFTER THIS IS REPRISE', type: 'scene', firstCueNumber: '217', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'scene-9', scriptPageId: 'page-36', name: '1.4 AT HOME', type: 'scene', firstCueNumber: '242', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-  ],
-  
-  songs: [
-    // Joy! Musical - Songs from production with continuation chains
-    { id: 'song-1', scriptPageId: 'page-1', name: 'Overture', type: 'song', firstCueNumber: '1', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-2', scriptPageId: 'page-2', name: '#1 THE SHAPE OF THINGS', type: 'song', firstCueNumber: '11', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    // "#2 WELCOME TO MY WORLD" continuation chain: pages 3→4→5→6→7→8→9→10 (8 pages!)
-    { id: 'song-3', scriptPageId: 'page-3', name: '#2 WELCOME TO MY WORLD', type: 'song', firstCueNumber: '17', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-4', scriptPageId: 'page-4', name: '#2 WELCOME TO MY WORLD', type: 'song', firstCueNumber: '22', orderIndex: 0, continuesFromId: 'song-3', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-5', scriptPageId: 'page-5', name: '#2 WELCOME TO MY WORLD', type: 'song', firstCueNumber: '38', orderIndex: 0, continuesFromId: 'song-4', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-6', scriptPageId: 'page-6', name: '#2 WELCOME TO MY WORLD', type: 'song', firstCueNumber: '39', orderIndex: 0, continuesFromId: 'song-5', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-7', scriptPageId: 'page-7', name: '#2 WELCOME TO MY WORLD', type: 'song', firstCueNumber: '43', orderIndex: 0, continuesFromId: 'song-6', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-8', scriptPageId: 'page-8', name: '#2 WELCOME TO MY WORLD', type: 'song', firstCueNumber: '52', orderIndex: 0, continuesFromId: 'song-7', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-9', scriptPageId: 'page-9', name: '#2 WELCOME TO MY WORLD', type: 'song', firstCueNumber: '63', orderIndex: 0, continuesFromId: 'song-8', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-10', scriptPageId: 'page-10', name: '#2 WELCOME TO MY WORLD', type: 'song', firstCueNumber: '68', orderIndex: 0, continuesFromId: 'song-9', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    // "#4 THE SHAPE OF THINGS" continuation chain: pages 19→20→21
-    { id: 'song-11', scriptPageId: 'page-19', name: '#4 THE SHAPE OF THINGS', type: 'song', firstCueNumber: '111', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-12', scriptPageId: 'page-20', name: '#4 THE SHAPE OF THINGS', type: 'song', firstCueNumber: '115', orderIndex: 0, continuesFromId: 'song-11', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-13', scriptPageId: 'page-21', name: '#4 THE SHAPE OF THINGS', type: 'song', firstCueNumber: '133', orderIndex: 0, continuesFromId: 'song-12', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    { id: 'song-14', scriptPageId: 'page-22', name: '#4A SPARK', type: 'song', firstCueNumber: '142', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    // "#5 THIS IS" continuation chain: pages 25→26→27
-    { id: 'song-15', scriptPageId: 'page-25', name: '#5 THIS IS', type: 'song', firstCueNumber: '181', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-16', scriptPageId: 'page-26', name: '#5 THIS IS', type: 'song', firstCueNumber: '189', orderIndex: 0, continuesFromId: 'song-15', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-17', scriptPageId: 'page-27', name: '#5 THIS IS', type: 'song', firstCueNumber: '194', orderIndex: 0, continuesFromId: 'song-16', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    // "#6 THIS IS REPRISE" continuation chain: pages 30→31
-    { id: 'song-18', scriptPageId: 'page-30', name: '#6 THIS IS REPRISE', type: 'song', orderIndex: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-19', scriptPageId: 'page-31', name: '#6 THIS IS REPRISE', type: 'song', firstCueNumber: '211', orderIndex: 1, continuesFromId: 'song-18', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    // "#7 AMAZING / DISAPPOINTING" continuation chain: pages 33→34→35
-    { id: 'song-20', scriptPageId: 'page-33', name: '#7 AMAZING / DISAPPOINTING', type: 'song', firstCueNumber: '220', orderIndex: 0, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-21', scriptPageId: 'page-34', name: '#7 AMAZING / DISAPPOINTING', type: 'song', firstCueNumber: '224', orderIndex: 0, continuesFromId: 'song-20', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-22', scriptPageId: 'page-35', name: '#7 AMAZING / DISAPPOINTING', type: 'song', firstCueNumber: '228', orderIndex: 0, continuesFromId: 'song-21', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    
-    // "#8 SHIP IT TO YOUR DOOR" continuation chain: pages 36→37→38
-    { id: 'song-23', scriptPageId: 'page-36', name: '#8 SHIP IT TO YOUR DOOR', type: 'song', firstCueNumber: '244', orderIndex: 1, createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-24', scriptPageId: 'page-37', name: '#8 SHIP IT TO YOUR DOOR', type: 'song', firstCueNumber: '257', orderIndex: 0, continuesFromId: 'song-23', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-    { id: 'song-25', scriptPageId: 'page-38', name: '#8 SHIP IT TO YOUR DOOR', type: 'song', orderIndex: 0, continuesFromId: 'song-24', createdAt: new Date('2024-01-01'), updatedAt: new Date('2024-01-01') },
-  ],
+  // Pirates of Penzance script data
+  pages: PIRATES_PAGES,
+  scenes: PIRATES_ACTS, // Acts (Act 1, Act 2)
+  songs: PIRATES_SONGS, // All songs with continuation chains
 
   addPage: (pageData) => {
     const newPage: ScriptPage = {

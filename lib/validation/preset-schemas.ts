@@ -97,22 +97,20 @@ const cueNotesSortFields = ['cue_number', 'priority', 'type', 'created_at', 'com
 const workNotesSortFields = ['priority', 'type', 'channel', 'position', 'created_at', 'completed_at', 'cancelled_at'] as const
 const productionNotesSortFields = ['priority', 'department', 'created_at', 'completed_at', 'cancelled_at'] as const
 
-export const getSortFieldsForModule = (moduleType: 'cue' | 'work' | 'production') => {
-  switch (moduleType) {
-    case 'cue':
-      return cueNotesSortFields
-    case 'work':
-      return workNotesSortFields
-    case 'production':
-      return productionNotesSortFields
-    default:
-      return []
-  }
-}
+const sortFieldsMap = {
+  cue: cueNotesSortFields,
+  work: workNotesSortFields,
+  production: productionNotesSortFields,
+} as const satisfies Record<'cue' | 'work' | 'production', readonly [string, ...string[]]>
+
+type ModuleSortFieldsMap = typeof sortFieldsMap
+
+export const getSortFieldsForModule = <T extends keyof ModuleSortFieldsMap>(moduleType: T) =>
+  sortFieldsMap[moduleType]
 
 export const validateSortFieldForModule = (sortBy: string, moduleType: 'cue' | 'work' | 'production') => {
   const validFields = getSortFieldsForModule(moduleType)
-  return (validFields as readonly string[]).includes(sortBy)
+  return validFields.includes(sortBy as (typeof validFields)[number])
 }
 
 // Helper function to validate filter/sort preset config based on module
@@ -120,7 +118,7 @@ export const createModuleSpecificFilterSortSchema = (moduleType: 'cue' | 'work' 
   const validSortFields = getSortFieldsForModule(moduleType)
   
   return filterSortPresetConfigSchema.extend({
-    sortBy: z.enum(validSortFields as any, {
+    sortBy: z.enum(validSortFields, {
       message: `Sort field must be one of: ${validSortFields.join(', ')}`,
     }),
   })
