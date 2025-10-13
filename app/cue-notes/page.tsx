@@ -25,7 +25,7 @@ import { isDemoMode } from '@/lib/demo-data'
 
 // Mock data for development - REMOVED: This large array was never used
 // Notes are now generated dynamically by the mock-notes-store
-const mockCueNotes: Note[] = [
+/* const mockCueNotes: Note[] = [
   // Cue type notes
   {
     id: '1',
@@ -1749,13 +1749,11 @@ const mockCueNotes: Note[] = [
     updatedAt: new Date('2024-01-17T22:30:00'),
     sceneSongId: 'Integration',
   }
-]
+] */
 
 export default function CueNotesPage() {
   const mockNotesStore = useMockNotesStore()
-
-  // Get notes directly from store instead of local state
-  const notes = mockNotesStore.getAllNotes('cue')
+  const [notes, setNotes] = useState<Note[]>([])
 
   // Initialize mock data only in non-demo mode
   // In demo mode, initializeDemoSession handles all initialization
@@ -1764,6 +1762,18 @@ export default function CueNotesPage() {
       mockNotesStore.initializeWithMockData()
     }
   }, [])
+
+  // Load and subscribe to store changes (for demo initialization)
+  useEffect(() => {
+    setNotes(mockNotesStore.getAllNotes('cue'))
+    const unsubscribe = (useMockNotesStore as any).subscribe?.(
+      (state: any) => state.notes.cue,
+      (cueNotes: Note[]) => setNotes(cueNotes)
+    )
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe()
+    }
+  }, [mockNotesStore])
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
   const customPrioritiesStore = useCustomPrioritiesStore()

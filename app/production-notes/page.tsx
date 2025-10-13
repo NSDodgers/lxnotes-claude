@@ -968,9 +968,7 @@ const mockProductionNotes: Note[] = [
 
 export default function ProductionNotesPage() {
   const mockNotesStore = useMockNotesStore()
-
-  // Get notes directly from store instead of local state
-  const notes = mockNotesStore.getAllNotes('production')
+  const [notes, setNotes] = useState<Note[]>([])
 
   // Initialize mock data only in non-demo mode
   // In demo mode, initializeDemoSession handles all initialization
@@ -979,6 +977,27 @@ export default function ProductionNotesPage() {
       mockNotesStore.initializeWithMockData()
     }
   }, [])
+
+  // Load and subscribe to store changes (for demo initialization)
+  useEffect(() => {
+    setNotes(mockNotesStore.getAllNotes('production'))
+    // In demo mode, if no production notes exist yet, seed with mockProductionNotes
+    if (isDemoMode()) {
+      const current = mockNotesStore.getAllNotes('production')
+      if (current.length === 0 && Array.isArray(mockProductionNotes) && mockProductionNotes.length > 0) {
+        // Replace store with the full demo production dataset once
+        ;(mockNotesStore as any).setNotes?.('production', mockProductionNotes)
+        setNotes(mockProductionNotes)
+      }
+    }
+    const unsubscribe = (useMockNotesStore as any).subscribe?.(
+      (state: any) => state.notes.production,
+      (prodNotes: Note[]) => setNotes(prodNotes)
+    )
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe()
+    }
+  }, [mockNotesStore])
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
   const [searchTerm, setSearchTerm] = useState('')

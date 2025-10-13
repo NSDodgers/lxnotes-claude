@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { ScriptPage, SceneSong } from '@/types'
-import { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from '@/lib/demo-data'
+// Import directly from source to avoid circular dependency via demo-data index
+import { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from '@/lib/demo-data/script/pirates-pages-songs'
 
 interface ScriptState {
   pages: ScriptPage[]

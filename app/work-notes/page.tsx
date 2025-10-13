@@ -60,6 +60,19 @@ export default function WorkNotesPage() {
     }
   }, [isInitialized, mockNotesStore])
 
+  // Subscribe to store changes so demo loader updates reflect in UI
+  useEffect(() => {
+    const unsubscribe = (useMockNotesStore as any).subscribe?.(
+      (state: any) => state.notes.work,
+      (workNotes: Note[]) => {
+        setNotes(workNotes)
+      }
+    )
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe()
+    }
+  }, [])
+
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
   const { fixtures, uploadFixtures, linkFixturesToWorkNote, getHasBeenDeleted } = useFixtureStore()

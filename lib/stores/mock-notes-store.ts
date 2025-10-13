@@ -17,6 +17,8 @@ interface MockNotesState {
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => Note
   updateNote: (id: string, updates: Partial<Note>) => void
   deleteNote: (id: string) => void
+  // Bulk set/replace notes for a module (used by demo loader)
+  setNotes: (moduleType: ModuleType, notes: Note[]) => void
 
   // Validation functions
   validateCueNote: (note: Partial<Note>) => { valid: boolean; errors: string[] }
@@ -93,6 +95,15 @@ export const useMockNotesStore = create<MockNotesState>((set, get) => ({
 
       return { notes: updatedNotes }
     })
+  },
+
+  setNotes: (moduleType, notes) => {
+    set((state) => ({
+      notes: {
+        ...state.notes,
+        [moduleType]: notes,
+      }
+    }))
   },
 
   validateCueNote: (note) => {
