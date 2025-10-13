@@ -7,6 +7,8 @@
 
 import { SessionStorageAdapter } from '@/lib/storage/session-storage'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
+import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import generateDemoNotes from './notes/demo-notes-data'
 import { PIRATES_PRODUCTION } from './production/pirates-info'
 import { DEMO_METADATA } from './version'
 import { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from './script/pirates-pages-songs'
@@ -19,36 +21,76 @@ export async function initializeDemoSession(): Promise<void> {
 
   // Check if already initialized
   const isInitialized = await storage.isInitialized()
-  if (isInitialized) {
-    console.log('✅ Demo already initialized')
-    return
-  }
 
   try {
-    // Load production info
-    await storage.production.set(PIRATES_PRODUCTION)
+    // First-time initialization only
+    if (!isInitialized) {
+      // Load production info
+      await storage.production.set(PIRATES_PRODUCTION)
 
-    // Also set production data for the Zustand production store
-    // The production store uses sessionStorage in demo mode with key 'production-settings'
-    const productionSettingsStorage = createSafeStorage('production-settings', 'session')
-    productionSettingsStorage.setItem(
-      'production-settings',
-      JSON.stringify({
-        state: PIRATES_PRODUCTION,
-        version: 0
-      })
-    )
+      // Also set production data for the Zustand production store
+      // The production store uses sessionStorage in demo mode with key 'production-settings'
+      const productionSettingsStorage = createSafeStorage('production-settings', 'session')
+      productionSettingsStorage.setItem(
+        'production-settings',
+        JSON.stringify({
+          state: PIRATES_PRODUCTION,
+          version: 0
+        })
+      )
 
-    // Load script data (pages, songs, acts)
-    await storage.script.setPages(PIRATES_PAGES)
-    await storage.script.setScenesSongs([...PIRATES_ACTS, ...PIRATES_SONGS])
+      // Load script data (pages, songs, acts)
+      await storage.script.setPages(PIRATES_PAGES)
+      await storage.script.setScenesSongs([...PIRATES_ACTS, ...PIRATES_SONGS])
+    }
 
-    // Load demo notes
-    // For now, we'll generate them dynamically in the notes store
-    // TODO: Move note generation here once refactored from mock-notes-store
+    // Load demo notes into the in-memory notes store (session-scoped)
+    const notesStore = useMockNotesStore.getState()
+    const { workNotes, cueNotes, productionNotes } = generateDemoNotes()
 
-    // Mark as initialized
-    storage.markInitialized()
+    // Helper to strip id/timestamps for createMany
+    const toPayload = (note: any) => {
+      const { id, createdAt, updatedAt, ...rest } = note
+      return rest
+    }
+
+    // Work notes
+    {
+      const existing = await storage.notes.getAll('work')
+      if (existing.length > 0) {
+        notesStore.setNotes('work', existing)
+      } else if (workNotes.length > 0) {
+        const created = await storage.notes.createMany(workNotes.map(toPayload))
+        notesStore.setNotes('work', created)
+      }
+    }
+
+    // Cue notes
+    {
+      const existing = await storage.notes.getAll('cue')
+      if (existing.length > 0) {
+        notesStore.setNotes('cue', existing)
+      } else if (cueNotes.length > 0) {
+        const created = await storage.notes.createMany(cueNotes.map(toPayload))
+        notesStore.setNotes('cue', created)
+      }
+    }
+
+    // Production notes
+    {
+      const existing = await storage.notes.getAll('production')
+      if (existing.length > 0) {
+        notesStore.setNotes('production', existing)
+      } else if (productionNotes.length > 0) {
+        const created = await storage.notes.createMany(productionNotes.map(toPayload))
+        notesStore.setNotes('production', created)
+      }
+    }
+
+    // Mark as initialized (idempotent)
+    if (!isInitialized) {
+      storage.markInitialized()
+    }
 
     console.log(`✅ Demo data initialized: ${DEMO_METADATA.productionName} v${DEMO_METADATA.version}`)
     console.log(`  - ${PIRATES_PAGES.length} pages`)
