@@ -35,6 +35,29 @@ export function PolicyFooter({ layout = 'horizontal', className }: PolicyFooterP
     { name: 'Cookie Settings', type: 'cookie-trigger' as const },
   ]
 
+  /**
+   * Opens the GetTerms cookie preferences dialog
+   * Clears consent and reloads the page to show the full banner
+   */
+  const handleCookieSettingsClick = () => {
+    if (typeof window !== 'undefined') {
+      // Clear the saved consent to force the full banner to appear
+      localStorage.removeItem('getterms_cookie_consent')
+
+      // Remove any diagnostic keys that might prevent the banner from showing
+      const keys = Object.keys(localStorage)
+      keys.forEach(key => {
+        if (key.includes('gt_diag')) {
+          localStorage.removeItem(key)
+        }
+      })
+
+      // Reload the page to trigger the banner
+      // The banner will auto-show because we cleared the consent
+      window.location.reload()
+    }
+  }
+
   if (layout === 'vertical') {
     return (
       <div className={cn('flex flex-col gap-1', className)}>
@@ -42,7 +65,7 @@ export function PolicyFooter({ layout = 'horizontal', className }: PolicyFooterP
           policy.type === 'cookie-trigger' ? (
             <button
               key={policy.name}
-              data-gt-cookie-widget-show="true"
+              onClick={handleCookieSettingsClick}
               className="text-xs text-text-muted hover:text-text-secondary transition-colors text-left"
             >
               {policy.name}
@@ -68,7 +91,7 @@ export function PolicyFooter({ layout = 'horizontal', className }: PolicyFooterP
         <span key={policy.name} className="flex items-center gap-3">
           {policy.type === 'cookie-trigger' ? (
             <button
-              data-gt-cookie-widget-show="true"
+              onClick={handleCookieSettingsClick}
               className="text-xs text-text-muted hover:text-text-secondary transition-colors"
             >
               {policy.name}

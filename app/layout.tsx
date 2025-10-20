@@ -27,11 +27,30 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={inter.className}>
+      <head>
         <Script
           strategy="beforeInteractive"
           src="https://gettermscmp.com/cookie-consent/embed/870abf34-b1c1-4431-acc7-67b39fe711a2/en-us?auto=true"
         />
+        <Script
+          id="getterms-trigger"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Show GetTerms banner on page load if no consent exists
+              window.addEventListener('load', function() {
+                setTimeout(function() {
+                  const hasConsent = localStorage.getItem('getterms_cookie_consent');
+                  if (!hasConsent && typeof window.gtCookieWidgetPreview === 'function') {
+                    window.gtCookieWidgetPreview();
+                  }
+                }, 500);
+              });
+            `
+          }}
+        />
+      </head>
+      <body className={inter.className}>
         <ErrorBoundary>
           <Providers>
             {children}
