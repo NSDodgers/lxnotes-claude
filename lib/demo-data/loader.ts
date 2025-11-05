@@ -8,10 +8,12 @@
 import { SessionStorageAdapter } from '@/lib/storage/session-storage'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
 import generateDemoNotes from './notes/demo-notes-data'
 import { PIRATES_PRODUCTION } from './production/pirates-info'
 import { DEMO_METADATA } from './version'
 import { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from './script/pirates-pages-songs'
+import { getPiratesFixtures } from './fixtures/pirates-fixtures'
 
 /**
  * Initialize demo session with Pirates of Penzance data
@@ -87,6 +89,31 @@ export async function initializeDemoSession(): Promise<void> {
       }
     }
 
+    // Load fixtures into the fixture store
+    const fixtureStore = useFixtureStore.getState()
+
+    // Only load if fixtures haven't been loaded yet
+    if (fixtureStore.fixtures.length === 0) {
+      const piratesFixtures = getPiratesFixtures()
+
+      // Convert FixtureInfo to ParsedHookupRow format
+      const parsedRows = piratesFixtures.map(f => ({
+        lwid: f.lwid,
+        channel: f.channel,
+        position: f.position,
+        unitNumber: f.unitNumber,
+        fixtureType: f.fixtureType,
+        purpose: f.purpose,
+        universe: f.universe,
+        address: f.address,
+        universeAddressRaw: f.universeAddressRaw || '',
+        positionOrder: f.positionOrder
+      }))
+
+      const result = fixtureStore.uploadFixtures('prod-1', parsedRows, false)
+      console.log(`  - ${result.inserted} fixtures inserted, ${result.updated} updated`)
+    }
+
     // Mark as initialized (idempotent)
     if (!isInitialized) {
       storage.markInitialized()
@@ -96,6 +123,9 @@ export async function initializeDemoSession(): Promise<void> {
     console.log(`  - ${PIRATES_PAGES.length} pages`)
     console.log(`  - ${PIRATES_SONGS.length} songs`)
     console.log(`  - ${PIRATES_ACTS.length} acts`)
+    console.log(`  - ${workNotes.length} work notes`)
+    console.log(`  - ${cueNotes.length} cue notes`)
+    console.log(`  - ${productionNotes.length} production notes`)
   } catch (error) {
     console.error('❌ Failed to initialize demo data:', error)
     throw error
