@@ -35,7 +35,8 @@ import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
-import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
+// Lazy loaded via dynamic import to avoid loading 4,682 lines on page load
+// import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 import { isDemoMode } from '@/lib/demo-data'
 
 export default function WorkNotesPage() {
@@ -75,7 +76,12 @@ export default function WorkNotesPage() {
 
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
-  const { fixtures, uploadFixtures, linkFixturesToWorkNote, getHasBeenDeleted } = useFixtureStore()
+  // Use selector to only subscribe to fixtures.length instead of entire array
+  // This prevents massive re-renders when fixtures are uploaded
+  const fixturesLength = useFixtureStore((state) => state.fixtures.length)
+  const uploadFixtures = useFixtureStore((state) => state.uploadFixtures)
+  const linkFixturesToWorkNote = useFixtureStore((state) => state.linkFixturesToWorkNote)
+  const getHasBeenDeleted = useFixtureStore((state) => state.getHasBeenDeleted)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
@@ -96,16 +102,22 @@ export default function WorkNotesPage() {
     setIsHydrated(true)
   }, [])
 
-  // Auto-load mock data in development mode
+  // Auto-load mock data in development mode (DISABLED in demo mode)
+  // In demo mode, fixture data is loaded by initializeDemoSession in lib/demo-data/loader.ts
+  // This prevents redundant loading and UI freezes
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && fixtures.length === 0 && !getHasBeenDeleted()) {
+    if (process.env.NODE_ENV === 'development' && !isDemoMode() && fixturesLength === 0 && !getHasBeenDeleted()) {
+      // Only load test data in non-demo development mode
       loadTestData()
     }
-  }, [fixtures.length, getHasBeenDeleted])
+  }, [fixturesLength, getHasBeenDeleted])
 
-  // Development helper - populate test data
-  const loadTestData = () => {
-    if (fixtures.length === 0) {
+  // Development helper - populate test data (ASYNC)
+  const loadTestData = async () => {
+    if (fixturesLength === 0) {
+      // Dynamic import to avoid loading 4,682 lines on page load
+      const { generateSampleFixtures } = await import('@/lib/test-data/sample-fixture-data')
+
       const testFixtures = generateSampleFixtures()
       const parsedRows = testFixtures.map(f => ({
         lwid: f.lwid,
@@ -116,7 +128,8 @@ export default function WorkNotesPage() {
         purpose: f.purpose,
         universeAddressRaw: f.universeAddressRaw,
         universe: f.universe,
-        address: f.address
+        address: f.address,
+        positionOrder: f.positionOrder
       }))
       uploadFixtures('prod-1', parsedRows, false)
     }

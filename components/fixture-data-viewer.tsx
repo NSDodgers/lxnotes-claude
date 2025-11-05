@@ -58,17 +58,20 @@ export function FixtureDataViewer({
   onClose,
   productionId
 }: FixtureDataViewerProps) {
-  const { getFixturesByProduction, clearData } = useFixtureStore()
-  const { clearOrder } = usePositionStore()
+  // Use selectors to prevent subscribing to entire store (avoids infinite re-render loop)
+  const getFixturesByProduction = useFixtureStore((state) => state.getFixturesByProduction)
+  const clearData = useFixtureStore((state) => state.clearData)
+  const clearOrder = usePositionStore((state) => state.clearOrder)
   const [searchTerm, setSearchTerm] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-  // Get fixtures for this production
-  const allFixtures = getFixturesByProduction(productionId)
+  // Only fetch and compute data when the Sheet is actually open
+  // This prevents expensive operations and infinite render loops when closed
+  const allFixtures = isOpen ? getFixturesByProduction(productionId) : []
 
   // Calculate statistics
   const stats = useMemo(() => {
-    const latestUpload = allFixtures.length > 0 
+    const latestUpload = allFixtures.length > 0
       ? Math.max(...allFixtures.map(f => f.sourceUploadedAt.getTime()))
       : null
 
