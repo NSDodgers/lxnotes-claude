@@ -9,11 +9,40 @@ import { SessionStorageAdapter } from '@/lib/storage/session-storage'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { useProductionStore } from '@/lib/stores/production-store'
 import generateDemoNotes from './notes/demo-notes-data'
 import { PIRATES_PRODUCTION } from './production/pirates-info'
 import { DEMO_METADATA } from './version'
 import { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from './script/pirates-pages-songs'
 import { getPiratesFixtures } from './fixtures/pirates-fixtures'
+
+/**
+ * Parse a channel expression like "101-116" or "1, 3, 5, 7" into an array of channel numbers
+ */
+function parseChannelExpression(expression: string): number[] {
+  const channels: number[] = []
+  const parts = expression.split(',').map(p => p.trim())
+
+  for (const part of parts) {
+    if (part.includes('-')) {
+      // Range expression like "101-116"
+      const [start, end] = part.split('-').map(s => parseInt(s.trim(), 10))
+      if (!isNaN(start) && !isNaN(end)) {
+        for (let i = start; i <= end; i++) {
+          channels.push(i)
+        }
+      }
+    } else {
+      // Single channel like "5"
+      const channel = parseInt(part, 10)
+      if (!isNaN(channel)) {
+        channels.push(channel)
+      }
+    }
+  }
+
+  return channels
+}
 
 /**
  * Initialize demo session with Pirates of Penzance data
@@ -24,22 +53,15 @@ export async function initializeDemoSession(): Promise<void> {
   // Check if already initialized
   const isInitialized = await storage.isInitialized()
 
+  // Always set production data for the Zustand production store
+  // This ensures the Pirates logo/info appears even if storage was already initialized
+  useProductionStore.getState().updateProduction(PIRATES_PRODUCTION)
+
   try {
     // First-time initialization only
     if (!isInitialized) {
       // Load production info
       await storage.production.set(PIRATES_PRODUCTION)
-
-      // Also set production data for the Zustand production store
-      // The production store uses sessionStorage in demo mode with key 'production-settings'
-      const productionSettingsStorage = createSafeStorage('production-settings', 'session')
-      productionSettingsStorage.setItem(
-        'production-settings',
-        JSON.stringify({
-          state: PIRATES_PRODUCTION,
-          version: 0
-        })
-      )
 
       // Load script data (pages, songs, acts)
       await storage.script.setPages(PIRATES_PAGES)
@@ -56,14 +78,17 @@ export async function initializeDemoSession(): Promise<void> {
       return rest
     }
 
-    // Work notes
+    // Work notes (store for fixture linking later)
+    let storedWorkNotes: any[] = []
     {
       const existing = await storage.notes.getAll('work')
       if (existing.length > 0) {
         notesStore.setNotes('work', existing)
+        storedWorkNotes = existing
       } else if (workNotes.length > 0) {
         const created = await storage.notes.createMany(workNotes.map(toPayload))
         notesStore.setNotes('work', created)
+        storedWorkNotes = created
       }
     }
 
@@ -112,6 +137,39 @@ export async function initializeDemoSession(): Promise<void> {
 
       const result = fixtureStore.uploadFixtures('prod-1', parsedRows, false)
       console.log(`  - ${result.inserted} fixtures inserted, ${result.updated} updated`)
+
+      // Link fixtures to work notes based on channelNumbers expressions
+      const workNotesWithChannels = storedWorkNotes.filter(note => note.channelNumbers)
+      console.log(`  - Processing ${workNotesWithChannels.length} work notes with channel expressions`)
+
+      // Get fresh state after upload to access the newly uploaded fixtures
+      const updatedFixtureStore = useFixtureStore.getState()
+
+      let linkedCount = 0
+      let totalFixturesLinked = 0
+      const notesWithoutMatches: string[] = []
+
+      for (const note of workNotesWithChannels) {
+        const channelNumbers = parseChannelExpression(note.channelNumbers!)
+        const matchingFixtures = updatedFixtureStore.fixtures.filter(f =>
+          channelNumbers.includes(f.channel)
+        )
+
+        if (matchingFixtures.length > 0) {
+          fixtureStore.linkFixturesToWorkNote(note.id, matchingFixtures.map(f => f.id))
+          linkedCount++
+          totalFixturesLinked += matchingFixtures.length
+          console.log(`    ✓ Note "${note.title?.substring(0, 40)}..." (${note.channelNumbers}) → ${matchingFixtures.length} fixtures`)
+        } else {
+          notesWithoutMatches.push(`"${note.title}" (${note.channelNumbers})`)
+          console.warn(`    ⚠ No fixtures found for note "${note.title}" with channels: ${note.channelNumbers}`)
+        }
+      }
+
+      console.log(`  - Successfully linked ${totalFixturesLinked} fixtures to ${linkedCount} work notes`)
+      if (notesWithoutMatches.length > 0) {
+        console.warn(`  - ${notesWithoutMatches.length} notes had no matching fixtures`)
+      }
     }
 
     // Mark as initialized (idempotent)
@@ -140,6 +198,10 @@ export async function resetDemoData(): Promise<void> {
 
   // Clear all demo data
   await storage.clear()
+
+  // Clear fixture store data
+  const fixtureStore = useFixtureStore.getState()
+  fixtureStore.clearData()
 
   console.log('🔄 Demo data cleared')
 

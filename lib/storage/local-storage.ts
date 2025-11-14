@@ -11,6 +11,22 @@ import { createSafeStorage } from './safe-storage'
 
 const STORAGE_PREFIX = 'lxnotes:dev:'
 
+// JSON reviver function to convert ISO date strings back to Date objects
+function dateReviver(key: string, value: unknown): unknown {
+  // List of known date fields in our data structures
+  const dateFields = ['createdAt', 'updatedAt', 'completedAt', 'dueDate', 'dateGenerated']
+
+  if (dateFields.includes(key) && typeof value === 'string') {
+    // Check if it's a valid ISO date string
+    const date = new Date(value)
+    if (!isNaN(date.getTime())) {
+      return date
+    }
+  }
+
+  return value
+}
+
 export class LocalStorageAdapter implements StorageAdapter {
   private storage: Storage
 
@@ -27,7 +43,7 @@ export class LocalStorageAdapter implements StorageAdapter {
     if (!item) return null
 
     try {
-      return JSON.parse(item) as T
+      return JSON.parse(item, dateReviver) as T
     } catch {
       return null
     }

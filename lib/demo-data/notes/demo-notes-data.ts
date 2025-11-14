@@ -6,7 +6,7 @@
  */
 
 import type { Note } from '@/types'
-import { DEMO_WORK_NOTES } from './work-notes'
+import { PIRATES_WORK_NOTES } from './pirates-work-notes'
 import { DEMO_CUE_NOTES } from './cue-notes'
 import { DEMO_PRODUCTION_NOTES } from './production-notes'
 
@@ -19,7 +19,7 @@ export function generateDemoNotes(): {
   // Cue and Production demo notes can be added as needed.
   return {
     cueNotes: DEMO_CUE_NOTES,
-    workNotes: DEMO_WORK_NOTES,
+    workNotes: PIRATES_WORK_NOTES,
     productionNotes: DEMO_PRODUCTION_NOTES,
   }
 }

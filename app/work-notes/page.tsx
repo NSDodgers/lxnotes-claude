@@ -226,49 +226,55 @@ export default function WorkNotesPage() {
             </div>
 
             {/* Right: Action Buttons */}
-            <div className="flex justify-end gap-3">
-              <Button
-                onClick={() => setIsPrintViewOpen(true)}
-                variant="secondary"
-              >
-                <Printer className="h-4 w-4" />
-                PDF
-              </Button>
-              <Button
-                onClick={() => setIsEmailViewOpen(true)}
-                variant="secondary"
-              >
-                <Mail className="h-4 w-4" />
-                Email
-              </Button>
-              <Button
-                onClick={() => setIsLightwrightViewerOpen(true)}
-                variant="secondary"
-              >
-                <Database className="h-4 w-4" />
-                View Hookup
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setIsPositionManagerOpen(true)}
-              >
-                <ArrowUpDown className="h-4 w-4" />
-                Manage Positions
-              </Button>
-              <Button
-                onClick={() => setIsLightwrightDialogOpen(true)}
-                variant="outline"
-              >
-                <Upload className="h-5 w-5" />
-                Import Hookup CSV
-              </Button>
-              <Button
-                onClick={() => openQuickAdd('work')}
-                variant="work"
-              >
-                <Plus className="h-5 w-5" />
-                Add Work Note
-              </Button>
+            <div className="flex flex-col items-end gap-2">
+              {/* Row 1: View/Export Actions */}
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setIsPrintViewOpen(true)}
+                  variant="secondary"
+                >
+                  <Printer className="h-4 w-4" />
+                  PDF
+                </Button>
+                <Button
+                  onClick={() => setIsEmailViewOpen(true)}
+                  variant="secondary"
+                >
+                  <Mail className="h-4 w-4" />
+                  Email
+                </Button>
+                <Button
+                  onClick={() => setIsLightwrightViewerOpen(true)}
+                  variant="secondary"
+                >
+                  <Database className="h-4 w-4" />
+                  View Hookup
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsPositionManagerOpen(true)}
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                  Manage Positions
+                </Button>
+              </div>
+              {/* Row 2: Modification Actions */}
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setIsLightwrightDialogOpen(true)}
+                  variant="outline"
+                >
+                  <Upload className="h-5 w-5" />
+                  Import Hookup CSV
+                </Button>
+                <Button
+                  onClick={() => openQuickAdd('work')}
+                  variant="work"
+                >
+                  <Plus className="h-5 w-5" />
+                  Add Work Note
+                </Button>
+              </div>
             </div>
           </div>
 

@@ -22,6 +22,8 @@ interface ScriptState {
   getPageScenes: (pageId: string) => SceneSong[]
   getPageSongs: (pageId: string) => SceneSong[]
   getSortedPages: () => ScriptPage[]
+  getSceneSongById: (id: string) => SceneSong | undefined
+  getSceneSongByName: (name: string) => SceneSong | undefined
   validateCueNumber: (cueNumber: string, excludeId?: string) => { valid: boolean; message?: string }
   validatePageOrder: (pageId: string) => { valid: boolean; message?: string }
   validateSceneSongCueNumber: (cueNumber: string, pageId: string, itemId?: string) => { valid: boolean; message?: string }
@@ -176,6 +178,16 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
       }
       return pageA.suffix.localeCompare(pageB.suffix)
     })
+  },
+
+  getSceneSongById: (id) => {
+    const { scenes, songs } = get()
+    return scenes.find(scene => scene.id === id) || songs.find(song => song.id === id)
+  },
+
+  getSceneSongByName: (name) => {
+    const { scenes, songs } = get()
+    return scenes.find(scene => scene.name === name) || songs.find(song => song.name === name)
   },
 
   validateCueNumber: (cueNumber, excludeId) => {
@@ -335,25 +347,64 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
   findCueLocation: (cueNumber) => {
     const { pages, scenes, songs } = get()
     const cueNum = parseCueNumber(cueNumber)
-    
+
+    // Helper function to find the root song/scene by traversing continuation chain
+    const findRootItem = (item: SceneSong, allItems: SceneSong[]): SceneSong => {
+      const visited = new Set<string>()
+      let current = item
+
+      // Traverse back to find the root (prevents infinite loops with visited set)
+      while (current.continuesFromId && !visited.has(current.id)) {
+        visited.add(current.id)
+        const parent = allItems.find(i => i.id === current.continuesFromId)
+        if (!parent) break
+        current = parent
+      }
+
+      return current
+    }
+
     // Find the page with the highest cue number <= requested cue
     const sortedPages = pages
       .filter(page => page.firstCueNumber && parseCueNumber(page.firstCueNumber) <= cueNum)
       .sort((a, b) => parseCueNumber(b.firstCueNumber!) - parseCueNumber(a.firstCueNumber!))
-    
+
     const page = sortedPages[0]
     if (!page) return {}
-    
+
+    const allScenes = scenes
+    const allSongs = songs
+
     // Find the scene with the highest cue number <= requested cue on that page
-    const pageScenes = scenes
-      .filter(scene => scene.scriptPageId === page.id && scene.firstCueNumber && parseCueNumber(scene.firstCueNumber) <= cueNum)
-      .sort((a, b) => parseCueNumber(b.firstCueNumber!) - parseCueNumber(a.firstCueNumber!))
-    
+    const pageScenes = allScenes
+      .filter(scene => {
+        if (scene.scriptPageId !== page.id) return false
+
+        // For continuation scenes, check the root scene's firstCueNumber
+        const rootScene = scene.continuesFromId ? findRootItem(scene, allScenes) : scene
+        return rootScene.firstCueNumber && parseCueNumber(rootScene.firstCueNumber) <= cueNum
+      })
+      .sort((a, b) => {
+        const rootA = a.continuesFromId ? findRootItem(a, allScenes) : a
+        const rootB = b.continuesFromId ? findRootItem(b, allScenes) : b
+        return parseCueNumber(rootB.firstCueNumber!) - parseCueNumber(rootA.firstCueNumber!)
+      })
+
     // Find the song with the highest cue number <= requested cue on that page
-    const pageSongs = songs
-      .filter(song => song.scriptPageId === page.id && song.firstCueNumber && parseCueNumber(song.firstCueNumber) <= cueNum)
-      .sort((a, b) => parseCueNumber(b.firstCueNumber!) - parseCueNumber(a.firstCueNumber!))
-    
+    const pageSongs = allSongs
+      .filter(song => {
+        if (song.scriptPageId !== page.id) return false
+
+        // For continuation songs, check the root song's firstCueNumber
+        const rootSong = song.continuesFromId ? findRootItem(song, allSongs) : song
+        return rootSong.firstCueNumber && parseCueNumber(rootSong.firstCueNumber) <= cueNum
+      })
+      .sort((a, b) => {
+        const rootA = a.continuesFromId ? findRootItem(a, allSongs) : a
+        const rootB = b.continuesFromId ? findRootItem(b, allSongs) : b
+        return parseCueNumber(rootB.firstCueNumber!) - parseCueNumber(rootA.firstCueNumber!)
+      })
+
     return {
       page,
       scene: pageScenes[0],

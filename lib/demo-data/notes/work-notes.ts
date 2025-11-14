@@ -31,8 +31,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     createdAt: new Date('2024-01-14T08:15:00'),
     updatedAt: new Date('2024-01-15T17:45:00'),
     lightwrightItemId: 'LW078',
-    channelNumbers: '215, 216, 217, 218',
-    positionUnit: 'SL Boom Units 4-7',
+    channelNumbers: '201-204',
+    positionUnit: 'Deck Edge Units 9-6',
     sceneryNeeds: 'Coordinate with scenic for boom placement',
   },
   {
@@ -76,7 +76,7 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'focus',
     createdAt: new Date('2024-01-16T11:45:00'),
     updatedAt: new Date('2024-01-16T11:45:00'),
-    channelNumbers: '151-158',
+    channelNumbers: '121-126',
     positionUnit: 'Balcony Rail Specials 1-8',
     sceneryNeeds: 'Wait until platform is final height',
   },
@@ -142,6 +142,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'electrician',
     createdAt: new Date('2024-01-16T07:45:00'),
     updatedAt: new Date('2024-01-16T07:45:00'),
+    channelNumbers: '11-27',
+    positionUnit: '1E-2E All Movers',
   },
   {
     id: '11',
@@ -154,6 +156,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'electrician',
     createdAt: new Date('2024-01-13T10:15:00'),
     updatedAt: new Date('2024-01-15T14:20:00'),
+    channelNumbers: '301-315',
+    positionUnit: 'Drops & Groundrow',
   },
   {
     id: '12',
@@ -178,6 +182,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'electrician',
     createdAt: new Date('2024-01-15T19:30:00'),
     updatedAt: new Date('2024-01-15T19:30:00'),
+    channelNumbers: '421, 423, 425, 427',
+    positionUnit: 'Box Boom L Odd Units',
   },
   // Think type notes
   {
@@ -284,7 +290,7 @@ export const DEMO_WORK_NOTES: Note[] = [
     createdAt: new Date('2024-01-17T08:00:00'),
     updatedAt: new Date('2024-01-17T14:20:00'),
     lightwrightItemId: 'LW201',
-    channelNumbers: '201-216',
+    channelNumbers: '201-209',
     positionUnit: 'Box Boom Specials 1-16',
     sceneryNeeds: 'Schedule around dancer rehearsal',
   },
@@ -299,6 +305,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'electrician',
     createdAt: new Date('2024-01-17T10:00:00'),
     updatedAt: new Date('2024-01-17T10:00:00'),
+    channelNumbers: '422, 424, 426, 428',
+    positionUnit: 'Box Boom L Even Units',
   },
   {
     id: '23',
@@ -311,6 +319,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'work',
     createdAt: new Date('2024-01-17T10:45:00'),
     updatedAt: new Date('2024-01-17T10:45:00'),
+    channelNumbers: '501-503',
+    positionUnit: 'Spot Booth All',
   },
   {
     id: '24',
@@ -323,6 +333,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'electrician',
     createdAt: new Date('2024-01-16T12:30:00'),
     updatedAt: new Date('2024-01-17T08:10:00'),
+    channelNumbers: '401-416',
+    positionUnit: 'FOH Truss Frontlight',
   },
   {
     id: '25',
@@ -335,6 +347,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'work',
     createdAt: new Date('2024-01-17T12:45:00'),
     updatedAt: new Date('2024-01-17T12:45:00'),
+    channelNumbers: '31-47',
+    positionUnit: '3E-4E All Movers',
   },
   {
     id: '26',
@@ -347,6 +361,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'focus',
     createdAt: new Date('2024-01-17T13:10:00'),
     updatedAt: new Date('2024-01-17T13:10:00'),
+    channelNumbers: '1, 3, 5, 7',
+    positionUnit: 'FOH Truss Odd Profile Movers',
   },
   {
     id: '27',
@@ -359,6 +375,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'work',
     createdAt: new Date('2024-01-16T17:40:00'),
     updatedAt: new Date('2024-01-17T09:20:00'),
+    channelNumbers: '121-136',
+    positionUnit: '3E-4E Wash Movers',
   },
   {
     id: '28',
@@ -371,6 +389,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'install',
     createdAt: new Date('2024-01-17T12:00:00'),
     updatedAt: new Date('2024-01-17T12:00:00'),
+    channelNumbers: '431-438',
+    positionUnit: 'Box Boom R All Units',
     sceneryNeeds: 'Coordinate with house electrician',
   },
   {
@@ -385,7 +405,7 @@ export const DEMO_WORK_NOTES: Note[] = [
     createdAt: new Date('2024-01-15T19:00:00'),
     updatedAt: new Date('2024-01-16T14:30:00'),
     lightwrightItemId: 'LW155',
-    channelNumbers: '155-162',
+    channelNumbers: '131-136',
     positionUnit: 'Balcony Specials 1-8',
   },
   {
@@ -399,7 +419,7 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'work',
     createdAt: new Date('2024-01-16T06:00:00'),
     updatedAt: new Date('2024-01-16T07:30:00'),
-    channelNumbers: '501-520',
+    channelNumbers: '501-503',
     positionUnit: 'Emergency Systems All',
   },
   {
@@ -426,7 +446,7 @@ export const DEMO_WORK_NOTES: Note[] = [
     createdAt: new Date('2024-01-17T15:45:00'),
     updatedAt: new Date('2024-01-17T15:45:00'),
     lightwrightItemId: 'LW028',
-    channelNumbers: '128',
+    channelNumbers: '126',
     positionUnit: 'FOH-2 Unit 8',
   },
   {
@@ -440,6 +460,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'install',
     createdAt: new Date('2024-01-15T10:15:00'),
     updatedAt: new Date('2024-01-16T16:20:00'),
+    channelNumbers: '201, 203, 205, 207, 209',
+    positionUnit: 'Deck Edge Footlights Odd',
     sceneryNeeds: 'Platform modification required',
   },
   {
@@ -468,6 +490,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'think',
     createdAt: new Date('2024-01-13T11:45:00'),
     updatedAt: new Date('2024-01-15T13:20:00'),
+    channelNumbers: '101-116',
+    positionUnit: '1E-2E Wash Movers',
   },
   {
     id: '36',
@@ -480,6 +504,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'work',
     createdAt: new Date('2024-01-17T14:00:00'),
     updatedAt: new Date('2024-01-17T14:00:00'),
+    channelNumbers: '502',
+    positionUnit: 'Spot Booth Unit 2',
     sceneryNeeds: 'Booth access for installation',
   },
   {
@@ -563,6 +589,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'think',
     createdAt: new Date('2024-01-17T09:45:00'),
     updatedAt: new Date('2024-01-17T09:45:00'),
+    channelNumbers: '311-315',
+    positionUnit: 'Groundrow All Units',
   },
   {
     id: '43',
@@ -604,6 +632,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'install',
     createdAt: new Date('2024-01-17T07:15:00'),
     updatedAt: new Date('2024-01-17T07:15:00'),
+    channelNumbers: '2, 4, 6',
+    positionUnit: 'FOH Truss Even Profile Movers',
     sceneryNeeds: 'Coordinate with scenic shop',
   },
   {
@@ -629,6 +659,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'electrician',
     createdAt: new Date('2024-01-17T09:30:00'),
     updatedAt: new Date('2024-01-17T09:30:00'),
+    channelNumbers: '11, 12, 13, 14, 15, 16, 17',
+    positionUnit: '1E All Profile Movers',
   },
   {
     id: '48',
@@ -641,6 +673,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'work',
     createdAt: new Date('2024-01-17T11:00:00'),
     updatedAt: new Date('2024-01-17T11:00:00'),
+    channelNumbers: '401, 403, 405, 407, 409, 411, 413, 415',
+    positionUnit: 'FOH Truss Frontlight Odd Units',
   },
   {
     id: '49',
@@ -665,6 +699,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'focus',
     createdAt: new Date('2024-01-17T12:10:00'),
     updatedAt: new Date('2024-01-17T12:10:00'),
+    channelNumbers: '21-27',
+    positionUnit: '2E All Profile Movers',
   },
   {
     id: '51',
@@ -677,6 +713,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'work',
     createdAt: new Date('2024-01-17T08:40:00'),
     updatedAt: new Date('2024-01-17T08:40:00'),
+    channelNumbers: '301-305',
+    positionUnit: '5E Drops All Units',
   },
   {
     id: '52',
@@ -701,6 +739,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'focus',
     createdAt: new Date('2024-01-17T15:00:00'),
     updatedAt: new Date('2024-01-17T15:00:00'),
+    channelNumbers: '202, 204, 206, 208',
+    positionUnit: 'Deck Edge Footlights Even',
   },
   {
     id: '54',
@@ -713,6 +753,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'work',
     createdAt: new Date('2024-01-17T09:50:00'),
     updatedAt: new Date('2024-01-17T09:50:00'),
+    channelNumbers: '33, 35, 37',
+    positionUnit: '3E Odd Profile Movers',
   },
   {
     id: '55',
@@ -725,6 +767,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'work',
     createdAt: new Date('2024-01-17T16:05:00'),
     updatedAt: new Date('2024-01-17T16:05:00'),
+    channelNumbers: '41-47',
+    positionUnit: '4E All Profile Movers',
   },
   {
     id: '56',
@@ -761,6 +805,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'focus',
     createdAt: new Date('2024-01-17T11:50:00'),
     updatedAt: new Date('2024-01-17T11:50:00'),
+    channelNumbers: '111-116',
+    positionUnit: '2E Wash Movers',
   },
   {
     id: '59',
@@ -773,6 +819,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'electrician',
     createdAt: new Date('2024-01-17T13:20:00'),
     updatedAt: new Date('2024-01-17T13:20:00'),
+    channelNumbers: '402, 404, 406, 408, 410, 412, 414, 416',
+    positionUnit: 'FOH Truss Frontlight Even Units',
   },
   {
     id: '60',
@@ -809,6 +857,8 @@ export const DEMO_WORK_NOTES: Note[] = [
     type: 'install',
     createdAt: new Date('2024-01-17T13:30:00'),
     updatedAt: new Date('2024-01-17T13:30:00'),
+    channelNumbers: '121, 122, 123, 124, 125, 126',
+    positionUnit: '3E Wash Movers',
     sceneryNeeds: 'Route cables through existing infrastructure',
   },
   {

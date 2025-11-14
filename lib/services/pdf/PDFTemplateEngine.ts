@@ -29,93 +29,91 @@ export class PDFTemplateEngine {
   }
 
   private addHeader(noteCount: number): void {
-    let yPos = 40
+    let yPos = 50
     const pageWidth = this.doc.internal.pageSize.getWidth()
-    const hasLogo = !!this.config.productionLogo
+    const centerX = pageWidth / 2
 
-    if (hasLogo) {
-      // Logo + Production Name side-by-side layout
-      if (this.config.productionLogo && this.isBase64Image(this.config.productionLogo)) {
-        // Handle base64 image data
-        try {
-          this.doc.addImage(this.config.productionLogo, 'JPEG', 40, yPos - 30, 30, 30)
-          yPos += 35
-        } catch (error) {
-          console.warn('Failed to add logo image, falling back to text:', error)
-          // Fallback to text if image fails
-          this.doc.setFontSize(30)
-          this.doc.setFont('helvetica', 'normal')
-          this.doc.text('🎭', 40, yPos)
-          yPos += 35
-        }
-      } else if (this.config.productionLogo) {
-        // Handle text/emoji logo
-        this.doc.setFontSize(30)
-        this.doc.setFont('helvetica', 'normal')
-        this.doc.text(this.config.productionLogo, 40, yPos)
-        yPos += 35
+    // Check if we have a valid base64 image logo
+    const hasValidLogo = this.config.productionLogo && this.isBase64Image(this.config.productionLogo)
+
+    if (hasValidLogo) {
+      // Logo + Production Name layout
+      try {
+        // Add logo image (centered above title)
+        const logoWidth = 50
+        const logoHeight = 50
+        const logoX = (pageWidth - logoWidth) / 2
+        this.doc.addImage(this.config.productionLogo!, 'PNG', logoX, yPos, logoWidth, logoHeight)
+        yPos += logoHeight + 10
+      } catch (error) {
+        console.warn('Failed to add logo image:', error)
+        // Continue without logo
       }
-
-      // Production title next to logo
-      this.doc.setFontSize(24)
-      this.doc.setFont('helvetica', 'bold')
-      this.doc.text(this.sanitizeText(this.config.productionName), 75, yPos - 35)
-      yPos += 25
-    } else {
-      // No logo - centered layout with more visual prominence
-      // Production title - centered and larger
-      this.doc.setFontSize(28)
-      this.doc.setFont('helvetica', 'bold')
-      this.doc.text(this.sanitizeText(this.config.productionName), pageWidth / 2, yPos, { align: 'center' })
-      yPos += 35
-
-      // Add a subtle decorative line under the production name
-      this.doc.setLineWidth(1)
-      this.doc.setDrawColor(180, 180, 180)
-      const sanitizedProductionName = this.sanitizeText(this.config.productionName)
-      const lineWidth = Math.min(200, this.doc.getTextWidth(sanitizedProductionName) + 40)
-      const lineX = (pageWidth - lineWidth) / 2
-      this.doc.line(lineX, yPos - 10, lineX + lineWidth, yPos - 10)
-      yPos += 10
     }
 
-    // Module title as subtitle - always centered for consistency
+    // Production title - centered and prominent
+    this.doc.setFontSize(24)
+    this.doc.setFont('helvetica', 'bold')
+    this.doc.setTextColor(0, 0, 0)
+    this.doc.text(this.sanitizeText(this.config.productionName), centerX, yPos, { align: 'center' })
+    yPos += 30
+
+    // Module title as subtitle - centered
     this.doc.setFontSize(16)
     this.doc.setFont('helvetica', 'normal')
-    this.doc.text(`${this.strategy.getModuleTitle()} Report`, pageWidth / 2, yPos, { align: 'center' })
-    yPos += 25
+    this.doc.text(`${this.strategy.getModuleTitle()} Report`, centerX, yPos, { align: 'center' })
+    yPos += 20
 
-    // Generation metadata line - centered for better balance
-    this.doc.setFontSize(10)
+    // Generation metadata - simplified and centered
+    this.doc.setFontSize(9)
     this.doc.setFont('helvetica', 'normal')
     this.doc.setTextColor(100, 100, 100)
 
     const dateStr = this.formatDateLikeExample(this.config.dateGenerated)
     const timeStr = this.formatTimeLikeExample(this.config.dateGenerated)
 
-    // Format: "Generated: Sep 1, 25 at 9:56 AM • Status: Todo • Total: X notes"
-    const metadataText = `Generated: ${dateStr} at ${timeStr} • Status: Todo • Total: ${noteCount} notes`
-    this.doc.text(metadataText, pageWidth / 2, yPos, { align: 'center' })
+    // Simpler metadata format
+    const metadataLine1 = `Generated: ${dateStr} at ${timeStr}`
+    const metadataLine2 = `Total: ${noteCount} ${noteCount === 1 ? 'note' : 'notes'}`
 
-    // Reset text color and drawing color
+    this.doc.text(metadataLine1, centerX, yPos, { align: 'center' })
+    yPos += 12
+    this.doc.text(metadataLine2, centerX, yPos, { align: 'center' })
+
+    // Reset text color
     this.doc.setTextColor(0, 0, 0)
-    this.doc.setDrawColor(0, 0, 0)
   }
 
-  private formatDateLikeExample(date: Date): string {
+  private formatDateLikeExample(date: Date | string): string {
+    // Defensive: handle both Date objects and ISO date strings
+    const dateObj = typeof date === 'string' ? new Date(date) : date
+
+    // Validate that we have a valid date
+    if (!dateObj || isNaN(dateObj.getTime())) {
+      return '-'
+    }
+
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const month = months[date.getMonth()]
-    const day = date.getDate()
-    const year = date.getFullYear().toString().slice(-2)
+    const month = months[dateObj.getMonth()]
+    const day = dateObj.getDate()
+    const year = dateObj.getFullYear().toString().slice(-2)
     return `${month} ${day}, ${year}`
   }
 
-  private formatTimeLikeExample(date: Date): string {
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
+  private formatTimeLikeExample(date: Date | string): string {
+    // Defensive: handle both Date objects and ISO date strings
+    const dateObj = typeof date === 'string' ? new Date(date) : date
+
+    // Validate that we have a valid date
+    if (!dateObj || isNaN(dateObj.getTime())) {
+      return '-'
+    }
+
+    return dateObj.toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     })
   }
 
@@ -126,7 +124,7 @@ export class PDFTemplateEngine {
     autoTable(this.doc, {
       head: [headers],
       body: tableData,
-      startY: 110,
+      startY: 145,
       styles: {
         fontSize: 9,
         cellPadding: 5,

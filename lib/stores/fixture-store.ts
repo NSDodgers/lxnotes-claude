@@ -1,4 +1,6 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { createSafeStorage } from '@/lib/storage/safe-storage'
 import type {
   FixtureInfo,
   WorkNoteFixtureLink,
@@ -45,7 +47,15 @@ interface FixtureState {
   getHasBeenDeleted: () => boolean
 }
 
-export const useFixtureStore = create<FixtureState>((set, get) => ({
+// Check if we're in demo mode
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return false
+  return window.location.pathname.startsWith('/demo')
+}
+
+export const useFixtureStore = create<FixtureState>()(
+  persist(
+    (set, get) => ({
   // Initial state
   fixtures: [],
   workNoteLinks: [],
@@ -375,7 +385,18 @@ export const useFixtureStore = create<FixtureState>((set, get) => ({
   getHasBeenDeleted: (): boolean => {
     return get().hasBeenDeleted
   }
-}))
+    }),
+    {
+      name: 'fixture-store',
+      storage: createJSONStorage(() =>
+        createSafeStorage(
+          'fixture-store',
+          isDemoMode() ? 'session' : 'local'
+        )
+      ),
+    }
+  )
+)
 
 /**
  * Format channel numbers into expression string (e.g., "1-5, 21, 45")

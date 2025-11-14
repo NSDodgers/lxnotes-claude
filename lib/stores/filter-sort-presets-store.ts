@@ -88,6 +88,25 @@ const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
           createdAt: baseDate,
           updatedAt: baseDate,
         },
+        {
+          id: 'sys-filter-cue-4',
+          productionId,
+          type: 'filter_sort',
+          moduleType: 'cue',
+          name: 'By Cue Number (Grouped)',
+          config: {
+            statusFilter: 'todo',
+            typeFilters: ['cue', 'director', 'choreographer', 'designer', 'stage_manager', 'associate', 'assistant', 'spot', 'programmer', 'production', 'paperwork', 'think'],
+            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
+            sortBy: 'cue_number',
+            sortOrder: 'asc',
+            groupByType: true,
+          },
+          isDefault: true,
+          createdBy: 'system',
+          createdAt: baseDate,
+          updatedAt: baseDate,
+        },
       ]
 
     case 'production':

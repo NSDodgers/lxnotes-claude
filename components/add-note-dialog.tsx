@@ -97,9 +97,11 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   // Populate form when editing
   useEffect(() => {
     if (editingNote) {
-      const cueNumbers = editingNote.scriptPageId?.startsWith('cue-') 
-        ? editingNote.scriptPageId.split('cue-')[1] 
-        : ''
+      // Read from cueNumber field first, fall back to parsing scriptPageId for backward compatibility
+      const cueNumbers = editingNote.cueNumber ||
+        (editingNote.scriptPageId?.startsWith('cue-')
+          ? editingNote.scriptPageId.split('cue-')[1]
+          : '')
       
       setFormData({
         title: editingNote.title || '',
@@ -144,6 +146,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       priority: formData.priority,
       status: 'todo',
       type: formData.type,
+      cueNumber: formData.cueNumbers || undefined,
       scriptPageId: formData.cueNumbers ? `cue-${formData.cueNumbers}` : undefined,
       sceneSongId: formData.sceneSongId || undefined,
       lightwrightItemId: formData.lightwrightItemId || undefined,

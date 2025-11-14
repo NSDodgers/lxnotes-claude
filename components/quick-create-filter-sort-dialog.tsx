@@ -47,14 +47,23 @@ export function QuickCreateFilterSortDialog({
 
   const isEditing = !!editingPreset
 
+  // Get all type and priority values for default selection
+  const allTypeValues = useMemo(() => {
+    return getTypes(moduleType).map(t => t.value)
+  }, [moduleType, getTypes])
+
+  const allPriorityValues = useMemo(() => {
+    return getPriorities(moduleType).map(p => p.value)
+  }, [moduleType, getPriorities])
+
   const form = useForm<FilterSortFormData>({
     resolver: zodResolver(filterSortFormSchema),
     defaultValues: {
       name: '',
       moduleType,
-      statusFilter: null,
-      typeFilters: [],
-      priorityFilters: [],
+      statusFilter: 'todo',
+      typeFilters: allTypeValues,
+      priorityFilters: allPriorityValues,
       sortBy: 'priority',
       sortOrder: 'desc',
       groupByType: false,
@@ -80,16 +89,16 @@ export function QuickCreateFilterSortDialog({
       form.reset({
         name: '',
         moduleType,
-        statusFilter: null,
-        typeFilters: [],
-        priorityFilters: [],
+        statusFilter: 'todo',
+        typeFilters: allTypeValues,
+        priorityFilters: allPriorityValues,
         sortBy: 'priority',
         sortOrder: 'desc',
         groupByType: false,
         ...defaultValues,
       })
     }
-  }, [editingPreset, moduleType]) // Removed form and defaultValues from dependencies
+  }, [editingPreset, moduleType, allTypeValues, allPriorityValues]) // Added allTypeValues and allPriorityValues to dependencies
 
   // Get available types and priorities for this module
   const availableTypes = useMemo(() => {

@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Printer, FileText, Eye, Download } from 'lucide-react'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useProductionStore } from '@/lib/stores/production-store'
+import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { PresetSelector } from './preset-selector'
 import { QuickCreateFilterSortSidebar } from './quick-create-filter-sort-sidebar'
 import { QuickCreatePageStyleSidebar } from './quick-create-page-style-sidebar'
+import { NotesPreviewTable } from './notes-table/notes-preview-table'
 import {
   Sheet,
   SheetContent,
@@ -20,6 +22,7 @@ import type { ModuleType, FilterSortPreset, PageStylePreset, Note } from '@/type
 import { cn } from '@/lib/utils'
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
 
 interface PrintNotesSidebarProps {
   moduleType: ModuleType
@@ -32,6 +35,8 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes }: PrintN
   const { presets: filterSortPresets, getPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { name: productionName, logo: productionLogo } = useProductionStore()
+  const { getPriorities } = useCustomPrioritiesStore()
+  const mockNotesStore = useMockNotesStore()
 
   const [selectedFilterPreset, setSelectedFilterPreset] = useState<FilterSortPreset | null>(null)
   const [selectedPageStylePreset, setSelectedPageStylePreset] = useState<PageStylePreset | null>(null)
@@ -43,6 +48,20 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes }: PrintN
   const [editingPageStylePreset, setEditingPageStylePreset] = useState<PageStylePreset | null>(null)
 
   const moduleFilterPresets = getPresetsByModule(moduleType)
+
+  // Compute filtered and sorted notes for preview
+  const previewNotes = useMemo(() => {
+    if (!selectedFilterPreset) return []
+
+    // Get notes from props or mock store
+    const allNotes = notes || mockNotesStore.getAllNotes(moduleType)
+
+    // Get custom priorities for the module
+    const customPriorities = getPriorities(moduleType)
+
+    // Filter and sort notes
+    return filterAndSortNotes(allNotes, selectedFilterPreset, customPriorities)
+  }, [notes, moduleType, selectedFilterPreset, mockNotesStore, getPriorities])
 
   const handleGenerate = async () => {
     if (!selectedFilterPreset || !selectedPageStylePreset) {
@@ -248,42 +267,40 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes }: PrintN
               {/* Preview Toggle */}
               {(selectedFilterPreset || selectedPageStylePreset) && (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-medium text-text-secondary">Preview</h4>
-                    <button
-                      onClick={() => setShowPreview(!showPreview)}
-                      className="text-sm text-modules-production hover:text-modules-production/80 flex items-center gap-1"
-                    >
-                      <Eye className="h-3 w-3" />
-                      {showPreview ? 'Hide' : 'Show'} preview
-                    </button>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-text-secondary">Preview</h4>
+                      <button
+                        onClick={() => setShowPreview(!showPreview)}
+                        className="text-sm text-modules-production hover:text-modules-production/80 flex items-center gap-1"
+                      >
+                        <Eye className="h-3 w-3" />
+                        {showPreview ? 'Hide' : 'Show'} preview
+                      </button>
+                    </div>
+                    {selectedFilterPreset && (
+                      <span className="text-xs text-text-muted">
+                        {previewNotes.length} {previewNotes.length === 1 ? 'note' : 'notes'} matching filter
+                      </span>
+                    )}
                   </div>
 
-                  {showPreview && (
-                    <div className="border border-bg-tertiary rounded-lg p-4 bg-white text-black">
-                      <div className="space-y-2">
-                        <div className="text-center border-b border-gray-300 pb-2">
-                          <h1 className="text-xl font-bold">Sample Production - {moduleName}</h1>
-                          <p className="text-sm text-gray-600">Generated on {new Date().toLocaleDateString()}</p>
-                        </div>
-
-                        {selectedPageStylePreset?.config.includeCheckboxes && (
-                          <div className="text-xs text-gray-500 mb-2">☐ = Todo | ☑ = Complete | ☒ = Cancelled</div>
-                        )}
-
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-sm">
-                            {selectedPageStylePreset?.config.includeCheckboxes && <span>☐</span>}
-                            <span className="font-medium">Sample Note Title</span>
-                            <span className={`px-2 py-1 rounded text-xs text-white bg-${moduleColor}`}>High</span>
-                          </div>
-                          <p className="text-xs text-gray-600 ml-4">Sample note description would appear here...</p>
-                        </div>
-
-                        <div className="text-xs text-gray-400 text-center pt-2 border-t border-gray-200">
-                          Page 1 of 1 • {selectedPageStylePreset?.config.paperSize.toUpperCase() || 'LETTER'} • {selectedPageStylePreset?.config.orientation.toUpperCase() || 'PORTRAIT'}
-                        </div>
+                  {showPreview && selectedFilterPreset && (
+                    <div className="space-y-2">
+                      <div className="bg-bg-tertiary rounded-lg p-3 border border-border">
+                        <p className="text-sm text-text-secondary">
+                          <span className="font-medium">Filter:</span> {selectedFilterPreset.name}
+                        </p>
+                        <p className="text-xs text-text-muted mt-1">
+                          Showing {previewNotes.length} {previewNotes.length === 1 ? 'note' : 'notes'}
+                        </p>
                       </div>
+
+                      <NotesPreviewTable
+                        notes={previewNotes}
+                        moduleType={moduleType}
+                        showCheckboxes={selectedPageStylePreset?.config.includeCheckboxes || false}
+                      />
                     </div>
                   )}
                 </div>
@@ -296,7 +313,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes }: PrintN
                   <p>• Module: {moduleName}</p>
                   <p>• Filter: {selectedFilterPreset?.name || 'Not selected (required)'}</p>
                   <p>• Page Style: {selectedPageStylePreset?.name || 'Not selected (required)'}</p>
-                  <p>• Estimated notes: ~15 items</p>
+                  <p>• Notes to include: {selectedFilterPreset ? `${previewNotes.length} ${previewNotes.length === 1 ? 'item' : 'items'}` : 'Select filter to see count'}</p>
                 </div>
               </div>
             </div>

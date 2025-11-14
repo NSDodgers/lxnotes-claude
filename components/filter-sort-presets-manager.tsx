@@ -36,7 +36,7 @@ export function FilterSortPresetsManager() {
     defaultValues: {
       name: '',
       moduleType: 'cue',
-      statusFilter: null,
+      statusFilter: 'todo',
       typeFilters: [],
       priorityFilters: [],
       sortBy: 'priority',
@@ -85,12 +85,16 @@ export function FilterSortPresetsManager() {
 
   const handleCreate = () => {
     setEditingPreset(null)
+    const targetModule = selectedModule !== 'all' ? selectedModule : 'cue'
+    const types = getTypes(targetModule)
+    const priorities = getPriorities(targetModule)
+
     form.reset({
       name: '',
-      moduleType: selectedModule !== 'all' ? selectedModule : 'cue',
-      statusFilter: null,
-      typeFilters: [],
-      priorityFilters: [],
+      moduleType: targetModule,
+      statusFilter: 'todo',
+      typeFilters: types.map(t => t.value),
+      priorityFilters: priorities.map(p => p.value),
       sortBy: 'priority',
       sortOrder: 'desc',
       groupByType: false,

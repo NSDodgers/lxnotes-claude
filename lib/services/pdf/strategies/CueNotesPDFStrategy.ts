@@ -1,5 +1,6 @@
 import type { Note } from '@/types'
 import type { PDFStrategy, PDFFormattedNote } from '../types'
+import { useScriptStore } from '@/lib/stores/script-store'
 
 export class CueNotesPDFStrategy implements PDFStrategy {
   formatNotes(notes: Note[]): PDFFormattedNote[] {
@@ -23,9 +24,9 @@ export class CueNotesPDFStrategy implements PDFStrategy {
     return [
       '', // Checkbox column
       'Priority',
-      'Type', 
+      'Type',
       'Cue #',
-      'Scene/Song',
+      'Script Page - Scene/Song',
       'Note',
       'Created'
     ]
@@ -36,24 +37,86 @@ export class CueNotesPDFStrategy implements PDFStrategy {
   }
 
   formatModuleSpecificData(note: Note): Record<string, unknown> {
-    let scriptPage = '-'
+    // Cue # comes from the cueNumber field
+    const cueNumber = note.cueNumber || '-'
+
+    // Build Script Page - Scene/Song display (matches main table logic)
+    const scriptPageSceneSong = this.buildCueLocationDisplay(note)
+
+    return {
+      scriptPage: cueNumber,
+      sceneSong: scriptPageSceneSong
+    }
+  }
+
+  private buildCueLocationDisplay(note: Note): string {
+    const { findCueLocation, getSceneSongById, getSceneSongByName } = useScriptStore.getState()
+
+    const formatLookup = (cueNum: string): string => {
+      if (!cueNum?.trim()) {
+        return '-'
+      }
+
+      const location = findCueLocation(cueNum.trim())
+
+      if (!location.page) {
+        return `Cue ${cueNum} (Page not found)`
+      }
+
+      let display = `Pg. ${location.page.pageNumber}`
+
+      // Determine which item to show based on priority: song > scene > page only
+      if (location.song) {
+        const songDisplay = location.song.continuesFromId
+          ? `${location.song.name} (cont.)`
+          : location.song.name
+        display += ` – ${songDisplay}`
+      } else if (location.scene) {
+        display += ` – ${location.scene.name}`
+      }
+
+      return display
+    }
+
+    if (note.cueNumber) {
+      return formatLookup(note.cueNumber)
+    }
 
     if (note.scriptPageId) {
       if (note.scriptPageId.startsWith('cue-')) {
-        // Remove "cue-" prefix: "cue-127" → "127"
-        scriptPage = note.scriptPageId.substring(4)
-      } else if (note.scriptPageId.startsWith('page-')) {
-        // Format page references: "page-78" → "Pg. 78"
-        scriptPage = `Pg. ${note.scriptPageId.substring(5)}`
-      } else {
-        // Keep as-is for other formats
-        scriptPage = note.scriptPageId
+        return formatLookup(note.scriptPageId.replace('cue-', ''))
       }
+
+      if (note.scriptPageId.startsWith('page-')) {
+        const pageLabel = `Pg. ${note.scriptPageId.replace('page-', '')}`
+
+        // Look up actual scene/song name by ID or name (for backwards compatibility)
+        if (note.sceneSongId) {
+          // Try ID-based lookup first
+          let sceneSong = getSceneSongById(note.sceneSongId)
+
+          // Fallback to name-based lookup (for legacy data where sceneSongId stores names)
+          if (!sceneSong) {
+            sceneSong = getSceneSongByName(note.sceneSongId)
+          }
+
+          if (sceneSong) {
+            const sceneSongDisplay = sceneSong.continuation
+              ? `${sceneSong.name} (cont.)`
+              : sceneSong.name
+            return `${pageLabel} – ${sceneSongDisplay}`
+          }
+
+          // Final fallback if neither lookup works
+          return `${pageLabel} – ${note.sceneSongId}`
+        }
+
+        return pageLabel
+      }
+
+      return note.scriptPageId
     }
 
-    return {
-      scriptPage,
-      sceneSong: note.sceneSongId || '-'
-    }
+    return '-'
   }
 }
