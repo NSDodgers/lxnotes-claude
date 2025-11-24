@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-compact-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-compact-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:focus-theatrical disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -19,18 +19,22 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Module specific variants
-        cue: "bg-modules-cue text-white shadow hover:bg-modules-cue/90",
-        work: "bg-modules-work text-white shadow hover:bg-modules-work/90", 
-        production: "bg-modules-production text-white shadow hover:bg-modules-production/90",
+        // Enhanced module specific variants with glow
+        cue: "bg-modules-cue text-white shadow-lg shadow-modules-cue/30 hover:shadow-modules-cue/50 hover:bg-modules-cue/90 btn-glow",
+        work: "bg-modules-work text-white shadow-lg shadow-modules-work/30 hover:shadow-modules-work/50 hover:bg-modules-work/90 btn-glow",
+        production: "bg-modules-production text-white shadow-lg shadow-modules-production/30 hover:shadow-modules-production/50 hover:bg-modules-production/90 btn-glow",
         // Status variants - dark mode optimized
         complete: "bg-transparent border border-status-complete/30 text-status-complete hover:bg-status-complete/10 hover:border-status-complete/50 transition-all duration-200",
         cancelled: "bg-transparent border border-status-cancelled/30 text-status-cancelled hover:bg-status-cancelled/10 hover:border-status-cancelled/50 transition-all duration-200",
         todo: "bg-status-todo text-white shadow hover:bg-status-todo/90",
-        // Priority variants for quick add buttons
-        priority_high: "bg-priority-high text-white shadow hover:bg-priority-high/90",
-        priority_medium: "bg-priority-medium text-white shadow hover:bg-priority-medium/90",
-        priority_low: "bg-priority-low text-white shadow hover:bg-priority-low/90",
+        // Enhanced priority variants for quick add buttons
+        priority_high: "bg-priority-high text-white shadow-lg shadow-priority-high/30 hover:shadow-priority-high/50 hover:bg-priority-high/90 priority-high",
+        priority_medium: "bg-priority-medium text-white shadow-lg shadow-priority-medium/30 hover:shadow-priority-medium/50 hover:bg-priority-medium/90 priority-medium",
+        priority_low: "bg-priority-low text-white shadow-lg shadow-priority-low/30 hover:shadow-priority-low/50 hover:bg-priority-low/90 priority-low",
+        // Theatrical lighting variants
+        spotlight: "bg-gradient-to-br from-yellow-400 to-amber-500 text-black shadow-lg shadow-yellow-500/30 hover:shadow-yellow-500/50 font-medium",
+        moonlight: "bg-gradient-to-br from-blue-400 to-indigo-500 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 font-medium",
+        stage: "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 font-medium",
       },
       size: {
         default: "h-compact-8 px-compact-3 py-compact-2",

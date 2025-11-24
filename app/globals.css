@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+/* Fonts are now loaded via Next.js font optimization */
 
 @tailwind base;
 @tailwind components;
@@ -65,20 +65,75 @@
   body {
     @apply bg-bg-primary text-text-primary font-sans antialiased;
     min-height: 100vh;
+    position: relative;
+  }
+
+  /* Atmospheric background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 800px 400px at 50% 0%, rgba(139, 92, 246, 0.05), transparent),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.008) 2px, rgba(255,255,255,0.008) 4px);
+    pointer-events: none;
+    z-index: -1;
   }
 }
 
 @layer utilities {
+  /* Theatrical animations (replace generic ones) */
   .animate-in {
-    animation: animateIn 0.3s ease-in-out;
+    animation: intensity-up 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .fade-in {
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fade-cue 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .slide-in-from-bottom-2 {
-    animation: slideInFromBottom 0.3s ease-in-out;
+    animation: crossfade-in 1s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  /* Module-specific background glows */
+  [data-module="cue"] {
+    position: relative;
+  }
+
+  [data-module="cue"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: radial-gradient(ellipse 600px 200px at 50% 0%, rgba(139, 92, 246, 0.08), transparent);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  [data-module="work"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: radial-gradient(ellipse 600px 200px at 50% 0%, rgba(59, 130, 246, 0.08), transparent);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  [data-module="production"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: radial-gradient(ellipse 600px 200px at 50% 0%, rgba(6, 182, 212, 0.08), transparent);
+    pointer-events: none;
+    z-index: -1;
   }
 
   @keyframes animateIn {
@@ -199,5 +254,91 @@
   /* Make table headers position relative for resize handle positioning */
   th {
     position: relative;
+  }
+
+  /* Theatrical micro-interactions */
+  .note-card {
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .note-card:hover {
+    box-shadow:
+      0 0 20px -5px currentColor,
+      0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+  }
+
+  /* Status badges with subtle pulse */
+  .status-badge {
+    animation: cue-pulse 3s ease-in-out infinite;
+  }
+
+  /* Priority indicators with theatrical glow */
+  .priority-high {
+    box-shadow: 0 0 16px -4px rgba(239, 68, 68, 0.6);
+  }
+
+  .priority-medium {
+    box-shadow: 0 0 16px -4px rgba(249, 115, 22, 0.6);
+  }
+
+  .priority-low {
+    box-shadow: 0 0 16px -4px rgba(34, 197, 94, 0.4);
+  }
+
+  /* Module icons with gobo rotation effect */
+  .module-icon {
+    animation: gobo-rotate 30s linear infinite;
+    animation-play-state: paused;
+    transition: animation-play-state 0.2s ease;
+  }
+
+  .module-icon:hover {
+    animation-play-state: running;
+  }
+
+  /* Enhanced button glows */
+  .btn-glow {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    background: linear-gradient(45deg, transparent, currentColor, transparent);
+    border-radius: inherit;
+    mask: linear-gradient(white 0 0) content-box, linear-gradient(white 0 0);
+    mask-composite: xor;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-glow:hover::before {
+    opacity: 0.6;
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  /* Theatrical focus states */
+  .focus-theatrical {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5), 0 0 20px -5px rgba(139, 92, 246, 0.3);
+  }
+
+  /* Typography styles */
+  .font-display {
+    font-family: var(--font-space-grotesk);
+    letter-spacing: -0.025em;
+  }
+
+  .font-mono {
+    font-family: var(--font-jetbrains-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .font-script {
+    font-family: var(--font-caveat);
   }
 }

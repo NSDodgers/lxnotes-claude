@@ -78,6 +78,29 @@ const config: Config = {
           cue: '#8b5cf6',
           work: '#3b82f6',
           production: '#06b6d4'
+        },
+        // Theatrical lighting gel colors
+        gel: {
+          'r26': '#F44336',      // Light Red
+          'r77': '#8B0000',      // Dark Red
+          'l200': '#1E3A8A',     // Double CT Blue
+          'l201': '#FFA500',     // Full CT Orange
+          'g200': '#22C55E',     // Double CT Green
+        },
+        // Stage zones (inspired by lighting areas)
+        zone: {
+          downstage: '#8b5cf6',
+          midstage: '#3b82f6',
+          upstage: '#06b6d4',
+          wings: '#1f2937'
+        },
+        // Lighting qualities
+        quality: {
+          key: '#f5f5f5',        // Key light (bright, neutral)
+          fill: '#b3b3b3',       // Fill light (softer)
+          rim: '#60a5fa',        // Rim/back light (cool)
+          special: '#fbbf24',    // Special/accent (warm)
+          ambient: '#4b5563'     // Ambient/wash (neutral)
         }
       },
       borderRadius: {
@@ -100,16 +123,17 @@ const config: Config = {
         'compact-10': '2.25rem',
       },
       fontFamily: {
-        sans: [
-          'Roboto Condensed', 
-          'Arial Narrow', 
-          'Helvetica Neue', 
-          'Arial', 
-          'system-ui', 
-          '-apple-system', 
-          'BlinkMacSystemFont', 
-          'sans-serif'
-        ],
+        // Headings: Strong, architectural presence
+        display: ['var(--font-space-grotesk)', 'Inter', 'system-ui'],
+
+        // Body/UI: Technical precision, excellent readability
+        sans: ['var(--font-inter)', 'system-ui'],
+
+        // Technical data: Monospace for channels, cue numbers, etc.
+        mono: ['var(--font-jetbrains-mono)', 'Monaco', 'Courier New'],
+
+        // Script/handwriting feel for notes
+        script: ['var(--font-caveat)', 'cursive'],
       },
       keyframes: {
         "accordion-down": {
@@ -120,10 +144,48 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        // Theatrical lighting transitions
+        'fade-cue': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
+        },
+        'crossfade-in': {
+          '0%': { opacity: '0', filter: 'blur(4px)' },
+          '100%': { opacity: '1', filter: 'blur(0px)' }
+        },
+        'intensity-up': {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '60%': { opacity: '0.8' },
+          '100%': { opacity: '1', transform: 'scale(1)' }
+        },
+        'focus-in': {
+          '0%': { filter: 'blur(8px)', opacity: '0' },
+          '100%': { filter: 'blur(0px)', opacity: '1' }
+        },
+        'subtle-rotate': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' }
+        },
+        'cue-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' }
+        },
+        'glow-pulse': {
+          '0%, 100%': { boxShadow: '0 0 20px -5px currentColor' },
+          '50%': { boxShadow: '0 0 40px -5px currentColor' }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        // Theatrical timing functions
+        'fade-cue': 'fade-cue 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+        'crossfade-in': 'crossfade-in 1s cubic-bezier(0.33, 1, 0.68, 1)',
+        'intensity-up': 'intensity-up 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'focus-in': 'focus-in 1.2s cubic-bezier(0.33, 1, 0.68, 1)',
+        'gobo-rotate': 'subtle-rotate 20s linear infinite',
+        'cue-pulse': 'cue-pulse 2s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite'
       },
     },
   },
