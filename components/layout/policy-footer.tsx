@@ -37,24 +37,11 @@ export function PolicyFooter({ layout = 'horizontal', className }: PolicyFooterP
 
   /**
    * Opens the GetTerms cookie preferences dialog
-   * Clears consent and reloads the page to show the full banner
+   * Uses the gtCookieWidgetPreview API to show the preferences modal
    */
   const handleCookieSettingsClick = () => {
-    if (typeof window !== 'undefined') {
-      // Clear the saved consent to force the full banner to appear
-      localStorage.removeItem('getterms_cookie_consent')
-
-      // Remove any diagnostic keys that might prevent the banner from showing
-      const keys = Object.keys(localStorage)
-      keys.forEach(key => {
-        if (key.includes('gt_diag')) {
-          localStorage.removeItem(key)
-        }
-      })
-
-      // Reload the page to trigger the banner
-      // The banner will auto-show because we cleared the consent
-      window.location.reload()
+    if (typeof window !== 'undefined' && typeof window.gtCookieWidgetPreview === 'function') {
+      window.gtCookieWidgetPreview()
     }
   }
 

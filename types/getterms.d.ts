@@ -18,4 +18,10 @@ interface Window {
    * Available after the GetTerms embed script loads
    */
   GetTerms?: GetTermsAPI
+
+  /**
+   * Opens the GetTerms cookie preferences dialog
+   * Shows the full banner/modal for users to review and change consent settings
+   */
+  gtCookieWidgetPreview?: () => void
 }
