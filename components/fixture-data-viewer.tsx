@@ -75,7 +75,7 @@ export function FixtureDataViewer({
   // Calculate statistics
   const stats = useMemo(() => {
     const latestUpload = allFixtures.length > 0
-      ? Math.max(...allFixtures.map(f => f.sourceUploadedAt.getTime()))
+      ? Math.max(...allFixtures.map(f => new Date(f.sourceUploadedAt).getTime()))
       : null
 
     return {
