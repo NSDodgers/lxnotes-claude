@@ -101,7 +101,7 @@ export function QuickCreateFilterSortSidebar({
         ...defaultValues,
       })
     }
-  }, [editingPreset, moduleType, allTypeValues, allPriorityValues])
+  }, [editingPreset, moduleType, allTypeValues, allPriorityValues, defaultValues])
 
   // Get available types and priorities for this module
   const availableTypes = useMemo(() => {
@@ -301,14 +301,14 @@ export function QuickCreateFilterSortSidebar({
             <Filter className="h-5 w-5 text-text-primary" />
             <SheetTitle>
               {isEditing && editingPreset?.isDefault ? "Copy System Preset" :
-               isEditing ? "Edit Filter & Sort Preset" : "Create Filter & Sort Preset"}
+                isEditing ? "Edit Filter & Sort Preset" : "Create Filter & Sort Preset"}
             </SheetTitle>
           </div>
           <SheetDescription>
             {isEditing && editingPreset?.isDefault ?
-             `Create a custom copy of "${editingPreset?.name}" for ${moduleNames[moduleType]}` :
-             isEditing ? `Edit preset for ${moduleNames[moduleType]}` :
-             `Quick create for ${moduleNames[moduleType]}`}
+              `Create a custom copy of "${editingPreset?.name}" for ${moduleNames[moduleType]}` :
+              isEditing ? `Edit preset for ${moduleNames[moduleType]}` :
+                `Quick create for ${moduleNames[moduleType]}`}
           </SheetDescription>
         </SheetHeader>
 
@@ -497,13 +497,13 @@ export function QuickCreateFilterSortSidebar({
                 <>
                   <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   {isEditing && editingPreset?.isDefault ? 'Saving Copy...' :
-                   isEditing ? 'Updating...' : 'Creating...'}
+                    isEditing ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
                 <>
                   <Filter className="h-3 w-3" />
                   {isEditing && editingPreset?.isDefault ? 'Save as Copy' :
-                   isEditing ? 'Update Preset' : 'Create Preset'}
+                    isEditing ? 'Update Preset' : 'Create Preset'}
                 </>
               )}
             </Button>

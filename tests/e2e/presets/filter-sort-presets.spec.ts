@@ -7,7 +7,7 @@ test.describe('Filter & Sort Presets', () => {
 
   test.beforeEach(async ({ page }) => {
     helpers = new TestHelpers(page);
-    await page.goto('/');
+    await page.goto('/cue-notes');
     await helpers.waitForAppReady();
     await helpers.navigateToSettingsTab('presets');
   });

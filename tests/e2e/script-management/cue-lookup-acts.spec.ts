@@ -6,7 +6,7 @@ test.describe('Cue Lookup with Act Integration', () => {
 
   test.beforeEach(async ({ page }) => {
     helpers = new TestHelpers(page);
-    await page.goto('/');
+    await page.goto('/cue-notes');
     await helpers.waitForAppReady();
   });
 

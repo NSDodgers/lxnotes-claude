@@ -5,12 +5,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Printer } from 'lucide-react'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
-import { 
-  QuickCreatePresetDialog, 
-  QuickCreatePresetDialogContent, 
-  QuickCreatePresetDialogActions 
+import {
+  QuickCreatePresetDialog,
+  QuickCreatePresetDialogContent,
+  QuickCreatePresetDialogActions
 } from './quick-create-preset-dialog'
-import { 
+import {
   PresetFormField,
   PresetFormInput,
   PresetFormSelect,
@@ -69,7 +69,7 @@ export function QuickCreatePageStyleDialog({
         ...defaultValues,
       })
     }
-  }, [editingPreset]) // Removed form and defaultValues from dependencies
+  }, [editingPreset, defaultValues, form])
 
   const handleSubmit = async (data: PageStyleFormData) => {
     setIsSubmitting(true)
@@ -198,11 +198,11 @@ export function QuickCreatePageStyleDialog({
       open={isOpen}
       onClose={handleCancel}
       title={isEditing && editingPreset?.isDefault ? "Copy System Page Style" :
-             isEditing ? "Edit Page Style Preset" : "Create Page Style Preset"}
+        isEditing ? "Edit Page Style Preset" : "Create Page Style Preset"}
       description={isEditing && editingPreset?.isDefault ?
-                   `Create a custom copy of "${editingPreset?.name}" for PDF formatting` :
-                   isEditing ? 'Edit PDF formatting options' :
-                   'Quick create for PDF formatting options'}
+        `Create a custom copy of "${editingPreset?.name}" for PDF formatting` :
+        isEditing ? 'Edit PDF formatting options' :
+          'Quick create for PDF formatting options'}
       className="max-w-md"
     >
       <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -235,8 +235,8 @@ export function QuickCreatePageStyleDialog({
             </PresetFormField>
 
             {/* Paper Size */}
-            <PresetFormField 
-              label="Paper Size" 
+            <PresetFormField
+              label="Paper Size"
               description="Choose the paper size for PDF generation"
               required
             >
@@ -248,8 +248,8 @@ export function QuickCreatePageStyleDialog({
             </PresetFormField>
 
             {/* Orientation */}
-            <PresetFormField 
-              label="Orientation" 
+            <PresetFormField
+              label="Orientation"
               description="Choose page orientation"
               required
             >
@@ -302,13 +302,13 @@ export function QuickCreatePageStyleDialog({
               <>
                 <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 {isEditing && editingPreset?.isDefault ? 'Saving Copy...' :
-                 isEditing ? 'Updating...' : 'Creating...'}
+                  isEditing ? 'Updating...' : 'Creating...'}
               </>
             ) : (
               <>
                 <Printer className="h-3 w-3" />
                 {isEditing && editingPreset?.isDefault ? 'Save as Copy' :
-                 isEditing ? 'Update Preset' : 'Create Preset'}
+                  isEditing ? 'Update Preset' : 'Create Preset'}
               </>
             )}
           </button>

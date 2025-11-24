@@ -86,13 +86,13 @@ export interface Note {
   updatedAt: Date
   completedAt?: Date
   dueDate?: Date
-  
+
   // Module-specific fields
   cueNumber?: string // Cue number for cue notes (system looks up script context from this)
   scriptPageId?: string
   sceneSongId?: string
   lightwrightItemId?: string
-  
+
   // Work notes specific fields
   channelNumbers?: string
   positionUnit?: string
@@ -108,8 +108,24 @@ export interface ScriptPage {
   updatedAt: Date
 }
 
+export interface Act {
+  id: string
+  productionId: string
+  actNumber: string
+  orderIndex: number
+  currentPageId: string
+  continuesOnPageId?: string
+  continuesFromId?: string
+  firstCueNumber?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface SceneSong {
   id: string
+  productionId: string
+  moduleType: ModuleType
+  actId?: string
   scriptPageId: string
   name: string
   type: 'scene' | 'song'
@@ -314,9 +330,9 @@ export interface ParsedChannelExpression {
 }
 
 // Enhanced validation types for CSV upload
-export type RowErrorType = 
+export type RowErrorType =
   | 'missing_lwid'
-  | 'missing_channel' 
+  | 'missing_channel'
   | 'invalid_channel'
   | 'duplicate_lwid'
   | 'parsing_error'

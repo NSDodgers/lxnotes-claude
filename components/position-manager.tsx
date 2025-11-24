@@ -114,7 +114,7 @@ export function PositionManager() {
       // No custom order yet, use alphabetical
       setOrderedPositions([...unique].sort())
     }
-  }, [productionId])
+  }, [productionId, getOrderedPositions, getUniquePositions])
 
   // Show alert when position updates occur
   useEffect(() => {
@@ -126,7 +126,7 @@ export function PositionManager() {
       setAvailablePositions(unique)
       setOrderedPositions(ordered)
     }
-  }, [lastPositionUpdate])
+  }, [lastPositionUpdate, getOrderedPositions, getUniquePositions, productionId])
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event

@@ -4,6 +4,7 @@ import path from 'path'
 const nextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: path.join(process.cwd()),
+
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',

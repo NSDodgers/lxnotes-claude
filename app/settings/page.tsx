@@ -9,6 +9,7 @@ import { PrioritiesManager } from '@/components/priorities-manager'
 import { PageStylePresetsManager } from '@/components/page-style-presets-manager'
 import { FilterSortPresetsManager } from '@/components/filter-sort-presets-manager'
 import { EmailMessagePresetsManager } from '@/components/email-message-presets-manager'
+import Image from 'next/image'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general')
@@ -62,11 +63,10 @@ export default function SettingsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
-                activeTab === tab.id
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${activeTab === tab.id
                   ? 'border-modules-production text-text-primary'
                   : 'border-transparent text-text-secondary hover:text-text-primary'
-              }`}
+                }`}
             >
               <tab.icon className="h-4 w-4" />
               {tab.label}
@@ -80,7 +80,7 @@ export default function SettingsPage() {
             <>
               <div className="rounded-lg bg-bg-secondary p-6 space-y-6">
                 <h2 className="text-lg font-semibold text-text-primary">Production Information</h2>
-                
+
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">
@@ -93,7 +93,7 @@ export default function SettingsPage() {
                       className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">
                       Production Abbreviation
@@ -110,16 +110,16 @@ export default function SettingsPage() {
 
               <div className="rounded-lg bg-bg-secondary p-6 space-y-4">
                 <h2 className="text-lg font-semibold text-text-primary">Production Logo</h2>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">
                       Upload Logo
                     </label>
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-lg bg-bg-tertiary border-2 border-dashed border-bg-hover flex items-center justify-center text-text-muted overflow-hidden">
+                      <div className="relative w-16 h-16 rounded-lg bg-bg-tertiary border-2 border-dashed border-bg-hover flex items-center justify-center text-text-muted overflow-hidden">
                         {logoPreview && (logoPreview.startsWith('data:') || logoPreview.startsWith('/') || logoPreview.startsWith('http')) ? (
-                          <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
+                          <Image src={logoPreview} alt="Logo preview" fill className="object-cover" />
                         ) : (
                           <span className="text-2xl">{logoPreview}</span>
                         )}
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                 </div>
               </div>
             </>
@@ -201,9 +201,9 @@ export default function SettingsPage() {
           {activeTab === 'presets' && (
             <div className="space-y-6">
               <PageStylePresetsManager />
-              
+
               <FilterSortPresetsManager />
-              
+
               <EmailMessagePresetsManager />
             </div>
           )}

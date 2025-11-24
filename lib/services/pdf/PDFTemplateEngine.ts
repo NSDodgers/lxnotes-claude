@@ -94,7 +94,7 @@ export class PDFTemplateEngine {
     }
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     const month = months[dateObj.getMonth()]
     const day = dateObj.getDate()
     const year = dateObj.getFullYear().toString().slice(-2)
@@ -147,7 +147,7 @@ export class PDFTemplateEngine {
         5: { cellWidth: 'auto' }, // Note
         6: { cellWidth: 60 }, // Created
       },
-      didDrawCell: (data: CellHookData<PDFFormattedNote>) => {
+      didDrawCell: (data: CellHookData) => {
         // Add checkboxes in first column when enabled
         if (this.config.includeCheckboxes && data.column.index === 0 && data.section === 'body') {
           const note = notes[data.row.index]
@@ -194,13 +194,13 @@ export class PDFTemplateEngine {
     this.doc.setTextColor(255, 255, 255)
     this.doc.setFontSize(8)
     this.doc.setFont('helvetica', 'bold')
-    
+
     // Center the text in the badge
     const formattedType = this.formatType(type)
     const textWidth = this.doc.getTextWidth(formattedType)
     const textX = x + (width - textWidth) / 2
     const textY = y + height / 2 + 2
-    
+
     this.doc.text(formattedType, textX, textY)
 
     // Reset text color
@@ -267,7 +267,7 @@ export class PDFTemplateEngine {
     this.doc.setTextColor(0, 0, 0)
     this.doc.setFontSize(8)
     this.doc.setFont('helvetica', 'normal')
-    
+
     if (status === 'complete') {
       // Add checkmark for completed items
       this.doc.text('✓', x + 2, y + 7)
@@ -320,7 +320,7 @@ export class PDFTemplateEngine {
 
   private formatType(type: string): string {
     if (type === '-') return '-'
-    
+
     // Capitalize first letter and handle special cases
     const typeMap: Record<string, string> = {
       'cue': 'Cue',
@@ -335,7 +335,7 @@ export class PDFTemplateEngine {
       'paperwork': 'Paperwork',
       'think': 'Think'
     }
-    
+
     return typeMap[type.toLowerCase()] || type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()
   }
 

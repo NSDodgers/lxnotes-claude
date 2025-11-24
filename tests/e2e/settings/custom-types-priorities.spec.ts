@@ -6,7 +6,7 @@ test.describe('Custom Types & Priorities Settings', () => {
 
   test.beforeEach(async ({ page }) => {
     helpers = new TestHelpers(page);
-    await page.goto('/');
+    await page.goto('/cue-notes');
     await helpers.waitForAppReady();
     await helpers.navigateToSettingsTab('general');
   });

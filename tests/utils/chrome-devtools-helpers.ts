@@ -252,7 +252,7 @@ export class ChromeDevToolsHelpers {
       }
 
       // Fallback: Use standard Playwright evaluation
-      return await this.page.evaluate(expression, arg);
+      return await this.page.evaluate(expression as any, arg);
     } catch (error) {
       console.error('Failed to evaluate with debugging:', error);
       return null;
@@ -327,10 +327,10 @@ export function createChromeDevToolsHelpers(page: Page): ChromeDevToolsHelpers {
  * Test decorator to conditionally enable Chrome DevTools MCP features
  */
 export function withChromeDevTools() {
-  return function(target: any, propertyName: string, descriptor: PropertyDescriptor) {
+  return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {
     const method = descriptor.value;
 
-    descriptor.value = async function(...args: any[]) {
+    descriptor.value = async function (...args: any[]) {
       const isEnabled = process.env.ENABLE_CHROME_DEVTOOLS_MCP === 'true';
 
       if (isEnabled) {

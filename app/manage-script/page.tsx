@@ -97,25 +97,25 @@ function AddPageDialog({ isOpen, onClose, onAdd }: AddPageDialogProps) {
 }
 
 function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumber }: AddSceneSongDialogProps) {
-  const { 
-    getPreviousPageScenes, 
-    getPreviousPageSongs, 
+  const {
+    getPreviousPageScenes,
+    getPreviousPageSongs,
     getAvailableContinuations,
     getContinuationStatus,
     getSuggestedContinuation
   } = useScriptStore()
-  
+
   const [name, setName] = useState('')
   const [firstCueNumber, setFirstCueNumber] = useState('')
   const [usePageCue, setUsePageCue] = useState(false)
   const [isContinuation, setIsContinuation] = useState(false)
   const [continuesFromId, setContinuesFromId] = useState('')
-  
+
   // Get continuation options
   const previousScenes = getPreviousPageScenes(pageId)
   const previousSongs = getPreviousPageSongs(pageId)
   const previousItems = type === 'scene' ? previousScenes : previousSongs
-  
+
   // Get smart continuation data
   const availableContinuations = getAvailableContinuations(pageId, type)
   const suggestedContinuation = getSuggestedContinuation(pageId, type)
@@ -216,7 +216,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
                     Continue from previous page
                   </label>
                 </div>
-                
+
                 {/* Smart suggestion indicator */}
                 {availableContinuations.length > 0 && !isContinuation && (
                   <div className="text-xs text-modules-cue pl-6">
@@ -227,7 +227,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
                   </div>
                 )}
               </div>
-              
+
               {isContinuation && (
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-2">
@@ -244,10 +244,10 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
                       const status = getContinuationStatus(item.id, pageId)
                       const statusIcon = status === 'available' ? '→' : status === 'already_here' ? '↺' : '✓'
                       const statusText = status === 'available' ? 'Available' : status === 'already_here' ? 'Already here' : 'Continues elsewhere'
-                      
+
                       return (
-                        <option 
-                          key={item.id} 
+                        <option
+                          key={item.id}
                           value={item.id}
                           disabled={status === 'already_here'}
                         >
@@ -256,7 +256,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
                       )
                     })}
                   </select>
-                  
+
                   {/* Status Legend */}
                   <div className="mt-2 text-xs text-text-muted space-y-1">
                     <div>→ Available to continue • ✓ Already continues elsewhere • ↺ Already on this page</div>
@@ -268,7 +268,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
               )}
             </div>
           )}
-          
+
           {pageCueNumber && (
             <div className="flex items-center gap-2">
               <input
@@ -283,7 +283,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
               </label>
             </div>
           )}
-          
+
           {!usePageCue && (
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">
@@ -298,7 +298,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
               />
             </div>
           )}
-          
+
           <div className="flex gap-3 pt-4">
             <Button
               type="button"
@@ -327,16 +327,16 @@ interface ScriptItemProps {
 }
 
 function ScriptItem({ page }: ScriptItemProps) {
-  const { 
-    getPageScenes, 
-    getPageSongs, 
-    updatePage, 
+  const {
+    getPageScenes,
+    getPageSongs,
+    updatePage,
     deletePage,
     addSceneSong,
     validateCueNumber,
-    validatePageOrder 
+    validatePageOrder
   } = useScriptStore()
-  
+
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [showAddDialog, setShowAddDialog] = useState<{ type: 'scene' | 'song' } | null>(null)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
@@ -347,7 +347,7 @@ function ScriptItem({ page }: ScriptItemProps) {
     if (page.firstCueNumber) {
       const cueValidation = validateCueNumber(page.firstCueNumber, page.id)
       setCueValidation(cueValidation.valid ? null : cueValidation)
-      
+
       const orderValidation = validatePageOrder(page.id)
       setOrderValidation(orderValidation.valid ? null : orderValidation)
     } else {
@@ -368,7 +368,7 @@ function ScriptItem({ page }: ScriptItemProps) {
 
   const scenes = getPageScenes(page.id)
   const songs = getPageSongs(page.id)
-  
+
   // Combine and sort all scenes and songs by cue number
   const allItems = [...scenes, ...songs].sort((a, b) => {
     const cueA = a.firstCueNumber ? parseInt(a.firstCueNumber.match(/^(\d+)/)?.[1] || '0') : 0
@@ -378,7 +378,7 @@ function ScriptItem({ page }: ScriptItemProps) {
 
   const handlePageNumberChange = (value: string) => {
     updatePage(page.id, { pageNumber: value })
-    
+
     // Check page order after update
     setTimeout(() => {
       const orderValidation = validatePageOrder(page.id)
@@ -389,9 +389,9 @@ function ScriptItem({ page }: ScriptItemProps) {
   const handleCueNumberChange = (value: string) => {
     const cueValidation = validateCueNumber(value, page.id)
     setCueValidation(cueValidation.valid ? null : cueValidation)
-    
+
     updatePage(page.id, { firstCueNumber: value || undefined })
-    
+
     // Check page order after update
     setTimeout(() => {
       const orderValidation = validatePageOrder(page.id)
@@ -407,6 +407,8 @@ function ScriptItem({ page }: ScriptItemProps) {
   const handleAddSceneSong = (itemData: { name: string; type: 'scene' | 'song'; firstCueNumber?: string; continuesFromId?: string }) => {
     addSceneSong({
       ...itemData,
+      productionId: 'prod-1',
+      moduleType: 'cue',
       scriptPageId: page.id,
       orderIndex: 0, // Will be sorted automatically
     })
@@ -448,12 +450,12 @@ function ScriptItem({ page }: ScriptItemProps) {
                   title="Click to edit first cue number"
                 />
                 {(cueValidation || orderValidation) && (
-                  <div 
+                  <div
                     className="cursor-help"
                     title={cueValidation?.message || orderValidation?.message}
                   >
-                    <AlertTriangle 
-                      className="h-4 w-4 text-yellow-500" 
+                    <AlertTriangle
+                      className="h-4 w-4 text-yellow-500"
                     />
                   </div>
                 )}
@@ -463,24 +465,24 @@ function ScriptItem({ page }: ScriptItemProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="secondary"
               onClick={() => setShowAddDialog({ type: 'scene' })}
             >
               <Theater className="h-4 w-4 mr-1" />
               Add Scene
             </Button>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="secondary"
               onClick={() => setShowAddDialog({ type: 'song' })}
             >
               <Music className="h-4 w-4 mr-1" />
               Add Song
             </Button>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="secondary"
               onClick={() => setShowConfirmDelete(true)}
             >
@@ -503,9 +505,9 @@ function ScriptItem({ page }: ScriptItemProps) {
                 </h4>
                 <div className="space-y-2 pl-6">
                   {allItems.map((item, index) => (
-                    <SceneSongItem 
-                      key={item.id} 
-                      item={item} 
+                    <SceneSongItem
+                      key={item.id}
+                      item={item}
                       isLastItem={index === allItems.length - 1}
                     />
                   ))}
@@ -568,12 +570,12 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
   const { updateSceneSong, deleteSceneSong, validateCueNumber, validateSceneSongCueNumber, getSortedPages, getContinuationChain, getNextPage, createContinuation, updateContinuationChain } = useScriptStore()
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
-  
+
   // Get continuation info
   const continuationChain = getContinuationChain(item.id)
   const isContinuation = !!item.continuesFromId
   const isOriginal = continuationChain.length > 1 && continuationChain[0].id === item.id
-  
+
   // Get next page info
   const nextPage = getNextPage(item.scriptPageId)
   const canContinue = nextPage && !isContinuation && isLastItem // Only show on last item, and only for originals
@@ -616,7 +618,7 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
 
   const handleContinueToNext = () => {
     if (!nextPage) return
-    
+
     try {
       // Use the next page's first cue number as default
       createContinuation(item.id, nextPage.id, nextPage.firstCueNumber)
@@ -632,7 +634,7 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
         <div className="flex items-center gap-2 flex-1">
           {isContinuation && (
             <span className="text-xs text-modules-production font-mono" title="Continued from previous page">
-              ← 
+              ←
             </span>
           )}
           <input
@@ -641,8 +643,8 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
             onChange={(e) => handleNameChange(e.target.value)}
             className={cn(
               "border rounded px-2 py-1 text-sm text-text-primary focus:outline-none focus:border-modules-cue flex-1 cursor-text",
-              isContinuation 
-                ? "bg-modules-production/10 border-modules-production/30" 
+              isContinuation
+                ? "bg-modules-production/10 border-modules-production/30"
                 : "bg-bg-tertiary border-bg-hover"
             )}
             title={isContinuation ? "Continued from previous page" : "Click to edit name"}
@@ -670,12 +672,12 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
               title="Click to edit cue number"
             />
             {cueValidation && (
-              <div 
+              <div
                 className="cursor-help"
                 title={cueValidation.message}
               >
-                <AlertTriangle 
-                  className="h-3 w-3 text-yellow-500" 
+                <AlertTriangle
+                  className="h-3 w-3 text-yellow-500"
                 />
               </div>
             )}
@@ -685,8 +687,8 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
           {canContinue && (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               variant="outline"
               onClick={handleContinueToNext}
               className="h-7 px-2 border-modules-cue text-modules-cue hover:bg-modules-cue hover:text-white"
@@ -696,8 +698,8 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
               <span className="text-xs font-medium">Continue</span>
             </Button>
           )}
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant="ghost"
             onClick={() => setShowConfirmDelete(true)}
             className="h-7 w-7 p-0"
@@ -713,7 +715,7 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
           <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold text-text-primary mb-2">Delete {item.type}?</h3>
             <p className="text-text-secondary mb-4">
-            Are you sure you want to delete {item.type} &quot;{item.name}&quot;?
+              Are you sure you want to delete {item.type} &quot;{item.name}&quot;?
             </p>
             <div className="flex gap-3">
               <Button
@@ -741,7 +743,7 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
 export default function ManageScriptPage() {
   const { getSortedPages, addPage } = useScriptStore()
   const [showAddDialog, setShowAddDialog] = useState(false)
-  
+
   const pages = getSortedPages()
 
   const handleAddPage = (pageData: { pageNumber: string; firstCueNumber?: string }) => {
@@ -779,16 +781,16 @@ export default function ManageScriptPage() {
                 Organize your script with hierarchical pages, scenes, and songs
               </p>
             </div>
-            
+
             <div className="p-6">
               {pages.length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="h-12 w-12 text-text-muted mx-auto mb-4" />
                   <p className="text-text-secondary">No script pages configured</p>
                   <p className="text-text-muted text-sm mt-1">Add your first page to get started</p>
-                  <Button 
-                    onClick={() => setShowAddDialog(true)} 
-                    variant="cue" 
+                  <Button
+                    onClick={() => setShowAddDialog(true)}
+                    variant="cue"
                     className="mt-4"
                   >
                     <Plus className="h-4 w-4 mr-2" />

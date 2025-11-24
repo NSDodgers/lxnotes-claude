@@ -168,7 +168,7 @@ test.describe('PDF Test Helpers Validation', () => {
     console.log('⚙️ Testing configuration setup...')
 
     // Verify base URL is accessible
-    await page.goto('/')
+    await page.goto('/cue-notes')
     await expect(page).toHaveTitle(/LX Notes/)
 
     console.log('✅ Base URL configuration works!')

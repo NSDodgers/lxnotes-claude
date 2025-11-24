@@ -6,7 +6,7 @@ test.describe('Error Handling & Performance', () => {
 
   test.beforeEach(async ({ page }) => {
     helpers = new TestHelpers(page);
-    await page.goto('/');
+    await page.goto('/cue-notes');
     await helpers.waitForAppReady();
   });
 
@@ -53,10 +53,10 @@ test.describe('Error Handling & Performance', () => {
       await helpers.openDialog('[data-testid="add-note-button"]');
 
       const dialog = page.locator('[data-testid="note-dialog"]');
-      
+
       // Try to save with empty title
       await dialog.locator('[data-testid="save-button"]').click();
-      
+
       // Should show validation error
       const titleError = dialog.locator('[data-testid="title-error"]');
       await expect(titleError).toBeVisible();
@@ -109,10 +109,10 @@ test.describe('Error Handling & Performance', () => {
       // Should show error state or empty state rather than crashing
       const errorState = page.locator('[data-testid="data-error"]');
       const emptyState = page.locator('[data-testid="empty-state"]');
-      
+
       const hasError = await errorState.count() > 0;
       const isEmpty = await emptyState.count() > 0;
-      
+
       expect(hasError || isEmpty).toBeTruthy();
 
       await page.unroute('**/api/notes**');
@@ -135,7 +135,7 @@ test.describe('Error Handling & Performance', () => {
       });
 
       const filterSection = page.locator('[data-testid="filter-sort-presets"]');
-      
+
       // First create a preset to delete
       await filterSection.locator('[data-testid="add-preset"]').click();
       let dialog = page.locator('[data-testid="preset-dialog"]');
@@ -177,7 +177,7 @@ test.describe('Error Handling & Performance', () => {
       if (await importButton.count() > 0) {
         // Set up file upload
         const fileInput = page.locator('input[type="file"]');
-        
+
         if (await fileInput.count() > 0) {
           // Upload invalid file
           await fileInput.setInputFiles({
@@ -215,7 +215,7 @@ test.describe('Error Handling & Performance', () => {
           route.fulfill({
             status: 409,
             contentType: 'application/json',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               error: 'Conflict: Note was modified by another user',
               currentVersion: {
                 title: 'Conflict Test Note',
@@ -239,7 +239,7 @@ test.describe('Error Handling & Performance', () => {
       // Should show conflict resolution dialog
       const conflictDialog = page.locator('[data-testid="conflict-resolution"]');
       await expect(conflictDialog).toBeVisible();
-      
+
       // Should show both versions
       await expect(conflictDialog).toContainText('My changes');
       await expect(conflictDialog).toContainText('Modified by another user');
@@ -247,7 +247,7 @@ test.describe('Error Handling & Performance', () => {
       // Should allow choosing version
       const useMyVersionButton = conflictDialog.locator('[data-testid="use-my-version"]');
       const useTheirVersionButton = conflictDialog.locator('[data-testid="use-their-version"]');
-      
+
       await expect(useMyVersionButton).toBeVisible();
       await expect(useTheirVersionButton).toBeVisible();
 
@@ -261,14 +261,14 @@ test.describe('Error Handling & Performance', () => {
   test.describe('Performance Tests', () => {
     test('should load initial page within acceptable time', async ({ page }) => {
       const startTime = Date.now();
-      
-      await page.goto('/');
+
+      await page.goto('/cue-notes');
       await helpers.waitForAppReady();
-      
+
       const loadTime = Date.now() - startTime;
-      
+
       expect(loadTime).toBeLessThan(5000); // 5 second load time budget
-      
+
       // Check that all critical elements are visible
       await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();
       await expect(page.locator('[data-testid="main-content"]')).toBeVisible();
@@ -282,12 +282,12 @@ test.describe('Error Handling & Performance', () => {
       // Test rapid switching between modules
       for (let i = 0; i < 10; i++) {
         const module = modules[i % modules.length];
-        
+
         const startTime = Date.now();
         await helpers.navigateToModule(module);
         await page.waitForSelector('[data-testid="notes-table"]');
         const navTime = Date.now() - startTime;
-        
+
         navigationTimes.push(navTime);
       }
 
@@ -306,10 +306,10 @@ test.describe('Error Handling & Performance', () => {
       // Search for common term that might return many results
       const searchStart = Date.now();
       await helpers.searchNotes('e'); // Single letter likely to match many items
-      
+
       // Wait for search to complete
       await page.waitForTimeout(500); // Allow search debounce
-      
+
       const searchTime = Date.now() - searchStart;
       expect(searchTime).toBeLessThan(2000); // 2 second search budget
 
@@ -322,7 +322,7 @@ test.describe('Error Handling & Performance', () => {
       await searchInput.clear();
       await page.waitForTimeout(500); // Allow debounce
       const clearTime = Date.now() - clearStart;
-      
+
       expect(clearTime).toBeLessThan(1000); // 1 second to clear
     });
 
@@ -334,13 +334,13 @@ test.describe('Error Handling & Performance', () => {
       // Test opening/closing dialogs rapidly
       for (let i = 0; i < 5; i++) {
         const startTime = Date.now();
-        
+
         // Open dialog
         await helpers.openDialog('[data-testid="add-note-button"]');
-        
+
         // Close dialog
         await helpers.closeDialog();
-        
+
         const operationTime = Date.now() - startTime;
         operationTimes.push(operationTime);
       }
@@ -390,14 +390,14 @@ test.describe('Error Handling & Performance', () => {
 
       // Clear all filters efficiently
       const clearStart = Date.now();
-      
+
       await statusFilter.selectOption('');
       await page.locator('[data-testid="clear-filters"]').click();
       await page.locator('[data-testid="search-input"]').clear();
-      
+
       await page.waitForTimeout(500);
       const clearTime = Date.now() - clearStart;
-      
+
       expect(clearTime).toBeLessThan(1500); // 1.5 second to clear all
     });
 
@@ -470,15 +470,15 @@ test.describe('Error Handling & Performance', () => {
 
       // Test export performance
       const exportStart = Date.now();
-      
+
       const exportButton = page.locator('[data-testid="export-settings"]');
       if (await exportButton.count() > 0) {
         const downloadPromise = page.waitForEvent('download');
         await exportButton.click();
-        
+
         const download = await downloadPromise;
         const exportTime = Date.now() - exportStart;
-        
+
         expect(exportTime).toBeLessThan(3000); // 3 second export budget
         expect(download.suggestedFilename()).toMatch(/\.(json|zip)$/);
       }
@@ -488,22 +488,22 @@ test.describe('Error Handling & Performance', () => {
   test.describe('Edge Cases', () => {
     test('should handle browser back/forward correctly', async ({ page }) => {
       await helpers.navigateToModule('cue-notes');
-      
+
       // Navigate to settings
       await helpers.navigateToSettingsTab('presets');
-      
+
       // Use browser back
       await page.goBack();
-      
+
       // Should return to cue notes
       await expect(page.locator('h1')).toContainText('Cue Notes');
-      
+
       // Use browser forward
       await page.goForward();
-      
+
       // Should return to settings
       await expect(page.locator('h1')).toContainText('Settings');
-      
+
       // App should remain functional
       const presetSection = page.locator('[data-testid="filter-sort-presets"]');
       await expect(presetSection).toBeVisible();
@@ -511,23 +511,23 @@ test.describe('Error Handling & Performance', () => {
 
     test('should handle page refresh gracefully', async ({ page }) => {
       await helpers.navigateToModule('work-notes');
-      
+
       // Apply some filters and search
       await helpers.searchNotes('test');
       const statusFilter = page.locator('[data-testid="status-filter"]');
       await statusFilter.selectOption('todo');
-      
+
       // Refresh page
       await page.reload();
       await helpers.waitForAppReady();
-      
+
       // Should return to default state but remain functional
       const searchInput = page.locator('[data-testid="search-input"]');
       const searchValue = await searchInput.inputValue();
-      
+
       // Search should be cleared after refresh (expected behavior)
       expect(searchValue).toBe('');
-      
+
       // Should be able to perform new operations
       await helpers.searchNotes('refresh');
       const newSearchValue = await searchInput.inputValue();
@@ -536,25 +536,25 @@ test.describe('Error Handling & Performance', () => {
 
     test('should handle rapid user interactions gracefully', async ({ page }) => {
       await helpers.navigateToModule('production-notes');
-      
+
       // Rapid clicking should not cause issues
       const addButton = page.locator('[data-testid="add-note-button"]');
-      
+
       // Click rapidly multiple times
       await addButton.click();
       await addButton.click();
       await addButton.click();
-      
+
       // Only one dialog should open
       const dialogs = page.locator('[data-testid="note-dialog"]');
       const dialogCount = await dialogs.count();
-      
+
       expect(dialogCount).toBeLessThanOrEqual(1);
-      
+
       if (dialogCount === 1) {
         await helpers.closeDialog();
       }
-      
+
       // App should remain responsive
       await expect(page.locator('[data-testid="notes-table"]')).toBeVisible();
     });
@@ -562,13 +562,13 @@ test.describe('Error Handling & Performance', () => {
     test('should handle invalid URL routes gracefully', async ({ page }) => {
       // Navigate to invalid route
       await page.goto('/invalid-route');
-      
+
       // Should handle gracefully (redirect to home or show 404)
       const is404 = await page.locator('h1:has-text("404")').count() > 0;
       const isHome = await page.locator('[data-testid="sidebar"]').count() > 0;
-      
+
       expect(is404 || isHome).toBeTruthy();
-      
+
       // If redirected to home, app should be functional
       if (isHome) {
         await helpers.navigateToModule('cue-notes');

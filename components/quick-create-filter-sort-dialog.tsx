@@ -7,12 +7,12 @@ import { Filter, CheckSquare, Square } from 'lucide-react'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import { 
-  QuickCreatePresetDialog, 
-  QuickCreatePresetDialogContent, 
-  QuickCreatePresetDialogActions 
+import {
+  QuickCreatePresetDialog,
+  QuickCreatePresetDialogContent,
+  QuickCreatePresetDialogActions
 } from './quick-create-preset-dialog'
-import { 
+import {
   PresetFormField,
   PresetFormInput,
   PresetFormSelect,
@@ -42,7 +42,7 @@ export function QuickCreateFilterSortDialog({
   const { addPreset, updatePreset } = useFilterSortPresetsStore()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isEditing = !!editingPreset
@@ -98,7 +98,7 @@ export function QuickCreateFilterSortDialog({
         ...defaultValues,
       })
     }
-  }, [editingPreset, moduleType, allTypeValues, allPriorityValues]) // Added allTypeValues and allPriorityValues to dependencies
+  }, [editingPreset, moduleType, allTypeValues, allPriorityValues, defaultValues])
 
   // Get available types and priorities for this module
   const availableTypes = useMemo(() => {
@@ -295,11 +295,11 @@ export function QuickCreateFilterSortDialog({
       open={isOpen}
       onClose={handleCancel}
       title={isEditing && editingPreset?.isDefault ? "Copy System Preset" :
-             isEditing ? "Edit Filter & Sort Preset" : "Create Filter & Sort Preset"}
+        isEditing ? "Edit Filter & Sort Preset" : "Create Filter & Sort Preset"}
       description={isEditing && editingPreset?.isDefault ?
-                   `Create a custom copy of "${editingPreset?.name}" for ${moduleNames[moduleType]}` :
-                   isEditing ? `Edit preset for ${moduleNames[moduleType]}` :
-                   `Quick create for ${moduleNames[moduleType]}`}
+        `Create a custom copy of "${editingPreset?.name}" for ${moduleNames[moduleType]}` :
+        isEditing ? `Edit preset for ${moduleNames[moduleType]}` :
+          `Quick create for ${moduleNames[moduleType]}`}
       className="max-w-lg"
     >
       <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -320,8 +320,8 @@ export function QuickCreateFilterSortDialog({
             </PresetFormField>
 
             {/* Module Type (locked) */}
-            <PresetFormField 
-              label="Module Type" 
+            <PresetFormField
+              label="Module Type"
               description={`Locked to ${moduleNames[moduleType]}`}
             >
               <PresetFormInput
@@ -343,8 +343,8 @@ export function QuickCreateFilterSortDialog({
 
             {/* Type Filters */}
             {availableTypes.length > 0 && (
-              <PresetFormField 
-                label="Type Filters" 
+              <PresetFormField
+                label="Type Filters"
                 description="Select specific types (leave all unchecked for all types)"
               >
                 <div className="flex gap-2 mb-3">
@@ -378,7 +378,7 @@ export function QuickCreateFilterSortDialog({
                         disabled={isSubmitting}
                       />
                       <span className="flex items-center gap-1">
-                        <div 
+                        <div
                           className="w-3 h-3 rounded-full flex-shrink-0"
                           style={{ backgroundColor: type.color }}
                         />
@@ -392,8 +392,8 @@ export function QuickCreateFilterSortDialog({
 
             {/* Priority Filters */}
             {availablePriorities.length > 0 && (
-              <PresetFormField 
-                label="Priority Filters" 
+              <PresetFormField
+                label="Priority Filters"
                 description="Select specific priorities (leave all unchecked for all priorities)"
               >
                 <div className="flex gap-2 mb-3">
@@ -427,7 +427,7 @@ export function QuickCreateFilterSortDialog({
                         disabled={isSubmitting}
                       />
                       <span className="flex items-center gap-1">
-                        <div 
+                        <div
                           className="w-3 h-3 rounded-full flex-shrink-0"
                           style={{ backgroundColor: priority.color }}
                         />
@@ -491,13 +491,13 @@ export function QuickCreateFilterSortDialog({
               <>
                 <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 {isEditing && editingPreset?.isDefault ? 'Saving Copy...' :
-                 isEditing ? 'Updating...' : 'Creating...'}
+                  isEditing ? 'Updating...' : 'Creating...'}
               </>
             ) : (
               <>
                 <Filter className="h-3 w-3" />
                 {isEditing && editingPreset?.isDefault ? 'Save as Copy' :
-                 isEditing ? 'Update Preset' : 'Create Preset'}
+                  isEditing ? 'Update Preset' : 'Create Preset'}
               </>
             )}
           </button>

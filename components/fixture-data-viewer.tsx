@@ -67,7 +67,10 @@ export function FixtureDataViewer({
 
   // Only fetch and compute data when the Sheet is actually open
   // This prevents expensive operations and infinite render loops when closed
-  const allFixtures = isOpen ? getFixturesByProduction(productionId) : []
+  const allFixtures = useMemo(() =>
+    isOpen ? getFixturesByProduction(productionId) : [],
+    [isOpen, getFixturesByProduction, productionId]
+  )
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -268,162 +271,162 @@ export function FixtureDataViewer({
 
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent side="right" className="w-full sm:max-w-4xl max-w-none">
-        <SheetHeader className="pb-6">
-          <div className="flex items-center gap-2">
-            <Database className="h-5 w-5 text-modules-work" />
-            <SheetTitle>Fixtures</SheetTitle>
-          </div>
-          <SheetDescription asChild>
-            <div className="space-y-2">
-              {stats.lastUpload ? (
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4" />
-                  <span>Last updated: {formatDate(stats.lastUpload)}</span>
+          <SheetHeader className="pb-6">
+            <div className="flex items-center gap-2">
+              <Database className="h-5 w-5 text-modules-work" />
+              <SheetTitle>Fixtures</SheetTitle>
+            </div>
+            <SheetDescription asChild>
+              <div className="space-y-2">
+                {stats.lastUpload ? (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4" />
+                    <span>Last updated: {formatDate(stats.lastUpload)}</span>
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground">No fixture data uploaded</div>
+                )}
+                <div className="flex items-center gap-4 text-sm">
+                  <span className="text-muted-foreground">{stats.total} fixtures loaded</span>
                 </div>
-              ) : (
-                <div className="text-muted-foreground">No fixture data uploaded</div>
-              )}
-              <div className="flex items-center gap-4 text-sm">
-                <span className="text-muted-foreground">{stats.total} fixtures loaded</span>
               </div>
+            </SheetDescription>
+          </SheetHeader>
+
+          {allFixtures.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Database className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
+              <h3 className="text-lg font-medium mb-2">No Fixture Data</h3>
+              <p className="text-muted-foreground mb-4">
+                Upload a hookup CSV file to view fixture data here.
+              </p>
+              <Button onClick={onClose} variant="outline">
+                Close
+              </Button>
             </div>
-          </SheetDescription>
-        </SheetHeader>
+          ) : (
+            <div className="space-y-4">
+              {/* Controls */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search channels, positions, types..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
 
-        {allFixtures.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Database className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
-            <h3 className="text-lg font-medium mb-2">No Fixture Data</h3>
-            <p className="text-muted-foreground mb-4">
-              Upload a hookup CSV file to view fixture data here.
-            </p>
-            <Button onClick={onClose} variant="outline">
-              Close
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Controls */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search channels, positions, types..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleExportCSV}
-                  variant="outline"
-                  size="default"
-                  disabled={table.getRowModel().rows.length === 0}
-                >
-                  <Download className="h-4 w-4" />
-                  Export CSV
-                </Button>
-              </div>
-            </div>
-
-            {/* Results count */}
-            {searchTerm ? (
-              <div className="text-sm text-muted-foreground">
-                Showing {table.getRowModel().rows.length} of {allFixtures.length} fixtures
-              </div>
-            ) : null}
-
-            {/* Data Table */}
-            <div className="rounded-lg border max-h-[60vh] overflow-auto">
-              <Table>
-                <TableHeader className="sticky top-0 bg-background border-b z-10">
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        const canSort = header.column.getCanSort()
-                        const isSorted = header.column.getIsSorted()
-                        const sortIndex = header.column.getSortIndex()
-
-                        return (
-                          <TableHead
-                            key={header.id}
-                            className={cn(
-                              canSort && 'cursor-pointer hover:bg-muted/50 transition-colors'
-                            )}
-                            onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                            style={{
-                              width: header.getSize(),
-                            }}
-                          >
-                            {header.isPlaceholder ? null : (
-                              <div className="flex items-center gap-1">
-                                {flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                                {canSort && renderSortIndicator(isSorted, sortIndex)}
-                              </div>
-                            )}
-                          </TableHead>
-                        )
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows.length > 0 ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow key={row.id}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell
-                            key={cell.id}
-                            style={{
-                              width: cell.column.getSize(),
-                            }}
-                          >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center text-muted-foreground"
-                      >
-                        {searchTerm ? 'No fixtures match your search criteria' : 'No fixtures found'}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Delete All Fixtures Button */}
-            {allFixtures.length > 0 && (
-              <div className="mt-8 pt-6 border-t">
-                <div className="flex justify-center">
+                <div className="flex gap-2">
                   <Button
-                    variant="destructive"
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="flex items-center gap-2"
+                    onClick={handleExportCSV}
+                    variant="outline"
+                    size="default"
+                    disabled={table.getRowModel().rows.length === 0}
                   >
-                    <Trash2 className="h-4 w-4" />
-                    Delete All Fixtures
+                    <Download className="h-4 w-4" />
+                    Export CSV
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground text-center mt-2">
-                  This will remove all fixture data. Work notes will keep their LWID references.
-                </p>
               </div>
-            )}
-          </div>
-        )}
-      </SheetContent>
-    </Sheet>
+
+              {/* Results count */}
+              {searchTerm ? (
+                <div className="text-sm text-muted-foreground">
+                  Showing {table.getRowModel().rows.length} of {allFixtures.length} fixtures
+                </div>
+              ) : null}
+
+              {/* Data Table */}
+              <div className="rounded-lg border max-h-[60vh] overflow-auto">
+                <Table>
+                  <TableHeader className="sticky top-0 bg-background border-b z-10">
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => {
+                          const canSort = header.column.getCanSort()
+                          const isSorted = header.column.getIsSorted()
+                          const sortIndex = header.column.getSortIndex()
+
+                          return (
+                            <TableHead
+                              key={header.id}
+                              className={cn(
+                                canSort && 'cursor-pointer hover:bg-muted/50 transition-colors'
+                              )}
+                              onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                              style={{
+                                width: header.getSize(),
+                              }}
+                            >
+                              {header.isPlaceholder ? null : (
+                                <div className="flex items-center gap-1">
+                                  {flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
+                                  {canSort && renderSortIndicator(isSorted, sortIndex)}
+                                </div>
+                              )}
+                            </TableHead>
+                          )
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+                  <TableBody>
+                    {table.getRowModel().rows.length > 0 ? (
+                      table.getRowModel().rows.map((row) => (
+                        <TableRow key={row.id}>
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell
+                              key={cell.id}
+                              style={{
+                                width: cell.column.getSize(),
+                              }}
+                            >
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={columns.length}
+                          className="h-24 text-center text-muted-foreground"
+                        >
+                          {searchTerm ? 'No fixtures match your search criteria' : 'No fixtures found'}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Delete All Fixtures Button */}
+              {allFixtures.length > 0 && (
+                <div className="mt-8 pt-6 border-t">
+                  <div className="flex justify-center">
+                    <Button
+                      variant="destructive"
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete All Fixtures
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    This will remove all fixture data. Work notes will keep their LWID references.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </>
   )
 }

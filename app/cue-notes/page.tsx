@@ -22,6 +22,7 @@ import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { ScriptManager } from '@/components/script-manager'
 import { isDemoMode } from '@/lib/demo-data'
+import Image from 'next/image'
 
 // Mock data for development - REMOVED: This large array was never used
 // Notes are now generated dynamically by the mock-notes-store
@@ -1755,13 +1756,15 @@ export default function CueNotesPage() {
   const mockNotesStore = useMockNotesStore()
   const [notes, setNotes] = useState<Note[]>([])
 
+  const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
+
   // Initialize mock data only in non-demo mode
   // In demo mode, initializeDemoSession handles all initialization
   useEffect(() => {
     if (!isDemoMode()) {
-      mockNotesStore.initializeWithMockData()
+      initializeWithMockData()
     }
-  }, [])
+  }, [initializeWithMockData])
 
   // Load and subscribe to store changes (for demo initialization)
   useEffect(() => {
@@ -1796,19 +1799,19 @@ export default function CueNotesPage() {
 
   // Get custom types and priorities from stores (only after hydration)
   const availableTypes = isHydrated ? customTypesStore.getTypes('cue') : []
-  const typeOptions = availableTypes.map(type => ({ 
-    value: type.value, 
+  const typeOptions = availableTypes.map(type => ({
+    value: type.value,
     label: type.label,
-    color: type.color 
+    color: type.color
   }))
   const availablePriorities = isHydrated ? customPrioritiesStore.getPriorities('cue') : []
 
   const filteredNotes = notes.filter(note => {
     const searchLower = searchTerm.toLowerCase()
     const matchesSearch = note.title.toLowerCase().includes(searchLower) ||
-                          note.description?.toLowerCase().includes(searchLower) ||
-                          note.scriptPageId?.toLowerCase().includes(searchLower) ||
-                          note.sceneSongId?.toLowerCase().includes(searchLower)
+      note.description?.toLowerCase().includes(searchLower) ||
+      note.scriptPageId?.toLowerCase().includes(searchLower) ||
+      note.sceneSongId?.toLowerCase().includes(searchLower)
     const matchesStatus = note.status === filterStatus
     const matchesType = filterTypes.length === 0 || filterTypes.includes(note.type || '')
     return matchesSearch && matchesStatus && matchesType
@@ -1852,7 +1855,9 @@ export default function CueNotesPage() {
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
                 {logo && (logo.startsWith('data:') || logo.startsWith('/') || logo.startsWith('http')) ? (
-                  <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
+                  <div className="relative w-full h-full">
+                    <Image src={logo} alt="Production logo" fill className="object-cover" />
+                  </div>
                 ) : (
                   <span>{logo}</span>
                 )}
@@ -1979,13 +1984,13 @@ export default function CueNotesPage() {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-muted-foreground text-sm">Quick Add:</span>
               {availableTypes.map(type => (
-                <Button 
+                <Button
                   key={type.id}
-                  onClick={() => openDialog(type.value)} 
+                  onClick={() => openDialog(type.value)}
                   size="xs"
-                  style={{ 
+                  style={{
                     backgroundColor: type.color,
-                    borderColor: type.color 
+                    borderColor: type.color
                   }}
                   className="text-white hover:opacity-80 transition-opacity"
                 >
@@ -2025,7 +2030,7 @@ export default function CueNotesPage() {
         defaultType={dialogDefaultType}
         editingNote={editingNote}
       />
-      
+
       <EmailNotesSidebar
         moduleType="cue"
         isOpen={isEmailViewOpen}

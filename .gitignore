@@ -198,3 +198,8 @@ dist
 
 # MCP configuration (may contain sensitive API keys)
 .mcp.json
+
+# Playwright test results
+/test-results/
+/playwright-report/
+/playwright/.cache/

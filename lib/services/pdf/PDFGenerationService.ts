@@ -76,7 +76,7 @@ export class PDFGenerationService {
       }
 
       // Generate PDF blob using @react-pdf/renderer
-      const pdfBlob = await pdf(pdfDocument).toBlob()
+      const pdfBlob = await pdf(pdfDocument as any).toBlob()
 
       // Generate filename
       const timestamp = new Date().toISOString().split('T')[0]

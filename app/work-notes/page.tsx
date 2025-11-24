@@ -15,7 +15,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Plus, Search, Wrench, Upload, Mail, Printer, Database, ArrowUpDown, RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
@@ -38,20 +38,23 @@ import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 // Lazy loaded via dynamic import to avoid loading 4,682 lines on page load
 // import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 import { isDemoMode } from '@/lib/demo-data'
+import Image from 'next/image'
 
 export default function WorkNotesPage() {
   const mockNotesStore = useMockNotesStore()
   const [notes, setNotes] = useState<Note[]>([])
   const [isInitialized, setIsInitialized] = useState(false)
 
+  const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
+
   // Initialize mock data only in non-demo mode
   // In demo mode, initializeDemoSession handles all initialization
   useEffect(() => {
     if (!isDemoMode()) {
-      mockNotesStore.initializeWithMockData()
+      initializeWithMockData()
     }
     setIsInitialized(true)
-  }, [])
+  }, [initializeWithMockData])
 
   // Load notes into state after initialization
   useEffect(() => {
@@ -102,18 +105,8 @@ export default function WorkNotesPage() {
     setIsHydrated(true)
   }, [])
 
-  // Auto-load mock data in development mode (DISABLED in demo mode)
-  // In demo mode, fixture data is loaded by initializeDemoSession in lib/demo-data/loader.ts
-  // This prevents redundant loading and UI freezes
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && !isDemoMode() && fixturesLength === 0 && !getHasBeenDeleted()) {
-      // Only load test data in non-demo development mode
-      loadTestData()
-    }
-  }, [fixturesLength, getHasBeenDeleted])
-
   // Development helper - populate test data (ASYNC)
-  const loadTestData = async () => {
+  const loadTestData = useCallback(async () => {
     if (fixturesLength === 0) {
       // Dynamic import to avoid loading 4,682 lines on page load
       const { generateSampleFixtures } = await import('@/lib/test-data/sample-fixture-data')
@@ -133,7 +126,17 @@ export default function WorkNotesPage() {
       }))
       uploadFixtures('prod-1', parsedRows, false)
     }
-  }
+  }, [fixturesLength, uploadFixtures])
+
+  // Auto-load mock data in development mode (DISABLED in demo mode)
+  // In demo mode, fixture data is loaded by initializeDemoSession in lib/demo-data/loader.ts
+  // This prevents redundant loading and UI freezes
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && !isDemoMode() && fixturesLength === 0 && !getHasBeenDeleted()) {
+      // Only load test data in non-demo development mode
+      loadTestData()
+    }
+  }, [fixturesLength, getHasBeenDeleted, loadTestData])
 
   // Get custom types from store (only after hydration)
   const availableTypes = isHydrated ? customTypesStore.getTypes('work') : []
@@ -145,7 +148,7 @@ export default function WorkNotesPage() {
 
   const filteredNotes = notes.filter(note => {
     const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          note.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      note.description?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = note.status === filterStatus
     const matchesType = filterTypes.length === 0 || filterTypes.includes(note.type || '')
     return matchesSearch && matchesStatus && matchesType
@@ -206,7 +209,9 @@ export default function WorkNotesPage() {
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
                 {logo && (logo.startsWith('data:') || logo.startsWith('/') || logo.startsWith('http')) ? (
-                  <img src={logo} alt="Production logo" className="w-full h-full object-cover" />
+                  <div className="relative w-full h-full">
+                    <Image src={logo} alt="Production logo" fill className="object-cover" />
+                  </div>
                 ) : (
                   <span>{logo}</span>
                 )}

@@ -7,17 +7,17 @@ interface ScriptState {
   pages: ScriptPage[]
   scenes: SceneSong[]
   songs: SceneSong[]
-  
+
   // CRUD operations for pages
   addPage: (page: Omit<ScriptPage, 'id' | 'createdAt' | 'updatedAt'>) => ScriptPage
   updatePage: (id: string, updates: Partial<ScriptPage>) => void
   deletePage: (id: string) => void
-  
+
   // CRUD operations for scenes/songs
   addSceneSong: (item: Omit<SceneSong, 'id' | 'createdAt' | 'updatedAt'>) => SceneSong
   updateSceneSong: (id: string, updates: Partial<SceneSong>) => void
   deleteSceneSong: (id: string) => void
-  
+
   // Utility functions
   getPageScenes: (pageId: string) => SceneSong[]
   getPageSongs: (pageId: string) => SceneSong[]
@@ -28,14 +28,14 @@ interface ScriptState {
   validatePageOrder: (pageId: string) => { valid: boolean; message?: string }
   validateSceneSongCueNumber: (cueNumber: string, pageId: string, itemId?: string) => { valid: boolean; message?: string }
   findCueLocation: (cueNumber: string) => { page?: ScriptPage; scene?: SceneSong; song?: SceneSong }
-  
+
   // Continuation functions
   getPreviousPageScenes: (pageId: string) => SceneSong[]
   getPreviousPageSongs: (pageId: string) => SceneSong[]
   createContinuation: (originalItemId: string, targetPageId: string, firstCueNumber?: string) => SceneSong
   getContinuationChain: (itemId: string) => SceneSong[]
   getNextPage: (pageId: string) => ScriptPage | undefined
-  
+
   // Smart continuation functions
   getAvailableContinuations: (pageId: string, type: 'scene' | 'song') => SceneSong[]
   getContinuationStatus: (itemId: string, targetPageId: string) => 'available' | 'already_continued' | 'already_here'
@@ -71,7 +71,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-    
+
     set((state) => ({
       pages: [...state.pages, newPage].sort((a, b) => {
         const pageA = parsePageNumber(a.pageNumber)
@@ -82,7 +82,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         return pageA.suffix.localeCompare(pageB.suffix)
       })
     }))
-    
+
     return newPage
   },
 
@@ -109,9 +109,9 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
       createdAt: new Date(),
       updatedAt: new Date(),
     }
-    
+
     const arrayName = itemData.type === 'scene' ? 'scenes' : 'songs'
-    
+
     set((state) => ({
       [arrayName]: [...state[arrayName], newItem].sort((a, b) => {
         if (a.scriptPageId !== b.scriptPageId) {
@@ -122,7 +122,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         return cueA - cueB
       })
     }))
-    
+
     return newItem
   },
 
@@ -134,7 +134,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
       const songs = state.songs.map(song =>
         song.id === id ? { ...song, ...updates, updatedAt: new Date() } : song
       )
-      
+
       return { scenes, songs }
     })
   },
@@ -193,31 +193,31 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
   validateCueNumber: (cueNumber, excludeId) => {
     const { pages, scenes, songs } = get()
     const cueNum = parseCueNumber(cueNumber)
-    
+
     if (cueNum <= 0) {
       return { valid: false, message: 'Cue number must be greater than 0' }
     }
-    
-    const excludeItem = pages.find(p => p.id === excludeId) || 
-                       scenes.find(s => s.id === excludeId) || 
-                       songs.find(s => s.id === excludeId)
-    
+
+    const excludeItem = pages.find(p => p.id === excludeId) ||
+      scenes.find(s => s.id === excludeId) ||
+      songs.find(s => s.id === excludeId)
+
     // If checking a page, only check conflicts with other pages (not scenes/songs)
     if (excludeItem && pages.find(p => p.id === excludeId)) {
-      const conflictingPage = pages.find(page => 
-        page.id !== excludeId && 
-        page.firstCueNumber && 
+      const conflictingPage = pages.find(page =>
+        page.id !== excludeId &&
+        page.firstCueNumber &&
         parseCueNumber(page.firstCueNumber) === cueNum
       )
-      
+
       if (conflictingPage) {
-        return { 
-          valid: false, 
-          message: `Cue number conflicts with page ${conflictingPage.pageNumber}` 
+        return {
+          valid: false,
+          message: `Cue number conflicts with page ${conflictingPage.pageNumber}`
         }
       }
     }
-    
+
     // If checking a scene/song, only check conflicts with other scenes/songs
     if (excludeItem && (scenes.find(s => s.id === excludeId) || songs.find(s => s.id === excludeId))) {
       const allItems = [...scenes, ...songs]
@@ -226,7 +226,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         item.firstCueNumber &&
         parseCueNumber(item.firstCueNumber) === cueNum
       )
-      
+
       if (conflictingItem) {
         return {
           valid: false,
@@ -234,18 +234,18 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
       }
     }
-    
+
     return { valid: true }
   },
 
   validatePageOrder: (pageId) => {
     const { pages } = get()
     const currentPage = pages.find(p => p.id === pageId)
-    
+
     if (!currentPage || !currentPage.firstCueNumber) {
       return { valid: true }
     }
-    
+
     const sortedPages = pages
       .filter(p => p.firstCueNumber)
       .sort((a, b) => {
@@ -256,10 +256,10 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
         return pageA.suffix.localeCompare(pageB.suffix)
       })
-    
+
     const currentIndex = sortedPages.findIndex(p => p.id === pageId)
     const currentCue = parseCueNumber(currentPage.firstCueNumber)
-    
+
     // Check previous page
     if (currentIndex > 0) {
       const prevPage = sortedPages[currentIndex - 1]
@@ -271,7 +271,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
       }
     }
-    
+
     // Check next page
     if (currentIndex < sortedPages.length - 1) {
       const nextPage = sortedPages[currentIndex + 1]
@@ -283,23 +283,23 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
       }
     }
-    
+
     return { valid: true }
   },
 
   validateSceneSongCueNumber: (cueNumber, pageId, itemId) => {
     const { pages } = get()
     const cueNum = parseCueNumber(cueNumber)
-    
+
     if (cueNum <= 0) {
       return { valid: false, message: 'Cue number must be greater than 0' }
     }
-    
+
     const currentPage = pages.find(p => p.id === pageId)
     if (!currentPage) {
       return { valid: true } // Page not found, skip validation
     }
-    
+
     const sortedPages = pages
       .filter(p => p.firstCueNumber)
       .sort((a, b) => {
@@ -310,12 +310,12 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
         return pageA.suffix.localeCompare(pageB.suffix)
       })
-    
+
     const currentPageIndex = sortedPages.findIndex(p => p.id === pageId)
     if (currentPageIndex === -1) {
       return { valid: true } // Page not in sorted list, skip validation
     }
-    
+
     // Check if cue is lower than current page's first cue
     if (currentPage.firstCueNumber) {
       const currentPageCue = parseCueNumber(currentPage.firstCueNumber)
@@ -326,7 +326,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
       }
     }
-    
+
     // Check if cue is higher than next page's first cue
     if (currentPageIndex < sortedPages.length - 1) {
       const nextPage = sortedPages[currentPageIndex + 1]
@@ -340,7 +340,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
       }
     }
-    
+
     return { valid: true }
   },
 
@@ -425,10 +425,10 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
         return pageA.suffix.localeCompare(pageB.suffix)
       })
-    
+
     const currentPageIndex = sortedPages.findIndex(p => p.id === pageId)
     if (currentPageIndex <= 0) return []
-    
+
     const previousPage = sortedPages[currentPageIndex - 1]
     return scenes
       .filter(scene => scene.scriptPageId === previousPage.id)
@@ -451,10 +451,10 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
         return pageA.suffix.localeCompare(pageB.suffix)
       })
-    
+
     const currentPageIndex = sortedPages.findIndex(p => p.id === pageId)
     if (currentPageIndex <= 0) return []
-    
+
     const previousPage = sortedPages[currentPageIndex - 1]
     return songs
       .filter(song => song.scriptPageId === previousPage.id)
@@ -468,7 +468,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
   createContinuation: (originalItemId, targetPageId, firstCueNumber) => {
     const { scenes, songs, addSceneSong } = get()
     const originalItem = [...scenes, ...songs].find(item => item.id === originalItemId)
-    
+
     if (!originalItem) {
       throw new Error('Original item not found')
     }
@@ -476,6 +476,8 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
     const continuationData = {
       name: originalItem.name,
       type: originalItem.type as 'scene' | 'song',
+      productionId: originalItem.productionId,
+      moduleType: originalItem.moduleType,
       scriptPageId: targetPageId,
       orderIndex: 0,
       continuesFromId: originalItemId,
@@ -489,28 +491,28 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
     const { scenes, songs } = get()
     const allItems = [...scenes, ...songs]
     const chain: SceneSong[] = []
-    
+
     // Find the root item (one without continuesFromId)
     let currentItem = allItems.find(item => item.id === itemId)
     if (!currentItem) return []
-    
+
     // Go back to find the root
     while (currentItem && currentItem.continuesFromId) {
       currentItem = allItems.find(item => item.id === currentItem!.continuesFromId)
     }
-    
+
     if (!currentItem) return []
-    
+
     // Build the chain forward
     chain.push(currentItem)
-    
+
     let nextItem = allItems.find(item => item.continuesFromId === currentItem!.id)
     while (nextItem) {
       chain.push(nextItem)
       const nextId = nextItem.id
       nextItem = allItems.find(item => item.continuesFromId === nextId)
     }
-    
+
     return chain
   },
 
@@ -526,19 +528,19 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
         return pageA.suffix.localeCompare(pageB.suffix)
       })
-    
+
     const currentPageIndex = sortedPages.findIndex(p => p.id === pageId)
     if (currentPageIndex === -1 || currentPageIndex >= sortedPages.length - 1) {
       return undefined
     }
-    
+
     return sortedPages[currentPageIndex + 1]
   },
 
   // Smart continuation functions
   getAvailableContinuations: (pageId, type) => {
     const { pages, scenes, songs } = get()
-    
+
     // Get previous page
     const sortedPages = pages
       .filter(p => p.firstCueNumber)
@@ -550,19 +552,19 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
         return pageA.suffix.localeCompare(pageB.suffix)
       })
-    
+
     const currentPageIndex = sortedPages.findIndex(p => p.id === pageId)
     if (currentPageIndex <= 0) return []
-    
+
     const previousPage = sortedPages[currentPageIndex - 1]
     const items = type === 'scene' ? scenes : songs
     const allItems = [...scenes, ...songs]
-    
+
     return items
       .filter(item => item.scriptPageId === previousPage.id)
       .filter(item => {
         // Only include items that don't already continue to the target page
-        const hasExistingContinuation = allItems.some(otherItem => 
+        const hasExistingContinuation = allItems.some(otherItem =>
           otherItem.continuesFromId === item.id && otherItem.scriptPageId === pageId
         )
         return !hasExistingContinuation
@@ -577,38 +579,38 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
   getContinuationStatus: (itemId, targetPageId) => {
     const { scenes, songs } = get()
     const allItems = [...scenes, ...songs]
-    
+
     // Check if item already exists on the target page as a continuation
-    const existsOnTargetPage = allItems.some(item => 
+    const existsOnTargetPage = allItems.some(item =>
       item.continuesFromId === itemId && item.scriptPageId === targetPageId
     )
-    
+
     if (existsOnTargetPage) {
       return 'already_here'
     }
-    
+
     // Check if item already continues somewhere else
-    const continuesElsewhere = allItems.some(item => 
+    const continuesElsewhere = allItems.some(item =>
       item.continuesFromId === itemId && item.scriptPageId !== targetPageId
     )
-    
+
     if (continuesElsewhere) {
       return 'already_continued'
     }
-    
+
     return 'available'
   },
 
   getSuggestedContinuation: (pageId, type) => {
     const availableContinuations = get().getAvailableContinuations(pageId, type)
-    
+
     if (availableContinuations.length === 0) return undefined
-    
+
     // If there's only one available, suggest it
     if (availableContinuations.length === 1) {
       return availableContinuations[0]
     }
-    
+
     // Otherwise, suggest the one with the highest cue number (likely the last one on the page)
     return availableContinuations.reduce((prev, current) => {
       const prevCue = prev.firstCueNumber ? parseCueNumber(prev.firstCueNumber) : 0
@@ -620,11 +622,11 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
   updateContinuationChain: (itemId, updates) => {
     const { getContinuationChain } = get()
     const continuationChain = getContinuationChain(itemId)
-    
+
     // Only update the 'name' field across all items in the chain for consistency
     // Other fields like cue numbers should remain unique per page
     const nameUpdate = updates.name ? { name: updates.name } : {}
-    
+
     if (Object.keys(nameUpdate).length === 0) {
       // If no name update, just update the single item
       set((state) => {
@@ -638,18 +640,18 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
       })
       return
     }
-    
+
     // Update all items in the continuation chain with the new name
     set((state) => {
       const chainIds = new Set(continuationChain.map(item => item.id))
-      
+
       const scenes = state.scenes.map(scene =>
         chainIds.has(scene.id) ? { ...scene, ...nameUpdate, updatedAt: new Date() } : scene
       )
       const songs = state.songs.map(song =>
         chainIds.has(song.id) ? { ...song, ...nameUpdate, updatedAt: new Date() } : song
       )
-      
+
       return { scenes, songs }
     })
   },

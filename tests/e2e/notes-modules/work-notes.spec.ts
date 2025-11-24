@@ -7,7 +7,7 @@ test.describe('Work Notes Module', () => {
 
   test.beforeEach(async ({ page }) => {
     helpers = new TestHelpers(page);
-    await page.goto('/');
+    await page.goto('/cue-notes');
     await helpers.waitForAppReady();
     await helpers.navigateToModule('work-notes');
   });

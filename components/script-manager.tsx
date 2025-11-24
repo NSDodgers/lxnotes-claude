@@ -418,6 +418,8 @@ function ScriptItem({ page }: ScriptItemProps) {
   const handleAddSceneSong = (itemData: { name: string; type: 'scene' | 'song'; firstCueNumber?: string; continuesFromId?: string }) => {
     addSceneSong({
       ...itemData,
+      productionId: 'prod-1',
+      moduleType: 'cue',
       scriptPageId: page.id,
       orderIndex: 0, // Will be sorted automatically
     })
@@ -724,7 +726,7 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
           <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold text-text-primary mb-2">Delete {item.type}?</h3>
             <p className="text-text-secondary mb-4">
-            Are you sure you want to delete {item.type} &quot;{item.name}&quot;?
+              Are you sure you want to delete {item.type} &quot;{item.name}&quot;?
             </p>
             <div className="flex gap-3">
               <Button

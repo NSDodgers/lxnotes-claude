@@ -39,6 +39,10 @@ export function getPiratesFixtures(): FixtureInfo[] {
     address: fixture.address,
     positionOrder: fixture.positionOrder,
     productionId: 'prod-1', // Pirates demo production
-    sourceUploadedAt: now
+    sourceUploadedAt: now,
+    isActive: true,
+    source: 'demo',
+    createdAt: now,
+    updatedAt: now
   }))
 }

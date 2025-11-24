@@ -71,7 +71,7 @@ export function QuickCreatePageStyleSidebar({
         ...defaultValues,
       })
     }
-  }, [editingPreset])
+  }, [editingPreset, defaultValues, form])
 
   const handleSubmit = async (data: PageStyleFormData) => {
     setIsSubmitting(true)
@@ -203,14 +203,14 @@ export function QuickCreatePageStyleSidebar({
             <Printer className="h-5 w-5 text-text-primary" />
             <SheetTitle>
               {isEditing && editingPreset?.isDefault ? "Copy System Page Style" :
-               isEditing ? "Edit Page Style Preset" : "Create Page Style Preset"}
+                isEditing ? "Edit Page Style Preset" : "Create Page Style Preset"}
             </SheetTitle>
           </div>
           <SheetDescription>
             {isEditing && editingPreset?.isDefault ?
-             `Create a custom copy of "${editingPreset?.name}" for PDF formatting` :
-             isEditing ? 'Edit PDF formatting options' :
-             'Quick create for PDF formatting options'}
+              `Create a custom copy of "${editingPreset?.name}" for PDF formatting` :
+              isEditing ? 'Edit PDF formatting options' :
+                'Quick create for PDF formatting options'}
           </SheetDescription>
         </SheetHeader>
 
@@ -307,13 +307,13 @@ export function QuickCreatePageStyleSidebar({
                 <>
                   <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   {isEditing && editingPreset?.isDefault ? 'Saving Copy...' :
-                   isEditing ? 'Updating...' : 'Creating...'}
+                    isEditing ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
                 <>
                   <Printer className="h-3 w-3" />
                   {isEditing && editingPreset?.isDefault ? 'Save as Copy' :
-                   isEditing ? 'Update Preset' : 'Create Preset'}
+                    isEditing ? 'Update Preset' : 'Create Preset'}
                 </>
               )}
             </Button>

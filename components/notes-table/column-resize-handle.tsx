@@ -4,7 +4,7 @@ import { Header } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
 
 interface ColumnResizeHandleProps {
-  header: Header<unknown, unknown>
+  header: Header<any, unknown>
   className?: string
 }
 

@@ -110,13 +110,13 @@ export const getSortFieldsForModule = <T extends keyof ModuleSortFieldsMap>(modu
 
 export const validateSortFieldForModule = (sortBy: string, moduleType: 'cue' | 'work' | 'production') => {
   const validFields = getSortFieldsForModule(moduleType)
-  return validFields.includes(sortBy as (typeof validFields)[number])
+  return validFields.includes(sortBy as any)
 }
 
 // Helper function to validate filter/sort preset config based on module
 export const createModuleSpecificFilterSortSchema = (moduleType: 'cue' | 'work' | 'production') => {
   const validSortFields = getSortFieldsForModule(moduleType)
-  
+
   return filterSortPresetConfigSchema.extend({
     sortBy: z.enum(validSortFields, {
       message: `Sort field must be one of: ${validSortFields.join(', ')}`,

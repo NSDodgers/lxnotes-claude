@@ -36,7 +36,7 @@ export class CueNotesPDFStrategy implements PDFStrategy {
     return 'Cue Notes'
   }
 
-  formatModuleSpecificData(note: Note): Record<string, unknown> {
+  formatModuleSpecificData(note: Note): Record<string, string | number | boolean | null | undefined> {
     // Cue # comes from the cueNumber field
     const cueNumber = note.cueNumber || '-'
 
@@ -101,7 +101,7 @@ export class CueNotesPDFStrategy implements PDFStrategy {
           }
 
           if (sceneSong) {
-            const sceneSongDisplay = sceneSong.continuation
+            const sceneSongDisplay = !!sceneSong.continuesFromId
               ? `${sceneSong.name} (cont.)`
               : sceneSong.name
             return `${pageLabel} – ${sceneSongDisplay}`

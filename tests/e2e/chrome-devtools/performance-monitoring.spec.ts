@@ -14,7 +14,7 @@ import { createChromeDevToolsHelpers, withChromeDevTools } from '../../utils/chr
 test.describe('Performance Monitoring with Chrome DevTools MCP', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the application
-    await page.goto('/');
+    await page.goto('/cue-notes');
 
     // Wait for the application to be ready
     await page.waitForSelector('[data-testid="app-ready"]', { timeout: 10000 });
@@ -176,7 +176,7 @@ test.describe('Performance Monitoring with Chrome DevTools MCP', () => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
 
       // Navigate to dashboard
-      await page.goto('/');
+      await page.goto('/cue-notes');
 
       // Take enhanced screenshot for visual regression
       await cdtHelpers.takeEnhancedScreenshot({
