@@ -1,15 +1,15 @@
 /**
- * Demo Manage Script Page
+ * Demo Positions Page
  *
- * Initializes demo session and renders the script management interface in demo mode
+ * Initializes demo session and renders the position management interface in demo mode
  */
 'use client'
 
 import { useEffect } from 'react'
 import { initializeDemoSession } from '@/lib/demo-data'
-import ManageScriptPage from '@/app/manage-script/page'
+import PositionsPage from '@/app/(dashboard)/positions/page'
 
-export default function DemoManageScriptPage() {
+export default function DemoPositionsPage() {
   useEffect(() => {
     // Initialize demo data once when demo is entered
     const initialize = async () => {
@@ -23,7 +23,7 @@ export default function DemoManageScriptPage() {
     initialize()
   }, [])
 
-  // Render the actual manage script page
+  // Render the actual positions page
   // The storage adapter will automatically use sessionStorage because of the /demo URL
-  return <ManageScriptPage />
+  return <PositionsPage />
 }

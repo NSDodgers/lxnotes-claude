@@ -1,18 +1,18 @@
 'use client'
 
 import { Sidebar } from './sidebar'
-import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useSidebarStore } from '@/lib/stores/sidebar-store'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false)
+  const { collapsed } = useSidebarStore()
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      <Sidebar collapsed={collapsed} onCollapsedChange={setCollapsed} />
+      <Sidebar />
       <main
         data-testid="main-content"
         className={cn(

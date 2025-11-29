@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { initializeDemoSession } from '@/lib/demo-data'
-import WorkNotesPage from '@/app/work-notes/page'
+import WorkNotesPage from '@/app/(dashboard)/work-notes/page'
 import { Loader2 } from 'lucide-react'
 
 export default function DemoWorkNotesPage() {

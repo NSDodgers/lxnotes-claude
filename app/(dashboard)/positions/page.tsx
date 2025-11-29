@@ -1,6 +1,5 @@
 'use client'
 
-import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { PositionManager } from '@/components/position-manager'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -8,8 +7,7 @@ import { Button } from '@/components/ui/button'
 
 export default function PositionsPage() {
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Link href="/work-notes">
@@ -29,6 +27,5 @@ export default function PositionsPage() {
         {/* Position Manager */}
         <PositionManager />
       </div>
-    </DashboardLayout>
   )
 }

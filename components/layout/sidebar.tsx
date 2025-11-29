@@ -15,14 +15,11 @@ import {
   Tablet
 } from 'lucide-react'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useSidebarStore } from '@/lib/stores/sidebar-store'
 import { PolicyFooter } from './policy-footer'
 
-interface SidebarProps {
-  collapsed: boolean
-  onCollapsedChange: (collapsed: boolean) => void
-}
-
-export function Sidebar({ collapsed, onCollapsedChange }: SidebarProps) {
+export function Sidebar() {
+  const { collapsed, toggleCollapsed } = useSidebarStore()
   const pathname = usePathname()
 
   // Detect if we're in demo mode
@@ -73,7 +70,7 @@ export function Sidebar({ collapsed, onCollapsedChange }: SidebarProps) {
             />
           )}
           <button
-            onClick={() => onCollapsedChange(!collapsed)}
+            onClick={toggleCollapsed}
             className={cn(
               "hover:bg-bg-tertiary rounded-lg transition-colors",
               collapsed

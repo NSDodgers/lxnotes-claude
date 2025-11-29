@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { Button } from '@/components/ui/button'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, Edit3, ArrowRight } from 'lucide-react'
@@ -754,8 +753,8 @@ export default function ManageScriptPage() {
   }
 
   return (
-    <DashboardLayout>
-      <div className="flex flex-col h-full">
+    <>
+    <div className="flex flex-col h-full">
         {/* Sticky Header */}
         <div className="sticky top-0 z-10 bg-bg-primary border-b border-bg-tertiary pb-4 mb-6 pt-4">
           <div className="space-y-4">
@@ -814,6 +813,6 @@ export default function ManageScriptPage() {
         onClose={() => setShowAddDialog(false)}
         onAdd={handleAddPage}
       />
-    </DashboardLayout>
+    </>
   )
 }

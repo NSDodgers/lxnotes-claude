@@ -1,6 +1,5 @@
 'use client'
 
-import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users, X } from 'lucide-react'
 import { useState } from 'react'
 import { useProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
@@ -38,8 +37,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div className="border-b border-bg-tertiary pb-6">
           <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3">
@@ -62,10 +60,11 @@ export default function SettingsPage() {
           ].map((tab) => (
             <button
               key={tab.id}
+              data-testid={`tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${activeTab === tab.id
-                  ? 'border-modules-production text-text-primary'
-                  : 'border-transparent text-text-secondary hover:text-text-primary'
+                ? 'border-modules-production text-text-primary'
+                : 'border-transparent text-text-secondary hover:text-text-primary'
                 }`}
             >
               <tab.icon className="h-4 w-4" />
@@ -217,6 +216,5 @@ export default function SettingsPage() {
           </p>
         </div>
       </div>
-    </DashboardLayout>
   )
 }

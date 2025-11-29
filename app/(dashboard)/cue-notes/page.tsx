@@ -4,7 +4,6 @@
  */
 'use client'
 
-import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { CueNotesTable } from '@/components/notes-table/cue-notes-table'
 import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
@@ -1845,8 +1844,8 @@ export default function CueNotesPage() {
 
 
   return (
-    <DashboardLayout>
-      <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <>
+    <div className="flex flex-col h-[calc(100vh-4rem)]">
         {/* Sticky Header Container */}
         <div className="flex-none space-y-6 pb-4">
           {/* Header */}
@@ -1962,6 +1961,8 @@ export default function CueNotesPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full md:w-80 pl-8 font-medium"
+                  data-testid="search-input"
+                  aria-label="Search notes"
                 />
               </div>
               <Button
@@ -2048,6 +2049,6 @@ export default function CueNotesPage() {
         isOpen={isScriptManagerOpen}
         onClose={() => setIsScriptManagerOpen(false)}
       />
-    </DashboardLayout>
+    </>
   )
 }
