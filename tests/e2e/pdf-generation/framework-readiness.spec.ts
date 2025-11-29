@@ -21,12 +21,12 @@ test.describe('PDF Generation Framework Readiness Assessment', () => {
     // Phase 2: Module Navigation
     console.log('\n🧭 Phase 2: Module Navigation Assessment')
     const modules = ['cue', 'work', 'production'] as const
-    for (const module of modules) {
-      await pdfHelpers.navigateToModule(module)
+    for (const mod of modules) {
+      await pdfHelpers.navigateToModule(mod)
       await pdfHelpers.waitForUIReady()
       const url = page.url()
-      expect(url).toContain(`/${module}-notes`)
-      console.log(`✅ ${module.charAt(0).toUpperCase() + module.slice(1)} Notes module accessible`)
+      expect(url).toContain(`/${mod}-notes`)
+      console.log(`✅ ${mod.charAt(0).toUpperCase() + mod.slice(1)} Notes module accessible`)
     }
 
     // Phase 3: Framework Constants

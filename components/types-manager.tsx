@@ -45,9 +45,9 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
 
   const isSystemTypeCustomized = (systemId: string) => {
     return systemOverrides.some(
-      override => override.moduleType === moduleType && 
-                 override.systemId === systemId && 
-                 override.type === 'type'
+      override => override.moduleType === moduleType &&
+        override.systemId === systemId &&
+        override.type === 'type'
     )
   }
 
@@ -105,7 +105,7 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-6', className)} data-testid="custom-types-manager">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-text-primary">
@@ -115,6 +115,7 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
             onClick={() => setIsAddingNew(true)}
             size="sm"
             className="flex items-center gap-2"
+            data-testid="add-type-button"
           >
             <Plus className="h-4 w-4" />
             Add Custom Type
@@ -174,17 +175,22 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
 
               {/* Add new type form */}
               {isAddingNew && (
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-bg-tertiary">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg bg-bg-tertiary"
+                  data-testid="type-dialog"
+                >
                   <ColorPicker
                     value={newTypeColor}
                     onChange={setNewTypeColor}
                     className="flex-shrink-0"
+                    data-testid="type-color"
                   />
                   <Input
                     value={newTypeLabel}
                     onChange={(e) => setNewTypeLabel(e.target.value)}
                     placeholder="Enter type name..."
                     className="flex-1"
+                    data-testid="type-name"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault()
@@ -200,6 +206,7 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
                     onClick={handleAddNewType}
                     disabled={!newTypeLabel.trim()}
                     className="flex-shrink-0"
+                    data-testid="save-button"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>

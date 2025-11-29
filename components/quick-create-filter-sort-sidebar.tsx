@@ -101,7 +101,7 @@ export function QuickCreateFilterSortSidebar({
         ...defaultValues,
       })
     }
-  }, [editingPreset, moduleType, allTypeValues, allPriorityValues, defaultValues])
+  }, [editingPreset, moduleType, allTypeValues, allPriorityValues, defaultValues, form])
 
   // Get available types and priorities for this module
   const availableTypes = useMemo(() => {

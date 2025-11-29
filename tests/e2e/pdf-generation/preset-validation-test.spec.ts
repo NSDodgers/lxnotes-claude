@@ -173,11 +173,11 @@ test.describe('PDF Preset Validation Tests', () => {
       { name: 'Production Notes', path: '/production-notes', title: 'Print Production Notes' }
     ]
 
-    for (const module of modules) {
-      console.log(`\n📋 Testing ${module.name}...`)
+    for (const mod of modules) {
+      console.log(`\n📋 Testing ${mod.name}...`)
 
       // Navigate to module
-      await page.goto(`http://localhost:3000${module.path}`)
+      await page.goto(`http://localhost:3000${mod.path}`)
       await page.waitForLoadState('networkidle')
 
       // Open PDF dialog
@@ -186,25 +186,25 @@ test.describe('PDF Preset Validation Tests', () => {
       await page.waitForTimeout(1000)
 
       // Verify dialog title
-      const dialogTitle = page.locator(`h2:has-text("${module.title}")`)
+      const dialogTitle = page.locator(`h2:has-text("${mod.title}")`)
       await expect(dialogTitle).toBeVisible()
-      console.log(`✅ ${module.name} PDF dialog opened`)
+      console.log(`✅ ${mod.name} PDF dialog opened`)
 
       // Check for filter preset selector
       const filterSelector = page.locator('text=Filter & Sort Preset')
       await expect(filterSelector).toBeVisible()
-      console.log(`✅ ${module.name} has filter preset selector`)
+      console.log(`✅ ${mod.name} has filter preset selector`)
 
       // Check for page style preset selector
       const pageStyleSelector = page.locator('text=Page Style Preset').first()
       await expect(pageStyleSelector).toBeVisible()
-      console.log(`✅ ${module.name} has page style preset selector`)
+      console.log(`✅ ${mod.name} has page style preset selector`)
 
       // Check for generate button
       const generateButton = page.locator('button:has-text("Generate PDF")')
       await expect(generateButton).toBeVisible()
       await expect(generateButton).toBeDisabled() // Should be disabled without selections
-      console.log(`✅ ${module.name} has properly disabled Generate PDF button`)
+      console.log(`✅ ${mod.name} has properly disabled Generate PDF button`)
 
       // Close dialog for next test
       const cancelButton = page.locator('button:has-text("Cancel")')

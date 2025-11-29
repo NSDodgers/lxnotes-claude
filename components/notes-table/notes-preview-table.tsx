@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -53,7 +53,7 @@ export function NotesPreviewTable({ notes, moduleType, showCheckboxes }: NotesPr
   }, [moduleType])
 
   // Build cue location display (matches main table logic)
-  const buildCueLocationDisplay = (note: Note): string => {
+  const buildCueLocationDisplay = useCallback((note: Note): string => {
     const formatLookup = (cueNumber: string) => {
       const lookup = lookupCue(cueNumber)
       return lookup.display || '-'
@@ -77,7 +77,7 @@ export function NotesPreviewTable({ notes, moduleType, showCheckboxes }: NotesPr
     }
 
     return '-'
-  }
+  }, [lookupCue])
 
   // Create columns matching PDF structure
   const columns = useMemo(() => {

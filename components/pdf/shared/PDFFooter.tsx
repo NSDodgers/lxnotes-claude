@@ -61,7 +61,7 @@ export const PDFFooter: React.FC<PDFFooterProps> = ({ pageNumber, totalPages }) 
   return (
     <View style={footerStyles.footerContainer} fixed>
       <View style={footerStyles.footerLeft}>
-        // eslint-disable-next-line jsx-a11y/alt-text
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={LX_NOTES_LOGO_BASE64} style={footerStyles.logo} />
       </View>
       <View style={footerStyles.footerCenter}>

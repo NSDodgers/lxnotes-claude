@@ -60,9 +60,9 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
 
   const isSystemPriorityCustomized = (systemId: string) => {
     return systemOverrides.some(
-      override => override.moduleType === moduleType && 
-                 override.systemId === systemId && 
-                 override.type === 'priority'
+      override => override.moduleType === moduleType &&
+        override.systemId === systemId &&
+        override.type === 'priority'
     )
   }
 
@@ -98,7 +98,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
     if (newPriorityLabel.trim()) {
       const sortOrder = newPrioritySortOrder ? parseFloat(newPrioritySortOrder) : allPriorities.length + 1
       const value = newPriorityLabel.toLowerCase().replace(/\s+/g, '_')
-      
+
       addCustomPriority(moduleType, {
         productionId: 'prod-1', // TODO: Replace with actual production ID
         moduleType,
@@ -109,7 +109,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
         isSystem: false,
         isHidden: false,
       })
-      
+
       setNewPriorityLabel('')
       setNewPriorityColor('#D97706')
       setNewPrioritySortOrder('')
@@ -138,7 +138,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
       // Moving custom priority - swap sort orders
       const newSortOrder = targetPriority.sortOrder
       updateCustomPriority(moduleType, priorityId, { sortOrder: newSortOrder })
-      
+
       if (!targetPriority.isSystem) {
         updateCustomPriority(moduleType, targetPriority.id, { sortOrder: currentPriority.sortOrder })
       }
@@ -146,7 +146,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-6', className)} data-testid="custom-priorities-manager">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -161,6 +161,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
             onClick={() => setIsAddingNew(true)}
             size="sm"
             className="flex items-center gap-2"
+            data-testid="add-priority-button"
           >
             <Plus className="h-4 w-4" />
             Add Custom Priority
@@ -252,24 +253,30 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
 
               {/* Add new priority form */}
               {isAddingNew && (
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-bg-tertiary">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg bg-bg-tertiary"
+                  data-testid="priority-dialog"
+                >
                   <Input
                     value={newPrioritySortOrder}
                     onChange={(e) => setNewPrioritySortOrder(e.target.value)}
                     placeholder="1.5"
                     className="w-16 text-xs"
                     title="Sort order (supports decimals for insertion between defaults)"
+                    data-testid="priority-level"
                   />
                   <ColorPicker
                     value={newPriorityColor}
                     onChange={setNewPriorityColor}
                     className="flex-shrink-0"
+                    data-testid="priority-color"
                   />
                   <Input
                     value={newPriorityLabel}
                     onChange={(e) => setNewPriorityLabel(e.target.value)}
                     placeholder="Enter priority name..."
                     className="flex-1"
+                    data-testid="priority-name"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault()
@@ -285,6 +292,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
                     onClick={handleAddNewPriority}
                     disabled={!newPriorityLabel.trim()}
                     className="flex-shrink-0"
+                    data-testid="save-button"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -299,10 +307,10 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
                 </div>
               )}
             </div>
-            
+
             {isAddingNew && (
               <div className="text-xs text-text-muted p-2 bg-bg-secondary rounded">
-                <strong>Tip:</strong> Use decimal sort orders (e.g., 1.5, 2.3) to insert priorities between system defaults. 
+                <strong>Tip:</strong> Use decimal sort orders (e.g., 1.5, 2.3) to insert priorities between system defaults.
                 Leave empty to append at the end.
               </div>
             )}

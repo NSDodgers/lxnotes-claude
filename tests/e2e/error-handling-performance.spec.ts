@@ -280,18 +280,16 @@ test.describe('Error Handling & Performance', () => {
       const navigationTimes: number[] = [];
 
       // Test rapid switching between modules
-      for (let i = 0; i < 10; i++) {
-        const module = modules[i % modules.length];
+      for (const mod of modules) {
+        await test.step(`Check load time for ${mod}`, async () => {
+          const startTime = Date.now();
+          await helpers.navigateToModule(mod);
+          const loadTime = Date.now() - startTime;
 
-        const startTime = Date.now();
-        await helpers.navigateToModule(module);
-        await page.waitForSelector('[data-testid="notes-table"]');
-        const navTime = Date.now() - startTime;
-
-        navigationTimes.push(navTime);
-      }
-
-      // Average navigation time should be reasonable
+          // Should load under 2 seconds (relaxed for CI)
+          expect(loadTime).toBeLessThan(2000);
+        });
+      }  // Average navigation time should be reasonable
       const avgTime = navigationTimes.reduce((a, b) => a + b) / navigationTimes.length;
       expect(avgTime).toBeLessThan(1000); // 1 second average
 

@@ -51,17 +51,17 @@ test.describe('PDF Test Helpers Validation', () => {
     // Test navigation to each module
     const modules = ['cue', 'work', 'production'] as const
 
-    for (const module of modules) {
-      console.log(`  📋 Testing navigation to ${module} module...`)
+    for (const mod of modules) {
+      await test.step(`Check ${mod} module`, async () => {
+        await pdfHelpers.navigateToModule(mod);
+        await expect(page.locator('[data-testid="notes-table"]')).toBeVisible();
 
-      await pdfHelpers.navigateToModule(module)
-      await pdfHelpers.waitForUIReady()
+        // Verify we're on the correct page
+        const currentUrl = page.url()
+        expect(currentUrl).toContain(`/${mod}-notes`)
 
-      // Verify we're on the correct page
-      const currentUrl = page.url()
-      expect(currentUrl).toContain(`/${module}-notes`)
-
-      console.log(`  ✅ Successfully navigated to ${module} module`)
+        console.log(`  ✅ Successfully navigated to ${mod} module`)
+      });
     }
 
     console.log('🎉 All navigation helper functions work correctly!')

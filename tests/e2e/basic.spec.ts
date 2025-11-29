@@ -70,12 +70,15 @@ test.describe('Basic Application Tests', () => {
       { path: '/settings', expectedText: 'Settings' }
     ];
 
-    for (const module of modules) {
-      await page.goto(module.path);
-      await page.waitForLoadState('networkidle');
+    for (const mod of modules) {
+      await test.step(`Navigate to ${mod.path}`, async () => { // Changed to mod.path for clarity
+        await page.goto(mod.path); // Changed to mod.path
+        await page.waitForLoadState('networkidle');
+        await expect(page).toHaveURL(new RegExp(`/${mod.path.substring(1)}`)); // Changed to mod.path and adjusted regex
+      });
 
       // Should contain module-specific text
-      await expect(page.locator('body')).toContainText(module.expectedText);
+      await expect(page.locator('body')).toContainText(mod.expectedText); // Changed to mod.expectedText
 
       // Should not be an error page
       await expect(page.locator('text=404')).not.toBeVisible();

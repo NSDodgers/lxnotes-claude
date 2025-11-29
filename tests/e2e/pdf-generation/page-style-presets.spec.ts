@@ -219,25 +219,25 @@ test.describe('Page Style Preset PDF Generation', () => {
 
     const pageStyles = SYSTEM_PRESETS.pageStyle
 
-    for (const module of modules) {
+    for (const mod of modules) {
       for (const pageStyle of pageStyles) {
-        test(`${module.type} module with ${pageStyle} page style`, async ({ page }) => {
-          await pdfHelpers.navigateToModule(module.type)
+        test(`${mod.type} module with ${pageStyle} page style`, async ({ page }) => {
+          await pdfHelpers.navigateToModule(mod.type)
           await pdfHelpers.openPrintDialog()
 
           // Select presets
-          await pdfHelpers.selectFilterPreset(module.filterPreset)
+          await pdfHelpers.selectFilterPreset(mod.filterPreset)
           await pdfHelpers.selectPageStylePreset(pageStyle)
 
-          await pdfHelpers.takeScreenshot(`${module.type}-${pageStyle.replace(' ', '-').toLowerCase()}-combo`)
+          await pdfHelpers.takeScreenshot(`${mod.type}-${pageStyle.replace(' ', '-').toLowerCase()}-combo`)
 
           // Generate PDF
           const { pdfBlob, filename } = await pdfHelpers.generatePDF()
 
           // Validate the PDF
           const validation = await pdfHelpers.validatePDF(pdfBlob, {
-            moduleType: module.type,
-            filterPresetName: module.filterPreset,
+            moduleType: mod.type,
+            filterPresetName: mod.filterPreset,
             pageStylePresetName: pageStyle,
             shouldIncludeCheckboxes: true
           })
@@ -251,7 +251,7 @@ test.describe('Page Style Preset PDF Generation', () => {
             work: 'Work_Notes',
             production: 'Production_Notes'
           }
-          expect(filename).toContain(moduleNames[module.type])
+          expect(filename).toContain(moduleNames[mod.type])
         })
       }
     }

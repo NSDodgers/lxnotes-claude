@@ -30,17 +30,17 @@ test.describe('Performance Monitoring with Chrome DevTools MCP', () => {
     const modules = ['cue-notes', 'work-notes', 'production-notes'];
     const results: any[] = [];
 
-    for (const module of modules) {
+    for (const mod of modules) {
       // Navigate to module
-      await page.goto(`/${module}`);
+      await page.goto(`/${mod}`);
       await page.waitForLoadState('networkidle');
 
       // Wait for module to be fully loaded
-      await page.waitForSelector(`[data-testid="${module}-module"]`, { timeout: 5000 });
+      await page.waitForSelector(`[data-testid="${mod}-module"]`, { timeout: 5000 });
 
       // Get performance metrics for this module
       const metrics = await cdtHelpers.stopPerformanceTrace();
-      results.push({ module, metrics });
+      results.push({ module: mod, metrics });
 
       // Restart monitoring for next module
       await cdtHelpers.startPerformanceTrace();
@@ -220,15 +220,15 @@ test.describe('Performance Monitoring with Chrome DevTools MCP', () => {
 
     const performanceResults: any[] = [];
 
-    for (const module of modules) {
-      console.log(`Measuring performance for ${module.name}`);
+    for (const mod of modules) {
+      console.log(`Measuring performance for ${mod.name}`);
 
       // Start performance monitoring
       await cdtHelpers.startPerformanceTrace();
 
       // Navigate to module
       const startTime = Date.now();
-      await page.goto(module.path);
+      await page.goto(mod.path);
       await page.waitForLoadState('networkidle');
       const loadTime = Date.now() - startTime;
 
@@ -236,8 +236,8 @@ test.describe('Performance Monitoring with Chrome DevTools MCP', () => {
       const metrics = await cdtHelpers.stopPerformanceTrace();
 
       performanceResults.push({
-        module: module.name,
-        path: module.path,
+        module: mod.name,
+        path: mod.path,
         loadTime,
         metrics
       });

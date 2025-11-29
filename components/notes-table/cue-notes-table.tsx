@@ -97,7 +97,7 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }:
   return (
     <div className="rounded-lg border overflow-hidden h-full flex flex-col">
       <div className="flex-1 overflow-auto">
-        <Table>
+        <Table data-testid="notes-table" role="table">
           <TableHeader className="sticky top-0 z-20 bg-bg-primary shadow-md border-b-2">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

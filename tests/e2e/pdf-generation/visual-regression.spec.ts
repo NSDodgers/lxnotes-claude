@@ -61,8 +61,8 @@ test.describe('Visual Regression Testing for PDF Generation', () => {
             // Validate PDF was generated correctly
             expect(pdfBlob.length).toBeGreaterThan(1000)
             expect(filename).toContain(moduleConfig.module === 'cue' ? 'Cue_Notes' :
-                                       moduleConfig.module === 'work' ? 'Work_Notes' :
-                                       'Production_Notes')
+              moduleConfig.module === 'work' ? 'Work_Notes' :
+                'Production_Notes')
 
             // Close dialog before next iteration
             await page.keyboard.press('Escape')
@@ -91,10 +91,10 @@ test.describe('Visual Regression Testing for PDF Generation', () => {
         const pageStyleName = pageStylePreset.replace(/-/g, ' ')
 
         // Map module type
-        const module = moduleType as 'cue' | 'work' | 'production'
+        const mod = moduleType as 'cue' | 'work' | 'production'
 
         // Generate current PDF
-        await pdfHelpers.navigateToModule(module)
+        await pdfHelpers.navigateToModule(mod)
         await pdfHelpers.openPrintDialog()
 
         try {
