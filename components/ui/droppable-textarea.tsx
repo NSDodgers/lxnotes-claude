@@ -24,21 +24,21 @@ interface ParsedContent {
 // Parse text content to identify placeholders and line breaks
 const parseContent = (text: string, placeholders: PlaceholderDefinition[] = []): ParsedContent[] => {
   const parts: ParsedContent[] = []
-  
+
   // First split by line breaks
   const lines = text.split('\n')
-  
+
   lines.forEach((line, lineIndex) => {
     if (lineIndex > 0) {
       parts.push({ type: 'linebreak', content: '\n' })
     }
-    
+
     if (line === '') {
       // Empty line - add a zero-width space to maintain line height
       parts.push({ type: 'text', content: '' })
       return
     }
-    
+
     const placeholderRegex = /(\{\{[^}]+\}\})/g
     let lastIndex = 0
     let match
@@ -75,16 +75,16 @@ const parseContent = (text: string, placeholders: PlaceholderDefinition[] = []):
 }
 
 export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaProps>(
-  ({ 
-    value, 
-    onChange, 
-    availablePlaceholders = [], 
+  ({
+    value,
+    onChange,
+    availablePlaceholders = [],
     onPlaceholderInsert,
-    className, 
+    className,
     placeholder,
     disabled,
     rows = 4,
-    ...props 
+    ...props
   }, ref) => {
     const [isDragOver, setIsDragOver] = useState(false)
     const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null)
@@ -105,7 +105,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
         const newPlaceholders = parseContent(newValue, availablePlaceholders)
           .filter(p => p.type === 'placeholder')
           .map(p => p.content)
-        
+
         const addedPlaceholders = newPlaceholders.filter(p => !oldPlaceholders.includes(p))
         if (addedPlaceholders.length > 0) {
           onPlaceholderInsert(addedPlaceholders[0])
@@ -115,15 +115,15 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
 
     const getCursorPosition = useCallback(() => {
       if (!contentRef.current) return 0
-      
+
       const selection = window.getSelection()
       if (!selection || selection.rangeCount === 0) return 0
-      
+
       const range = selection.getRangeAt(0)
       const preCaretRange = range.cloneRange()
       preCaretRange.selectNodeContents(contentRef.current)
       preCaretRange.setEnd(range.startContainer, range.startOffset)
-      
+
       return preCaretRange.toString().length
     }, [])
 
@@ -140,19 +140,19 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
       const cursorPos = getCursorPosition()
       const newValue = value.slice(0, cursorPos) + text + value.slice(cursorPos)
       updateValue(newValue)
-      
+
       // Set cursor after inserted text
       setTimeout(() => {
         if (contentRef.current) {
           contentRef.current.focus()
-          
+
           // Try to restore cursor position
           const newSelection = window.getSelection()
           if (newSelection) {
             try {
               const newRange = document.createRange()
               const textNodes: Node[] = []
-              
+
               const collectTextNodes = (node: Node) => {
                 if (node.nodeType === Node.TEXT_NODE) {
                   textNodes.push(node)
@@ -162,9 +162,9 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
                   }
                 }
               }
-              
+
               collectTextNodes(contentRef.current)
-              
+
               let targetOffset = cursorPos + text.length
               for (const textNode of textNodes) {
                 const nodeLength = textNode.textContent?.length || 0
@@ -194,11 +194,11 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
     const handleDragOver = useCallback((e: React.DragEvent) => {
       e.preventDefault()
       e.dataTransfer.dropEffect = 'copy'
-      
+
       if (!isDragOver) {
         setIsDragOver(true)
       }
-      
+
       // Calculate drop position for visual indicator
       const rect = contentRef.current?.getBoundingClientRect()
       if (rect) {
@@ -220,7 +220,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
       e.preventDefault()
       setIsDragOver(false)
       setDragPosition(null)
-      
+
       const placeholderData = e.dataTransfer.getData('text/placeholder') || e.dataTransfer.getData('text/plain')
       if (placeholderData && placeholderData.startsWith('{{')) {
         insertAtCursor(placeholderData)
@@ -239,7 +239,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
         insertAtCursor('\n')
         return
       }
-      
+
       // Allow normal text editing
     }, [insertAtCursor])
 
@@ -256,13 +256,13 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
         <textarea
           ref={hiddenTextareaRef}
           value={value}
-          onChange={() => {}} // Controlled by contentEditable
+          onChange={() => { }} // Controlled by contentEditable
           className="sr-only"
           tabIndex={-1}
           rows={rows}
           {...props}
         />
-        
+
         {/* Visual content editable area */}
         <div
           ref={contentRef}
@@ -283,7 +283,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
             disabled && 'opacity-50 cursor-not-allowed bg-bg-secondary',
             className
           )}
-          style={{ 
+          style={{
             minHeight: `${rows * 1.5}rem`,
             lineHeight: '1.5',
           }}
@@ -319,7 +319,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
         {/* Drop zone overlay */}
         {isDragOver && (
           <div className="absolute inset-0 border-2 border-dashed border-modules-production rounded-lg pointer-events-none bg-modules-production/5 flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-200">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border border-modules-production/20">
+            <div className="bg-bg-secondary/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border border-modules-production/20">
               <div className="flex items-center gap-2 text-sm font-medium text-modules-production">
                 <div className="w-2 h-2 bg-modules-production rounded-full animate-bounce"></div>
                 Drop placeholder here
@@ -341,7 +341,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
               left: `${dragPosition.x}px`,
               top: `${dragPosition.y}px`,
               transform: 'translate(-50%, -50%)',
-              boxShadow: '0 0 8px rgba(59, 130, 246, 0.5)'
+              boxShadow: '0 0 8px currentColor'
             }}
           />
         )}

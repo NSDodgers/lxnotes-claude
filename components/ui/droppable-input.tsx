@@ -24,7 +24,7 @@ interface ParsedContent {
 const parseContent = (text: string, placeholders: PlaceholderDefinition[] = []): ParsedContent[] => {
   const parts: ParsedContent[] = []
   const placeholderRegex = /(\{\{[^}]+\}\})/g
-  
+
   let lastIndex = 0
   let match
 
@@ -61,15 +61,15 @@ const parseContent = (text: string, placeholders: PlaceholderDefinition[] = []):
 }
 
 export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
-  ({ 
-    value, 
-    onChange, 
-    availablePlaceholders = [], 
+  ({
+    value,
+    onChange,
+    availablePlaceholders = [],
     onPlaceholderInsert,
-    className, 
+    className,
     placeholder,
     disabled,
-    ...props 
+    ...props
   }, ref) => {
     const [isDragOver, setIsDragOver] = useState(false)
     const [dragPosition, setDragPosition] = useState<number | null>(null)
@@ -90,7 +90,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
         const newPlaceholders = parseContent(newValue, availablePlaceholders)
           .filter(p => p.type === 'placeholder')
           .map(p => p.content)
-        
+
         const addedPlaceholders = newPlaceholders.filter(p => !oldPlaceholders.includes(p))
         if (addedPlaceholders.length > 0) {
           onPlaceholderInsert(addedPlaceholders[0])
@@ -100,15 +100,15 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
 
     const getCursorPosition = useCallback(() => {
       if (!contentRef.current) return 0
-      
+
       const selection = window.getSelection()
       if (!selection || selection.rangeCount === 0) return 0
-      
+
       const range = selection.getRangeAt(0)
       const preCaretRange = range.cloneRange()
       preCaretRange.selectNodeContents(contentRef.current)
       preCaretRange.setEnd(range.startContainer, range.startOffset)
-      
+
       return preCaretRange.toString().length
     }, [])
 
@@ -116,17 +116,17 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
       const cursorPos = getCursorPosition()
       const newValue = value.slice(0, cursorPos) + text + value.slice(cursorPos)
       updateValue(newValue)
-      
+
       // Set cursor after inserted text
       setTimeout(() => {
         if (contentRef.current) {
           const selection = window.getSelection()
           const range = document.createRange()
-          
+
           // Find the text node and position
           let textOffset = cursorPos + text.length
           let currentNode = contentRef.current.firstChild
-          
+
           while (currentNode && textOffset > 0) {
             if (currentNode.nodeType === Node.TEXT_NODE) {
               const textLength = currentNode.textContent?.length || 0
@@ -139,7 +139,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
             }
             currentNode = currentNode.nextSibling
           }
-          
+
           if (selection) {
             selection.removeAllRanges()
             selection.addRange(range)
@@ -156,11 +156,11 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
     const handleDragOver = useCallback((e: React.DragEvent) => {
       e.preventDefault()
       e.dataTransfer.dropEffect = 'copy'
-      
+
       if (!isDragOver) {
         setIsDragOver(true)
       }
-      
+
       // Calculate drop position for visual indicator
       const rect = contentRef.current?.getBoundingClientRect()
       if (rect) {
@@ -184,7 +184,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
       e.preventDefault()
       setIsDragOver(false)
       setDragPosition(null)
-      
+
       const placeholderData = e.dataTransfer.getData('text/placeholder') || e.dataTransfer.getData('text/plain')
       if (placeholderData && placeholderData.startsWith('{{')) {
         insertAtCursor(placeholderData)
@@ -203,7 +203,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
         // For single-line input, prevent line breaks
         return
       }
-      
+
       // Allow normal text editing
     }, [])
 
@@ -221,12 +221,12 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
           ref={hiddenInputRef}
           type="text"
           value={value}
-          onChange={() => {}} // Controlled by contentEditable
+          onChange={() => { }} // Controlled by contentEditable
           className="sr-only"
           tabIndex={-1}
           {...props}
         />
-        
+
         {/* Visual content editable area */}
         <div
           ref={contentRef}
@@ -247,7 +247,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
             disabled && 'opacity-50 cursor-not-allowed bg-bg-secondary',
             className
           )}
-          style={{ 
+          style={{
             wordBreak: 'break-all',
             overflowWrap: 'break-word'
           }}
@@ -276,7 +276,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
               )
             })
           )}
-          
+
           {/* Drop position indicator */}
           {isDragOver && dragPosition !== null && (
             <span
@@ -285,7 +285,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
                 left: `${(dragPosition / Math.max(value.length, 1)) * 100}%`,
                 top: '50%',
                 transform: 'translateY(-50%)',
-                boxShadow: '0 0 8px rgba(59, 130, 246, 0.5)'
+                boxShadow: '0 0 8px currentColor'
               }}
             />
           )}
@@ -294,7 +294,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
         {/* Drop zone overlay */}
         {isDragOver && (
           <div className="absolute inset-0 border-2 border-dashed border-modules-production rounded-lg pointer-events-none bg-modules-production/5 flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-200">
-            <div className="text-xs font-medium text-modules-production bg-white/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg border border-modules-production/20 animate-pulse">
+            <div className="text-xs font-medium text-modules-production bg-bg-secondary/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg border border-modules-production/20 animate-pulse">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-modules-production rounded-full animate-bounce"></div>
                 Drop placeholder here

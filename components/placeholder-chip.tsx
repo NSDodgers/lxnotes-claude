@@ -91,31 +91,31 @@ const getDisplayName = (key: string) => {
     .replace(/\b\w/g, l => l.toUpperCase())
 }
 
-export function PlaceholderChip({ 
-  placeholder, 
-  variant = 'draggable', 
-  onRemove, 
+export function PlaceholderChip({
+  placeholder,
+  variant = 'draggable',
+  onRemove,
   className,
   isDragging = false
 }: PlaceholderChipProps) {
   const [isHovered, setIsHovered] = useState(false)
   const colors = getCategoryColors(placeholder.category)
   const displayName = getDisplayName(placeholder.key)
-  
+
   const handleDragStart = (e: React.DragEvent) => {
     if (variant !== 'draggable') return
-    
+
     e.dataTransfer.setData('text/placeholder', placeholder.key)
     e.dataTransfer.setData('text/plain', placeholder.key)
     e.dataTransfer.effectAllowed = 'copy'
-    
+
     // Create a custom drag image
     const dragImage = e.currentTarget.cloneNode(true) as HTMLElement
     dragImage.style.transform = 'rotate(5deg)'
     dragImage.style.opacity = '0.8'
     document.body.appendChild(dragImage)
     e.dataTransfer.setDragImage(dragImage, 10, 10)
-    
+
     // Clean up the drag image
     setTimeout(() => {
       if (document.body.contains(dragImage)) {
@@ -186,7 +186,7 @@ export function PlaceholderChip({
           colors.text,
           'shadow-sm mx-0.5 animate-in fade-in-0 zoom-in-95',
           'hover:scale-105 hover:shadow-md',
-          isHovered && onRemove && 'bg-red-500 hover:bg-red-600',
+          isHovered && onRemove && 'bg-destructive hover:bg-destructive/90',
           className
         )}
         contentEditable={false}
