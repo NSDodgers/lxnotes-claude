@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Users, RefreshCw, X, Wifi, WifiOff, AlertCircle } from 'lucide-react'
 import { useSyncStore } from '@/lib/github/sync-manager'
-import { resetCollaborativeSession } from '@/lib/collaborative-data'
 
 export function CollaborativeBanner() {
   const {
@@ -43,17 +42,6 @@ export function CollaborativeBanner() {
     const interval = setInterval(updateTime, 1000)
     return () => clearInterval(interval)
   }, [lastSyncTime])
-
-  const handleReset = async () => {
-    if (
-      confirm(
-        'Reset Romeo & Juliet to original data? All changes will be lost. This will reload the page.'
-      )
-    ) {
-      await resetCollaborativeSession()
-      window.location.reload()
-    }
-  }
 
   const handleSync = async () => {
     clearError()
@@ -114,14 +102,6 @@ export function CollaborativeBanner() {
                 className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`}
               />
               <span className="hidden sm:inline">Sync</span>
-            </button>
-
-            <button
-              onClick={handleReset}
-              className="flex items-center gap-1.5 px-2 py-1 bg-rose-800 hover:bg-rose-700 rounded text-rose-100 transition-colors text-xs"
-              title="Reset to original data"
-            >
-              <span className="hidden sm:inline">Reset</span>
             </button>
 
             <Link
