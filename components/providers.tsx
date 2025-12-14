@@ -7,6 +7,7 @@ import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
+import { NotesProvider } from '@/lib/contexts/notes-context'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -32,7 +33,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <NotesProvider>
+        {children}
+      </NotesProvider>
     </QueryClientProvider>
   )
 }

@@ -9,7 +9,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebarStore()
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
-  const isCollaborativeMode = pathname.startsWith('/romeo-juliet')
+  const isProductionMode = pathname.startsWith('/production/')
+  const hasBanner = isDemoMode || isProductionMode
 
   return (
     <div className="min-h-screen bg-bg-primary">
@@ -19,7 +20,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         className={cn(
           'transition-all duration-300',
           collapsed ? 'ml-16' : 'ml-64',
-          (isDemoMode || isCollaborativeMode) && 'pt-[36px]'
+          hasBanner && 'pt-[36px]'
         )}
       >
         <div className="p-compact-4">

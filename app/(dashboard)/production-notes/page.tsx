@@ -23,6 +23,7 @@ import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import { useNotes } from '@/lib/contexts/notes-context'
 import { isDemoMode } from '@/lib/demo-data'
 import Image from 'next/image'
 
@@ -967,39 +968,50 @@ const mockProductionNotes: Note[] = [
 ]
 
 export default function ProductionNotesPage() {
+  const notesContext = useNotes()
   const mockNotesStore = useMockNotesStore()
   const [notes, setNotes] = useState<Note[]>([])
 
   const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
 
-  // Initialize mock data only in non-demo mode
+  // Initialize mock data only in non-demo mode and non-production mode
   // In demo mode, initializeDemoSession handles all initialization
+  // In production mode, data comes from Supabase via NotesProvider
   useEffect(() => {
-    if (!isDemoMode()) {
+    if (!isDemoMode() && typeof window !== 'undefined' && !window.location.pathname.startsWith('/production/')) {
       initializeWithMockData()
     }
   }, [initializeWithMockData])
 
-  // Load and subscribe to store changes (for demo initialization)
+  // Load and subscribe to store changes
+  // Uses NotesProvider context which handles both demo and production mode
   useEffect(() => {
-    setNotes(mockNotesStore.getAllNotes('production'))
+    setNotes(notesContext.getNotes('production'))
     // In demo mode, if no production notes exist yet, seed with mockProductionNotes
     if (isDemoMode()) {
-      const current = mockNotesStore.getAllNotes('production')
+      const current = notesContext.getNotes('production')
       if (current.length === 0 && Array.isArray(mockProductionNotes) && mockProductionNotes.length > 0) {
         // Replace store with the full demo production dataset once
-        ; (mockNotesStore as any).setNotes?.('production', mockProductionNotes)
+        notesContext.setNotes('production', mockProductionNotes)
         setNotes(mockProductionNotes)
       }
     }
+  }, [notesContext, notesContext.notes.production])
+
+  // Also subscribe to mock store for backward compatibility with demo mode
+  useEffect(() => {
     const unsubscribe = (useMockNotesStore as any).subscribe?.(
       (state: any) => state.notes.production,
-      (prodNotes: Note[]) => setNotes(prodNotes)
+      (prodNotes: Note[]) => {
+        if (isDemoMode()) {
+          setNotes(prodNotes)
+        }
+      }
     )
     return () => {
       if (typeof unsubscribe === 'function') unsubscribe()
     }
-  }, [mockNotesStore])
+  }, [])
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
   const [searchTerm, setSearchTerm] = useState('')
@@ -1041,8 +1053,8 @@ export default function ProductionNotesPage() {
     setIsDialogOpen(true)
   }
 
-  const updateNoteStatus = (noteId: string, status: NoteStatus) => {
-    mockNotesStore.updateNote(noteId, { status })
+  const updateNoteStatus = async (noteId: string, status: NoteStatus) => {
+    await notesContext.updateNote(noteId, { status })
   }
 
   const handleEditNote = (note: Note) => {
@@ -1051,13 +1063,13 @@ export default function ProductionNotesPage() {
     setIsDialogOpen(true)
   }
 
-  const handleDialogAdd = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleDialogAdd = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingNote) {
       // Update existing note
-      mockNotesStore.updateNote(editingNote.id, noteData)
+      await notesContext.updateNote(editingNote.id, noteData)
     } else {
       // Create new note
-      mockNotesStore.addNote(noteData)
+      await notesContext.addNote(noteData)
     }
     setEditingNote(null)
   }

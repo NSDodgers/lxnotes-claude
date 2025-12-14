@@ -22,11 +22,24 @@ export function Sidebar() {
   const { collapsed, toggleCollapsed } = useSidebarStore()
   const pathname = usePathname()
 
-  // Detect if we're in demo mode
+  // Detect mode: demo, production, or default
   const isDemoMode = pathname.startsWith('/demo')
-  const baseUrl = isDemoMode ? '/demo' : ''
+  const isProductionMode = pathname.startsWith('/production/')
+  const hasBanner = isDemoMode || isProductionMode
 
-  // Navigation items with demo mode support
+  // Extract production ID if in production mode
+  const productionId = isProductionMode
+    ? pathname.split('/')[2] // /production/[id]/...
+    : null
+
+  // Build base URL for navigation
+  const baseUrl = isDemoMode
+    ? '/demo'
+    : isProductionMode
+      ? `/production/${productionId}`
+      : ''
+
+  // Navigation items with mode support
   const navigation = [
     { name: 'Cue Notes', href: `${baseUrl}/cue-notes`, icon: Lightbulb, color: 'text-modules-cue' },
     { name: 'Work Notes', href: `${baseUrl}/work-notes`, icon: Wrench, color: 'text-modules-work' },
@@ -40,7 +53,7 @@ export function Sidebar() {
       data-testid="sidebar"
       className={cn(
         'fixed left-0 z-40 bg-bg-secondary border-r border-bg-tertiary transition-all duration-300',
-        isDemoMode ? 'top-[36px] h-[calc(100vh-36px)]' : 'top-0 h-screen',
+        hasBanner ? 'top-[36px] h-[calc(100vh-36px)]' : 'top-0 h-screen',
         collapsed ? 'w-16' : 'w-64'
       )}
     >

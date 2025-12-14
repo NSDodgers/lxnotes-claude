@@ -34,41 +34,46 @@ import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import { useNotes } from '@/lib/contexts/notes-context'
 // Lazy loaded via dynamic import to avoid loading 4,682 lines on page load
 // import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 import { isDemoMode } from '@/lib/demo-data'
 import Image from 'next/image'
 
 export default function WorkNotesPage() {
+  const notesContext = useNotes()
   const mockNotesStore = useMockNotesStore()
   const [notes, setNotes] = useState<Note[]>([])
   const [isInitialized, setIsInitialized] = useState(false)
 
   const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
 
-  // Initialize mock data only in non-demo mode
+  // Initialize mock data only in non-demo mode and non-production mode
   // In demo mode, initializeDemoSession handles all initialization
+  // In production mode, data comes from Supabase via NotesProvider
   useEffect(() => {
-    if (!isDemoMode()) {
+    if (!isDemoMode() && typeof window !== 'undefined' && !window.location.pathname.startsWith('/production/')) {
       initializeWithMockData()
     }
     setIsInitialized(true)
   }, [initializeWithMockData])
 
-  // Load notes into state after initialization
+  // Load and subscribe to store changes
+  // Uses NotesProvider context which handles both demo and production mode
   useEffect(() => {
     if (isInitialized) {
-      const loadedNotes = mockNotesStore.getAllNotes('work')
-      setNotes(loadedNotes)
+      setNotes(notesContext.getNotes('work'))
     }
-  }, [isInitialized, mockNotesStore])
+  }, [isInitialized, notesContext, notesContext.notes.work])
 
-  // Subscribe to store changes so demo loader updates reflect in UI
+  // Also subscribe to mock store for backward compatibility with demo mode
   useEffect(() => {
     const unsubscribe = (useMockNotesStore as any).subscribe?.(
       (state: any) => state.notes.work,
       (workNotes: Note[]) => {
-        setNotes(workNotes)
+        if (isDemoMode()) {
+          setNotes(workNotes)
+        }
       }
     )
     return () => {
@@ -159,11 +164,8 @@ export default function WorkNotesPage() {
     setIsDialogOpen(true)
   }
 
-  const updateNoteStatus = (noteId: string, status: NoteStatus) => {
-    mockNotesStore.updateNote(noteId, { status })
-    // Refresh notes in state
-    const updatedNotes = mockNotesStore.getAllNotes('work')
-    setNotes(updatedNotes)
+  const updateNoteStatus = async (noteId: string, status: NoteStatus) => {
+    await notesContext.updateNote(noteId, { status })
   }
 
   const handleEditNote = (note: Note) => {
@@ -172,10 +174,10 @@ export default function WorkNotesPage() {
     setIsDialogOpen(true)
   }
 
-  const handleDialogAdd = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>, lightwrightFixtureIds?: string[]) => {
+  const handleDialogAdd = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>, lightwrightFixtureIds?: string[]) => {
     if (editingNote) {
       // Update existing note
-      mockNotesStore.updateNote(editingNote.id, noteData)
+      await notesContext.updateNote(editingNote.id, noteData)
 
       // Handle fixture linking for work notes
       if (noteData.moduleType === 'work' && lightwrightFixtureIds) {
@@ -183,7 +185,7 @@ export default function WorkNotesPage() {
       }
     } else {
       // Create new note
-      const note = mockNotesStore.addNote(noteData)
+      const note = await notesContext.addNote(noteData)
 
       // Handle fixture linking for work notes
       if (noteData.moduleType === 'work' && lightwrightFixtureIds && lightwrightFixtureIds.length > 0) {
@@ -191,10 +193,6 @@ export default function WorkNotesPage() {
       }
     }
     setEditingNote(null)
-
-    // Refresh notes in state
-    const updatedNotes = mockNotesStore.getAllNotes('work')
-    setNotes(updatedNotes)
   }
 
   return (

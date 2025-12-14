@@ -19,6 +19,7 @@ import { useProductionStore } from '@/lib/stores/production-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import { useNotes } from '@/lib/contexts/notes-context'
 import { ScriptManager } from '@/components/script-manager'
 import { isDemoMode } from '@/lib/demo-data'
 import Image from 'next/image'
@@ -1752,30 +1753,41 @@ import Image from 'next/image'
 ] */
 
 export default function CueNotesPage() {
+  const notesContext = useNotes()
   const mockNotesStore = useMockNotesStore()
   const [notes, setNotes] = useState<Note[]>([])
 
   const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
 
-  // Initialize mock data only in non-demo mode
+  // Initialize mock data only in non-demo mode and non-production mode
   // In demo mode, initializeDemoSession handles all initialization
+  // In production mode, data comes from Supabase via NotesProvider
   useEffect(() => {
-    if (!isDemoMode()) {
+    if (!isDemoMode() && typeof window !== 'undefined' && !window.location.pathname.startsWith('/production/')) {
       initializeWithMockData()
     }
   }, [initializeWithMockData])
 
-  // Load and subscribe to store changes (for demo initialization)
+  // Load and subscribe to store changes
+  // Uses NotesProvider context which handles both demo and production mode
   useEffect(() => {
-    setNotes(mockNotesStore.getAllNotes('cue'))
+    setNotes(notesContext.getNotes('cue'))
+  }, [notesContext, notesContext.notes.cue])
+
+  // Also subscribe to mock store for backward compatibility with demo mode
+  useEffect(() => {
     const unsubscribe = (useMockNotesStore as any).subscribe?.(
       (state: any) => state.notes.cue,
-      (cueNotes: Note[]) => setNotes(cueNotes)
+      (cueNotes: Note[]) => {
+        if (isDemoMode()) {
+          setNotes(cueNotes)
+        }
+      }
     )
     return () => {
       if (typeof unsubscribe === 'function') unsubscribe()
     }
-  }, [mockNotesStore])
+  }, [])
   const { name, abbreviation, logo } = useProductionStore()
   const customTypesStore = useCustomTypesStore()
   const customPrioritiesStore = useCustomPrioritiesStore()
@@ -1816,13 +1828,13 @@ export default function CueNotesPage() {
     return matchesSearch && matchesStatus && matchesType
   })
 
-  const handleAddNote = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleAddNote = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingNote) {
       // Update existing note
-      mockNotesStore.updateNote(editingNote.id, noteData)
+      await notesContext.updateNote(editingNote.id, noteData)
     } else {
       // Create new note
-      mockNotesStore.addNote(noteData)
+      await notesContext.addNote(noteData)
     }
   }
 
@@ -1838,8 +1850,8 @@ export default function CueNotesPage() {
     setIsDialogOpen(true)
   }
 
-  const updateNoteStatus = (noteId: string, status: NoteStatus) => {
-    mockNotesStore.updateNote(noteId, { status })
+  const updateNoteStatus = async (noteId: string, status: NoteStatus) => {
+    await notesContext.updateNote(noteId, { status })
   }
 
 

@@ -2,6 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { PolicyFooter } from '@/components/layout/policy-footer'
+import { ProductionList } from '@/components/home/production-list'
+import { CreateProductionDialog } from '@/components/home/create-production-dialog'
 
 export const metadata: Metadata = {
   title: 'LX Notes - Production Notes Management',
@@ -15,28 +17,28 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4">
+    <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4 py-12">
       <div className="max-w-2xl mx-auto text-center">
 
         {/* LX Notes Logo */}
-        <div className="mb-12">
+        <div className="mb-8">
           <Image
             src="/images/lxnotes_logo_stacked.png"
             alt="LX Notes"
-            width={400}
-            height={200}
+            width={300}
+            height={150}
             className="mx-auto"
             priority
           />
         </div>
 
         {/* Tagline */}
-        <h2 className="text-xl text-text-secondary mb-12 max-w-xl mx-auto font-display">
+        <h2 className="text-xl text-text-secondary mb-8 max-w-xl mx-auto font-display">
           Production Notes Management for Theatrical Lighting Teams
         </h2>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
           {/* Demo Button - Primary CTA */}
           <Link
             href="/demo/cue-notes"
@@ -64,34 +66,24 @@ export default function HomePage() {
             Try Demo
           </Link>
 
-          {/* Collaborative Button - Romeo and Juliet */}
-          <Link
-            href="/romeo-juliet/cue-notes"
-            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-rose-600 hover:bg-rose-500 text-white text-lg font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 transform duration-200"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            Romeo & Juliet
-          </Link>
+          {/* Create Production Button */}
+          <CreateProductionDialog />
         </div>
 
-        <p className="text-sm text-text-muted mt-4 mb-8">
-          Try the demo, or collaborate on Romeo & Juliet in real-time
+        <p className="text-sm text-text-muted mb-8">
+          Try the demo with Pirates of Penzance, or create your own production
         </p>
 
+        {/* Productions Section */}
+        <div className="mt-8 text-left">
+          <h3 className="text-lg font-semibold text-text-primary mb-4 text-center">
+            Your Productions
+          </h3>
+          <ProductionList />
+        </div>
+
         {/* Feature highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 text-left">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 text-left">
           <div className="p-4 bg-bg-secondary rounded-lg border border-border hover:border-modules-cue/50 transition-colors">
             <div className="text-modules-cue mb-2">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +123,7 @@ export default function HomePage() {
         </div>
 
         {/* Policy Links */}
-        <div className="mt-16 pt-8 border-t border-border">
+        <div className="mt-12 pt-8 border-t border-border">
           <PolicyFooter layout="horizontal" className="text-text-muted" />
         </div>
       </div>
