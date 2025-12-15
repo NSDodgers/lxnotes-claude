@@ -58,8 +58,6 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
-    const pathname = request.nextUrl.pathname
-
     // Check if current route is public
     const isPublicRoute = PUBLIC_ROUTES.some(
         (route) => pathname === route || pathname.startsWith(`${route}/`)
