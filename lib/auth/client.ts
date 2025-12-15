@@ -20,6 +20,9 @@ export async function signInWithGoogle() {
     },
   })
 
+  // Debug logging
+  console.log('Sign in with Google, redirectTo:', `${window.location.origin}/auth/callback`)
+
   if (error) {
     console.error('Error signing in with Google:', error)
     throw error
