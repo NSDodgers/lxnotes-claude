@@ -18,18 +18,24 @@ export interface AuthUser {
  * Get the current authenticated user (server-side)
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  if (!user) return null
+    if (!user) return null
 
-  return {
-    id: user.id,
-    email: user.email ?? '',
-    fullName: user.user_metadata?.full_name ?? user.user_metadata?.name ?? null,
-    avatarUrl: user.user_metadata?.avatar_url ?? null,
+    return {
+      id: user.id,
+      email: user.email ?? '',
+      fullName: user.user_metadata?.full_name ?? user.user_metadata?.name ?? null,
+      avatarUrl: user.user_metadata?.avatar_url ?? null,
+    }
+  } catch (error) {
+    // If Supabase is not configured, return null (no user)
+    console.error('Error getting current user:', error)
+    return null
   }
 }
 
@@ -37,24 +43,30 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
  * Check if a user is the super admin (server-side)
  */
 export async function isSuperAdmin(userId?: string): Promise<boolean> {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  if (userId) {
-    const { data } = await supabase
-      .from('users')
-      .select('email')
-      .eq('id', userId)
-      .single()
+    if (userId) {
+      const { data } = await supabase
+        .from('users')
+        .select('email')
+        .eq('id', userId)
+        .single()
 
-    return data?.email === SUPER_ADMIN_EMAIL
+      return data?.email === SUPER_ADMIN_EMAIL
+    }
+
+    // Check current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    return user?.email === SUPER_ADMIN_EMAIL
+  } catch (error) {
+    // If Supabase is not configured, return false
+    console.error('Error checking super admin status:', error)
+    return false
   }
-
-  // Check current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  return user?.email === SUPER_ADMIN_EMAIL
 }
 
 export interface Production {
@@ -90,42 +102,48 @@ function mapProduction(row: any): Production {
  * Returns productions the user has access to
  */
 export async function getUserProductions(userId: string): Promise<Production[]> {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  // Check if super admin - they see all
-  const { data: userData } = await supabase
-    .from('users')
-    .select('email')
-    .eq('id', userId)
-    .single()
+    // Check if super admin - they see all
+    const { data: userData } = await supabase
+      .from('users')
+      .select('email')
+      .eq('id', userId)
+      .single()
 
-  if (userData?.email === SUPER_ADMIN_EMAIL) {
-    const { data: allProductions } = await supabase
+    if (userData?.email === SUPER_ADMIN_EMAIL) {
+      const { data: allProductions } = await supabase
+        .from('productions')
+        .select('*')
+        .eq('is_demo', false)
+        .order('updated_at', { ascending: false })
+
+      return (allProductions ?? []).map(mapProduction)
+    }
+
+    // For regular users, get productions they're members of
+    const { data: memberships } = await supabase
+      .from('production_members')
+      .select('production_id')
+      .eq('user_id', userId)
+
+    if (!memberships || memberships.length === 0) {
+      return []
+    }
+
+    const productionIds = memberships.map((m) => m.production_id)
+
+    const { data: productions } = await supabase
       .from('productions')
       .select('*')
-      .eq('is_demo', false)
+      .in('id', productionIds)
       .order('updated_at', { ascending: false })
 
-    return (allProductions ?? []).map(mapProduction)
-  }
-
-  // For regular users, get productions they're members of
-  const { data: memberships } = await supabase
-    .from('production_members')
-    .select('production_id')
-    .eq('user_id', userId)
-
-  if (!memberships || memberships.length === 0) {
+    return (productions ?? []).map(mapProduction)
+  } catch (error) {
+    // If Supabase is not configured, return empty array
+    console.error('Error getting user productions:', error)
     return []
   }
-
-  const productionIds = memberships.map((m) => m.production_id)
-
-  const { data: productions } = await supabase
-    .from('productions')
-    .select('*')
-    .in('id', productionIds)
-    .order('updated_at', { ascending: false })
-
-  return (productions ?? []).map(mapProduction)
 }
