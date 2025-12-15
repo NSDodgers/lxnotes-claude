@@ -1,6 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Routes that don't require authentication
+const PUBLIC_ROUTES = ['/', '/auth', '/demo']
+
+// Routes that require super admin access
+const SUPER_ADMIN_ROUTES = ['/settings/email', '/admin']
+
+import { SUPER_ADMIN_EMAIL } from '@/lib/auth/constants'
+
 export async function updateSession(request: NextRequest) {
     let response = NextResponse.next({
         request: {
@@ -33,9 +41,35 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    // refresh session if expired - required for Server Components
+    // Refresh session if expired - required for Server Components
     // https://supabase.com/docs/guides/auth/server-side/nextjs
-    await supabase.auth.getUser()
+    const {
+        data: { user },
+    } = await supabase.auth.getUser()
+
+    const pathname = request.nextUrl.pathname
+
+    // Check if current route is public
+    const isPublicRoute = PUBLIC_ROUTES.some(
+        (route) => pathname === route || pathname.startsWith(`${route}/`)
+    )
+
+    // Check if current route requires super admin
+    const isSuperAdminRoute = SUPER_ADMIN_ROUTES.some(
+        (route) => pathname === route || pathname.startsWith(`${route}/`)
+    )
+
+    // If not authenticated and trying to access protected route
+    if (!user && !isPublicRoute) {
+        const redirectUrl = new URL('/', request.url)
+        return NextResponse.redirect(redirectUrl)
+    }
+
+    // If trying to access super admin route without being super admin
+    if (isSuperAdminRoute && user?.email !== SUPER_ADMIN_EMAIL) {
+        const redirectUrl = new URL('/', request.url)
+        return NextResponse.redirect(redirectUrl)
+    }
 
     return response
 }

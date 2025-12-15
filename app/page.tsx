@@ -4,6 +4,9 @@ import { Metadata } from 'next'
 import { PolicyFooter } from '@/components/layout/policy-footer'
 import { ProductionList } from '@/components/home/production-list'
 import { CreateProductionDialog } from '@/components/home/create-production-dialog'
+import { GoogleSignInButton } from '@/components/auth/google-sign-in-button'
+import { UserMenu } from '@/components/auth/user-menu'
+import { getCurrentUser, isSuperAdmin, getUserProductions } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'LX Notes - Production Notes Management',
@@ -15,7 +18,11 @@ export const metadata: Metadata = {
   }
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getCurrentUser()
+  const superAdmin = user ? await isSuperAdmin(user.id) : false
+  const productions = user ? await getUserProductions(user.id) : []
+
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4 py-12">
       <div className="max-w-2xl mx-auto text-center">
@@ -37,50 +44,98 @@ export default function HomePage() {
           Production Notes Management for Theatrical Lighting Teams
         </h2>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-          {/* Demo Button - Primary CTA */}
-          <Link
-            href="/demo/cue-notes"
-            className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground text-lg font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl hover:scale-105 transform duration-200"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        {/* User Menu (top right) - only show when logged in */}
+        {user && (
+          <div className="fixed top-4 right-4">
+            <UserMenu />
+          </div>
+        )}
+
+        {/* Logged Out State */}
+        {!user && (
+          <>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              {/* Google Sign In */}
+              <GoogleSignInButton />
+
+              {/* Demo Button */}
+              <Link
+                href="/demo/cue-notes"
+                className="inline-flex items-center justify-center gap-3 px-6 py-3 bg-bg-secondary hover:bg-bg-tertiary text-text-primary font-semibold rounded-lg transition-all border border-border"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Try Demo
+              </Link>
+            </div>
+
+            <p className="text-sm text-text-muted mb-8">
+              Sign in to access your productions, or try the demo
+            </p>
+          </>
+        )}
+
+        {/* Logged In - No Access State */}
+        {user && productions.length === 0 && !superAdmin && (
+          <div className="mb-8 p-6 bg-bg-secondary rounded-lg border border-border">
+            <p className="text-text-secondary mb-4">
+              You don&apos;t have access to any productions yet.
+            </p>
+            <p className="text-sm text-text-muted">
+              Contact an admin to be added to a production, or try the demo below.
+            </p>
+            <Link
+              href="/demo/cue-notes"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 mt-4 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-all"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            Try Demo
-          </Link>
+              Try Demo
+            </Link>
+          </div>
+        )}
 
-          {/* Create Production Button */}
-          <CreateProductionDialog />
-        </div>
+        {/* Logged In - With Access State */}
+        {user && (productions.length > 0 || superAdmin) && (
+          <>
+            {/* Action Buttons for Super Admin */}
+            {superAdmin && (
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <CreateProductionDialog />
+                <Link
+                  href="/demo/cue-notes"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-tertiary text-text-primary font-medium rounded-lg transition-all border border-border"
+                >
+                  Try Demo
+                </Link>
+              </div>
+            )}
 
-        <p className="text-sm text-text-muted mb-8">
-          Try the demo with Pirates of Penzance, or create your own production
-        </p>
-
-        {/* Productions Section */}
-        <div className="mt-8 text-left">
-          <h3 className="text-lg font-semibold text-text-primary mb-4 text-center">
-            Your Productions
-          </h3>
-          <ProductionList />
-        </div>
+            {/* Productions Section */}
+            <div className="mt-8 text-left">
+              <h3 className="text-lg font-semibold text-text-primary mb-4 text-center">
+                Your Productions
+              </h3>
+              <ProductionList initialProductions={productions} />
+            </div>
+          </>
+        )}
 
         {/* Feature highlights */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 text-left">

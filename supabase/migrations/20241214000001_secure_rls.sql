@@ -52,6 +52,55 @@ DROP POLICY IF EXISTS "Public update access" ON position_orders;
 DROP POLICY IF EXISTS "Public delete access" ON position_orders;
 
 -- ============================================
+-- DROP EXISTING AUTHENTICATED POLICIES (if any)
+-- ============================================
+
+DROP POLICY IF EXISTS "Authenticated users can read productions" ON productions;
+DROP POLICY IF EXISTS "Authenticated users can create productions" ON productions;
+DROP POLICY IF EXISTS "Authenticated users can update productions" ON productions;
+DROP POLICY IF EXISTS "Authenticated users can delete productions" ON productions;
+
+DROP POLICY IF EXISTS "Authenticated users can read notes" ON notes;
+DROP POLICY IF EXISTS "Authenticated users can create notes" ON notes;
+DROP POLICY IF EXISTS "Authenticated users can update notes" ON notes;
+DROP POLICY IF EXISTS "Authenticated users can delete notes" ON notes;
+
+DROP POLICY IF EXISTS "Authenticated users can read fixtures" ON fixtures;
+DROP POLICY IF EXISTS "Authenticated users can create fixtures" ON fixtures;
+DROP POLICY IF EXISTS "Authenticated users can update fixtures" ON fixtures;
+DROP POLICY IF EXISTS "Authenticated users can delete fixtures" ON fixtures;
+
+DROP POLICY IF EXISTS "Authenticated users can read script_pages" ON script_pages;
+DROP POLICY IF EXISTS "Authenticated users can create script_pages" ON script_pages;
+DROP POLICY IF EXISTS "Authenticated users can update script_pages" ON script_pages;
+DROP POLICY IF EXISTS "Authenticated users can delete script_pages" ON script_pages;
+
+DROP POLICY IF EXISTS "Authenticated users can read scenes_songs" ON scenes_songs;
+DROP POLICY IF EXISTS "Authenticated users can create scenes_songs" ON scenes_songs;
+DROP POLICY IF EXISTS "Authenticated users can update scenes_songs" ON scenes_songs;
+DROP POLICY IF EXISTS "Authenticated users can delete scenes_songs" ON scenes_songs;
+
+DROP POLICY IF EXISTS "Authenticated users can read work_note_fixture_links" ON work_note_fixture_links;
+DROP POLICY IF EXISTS "Authenticated users can create work_note_fixture_links" ON work_note_fixture_links;
+DROP POLICY IF EXISTS "Authenticated users can update work_note_fixture_links" ON work_note_fixture_links;
+DROP POLICY IF EXISTS "Authenticated users can delete work_note_fixture_links" ON work_note_fixture_links;
+
+DROP POLICY IF EXISTS "Authenticated users can read custom_types" ON custom_types;
+DROP POLICY IF EXISTS "Authenticated users can create custom_types" ON custom_types;
+DROP POLICY IF EXISTS "Authenticated users can update custom_types" ON custom_types;
+DROP POLICY IF EXISTS "Authenticated users can delete custom_types" ON custom_types;
+
+DROP POLICY IF EXISTS "Authenticated users can read custom_priorities" ON custom_priorities;
+DROP POLICY IF EXISTS "Authenticated users can create custom_priorities" ON custom_priorities;
+DROP POLICY IF EXISTS "Authenticated users can update custom_priorities" ON custom_priorities;
+DROP POLICY IF EXISTS "Authenticated users can delete custom_priorities" ON custom_priorities;
+
+DROP POLICY IF EXISTS "Authenticated users can read position_orders" ON position_orders;
+DROP POLICY IF EXISTS "Authenticated users can create position_orders" ON position_orders;
+DROP POLICY IF EXISTS "Authenticated users can update position_orders" ON position_orders;
+DROP POLICY IF EXISTS "Authenticated users can delete position_orders" ON position_orders;
+
+-- ============================================
 -- ENABLE SECURE AUTHENTICATED ACCESS
 -- ============================================
 -- Only authenticated users can access the data.

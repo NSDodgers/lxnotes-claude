@@ -1,10 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getAllProductions } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToProductionsList } from '@/lib/supabase/realtime'
 import { ProductionCard } from './production-card'
-import { Loader2 } from 'lucide-react'
 
 interface Production {
   id: string
@@ -14,32 +12,24 @@ interface Production {
   description?: string
   startDate?: Date
   endDate?: Date
-  isDemo: boolean
+  isDemo?: boolean
   createdAt: Date
   updatedAt: Date
 }
 
-export function ProductionList() {
-  const [productions, setProductions] = useState<Production[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+interface ProductionListProps {
+  initialProductions?: Production[]
+}
+
+export function ProductionList({ initialProductions = [] }: ProductionListProps) {
+  const [productions, setProductions] = useState<Production[]>(initialProductions)
 
   useEffect(() => {
-    const fetchProductions = async () => {
-      try {
-        setIsLoading(true)
-        setError(null)
-        const data = await getAllProductions()
-        setProductions(data)
-      } catch (err) {
-        console.error('Failed to fetch productions:', err)
-        setError('Failed to load productions')
-      } finally {
-        setIsLoading(false)
-      }
-    }
+    // Update state if initialProductions changes (e.g., after navigation)
+    setProductions(initialProductions)
+  }, [initialProductions])
 
-    fetchProductions()
+  useEffect(() => {
 
     // Subscribe to realtime updates
     const unsubscribe = subscribeToProductionsList({
@@ -91,28 +81,6 @@ export function ProductionList() {
       unsubscribe()
     }
   }, [])
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-6 w-6 text-text-muted animate-spin" />
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-red-400">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-2 text-sm text-emerald-400 hover:text-emerald-300"
-        >
-          Try again
-        </button>
-      </div>
-    )
-  }
 
   if (productions.length === 0) {
     return (

@@ -11,13 +11,13 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Menu,
   Tablet,
   LogOut
 } from 'lucide-react'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
 import { PolicyFooter } from './policy-footer'
+import { UserMenu } from '@/components/auth/user-menu'
 
 export function Sidebar() {
   const { collapsed, toggleCollapsed } = useSidebarStore()
@@ -174,20 +174,9 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* Footer */}
+        {/* Footer - User Menu */}
         <div className="border-t border-bg-tertiary p-compact-4">
-          <div className={cn(
-            'flex items-center gap-compact-3',
-            collapsed && 'justify-center'
-          )}>
-            <div className="h-8 w-8 rounded-full bg-bg-tertiary" />
-            {!collapsed && (
-              <div className="text-sm">
-                <p className="text-text-primary">Dev User</p>
-                <p className="text-text-muted">dev@lxnotes.app</p>
-              </div>
-            )}
-          </div>
+          <UserMenu collapsed={collapsed} />
         </div>
       </div>
     </aside>

@@ -8,6 +8,7 @@ import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { NotesProvider } from '@/lib/contexts/notes-context'
+import { AuthProvider } from '@/components/auth/auth-provider'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -32,10 +33,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <NotesProvider>
-        {children}
-      </NotesProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <NotesProvider>
+          {children}
+        </NotesProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   )
 }

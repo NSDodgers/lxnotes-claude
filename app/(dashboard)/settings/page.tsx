@@ -1,19 +1,30 @@
 'use client'
 
-import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users, X } from 'lucide-react'
-import { useState } from 'react'
+import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users, X, UserPlus } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { TypesManager } from '@/components/types-manager'
 import { PrioritiesManager } from '@/components/priorities-manager'
 import { PageStylePresetsManager } from '@/components/page-style-presets-manager'
 import { FilterSortPresetsManager } from '@/components/filter-sort-presets-manager'
 import { EmailMessagePresetsManager } from '@/components/email-message-presets-manager'
+import { MemberManagement } from '@/components/production/member-management'
+import { useProductionOptional } from '@/components/production/production-provider'
+import { useAuthContext } from '@/components/auth/auth-provider'
 import Image from 'next/image'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general')
   const { name, abbreviation, logo, updateProduction, clearLogo } = useProductionStore()
   const [logoPreview, setLogoPreview] = useState(logo)
+
+  // Get production context (null if not in production mode)
+  const productionContext = useProductionOptional()
+  const { isSuperAdmin } = useAuthContext()
+
+  // Determine if Members tab should be shown
+  // Only show in production mode (not demo or default)
+  const showMembersTab = productionContext !== null
 
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,6 +68,7 @@ export default function SettingsPage() {
             { id: 'work-notes', label: 'Work Notes', icon: Wrench },
             { id: 'production-notes', label: 'Production Notes', icon: Users },
             { id: 'presets', label: 'Presets', icon: Palette },
+            ...(showMembersTab ? [{ id: 'members', label: 'Team Members', icon: UserPlus }] : []),
           ].map((tab) => (
             <button
               key={tab.id}
@@ -204,6 +216,12 @@ export default function SettingsPage() {
               <FilterSortPresetsManager />
 
               <EmailMessagePresetsManager />
+            </div>
+          )}
+
+          {activeTab === 'members' && showMembersTab && (
+            <div className="rounded-lg bg-bg-secondary p-6">
+              <MemberManagement />
             </div>
           )}
 
