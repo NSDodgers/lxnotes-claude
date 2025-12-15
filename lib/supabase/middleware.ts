@@ -10,6 +10,17 @@ const SUPER_ADMIN_ROUTES = ['/settings/email', '/admin']
 import { SUPER_ADMIN_EMAIL } from '@/lib/auth/constants'
 
 export async function updateSession(request: NextRequest) {
+    const { searchParams, pathname } = request.nextUrl
+
+    // If there's a code parameter at the root, redirect to the auth callback
+    // This handles cases where Supabase redirects to / instead of /auth/callback
+    const code = searchParams.get('code')
+    if (code && pathname === '/') {
+        const callbackUrl = new URL('/auth/callback', request.url)
+        callbackUrl.search = request.nextUrl.search
+        return NextResponse.redirect(callbackUrl)
+    }
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,
