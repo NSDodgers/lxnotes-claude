@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
@@ -1788,7 +1789,12 @@ export default function CueNotesPage() {
       if (typeof unsubscribe === 'function') unsubscribe()
     }
   }, [])
-  const { name, abbreviation, logo } = useProductionStore()
+  // Get production data from context (Supabase) if available, otherwise fall back to store
+  const productionContext = useProductionOptional()
+  const storeData = useProductionStore()
+  const name = productionContext?.production?.name ?? storeData.name
+  const abbreviation = productionContext?.production?.abbreviation ?? storeData.abbreviation
+  const logo = productionContext?.production?.logo ?? storeData.logo
   const customTypesStore = useCustomTypesStore()
   const customPrioritiesStore = useCustomPrioritiesStore()
   const [searchTerm, setSearchTerm] = useState('')

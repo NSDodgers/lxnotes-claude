@@ -12,7 +12,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  Tablet
+  Tablet,
+  LogOut
 } from 'lucide-react'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
@@ -25,7 +26,8 @@ export function Sidebar() {
   // Detect mode: demo, production, or default
   const isDemoMode = pathname.startsWith('/demo')
   const isProductionMode = pathname.startsWith('/production/')
-  const hasBanner = isDemoMode || isProductionMode
+  // Only demo mode has a banner now (production mode banner was removed)
+  const hasBanner = isDemoMode
 
   // Extract production ID if in production mode
   const productionId = isProductionMode
@@ -117,6 +119,21 @@ export function Sidebar() {
               </Link>
             )
           })}
+
+          {/* Exit to Homepage - only in production mode */}
+          {isProductionMode && (
+            <Link
+              href="/"
+              className={cn(
+                'flex items-center gap-compact-3 rounded-lg px-compact-3 py-compact-2 text-sm font-medium transition-colors mt-2 border-t border-bg-tertiary pt-3',
+                'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary',
+                collapsed && 'justify-center'
+              )}
+            >
+              <LogOut className="h-5 w-5" />
+              {!collapsed && <span>Exit to Homepage</span>}
+            </Link>
+          )}
         </nav>
 
         {/* Tablet Mode Toggle */}

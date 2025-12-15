@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/select'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
@@ -81,7 +82,12 @@ export default function WorkNotesPage() {
     }
   }, [])
 
-  const { name, abbreviation, logo } = useProductionStore()
+  // Get production data from context (Supabase) if available, otherwise fall back to store
+  const productionContext = useProductionOptional()
+  const storeData = useProductionStore()
+  const name = productionContext?.production?.name ?? storeData.name
+  const abbreviation = productionContext?.production?.abbreviation ?? storeData.abbreviation
+  const logo = productionContext?.production?.logo ?? storeData.logo
   const customTypesStore = useCustomTypesStore()
   // Use selector to only subscribe to fixtures.length instead of entire array
   // This prevents massive re-renders when fixtures are uploaded

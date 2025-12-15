@@ -9,8 +9,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebarStore()
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
-  const isProductionMode = pathname.startsWith('/production/')
-  const hasBanner = isDemoMode || isProductionMode
+  // Only demo mode has a banner now (production mode banner was removed)
+  const hasBanner = isDemoMode
 
   return (
     <div className="min-h-screen bg-bg-primary">

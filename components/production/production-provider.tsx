@@ -43,6 +43,14 @@ export function useProductionId() {
   return context.productionId
 }
 
+/**
+ * Safe version of useProduction that returns null when outside ProductionProvider
+ * Use this in components that need to work in both production and demo/default modes
+ */
+export function useProductionOptional() {
+  return useContext(ProductionContext)
+}
+
 interface ProductionProviderProps {
   productionId: string
   children: ReactNode

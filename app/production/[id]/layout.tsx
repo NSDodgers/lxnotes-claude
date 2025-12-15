@@ -1,5 +1,4 @@
 import { ProductionProvider } from '@/components/production/production-provider'
-import { ProductionBanner } from '@/components/production/production-banner'
 
 export default async function ProductionLayout({
   children,
@@ -12,7 +11,6 @@ export default async function ProductionLayout({
 
   return (
     <ProductionProvider productionId={id}>
-      <ProductionBanner />
       {children}
     </ProductionProvider>
   )

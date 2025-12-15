@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useProductionStore } from '@/lib/stores/production-store'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
@@ -1012,7 +1013,12 @@ export default function ProductionNotesPage() {
       if (typeof unsubscribe === 'function') unsubscribe()
     }
   }, [])
-  const { name, abbreviation, logo } = useProductionStore()
+  // Get production data from context (Supabase) if available, otherwise fall back to store
+  const productionContext = useProductionOptional()
+  const storeData = useProductionStore()
+  const name = productionContext?.production?.name ?? storeData.name
+  const abbreviation = productionContext?.production?.abbreviation ?? storeData.abbreviation
+  const logo = productionContext?.production?.logo ?? storeData.logo
   const customTypesStore = useCustomTypesStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
