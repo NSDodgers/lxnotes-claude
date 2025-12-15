@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { getProduction } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToProduction } from '@/lib/supabase/realtime'
 
@@ -61,7 +61,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
-  const fetchProduction = async () => {
+  const fetchProduction = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -76,7 +76,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [productionId])
 
   useEffect(() => {
     fetchProduction()
@@ -103,9 +103,8 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     })
 
     return () => {
-      unsubscribe()
     }
-  }, [productionId])
+  }, [productionId, fetchProduction])
 
   return (
     <ProductionContext.Provider

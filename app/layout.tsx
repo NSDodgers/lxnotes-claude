@@ -50,13 +50,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <head>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable} ${caveat.variable}`}>
         <Script
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           src="https://gettermscmp.com/cookie-consent/embed/870abf34-b1c1-4431-acc7-67b39fe711a2/en-us"
         />
-      </head>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable} ${caveat.variable}`}>
         <ErrorBoundary>
           <Providers>
             {children}
