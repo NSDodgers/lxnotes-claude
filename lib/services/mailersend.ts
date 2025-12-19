@@ -77,6 +77,11 @@ export async function sendInvitationEmail(
         {
           email: data.recipientEmail,
           data: {
+            // Template variables - match MailerSend template exactly
+            productionTitle: data.productionName,
+            userRole: roleText,
+            loginUrl: data.inviteUrl,
+            // Legacy variable names for backwards compatibility
             production_name: data.productionName,
             inviter_name: data.inviterName,
             role: roleText,
