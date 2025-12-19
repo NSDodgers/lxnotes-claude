@@ -89,7 +89,9 @@ export async function POST(request: Request) {
             .single()
 
           const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
-          const inviteUrl = `${baseUrl}/auth/callback?next=/`
+          // Point to home page where user can sign in with Google
+          // After sign-in, auth/callback will auto-accept pending invitations
+          const inviteUrl = baseUrl
 
           await sendInvitationEmail(settings, {
             recipientEmail: email,
