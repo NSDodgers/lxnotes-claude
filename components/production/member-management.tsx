@@ -105,7 +105,14 @@ export function MemberManagement() {
   }
 
   const handleInvitationSent = (invitation: ProductionInvitation) => {
-    setInvitations(prev => [invitation, ...prev])
+    // API returns dates as strings, need to convert them to Date objects
+    const mappedInvitation: ProductionInvitation = {
+      ...invitation,
+      expiresAt: new Date(invitation.expiresAt),
+      createdAt: new Date(invitation.createdAt),
+      acceptedAt: invitation.acceptedAt ? new Date(invitation.acceptedAt) : undefined,
+    }
+    setInvitations(prev => [mappedInvitation, ...prev])
   }
 
   if (!productionId) {
