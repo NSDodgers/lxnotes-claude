@@ -8,6 +8,9 @@ import { GoogleSignInButton } from '@/components/auth/google-sign-in-button'
 import { UserMenu } from '@/components/auth/user-menu'
 import { getCurrentUser, isSuperAdmin, getUserProductions } from '@/lib/auth'
 
+// Force dynamic rendering since this page uses cookies for auth
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'LX Notes - Production Notes Management',
   description: 'Collaborative lighting and production notes for theatrical teams. Try our interactive demo with Pirates of Penzance sample data.',
