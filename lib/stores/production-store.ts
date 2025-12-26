@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
 
-export const DEFAULT_PRODUCTION_LOGO = '/images/pirates-of-penzance-logo.png'
+export const DEFAULT_PRODUCTION_LOGO = '/images/production-placeholder.svg'
 
 interface ProductionState {
   name: string
