@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isSuperAdmin } from '@/lib/auth'
-import { permanentlyDeleteProduction } from '@/lib/supabase/supabase-storage-adapter'
 
 /**
  * DELETE /api/admin/productions/[id]/permanent
@@ -26,7 +25,14 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    await permanentlyDeleteProduction(id)
+    // Permanently delete the production
+    const { error } = await supabase
+      .from('productions')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error permanently deleting production:', error)

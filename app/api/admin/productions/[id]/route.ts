@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isSuperAdmin } from '@/lib/auth'
-import { updateProduction, softDeleteProduction, getProduction } from '@/lib/supabase/supabase-storage-adapter'
 
 /**
  * GET /api/admin/productions/[id]
@@ -26,12 +25,32 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const production = await getProduction(id)
-    if (!production) {
-      return NextResponse.json({ error: 'Production not found' }, { status: 404 })
+    const { data, error } = await supabase
+      .from('productions')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({ error: 'Production not found' }, { status: 404 })
+      }
+      throw error
     }
 
-    return NextResponse.json(production)
+    return NextResponse.json({
+      id: data.id,
+      name: data.name,
+      abbreviation: data.abbreviation,
+      logo: data.logo ?? undefined,
+      description: data.description ?? undefined,
+      startDate: data.start_date ? new Date(data.start_date) : undefined,
+      endDate: data.end_date ? new Date(data.end_date) : undefined,
+      createdAt: new Date(data.created_at!),
+      updatedAt: new Date(data.updated_at!),
+      deletedAt: data.deleted_at ? new Date(data.deleted_at) : undefined,
+      deletedBy: data.deleted_by ?? undefined,
+    })
   } catch (error) {
     console.error('Error fetching production:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -72,16 +91,37 @@ export async function PUT(
       return NextResponse.json({ error: 'Abbreviation is required' }, { status: 400 })
     }
 
-    const production = await updateProduction(id, {
-      name,
-      abbreviation,
-      logo,
-      description,
-      startDate: startDate ? new Date(startDate) : undefined,
-      endDate: endDate ? new Date(endDate) : undefined,
-    })
+    // Build update object
+    const updates: Record<string, unknown> = {}
+    if (name !== undefined) updates.name = name
+    if (abbreviation !== undefined) updates.abbreviation = abbreviation
+    if (logo !== undefined) updates.logo = logo || null
+    if (description !== undefined) updates.description = description || null
+    if (startDate !== undefined) updates.start_date = startDate ? new Date(startDate).toISOString().split('T')[0] : null
+    if (endDate !== undefined) updates.end_date = endDate ? new Date(endDate).toISOString().split('T')[0] : null
 
-    return NextResponse.json(production)
+    const { data, error } = await supabase
+      .from('productions')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return NextResponse.json({
+      id: data.id,
+      name: data.name,
+      abbreviation: data.abbreviation,
+      logo: data.logo ?? undefined,
+      description: data.description ?? undefined,
+      startDate: data.start_date ? new Date(data.start_date) : undefined,
+      endDate: data.end_date ? new Date(data.end_date) : undefined,
+      createdAt: new Date(data.created_at!),
+      updatedAt: new Date(data.updated_at!),
+      deletedAt: data.deleted_at ? new Date(data.deleted_at) : undefined,
+      deletedBy: data.deleted_by ?? undefined,
+    })
   } catch (error) {
     console.error('Error updating production:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -111,7 +151,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    await softDeleteProduction(id, user.id)
+    // Soft-delete: set deleted_at and deleted_by
+    const { error } = await supabase
+      .from('productions')
+      .update({
+        deleted_at: new Date().toISOString(),
+        deleted_by: user.id,
+      })
+      .eq('id', id)
+
+    if (error) throw error
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error soft-deleting production:', error)

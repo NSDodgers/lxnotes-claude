@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isSuperAdmin } from '@/lib/auth'
-import { restoreProduction } from '@/lib/supabase/supabase-storage-adapter'
 
 /**
  * POST /api/admin/productions/[id]/restore
@@ -26,7 +25,17 @@ export async function POST(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    await restoreProduction(id)
+    // Restore: clear deleted_at and deleted_by
+    const { error } = await supabase
+      .from('productions')
+      .update({
+        deleted_at: null,
+        deleted_by: null,
+      })
+      .eq('id', id)
+
+    if (error) throw error
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error restoring production:', error)
