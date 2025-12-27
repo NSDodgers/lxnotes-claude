@@ -50,7 +50,7 @@ export default async function HomePage() {
         {/* User Menu (top right) - only show when logged in */}
         {user && (
           <div className="fixed top-4 right-4">
-            <UserMenu />
+            <UserMenu dropdownDirection="down" />
           </div>
         )}
 

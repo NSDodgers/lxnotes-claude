@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils'
 
 interface UserMenuProps {
   collapsed?: boolean
+  dropdownDirection?: 'up' | 'down'
 }
 
-export function UserMenu({ collapsed = false }: UserMenuProps) {
+export function UserMenu({ collapsed = false, dropdownDirection = 'up' }: UserMenuProps) {
   const { user, isLoading, signOut } = useAuthContext()
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -106,7 +107,10 @@ export function UserMenu({ collapsed = false }: UserMenuProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full left-0 mb-2 w-48 bg-bg-secondary border border-border rounded-lg shadow-lg py-1 z-50">
+        <div className={cn(
+          "absolute w-48 bg-bg-secondary border border-border rounded-lg shadow-lg py-1 z-50",
+          dropdownDirection === 'up' ? "bottom-full left-0 mb-2" : "top-full right-0 mt-2"
+        )}>
           {isSuperAdmin && (
             <Link
               href="/settings/email"
