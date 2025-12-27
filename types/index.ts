@@ -68,6 +68,9 @@ export interface Production {
   endDate?: Date
   createdAt: Date
   updatedAt: Date
+  // Soft-delete fields
+  deletedAt?: Date
+  deletedBy?: string
 }
 
 export interface Note {

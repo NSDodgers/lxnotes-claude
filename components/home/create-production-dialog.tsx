@@ -1,21 +1,49 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createProduction } from '@/lib/supabase/supabase-storage-adapter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, X, Loader2 } from 'lucide-react'
 
-export function CreateProductionDialog() {
+interface CreateProductionDialogProps {
+  // Optional external control props
+  isOpen?: boolean
+  onClose?: () => void
+  onSuccess?: () => void
+  // If true, don't navigate after creation (used in admin dashboard)
+  skipNavigation?: boolean
+}
+
+export function CreateProductionDialog({
+  isOpen: externalIsOpen,
+  onClose: externalOnClose,
+  onSuccess,
+  skipNavigation = false,
+}: CreateProductionDialogProps = {}) {
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
+  const [internalIsOpen, setInternalIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [name, setName] = useState('')
   const [abbreviation, setAbbreviation] = useState('')
   const [description, setDescription] = useState('')
+
+  // Determine if externally controlled
+  const isControlled = externalIsOpen !== undefined
+  const isOpen = isControlled ? externalIsOpen : internalIsOpen
+
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setName('')
+      setAbbreviation('')
+      setDescription('')
+      setError(null)
+    }
+  }, [isOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,8 +63,13 @@ export function CreateProductionDialog() {
         description: description.trim() || undefined,
       })
 
-      // Navigate to the new production
-      router.push(`/production/${production.id}/cue-notes`)
+      handleClose()
+      onSuccess?.()
+
+      // Navigate to the new production unless skipNavigation is set
+      if (!skipNavigation) {
+        router.push(`/production/${production.id}/cue-notes`)
+      }
     } catch (err) {
       console.error('Failed to create production:', err)
       setError('Failed to create production. Please try again.')
@@ -45,11 +78,16 @@ export function CreateProductionDialog() {
   }
 
   const handleClose = () => {
-    setIsOpen(false)
+    if (isControlled) {
+      externalOnClose?.()
+    } else {
+      setInternalIsOpen(false)
+    }
     setName('')
     setAbbreviation('')
     setDescription('')
     setError(null)
+    setIsLoading(false)
   }
 
   // Auto-generate abbreviation from name
@@ -62,14 +100,17 @@ export function CreateProductionDialog() {
 
   return (
     <>
-      <Button
-        onClick={() => setIsOpen(true)}
-        variant="secondary"
-        className="border-emerald-500/30 hover:border-emerald-500/50 hover:bg-emerald-500/10"
-      >
-        <Plus className="h-5 w-5" />
-        New Production
-      </Button>
+      {/* Only show trigger button if not externally controlled */}
+      {!isControlled && (
+        <Button
+          onClick={() => setInternalIsOpen(true)}
+          variant="secondary"
+          className="border-emerald-500/30 hover:border-emerald-500/50 hover:bg-emerald-500/10"
+        >
+          <Plus className="h-5 w-5" />
+          New Production
+        </Button>
+      )}
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">

@@ -117,6 +117,7 @@ export async function getUserProductions(userId: string): Promise<Production[]> 
         .from('productions')
         .select('*')
         .eq('is_demo', false)
+        .is('deleted_at', null)
         .order('updated_at', { ascending: false })
 
       return (allProductions ?? []).map(mapProduction)
@@ -138,6 +139,7 @@ export async function getUserProductions(userId: string): Promise<Production[]> 
       .from('productions')
       .select('*')
       .in('id', productionIds)
+      .is('deleted_at', null)
       .order('updated_at', { ascending: false })
 
     return (productions ?? []).map(mapProduction)

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
-import { LogOut, Settings, Shield } from 'lucide-react'
+import { LogOut, Settings, Shield, Database } from 'lucide-react'
 import Link from 'next/link'
 import { useAuthContext } from './auth-provider'
 import { SUPER_ADMIN_EMAIL } from '@/lib/auth/constants'
@@ -112,14 +112,24 @@ export function UserMenu({ collapsed = false, dropdownDirection = 'up' }: UserMe
           dropdownDirection === 'up' ? "bottom-full left-0 mb-2" : "top-full right-0 mt-2"
         )}>
           {isSuperAdmin && (
-            <Link
-              href="/settings/email"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-bg-tertiary transition-colors"
-            >
-              <Settings className="h-4 w-4" />
-              Email Settings
-            </Link>
+            <>
+              <Link
+                href="/settings/admin"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-bg-tertiary transition-colors"
+              >
+                <Database className="h-4 w-4 text-yellow-500" />
+                Admin Dashboard
+              </Link>
+              <Link
+                href="/settings/email"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-bg-tertiary transition-colors"
+              >
+                <Settings className="h-4 w-4" />
+                Email Settings
+              </Link>
+            </>
           )}
           <button
             onClick={handleSignOut}

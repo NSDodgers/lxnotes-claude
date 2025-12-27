@@ -389,6 +389,7 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
 }
 
 // Export a function to get all productions (for homepage)
+// This filters out deleted productions
 export async function getAllProductions() {
   const supabase = createClient()
 
@@ -396,6 +397,7 @@ export async function getAllProductions() {
     .from('productions')
     .select('*')
     .eq('is_demo', false)
+    .is('deleted_at', null)
     .order('updated_at', { ascending: false })
 
   if (error) throw error
@@ -481,5 +483,141 @@ export async function getProduction(id: string) {
     isDemo: data.is_demo ?? false,
     createdAt: new Date(data.created_at!),
     updatedAt: new Date(data.updated_at!),
+    deletedAt: data.deleted_at ? new Date(data.deleted_at) : undefined,
+    deletedBy: data.deleted_by ?? undefined,
   }
+}
+
+// Helper to map production row to Production type
+function mapProductionRow(row: DbProduction) {
+  return {
+    id: row.id,
+    name: row.name,
+    abbreviation: row.abbreviation,
+    logo: row.logo ?? undefined,
+    description: row.description ?? undefined,
+    startDate: row.start_date ? new Date(row.start_date) : undefined,
+    endDate: row.end_date ? new Date(row.end_date) : undefined,
+    isDemo: row.is_demo ?? false,
+    createdAt: new Date(row.created_at!),
+    updatedAt: new Date(row.updated_at!),
+    deletedAt: row.deleted_at ? new Date(row.deleted_at) : undefined,
+    deletedBy: row.deleted_by ?? undefined,
+  }
+}
+
+// Update a production
+export async function updateProduction(id: string, data: {
+  name?: string
+  abbreviation?: string
+  logo?: string
+  description?: string
+  startDate?: Date
+  endDate?: Date
+}) {
+  const supabase = createClient()
+
+  const updates: Database['public']['Tables']['productions']['Update'] = {}
+  if (data.name !== undefined) updates.name = data.name
+  if (data.abbreviation !== undefined) updates.abbreviation = data.abbreviation
+  if (data.logo !== undefined) updates.logo = data.logo || null
+  if (data.description !== undefined) updates.description = data.description || null
+  if (data.startDate !== undefined) updates.start_date = data.startDate?.toISOString().split('T')[0] ?? null
+  if (data.endDate !== undefined) updates.end_date = data.endDate?.toISOString().split('T')[0] ?? null
+
+  const { data: production, error } = await supabase
+    .from('productions')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return mapProductionRow(production)
+}
+
+// Soft-delete a production (move to trash)
+export async function softDeleteProduction(id: string, userId: string) {
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('productions')
+    .update({
+      deleted_at: new Date().toISOString(),
+      deleted_by: userId,
+    })
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+// Restore a production from trash
+export async function restoreProduction(id: string) {
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('productions')
+    .update({
+      deleted_at: null,
+      deleted_by: null,
+    })
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+// Permanently delete a production
+export async function permanentlyDeleteProduction(id: string) {
+  const supabase = createClient()
+
+  const { error } = await supabase
+    .from('productions')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
+}
+
+// Get all productions for admin (including deleted)
+export async function getAllProductionsForAdmin() {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('productions')
+    .select('*')
+    .eq('is_demo', false)
+    .order('updated_at', { ascending: false })
+
+  if (error) throw error
+  return (data || []).map(mapProductionRow)
+}
+
+// Get only deleted productions (trash)
+export async function getDeletedProductions() {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('productions')
+    .select('*')
+    .eq('is_demo', false)
+    .not('deleted_at', 'is', null)
+    .order('deleted_at', { ascending: false })
+
+  if (error) throw error
+  return (data || []).map(mapProductionRow)
+}
+
+// Get active productions only (excluding deleted)
+export async function getActiveProductions() {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('productions')
+    .select('*')
+    .eq('is_demo', false)
+    .is('deleted_at', null)
+    .order('updated_at', { ascending: false })
+
+  if (error) throw error
+  return (data || []).map(mapProductionRow)
 }

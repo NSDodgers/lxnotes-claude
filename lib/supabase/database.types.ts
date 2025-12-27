@@ -455,6 +455,8 @@ export type Database = {
         Row: {
           abbreviation: string
           created_at: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           description: string | null
           end_date: string | null
           id: string
@@ -467,6 +469,8 @@ export type Database = {
         Insert: {
           abbreviation: string
           created_at?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           description?: string | null
           end_date?: string | null
           id?: string
@@ -479,6 +483,8 @@ export type Database = {
         Update: {
           abbreviation?: string
           created_at?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           description?: string | null
           end_date?: string | null
           id?: string
