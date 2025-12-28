@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -11,32 +12,13 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user && data.user.email) {
-      // Check for pending invitations for this user's email
-      const { data: invitations } = await supabase
-        .from('production_invitations')
-        .select('id, production_id, role')
-        .eq('email', data.user.email.toLowerCase())
-        .eq('status', 'pending')
-
-      // Auto-accept pending invitations
-      if (invitations && invitations.length > 0) {
-        for (const invitation of invitations) {
-          // Add user as production member
-          await supabase.from('production_members').insert({
-            production_id: invitation.production_id,
-            user_id: data.user.id,
-            role: invitation.role,
-          })
-
-          // Mark invitation as accepted
-          await supabase
-            .from('production_invitations')
-            .update({
-              status: 'accepted',
-              accepted_at: new Date().toISOString(),
-            })
-            .eq('id', invitation.id)
-        }
+      // Try to auto-accept pending invitations
+      try {
+        const { acceptPendingInvitations } = await import('@/lib/services/invitations')
+        await acceptPendingInvitations(data.user.email, data.user.id)
+      } catch (inviteError) {
+        console.error('Error processing invitations in callback:', inviteError)
+        // Don't block login if invitation processing fails
       }
 
       // Handle redirect based on environment

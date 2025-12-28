@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { getProduction } from '@/lib/supabase/supabase-storage-adapter'
-import { subscribeToProduction } from '@/lib/supabase/realtime'
+import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
 
 export interface Production {
   id: string
@@ -82,7 +82,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     fetchProduction()
 
     // Subscribe to realtime updates
-    const unsubscribe = subscribeToProduction(productionId, {
+    const unsubscribe = subscribeToProductionChanges(productionId, {
       onProductionUpdate: (updatedProduction) => {
         setProduction({
           id: updatedProduction.id,
@@ -103,6 +103,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     })
 
     return () => {
+      unsubscribe()
     }
   }, [productionId, fetchProduction])
 

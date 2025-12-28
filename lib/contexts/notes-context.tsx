@@ -13,12 +13,14 @@ import { usePathname } from 'next/navigation'
 import type { Note, ModuleType, NoteStatus } from '@/types'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
-import { subscribeToProduction } from '@/lib/supabase/realtime'
+import { subscribeToProduction, subscribeToNoteChanges } from '@/lib/supabase/realtime'
+// import { toast } from 'sonner'
 
 interface NotesContextType {
   notes: Record<ModuleType, Note[]>
   isLoading: boolean
   error: Error | null
+  connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'error'
 
   // CRUD operations
   getNotes: (moduleType: ModuleType) => Note[]
@@ -47,7 +49,7 @@ export function useNotes() {
  * Hook to get notes for a specific module type
  */
 export function useModuleNotes(moduleType: ModuleType) {
-  const { getNotes, addNote, updateNote, deleteNote, isLoading, error } = useNotes()
+  const { getNotes, addNote, updateNote, deleteNote, isLoading, error, connectionStatus } = useNotes()
   const notes = getNotes(moduleType)
 
   return {
@@ -57,6 +59,7 @@ export function useModuleNotes(moduleType: ModuleType) {
     deleteNote,
     isLoading,
     error,
+    connectionStatus,
   }
 }
 
@@ -88,6 +91,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   })
   const [isLoading, setIsLoading] = useState(isProductionMode && !isDemoMode)
   const [error, setError] = useState<Error | null>(null)
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected')
   const [adapter, setAdapter] = useState<ReturnType<typeof createSupabaseStorageAdapter> | null>(null)
 
   // Initialize Supabase adapter for production mode
@@ -116,6 +120,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         } catch (err) {
           console.error('Failed to load notes:', err)
           setError(err instanceof Error ? err : new Error('Failed to load notes'))
+          // toast.error('Failed to load notes')
         } finally {
           setIsLoading(false)
         }
@@ -124,20 +129,42 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       loadNotes()
 
       // Subscribe to realtime updates
-      const unsubscribe = subscribeToProduction(resolvedProductionId, {
+      setConnectionStatus('connecting')
+      const unsubscribe = subscribeToNoteChanges(resolvedProductionId, {
+        onStatusChange: (status) => {
+          if (status === 'SUBSCRIBED') setConnectionStatus('connected')
+          else if (status === 'CLOSED') setConnectionStatus('disconnected')
+          else if (status === 'CHANNEL_ERROR') setConnectionStatus('error')
+          else if (status === 'TIMED_OUT') setConnectionStatus('error')
+        },
         onNoteInsert: (newNote) => {
+          console.log('[NotesContext] onNoteInsert raw payload:', newNote)
           const moduleType = newNote.module_type as ModuleType
-          setSupabaseNotes(prev => ({
-            ...prev,
-            [moduleType]: [convertDbNoteToNote(newNote), ...prev[moduleType]],
-          }))
+          console.log('[NotesContext] Module type:', moduleType)
+          const note = convertDbNoteToNote(newNote)
+
+          setSupabaseNotes(prev => {
+            console.log('[NotesContext] Current count for', moduleType, ':', prev[moduleType]?.length)
+            // Check if already exists (deduplication)
+            if (prev[moduleType]?.some(n => n.id === note.id)) {
+              console.log('[NotesContext] Note already exists, skipping')
+              return prev
+            }
+            console.log('[NotesContext] Adding note. New count:', (prev[moduleType]?.length || 0) + 1)
+            return {
+              ...prev,
+              [moduleType]: [note, ...prev[moduleType] || []],
+            }
+          })
         },
         onNoteUpdate: (updatedNote) => {
           const moduleType = updatedNote.module_type as ModuleType
+          const note = convertDbNoteToNote(updatedNote)
+
           setSupabaseNotes(prev => ({
             ...prev,
-            [moduleType]: prev[moduleType].map(note =>
-              note.id === updatedNote.id ? convertDbNoteToNote(updatedNote) : note
+            [moduleType]: prev[moduleType].map(n =>
+              n.id === note.id ? note : n
             ),
           }))
         },
@@ -150,6 +177,8 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         },
         onError: (err) => {
           console.error('Realtime subscription error:', err)
+          setConnectionStatus('error')
+          // toast.error('Connection lost. Retrying...')
         },
       })
 
@@ -173,13 +202,19 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       return mockNotesStore.addNote(noteData)
     }
 
-    const newNote = await adapter.notes.create(noteData)
-    // Optimistically update local state (realtime will sync anyway)
-    setSupabaseNotes(prev => ({
-      ...prev,
-      [noteData.moduleType]: [newNote, ...prev[noteData.moduleType]],
-    }))
-    return newNote
+    try {
+      const newNote = await adapter.notes.create(noteData)
+      // Optimistically update local state (realtime should catch this too, but this makes it faster)
+      setSupabaseNotes(prev => ({
+        ...prev,
+        [noteData.moduleType]: [newNote, ...prev[noteData.moduleType]],
+      }))
+      return newNote
+    } catch (err) {
+      console.error('Failed to create note:', err)
+      // toast.error('Failed to create note')
+      throw err
+    }
   }, [isDemoMode, adapter, mockNotesStore])
 
   // Update note based on mode
@@ -189,8 +224,8 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       return
     }
 
-    await adapter.notes.update(id, updates)
-    // Optimistically update local state
+    // Optimistic update
+    const previousNotes = { ...supabaseNotes }
     setSupabaseNotes(prev => {
       const updatedNotes = { ...prev }
       for (const moduleType of Object.keys(updatedNotes) as ModuleType[]) {
@@ -200,7 +235,17 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       }
       return updatedNotes
     })
-  }, [isDemoMode, adapter, mockNotesStore])
+
+    try {
+      await adapter.notes.update(id, updates)
+    } catch (err) {
+      console.error('Failed to update note:', err)
+      // toast.error('Failed to save changes')
+      // Revert optimistic update
+      setSupabaseNotes(previousNotes)
+      throw err
+    }
+  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes])
 
   // Delete note based on mode
   const deleteNote = useCallback(async (id: string): Promise<void> => {
@@ -209,8 +254,8 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       return
     }
 
-    await adapter.notes.delete(id)
-    // Optimistically update local state
+    // Optimistic update
+    const previousNotes = { ...supabaseNotes }
     setSupabaseNotes(prev => {
       const updatedNotes = { ...prev }
       for (const moduleType of Object.keys(updatedNotes) as ModuleType[]) {
@@ -218,7 +263,17 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       }
       return updatedNotes
     })
-  }, [isDemoMode, adapter, mockNotesStore])
+
+    try {
+      await adapter.notes.delete(id)
+    } catch (err) {
+      console.error('Failed to delete note:', err)
+      // toast.error('Failed to delete note')
+      // Revert
+      setSupabaseNotes(previousNotes)
+      throw err
+    }
+  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes])
 
   // Set notes (for bulk operations like demo initialization)
   const setNotes = useCallback((moduleType: ModuleType, notes: Note[]) => {
@@ -245,10 +300,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   // Get current notes for context value
   const notes: Record<ModuleType, Note[]> = isDemoMode || !resolvedProductionId
     ? {
-        cue: mockNotesStore.getAllNotes('cue'),
-        work: mockNotesStore.getAllNotes('work'),
-        production: mockNotesStore.getAllNotes('production'),
-      }
+      cue: mockNotesStore.getAllNotes('cue'),
+      work: mockNotesStore.getAllNotes('work'),
+      production: mockNotesStore.getAllNotes('production'),
+    }
     : supabaseNotes
 
   return (
@@ -257,6 +312,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         notes,
         isLoading,
         error,
+        connectionStatus,
         getNotes,
         addNote,
         updateNote,

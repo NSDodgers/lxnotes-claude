@@ -26,6 +26,19 @@ export default async function HomePage() {
   const superAdmin = user ? await isSuperAdmin(user.id) : false
   const productions = user ? await getUserProductions(user.id) : []
 
+  // Check for pending invitations if user is logged in
+  if (user && user.email) {
+    try {
+      const { acceptPendingInvitations } = await import('@/lib/services/invitations')
+      // Fire and forget - don't block page load
+      acceptPendingInvitations(user.email, user.id).catch(err =>
+        console.error('Error accepting invitations on home page:', err)
+      )
+    } catch (e) {
+      console.error('Failed to import invitations service:', e)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4 py-12">
       <div className="max-w-2xl mx-auto text-center">

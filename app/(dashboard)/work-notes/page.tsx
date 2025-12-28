@@ -44,43 +44,36 @@ import Image from 'next/image'
 export default function WorkNotesPage() {
   const notesContext = useNotes()
   const mockNotesStore = useMockNotesStore()
-  const [notes, setNotes] = useState<Note[]>([])
-  const [isInitialized, setIsInitialized] = useState(false)
+  // Determine effective notes based on mode
+  const isDemo = isDemoMode()
+  const notes = isDemo
+    ? (typeof window !== 'undefined' ? (useMockNotesStore as any).getState().notes.work as Note[] : [])
+    : notesContext.getNotes('work')
 
+  // Mock store subscription for demo mode only
+  const [, forceUpdate] = useState({})
+  useEffect(() => {
+    if (isDemo) {
+      const unsubscribe = (useMockNotesStore as any).subscribe?.(
+        (state: any) => state.notes.work,
+        () => forceUpdate({})
+      )
+      return () => {
+        if (typeof unsubscribe === 'function') unsubscribe()
+      }
+    }
+  }, [isDemo])
+
+  const [isInitialized, setIsInitialized] = useState(false)
   const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
 
   // Initialize mock data only in non-demo mode and non-production mode
-  // In demo mode, initializeDemoSession handles all initialization
-  // In production mode, data comes from Supabase via NotesProvider
   useEffect(() => {
     if (!isDemoMode() && typeof window !== 'undefined' && !window.location.pathname.startsWith('/production/')) {
       initializeWithMockData()
     }
     setIsInitialized(true)
   }, [initializeWithMockData])
-
-  // Load and subscribe to store changes
-  // Uses NotesProvider context which handles both demo and production mode
-  useEffect(() => {
-    if (isInitialized) {
-      setNotes(notesContext.getNotes('work'))
-    }
-  }, [isInitialized, notesContext, notesContext.notes.work])
-
-  // Also subscribe to mock store for backward compatibility with demo mode
-  useEffect(() => {
-    const unsubscribe = (useMockNotesStore as any).subscribe?.(
-      (state: any) => state.notes.work,
-      (workNotes: Note[]) => {
-        if (isDemoMode()) {
-          setNotes(workNotes)
-        }
-      }
-    )
-    return () => {
-      if (typeof unsubscribe === 'function') unsubscribe()
-    }
-  }, [])
 
   // Get production data from context (Supabase) if available, otherwise fall back to store
   const productionContext = useProductionOptional()
@@ -203,7 +196,7 @@ export default function WorkNotesPage() {
 
   return (
     <>
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+      <div className="flex flex-col h-[calc(100vh-4rem)]">
         {/* Sticky Header Container */}
         <div className="flex-none space-y-6 pb-4">
           {/* Header */}

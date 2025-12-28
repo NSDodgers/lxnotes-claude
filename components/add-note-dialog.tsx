@@ -9,6 +9,7 @@ import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { FixtureSelector } from '@/components/fixture-selector'
+import { useProductionId } from '@/components/production/production-provider'
 import {
   Dialog,
   DialogContent,
@@ -74,11 +75,12 @@ function formatChannelsAsExpression(channels: number[]): string {
 }
 
 export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType, editingNote }: AddNoteDialogProps) {
+  const productionId = useProductionId()
   const { lookupCue } = useCueLookup()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
   const { linkFixturesToWorkNote, getLinkedFixtures } = useFixtureStore()
-  
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -139,7 +141,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     if (!formData.description.trim()) return
 
     const noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
-      productionId: 'prod-1',
+      productionId,
       moduleType,
       title: formData.description,
       description: formData.description,
@@ -147,7 +149,8 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       status: 'todo',
       type: formData.type,
       cueNumber: formData.cueNumbers || undefined,
-      scriptPageId: formData.cueNumbers ? `cue-${formData.cueNumbers}` : undefined,
+      // Note: scriptPageId is for referencing actual script_pages (UUID), not for display
+      // The cue number display is stored in cueNumber field
       sceneSongId: formData.sceneSongId || undefined,
       lightwrightItemId: formData.lightwrightItemId || undefined,
       channelNumbers: moduleType === 'work' ? channelExpression : undefined,
@@ -245,7 +248,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                 <Label>Fixture Selection (optional)</Label>
                 <div className="border rounded-lg p-4">
                   <FixtureSelector
-                    productionId="prod-1"
+                    productionId={productionId}
                     selectedFixtureIds={selectedLightwrightIds}
                     onSelectionChange={setSelectedLightwrightIds}
                     channelExpression={channelExpression}

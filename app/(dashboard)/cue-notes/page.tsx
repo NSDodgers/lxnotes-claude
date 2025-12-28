@@ -1756,39 +1756,25 @@ import Image from 'next/image'
 export default function CueNotesPage() {
   const notesContext = useNotes()
   const mockNotesStore = useMockNotesStore()
-  const [notes, setNotes] = useState<Note[]>([])
+  // Determine effective notes based on mode
+  const isDemo = isDemoMode()
+  const notes = isDemo
+    ? (typeof window !== 'undefined' ? (useMockNotesStore as any).getState().notes.cue : []) // Fallback for initial render
+    : notesContext.getNotes('cue')
 
-  const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
-
-  // Initialize mock data only in non-demo mode and non-production mode
-  // In demo mode, initializeDemoSession handles all initialization
-  // In production mode, data comes from Supabase via NotesProvider
+  // Mock store subscription for demo mode only
+  const [, forceUpdate] = useState({})
   useEffect(() => {
-    if (!isDemoMode() && typeof window !== 'undefined' && !window.location.pathname.startsWith('/production/')) {
-      initializeWithMockData()
-    }
-  }, [initializeWithMockData])
-
-  // Load and subscribe to store changes
-  // Uses NotesProvider context which handles both demo and production mode
-  useEffect(() => {
-    setNotes(notesContext.getNotes('cue'))
-  }, [notesContext, notesContext.notes.cue])
-
-  // Also subscribe to mock store for backward compatibility with demo mode
-  useEffect(() => {
-    const unsubscribe = (useMockNotesStore as any).subscribe?.(
-      (state: any) => state.notes.cue,
-      (cueNotes: Note[]) => {
-        if (isDemoMode()) {
-          setNotes(cueNotes)
-        }
+    if (isDemo) {
+      const unsubscribe = (useMockNotesStore as any).subscribe?.(
+        (state: any) => state.notes.cue,
+        () => forceUpdate({}) // Force re-render on store update
+      )
+      return () => {
+        if (typeof unsubscribe === 'function') unsubscribe()
       }
-    )
-    return () => {
-      if (typeof unsubscribe === 'function') unsubscribe()
     }
-  }, [])
+  }, [isDemo])
   // Get production data from context (Supabase) if available, otherwise fall back to store
   const productionContext = useProductionOptional()
   const storeData = useProductionStore()
@@ -1863,7 +1849,7 @@ export default function CueNotesPage() {
 
   return (
     <>
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+      <div className="flex flex-col h-[calc(100vh-4rem)]">
         {/* Sticky Header Container */}
         <div className="flex-none space-y-6 pb-4">
           {/* Header */}

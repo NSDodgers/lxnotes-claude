@@ -971,48 +971,43 @@ const mockProductionNotes: Note[] = [
 export default function ProductionNotesPage() {
   const notesContext = useNotes()
   const mockNotesStore = useMockNotesStore()
-  const [notes, setNotes] = useState<Note[]>([])
+  // Determine effective notes based on mode
+  const isDemo = isDemoMode()
+  const notes = isDemo
+    ? (typeof window !== 'undefined' ? (useMockNotesStore as any).getState().notes.production as Note[] : [])
+    : notesContext.getNotes('production')
 
   const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
 
-  // Initialize mock data only in non-demo mode and non-production mode
-  // In demo mode, initializeDemoSession handles all initialization
-  // In production mode, data comes from Supabase via NotesProvider
+  // Initialize data logic
   useEffect(() => {
-    if (!isDemoMode() && typeof window !== 'undefined' && !window.location.pathname.startsWith('/production/')) {
+    // Non-production init
+    if (!isDemo && typeof window !== 'undefined' && !window.location.pathname.startsWith('/production/')) {
       initializeWithMockData()
     }
-  }, [initializeWithMockData])
 
-  // Load and subscribe to store changes
-  // Uses NotesProvider context which handles both demo and production mode
-  useEffect(() => {
-    setNotes(notesContext.getNotes('production'))
-    // In demo mode, if no production notes exist yet, seed with mockProductionNotes
-    if (isDemoMode()) {
-      const current = notesContext.getNotes('production')
-      if (current.length === 0 && Array.isArray(mockProductionNotes) && mockProductionNotes.length > 0) {
-        // Replace store with the full demo production dataset once
+    // Demo seeding
+    if (isDemo) {
+      const current = (useMockNotesStore as any).getState().notes.production
+      if ((!current || current.length === 0) && Array.isArray(mockProductionNotes) && mockProductionNotes.length > 0) {
         notesContext.setNotes('production', mockProductionNotes)
-        setNotes(mockProductionNotes)
       }
     }
-  }, [notesContext, notesContext.notes.production])
+  }, [initializeWithMockData, isDemo, notesContext])
 
-  // Also subscribe to mock store for backward compatibility with demo mode
+  // Mock store subscription for demo mode only
+  const [, forceUpdate] = useState({})
   useEffect(() => {
-    const unsubscribe = (useMockNotesStore as any).subscribe?.(
-      (state: any) => state.notes.production,
-      (prodNotes: Note[]) => {
-        if (isDemoMode()) {
-          setNotes(prodNotes)
-        }
+    if (isDemo) {
+      const unsubscribe = (useMockNotesStore as any).subscribe?.(
+        (state: any) => state.notes.production,
+        () => forceUpdate({})
+      )
+      return () => {
+        if (typeof unsubscribe === 'function') unsubscribe()
       }
-    )
-    return () => {
-      if (typeof unsubscribe === 'function') unsubscribe()
     }
-  }, [])
+  }, [isDemo])
   // Get production data from context (Supabase) if available, otherwise fall back to store
   const productionContext = useProductionOptional()
   const storeData = useProductionStore()
@@ -1082,7 +1077,7 @@ export default function ProductionNotesPage() {
 
   return (
     <>
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+      <div className="flex flex-col h-[calc(100vh-4rem)]">
         {/* Sticky Header Container */}
         <div className="flex-none space-y-6 pb-4">
           {/* Header */}
