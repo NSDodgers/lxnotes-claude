@@ -120,6 +120,9 @@ export async function getPendingInvitationsForEmail(email: string): Promise<Prod
 
 /**
  * Accept an invitation (server-side)
+ *
+ * SECURITY: This function verifies that the accepting user's email matches
+ * the invitation's email to prevent privilege escalation attacks.
  */
 export async function acceptInvitation(invitationId: string, userId: string): Promise<void> {
   const supabase = await createClient()
@@ -134,6 +137,21 @@ export async function acceptInvitation(invitationId: string, userId: string): Pr
 
   if (fetchError || !invitation) {
     throw new Error('Invitation not found or already processed')
+  }
+
+  // SECURITY: Verify the accepting user's email matches the invitation
+  const { data: currentUser, error: userError } = await supabase
+    .from('users')
+    .select('email')
+    .eq('id', userId)
+    .single()
+
+  if (userError || !currentUser) {
+    throw new Error('User not found')
+  }
+
+  if (currentUser.email?.toLowerCase() !== invitation.email.toLowerCase()) {
+    throw new Error('This invitation is not for your email address')
   }
 
   // Check if expired
@@ -299,5 +317,52 @@ export async function acceptPendingInvitations(email: string, userId: string): P
     }
   } catch (error) {
     console.error('Error processing pending invitations:', error)
+  }
+}
+
+/**
+ * Clean up expired invitations (server-side)
+ *
+ * Marks all pending invitations that have passed their expiration date as 'expired'.
+ * Can be called on app load or as a cron job via Supabase Edge Function.
+ *
+ * @returns Number of invitations marked as expired
+ */
+export async function cleanupExpiredInvitations(): Promise<number> {
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    let adminClient
+
+    try {
+      adminClient = createAdminClient()
+    } catch (e) {
+      console.warn('Skipping invitation cleanup: Supabase Admin client could not be created')
+      return 0
+    }
+
+    const now = new Date().toISOString()
+
+    // Find and update all expired pending invitations
+    const { data, error } = await adminClient
+      .from('production_invitations')
+      .update({ status: 'expired' })
+      .eq('status', 'pending')
+      .lt('expires_at', now)
+      .select('id')
+
+    if (error) {
+      console.error('Error cleaning up expired invitations:', error)
+      return 0
+    }
+
+    const count = data?.length ?? 0
+    if (count > 0) {
+      console.log(`Marked ${count} expired invitation(s) as expired`)
+    }
+
+    return count
+  } catch (error) {
+    console.error('Error in cleanupExpiredInvitations:', error)
+    return 0
   }
 }

@@ -2,18 +2,24 @@
 
 /**
  * Fixtures Context Provider
- * 
+ *
  * Manages fixtures data flow:
  * - Production Mode: Fetches from Supabase, subscribes to Realtime, syncs to FixtureStore
  * - Demo Mode: Relies purely on FixtureStore
  */
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import type { FixtureInfo } from '@/types'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToFixtureChanges } from '@/lib/supabase/realtime'
+
+const isDev = process.env.NODE_ENV === 'development'
+
+/** Validate UUID format to prevent injection attacks */
+const isValidUUID = (id: string): boolean =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
 
 interface FixturesContextType {
     isLoading: boolean
@@ -41,14 +47,17 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
     const pathname = usePathname()
     const fixtureStore = useFixtureStore()
 
-    // Detemine mode
+    // Track if component is mounted to prevent state updates after unmount
+    const isMountedRef = useRef(true)
+
+    // Determine mode
     const isDemoMode = pathname.startsWith('/demo')
     const isProductionMode = !!productionId || pathname.startsWith('/production/')
 
+    // SECURITY: Validate UUID format to prevent injection attacks
+    const extractedId = isProductionMode && !isDemoMode ? pathname.split('/')[2] : undefined
     const resolvedProductionId = productionId || (
-        isProductionMode && !isDemoMode
-            ? pathname.split('/')[2]
-            : undefined
+        extractedId && isValidUUID(extractedId) ? extractedId : undefined
     )
 
     const [isLoading, setIsLoading] = useState(isProductionMode && !isDemoMode)
@@ -57,8 +66,32 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
     const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected')
     const [adapter, setAdapter] = useState<ReturnType<typeof createSupabaseStorageAdapter> | null>(null)
 
+    // FIX: Move handleRealtimeUpdate outside useEffect to prevent stale closures
+    // Use useCallback with proper dependencies
+    const handleRealtimeUpdate = useCallback(async (storageAdapter: ReturnType<typeof createSupabaseStorageAdapter>, prodId: string) => {
+        if (!isMountedRef.current) return
+
+        setIsSyncing(true)
+        try {
+            // Re-fetch everything on change for simplicity/safety
+            // OPTIMIZATION TODO: Handle granular updates to avoid full refetch
+            const freshFixtures = await storageAdapter.fixtures.getAll()
+            if (isMountedRef.current) {
+                fixtureStore.syncFixtures(prodId, freshFixtures)
+            }
+        } catch (e) {
+            if (isDev) console.error('[FixturesContext] Failed to sync fixture update', e)
+        } finally {
+            if (isMountedRef.current) {
+                setIsSyncing(false)
+            }
+        }
+    }, [fixtureStore])
+
     // Initialize Adapter & Load Initial Data
     useEffect(() => {
+        isMountedRef.current = true
+
         if (resolvedProductionId && !isDemoMode) {
             const storageAdapter = createSupabaseStorageAdapter(resolvedProductionId)
             setAdapter(storageAdapter)
@@ -71,15 +104,18 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
                     const fixtures = await storageAdapter.fixtures.getAll()
 
                     // Sync to store
-                    // map DbFixture to FixtureInfo if necessary, or ensure types match
-                    // The storage adapter returns FixtureInfo[], so we are good
-                    fixtureStore.syncFixtures(resolvedProductionId, fixtures)
-
+                    if (isMountedRef.current) {
+                        fixtureStore.syncFixtures(resolvedProductionId, fixtures)
+                    }
                 } catch (err) {
-                    console.error('[FixturesContext] Failed to load fixtures:', err)
-                    setError(err instanceof Error ? err : new Error('Failed to load fixtures'))
+                    if (isDev) console.error('[FixturesContext] Failed to load fixtures:', err)
+                    if (isMountedRef.current) {
+                        setError(err instanceof Error ? err : new Error('Failed to load fixtures'))
+                    }
                 } finally {
-                    setIsLoading(false)
+                    if (isMountedRef.current) {
+                        setIsLoading(false)
+                    }
                 }
             }
 
@@ -88,50 +124,33 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
             // Realtime Subscription
             setConnectionStatus('connecting')
             const unsubscribe = subscribeToFixtureChanges(resolvedProductionId, {
-                onStatusChange: (status) => {
-                    if (status === 'SUBSCRIBED') setConnectionStatus('connected')
-                    else if (status === 'CLOSED') setConnectionStatus('disconnected')
-                    else if (status === 'CHANNEL_ERROR') setConnectionStatus('error')
+                onFixtureInsert: () => {
+                    handleRealtimeUpdate(storageAdapter, resolvedProductionId)
                 },
-                onFixtureInsert: (newFixture) => {
-                    handleRealtimeUpdate()
+                onFixtureUpdate: () => {
+                    handleRealtimeUpdate(storageAdapter, resolvedProductionId)
                 },
-                onFixtureUpdate: (updatedFixture) => {
-                    handleRealtimeUpdate()
-                },
-                onFixtureDelete: (deletedFixture) => {
-                    handleRealtimeUpdate()
+                onFixtureDelete: () => {
+                    handleRealtimeUpdate(storageAdapter, resolvedProductionId)
                 },
                 onError: (err) => {
-                    console.error('[FixturesContext] Subscription error', err)
-                    setConnectionStatus('error')
+                    if (isDev) console.error('[FixturesContext] Subscription error', err)
+                    if (isMountedRef.current) {
+                        setConnectionStatus('error')
+                    }
                 }
             })
 
-            // Helper to just re-fetch everything on change for simplicity/safety first
-            // Since fixtures can be large sets and "syncFixtures" replaces the whole list for the production,
-            // it might be better to do differential updates later. 
-            // For now, to guarantee consistency with aggregations involving positions/linking,
-            // re-fetching the list ensures we have the full correct state.
-            // OPTIMIZATION TODO: Handle granular updates to avoid full refetch
-            const handleRealtimeUpdate = async () => {
-                setIsSyncing(true)
-                try {
-                    // We use the ADAPTER to get the fresh list from DB
-                    const freshFixtures = await storageAdapter.fixtures.getAll()
-                    fixtureStore.syncFixtures(resolvedProductionId, freshFixtures)
-                } catch (e) {
-                    console.error('Failed to sync fixture update', e)
-                } finally {
-                    setIsSyncing(false)
-                }
-            }
-
             return () => {
+                isMountedRef.current = false
                 unsubscribe()
             }
         }
-    }, [resolvedProductionId, isDemoMode])
+
+        return () => {
+            isMountedRef.current = false
+        }
+    }, [resolvedProductionId, isDemoMode, fixtureStore, handleRealtimeUpdate])
 
     return (
         <FixturesContext.Provider value={{

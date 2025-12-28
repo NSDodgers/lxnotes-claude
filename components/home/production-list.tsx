@@ -31,9 +31,9 @@ export function ProductionList({ initialProductions = [] }: ProductionListProps)
 
   useEffect(() => {
 
-    // Subscribe to realtime updates
+    // Subscribe to realtime updates (Note: currently disabled, see realtime.ts)
     const unsubscribe = subscribeToProductionsList({
-      onInsert: (newProduction) => {
+      onInsert: (newProduction: any) => {
         if (!newProduction.is_demo) {
           setProductions(prev => [{
             id: newProduction.id,
@@ -49,7 +49,7 @@ export function ProductionList({ initialProductions = [] }: ProductionListProps)
           }, ...prev])
         }
       },
-      onUpdate: (updatedProduction) => {
+      onUpdate: (updatedProduction: any) => {
         setProductions(prev =>
           prev.map(p =>
             p.id === updatedProduction.id
@@ -69,10 +69,10 @@ export function ProductionList({ initialProductions = [] }: ProductionListProps)
           )
         )
       },
-      onDelete: (oldProduction) => {
+      onDelete: (oldProduction: any) => {
         setProductions(prev => prev.filter(p => p.id !== oldProduction.id))
       },
-      onError: (err) => {
+      onError: (err: Error) => {
         console.error('Realtime subscription error:', err)
       },
     })

@@ -16,6 +16,12 @@ import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-ad
 import { subscribeToProduction, subscribeToNoteChanges } from '@/lib/supabase/realtime'
 // import { toast } from 'sonner'
 
+const isDev = process.env.NODE_ENV === 'development'
+
+/** Validate UUID format to prevent injection attacks */
+const isValidUUID = (id: string): boolean =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+
 interface NotesContextType {
   notes: Record<ModuleType, Note[]>
   isLoading: boolean
@@ -77,10 +83,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   const isProductionMode = !!productionId || pathname.startsWith('/production/')
 
   // Extract production ID from URL if not provided
+  // SECURITY: Validate UUID format to prevent injection attacks
+  const extractedId = isProductionMode && !isDemoMode ? pathname.split('/')[2] : undefined
   const resolvedProductionId = productionId || (
-    isProductionMode && !isDemoMode
-      ? pathname.split('/')[2] // /production/[id]/...
-      : undefined
+    extractedId && isValidUUID(extractedId) ? extractedId : undefined
   )
 
   // State for production mode
@@ -138,19 +144,19 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
           else if (status === 'TIMED_OUT') setConnectionStatus('error')
         },
         onNoteInsert: (newNote) => {
-          console.log('[NotesContext] onNoteInsert raw payload:', newNote)
+          if (isDev) console.log('[NotesContext] onNoteInsert raw payload:', newNote)
           const moduleType = newNote.module_type as ModuleType
-          console.log('[NotesContext] Module type:', moduleType)
+          if (isDev) console.log('[NotesContext] Module type:', moduleType)
           const note = convertDbNoteToNote(newNote)
 
           setSupabaseNotes(prev => {
-            console.log('[NotesContext] Current count for', moduleType, ':', prev[moduleType]?.length)
+            if (isDev) console.log('[NotesContext] Current count for', moduleType, ':', prev[moduleType]?.length)
             // Check if already exists (deduplication)
             if (prev[moduleType]?.some(n => n.id === note.id)) {
-              console.log('[NotesContext] Note already exists, skipping')
+              if (isDev) console.log('[NotesContext] Note already exists, skipping')
               return prev
             }
-            console.log('[NotesContext] Adding note. New count:', (prev[moduleType]?.length || 0) + 1)
+            if (isDev) console.log('[NotesContext] Adding note. New count:', (prev[moduleType]?.length || 0) + 1)
             return {
               ...prev,
               [moduleType]: [note, ...prev[moduleType] || []],
