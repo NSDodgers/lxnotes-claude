@@ -9,7 +9,7 @@ import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { FixtureSelector } from '@/components/fixture-selector'
-import { useProductionId } from '@/components/production/production-provider'
+import { useProductionOptional } from '@/components/production/production-provider'
 import {
   Dialog,
   DialogContent,
@@ -75,7 +75,9 @@ function formatChannelsAsExpression(channels: number[]): string {
 }
 
 export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType, editingNote }: AddNoteDialogProps) {
-  const productionId = useProductionId()
+  // Use optional hook to avoid throwing during static generation or demo mode
+  const productionContext = useProductionOptional()
+  const productionId = productionContext?.productionId ?? 'demo'
   const { lookupCue } = useCueLookup()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
