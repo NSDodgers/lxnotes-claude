@@ -24,6 +24,7 @@ import { useNotes } from '@/lib/contexts/notes-context'
 import { ScriptManager } from '@/components/script-manager'
 import { isDemoMode } from '@/lib/demo-data'
 import Image from 'next/image'
+import { DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 
 // Mock data for development - REMOVED: This large array was never used
 // Notes are now generated dynamically by the mock-notes-store
@@ -1857,13 +1858,16 @@ export default function CueNotesPage() {
             {/* Left: Production Info */}
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
-                {logo && (logo.startsWith('data:') || logo.startsWith('/') || logo.startsWith('http')) ? (
-                  <div className="relative w-full h-full">
-                    <Image src={logo} alt="Production logo" fill className="object-cover" />
-                  </div>
-                ) : (
-                  <span>{logo}</span>
-                )}
+                {(() => {
+                  const displayLogo = logo || DEFAULT_PRODUCTION_LOGO
+                  return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
+                    <div className="relative w-full h-full">
+                      <Image src={displayLogo} alt="Production logo" fill className="object-cover" />
+                    </div>
+                  ) : (
+                    <span>{displayLogo}</span>
+                  )
+                })()}
               </div>
               <div>
                 <h2 className="text-xl font-bold text-text-primary">{name}</h2>

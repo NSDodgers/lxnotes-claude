@@ -129,11 +129,14 @@ export default function SettingsPage() {
                     </label>
                     <div className="flex items-center gap-4">
                       <div className="relative w-16 h-16 rounded-lg bg-bg-tertiary border-2 border-dashed border-bg-hover flex items-center justify-center text-text-muted overflow-hidden">
-                        {logoPreview && (logoPreview.startsWith('data:') || logoPreview.startsWith('/') || logoPreview.startsWith('http')) ? (
-                          <Image src={logoPreview} alt="Logo preview" fill className="object-cover" />
-                        ) : (
-                          <span className="text-2xl">{logoPreview}</span>
-                        )}
+                        {(() => {
+                          const displayLogo = logoPreview || DEFAULT_PRODUCTION_LOGO
+                          return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
+                            <Image src={displayLogo} alt="Logo preview" fill className="object-cover" />
+                          ) : (
+                            <span className="text-2xl">{displayLogo}</span>
+                          )
+                        })()}
                       </div>
                       <div className="flex-1">
                         <div className="flex gap-2">

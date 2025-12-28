@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 
 interface ProductionCardProps {
   production: {
@@ -25,18 +26,21 @@ export function ProductionCard({ production }: ProductionCardProps) {
       <div className="flex items-center gap-4">
         {/* Logo */}
         <div className="flex-shrink-0 w-12 h-12 bg-bg-tertiary rounded-lg overflow-hidden flex items-center justify-center text-xl">
-          {production.logo && (production.logo.startsWith('data:') || production.logo.startsWith('/') || production.logo.startsWith('http')) ? (
-            <div className="relative w-full h-full">
-              <Image
-                src={production.logo}
-                alt={`${production.name} logo`}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ) : (
-            <span className="text-text-muted">{production.abbreviation.charAt(0)}</span>
-          )}
+          {(() => {
+            const displayLogo = production.logo || DEFAULT_PRODUCTION_LOGO
+            return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
+              <div className="relative w-full h-full">
+                <Image
+                  src={displayLogo}
+                  alt={`${production.name} logo`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <span className="text-text-muted">{displayLogo}</span>
+            )
+          })()}
         </div>
 
         {/* Info */}
