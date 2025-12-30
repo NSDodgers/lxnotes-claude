@@ -1779,9 +1779,13 @@ export default function CueNotesPage() {
   // Get production data from context (Supabase) if available, otherwise fall back to store
   const productionContext = useProductionOptional()
   const storeData = useProductionStore()
+  // When in production context, use its values (with placeholder fallback for logo)
+  // Only fall back to store data when there's no production context at all
   const name = productionContext?.production?.name ?? storeData.name
   const abbreviation = productionContext?.production?.abbreviation ?? storeData.abbreviation
-  const logo = productionContext?.production?.logo ?? storeData.logo
+  const logo = productionContext?.production
+    ? (productionContext.production.logo || DEFAULT_PRODUCTION_LOGO)
+    : storeData.logo
   const customTypesStore = useCustomTypesStore()
   const customPrioritiesStore = useCustomPrioritiesStore()
   const [searchTerm, setSearchTerm] = useState('')
