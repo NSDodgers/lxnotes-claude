@@ -9,6 +9,7 @@ import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
 import { useState, useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 import { Plus, Search, Lightbulb, FileText, Mail, Printer, RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
@@ -1779,12 +1780,14 @@ export default function CueNotesPage() {
   // Get production data from context (Supabase) if available, otherwise fall back to store
   const productionContext = useProductionOptional()
   const storeData = useProductionStore()
-  // When in production context, use its values (with placeholder fallback for logo)
-  // Only fall back to store data when there's no production context at all
-  const name = productionContext?.production?.name ?? storeData.name
-  const abbreviation = productionContext?.production?.abbreviation ?? storeData.abbreviation
-  const logo = productionContext?.production
-    ? (productionContext.production.logo || DEFAULT_PRODUCTION_LOGO)
+  const pathname = usePathname()
+  const isProductionMode = pathname.startsWith('/production/')
+  // When in production mode (real Supabase), use placeholder during loading and when no logo
+  // Only fall back to store data when NOT in production mode (demo/default)
+  const name = productionContext?.production?.name ?? (isProductionMode ? '' : storeData.name)
+  const abbreviation = productionContext?.production?.abbreviation ?? (isProductionMode ? '' : storeData.abbreviation)
+  const logo = isProductionMode
+    ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
     : storeData.logo
   const customTypesStore = useCustomTypesStore()
   const customPrioritiesStore = useCustomPrioritiesStore()
