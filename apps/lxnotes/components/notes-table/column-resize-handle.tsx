@@ -3,8 +3,8 @@
 import { Header } from '@tanstack/react-table'
 import { cn } from '@/lib/utils'
 
-interface ColumnResizeHandleProps {
-  header: Header<any, unknown>
+interface ColumnResizeHandleProps<TData> {
+  header: Header<TData, unknown>
   className?: string
 }
 
@@ -16,7 +16,7 @@ interface ColumnResizeHandleProps {
  * - Visual feedback on hover and during resize
  * - Double-click to reset column to default size
  */
-export function ColumnResizeHandle({ header, className }: ColumnResizeHandleProps) {
+export function ColumnResizeHandle<TData>({ header, className }: ColumnResizeHandleProps<TData>) {
   const isResizing = header.column.getIsResizing()
 
   return (

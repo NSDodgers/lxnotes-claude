@@ -48,15 +48,15 @@ export default function WorkNotesPage() {
   // Determine effective notes based on mode
   const isDemo = isDemoMode()
   const notes = isDemo
-    ? (typeof window !== 'undefined' ? (useMockNotesStore as any).getState().notes.work as Note[] : [])
+    ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.work : [])
     : notesContext.getNotes('work')
 
   // Mock store subscription for demo mode only
   const [, forceUpdate] = useState({})
   useEffect(() => {
     if (isDemo) {
-      const unsubscribe = (useMockNotesStore as any).subscribe?.(
-        (state: any) => state.notes.work,
+      const unsubscribe = useMockNotesStore.subscribe(
+        (state) => state.notes.work,
         () => forceUpdate({})
       )
       return () => {

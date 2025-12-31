@@ -82,7 +82,21 @@ export interface Production {
   updatedAt: Date
 }
 
-function mapProduction(row: any): Production {
+// Raw database row type (snake_case)
+interface RawProductionRow {
+  id: string
+  name: string
+  abbreviation: string
+  logo?: string | null
+  description?: string | null
+  start_date?: string | null
+  end_date?: string | null
+  is_demo?: boolean | null
+  created_at: string | null
+  updated_at: string | null
+}
+
+function mapProduction(row: RawProductionRow): Production {
   return {
     id: row.id,
     name: row.name,
@@ -92,8 +106,8 @@ function mapProduction(row: any): Production {
     startDate: row.start_date ? new Date(row.start_date) : undefined,
     endDate: row.end_date ? new Date(row.end_date) : undefined,
     isDemo: row.is_demo ?? false,
-    createdAt: new Date(row.created_at!),
-    updatedAt: new Date(row.updated_at!),
+    createdAt: row.created_at ? new Date(row.created_at) : new Date(),
+    updatedAt: row.updated_at ? new Date(row.updated_at) : new Date(),
   }
 }
 

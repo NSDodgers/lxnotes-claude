@@ -975,7 +975,7 @@ export default function ProductionNotesPage() {
   // Determine effective notes based on mode
   const isDemo = isDemoMode()
   const notes = isDemo
-    ? (typeof window !== 'undefined' ? (useMockNotesStore as any).getState().notes.production as Note[] : [])
+    ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.production : [])
     : notesContext.getNotes('production')
 
   const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
@@ -989,7 +989,7 @@ export default function ProductionNotesPage() {
 
     // Demo seeding
     if (isDemo) {
-      const current = (useMockNotesStore as any).getState().notes.production
+      const current = useMockNotesStore.getState().notes.production
       if ((!current || current.length === 0) && Array.isArray(mockProductionNotes) && mockProductionNotes.length > 0) {
         notesContext.setNotes('production', mockProductionNotes)
       }
@@ -1000,8 +1000,8 @@ export default function ProductionNotesPage() {
   const [, forceUpdate] = useState({})
   useEffect(() => {
     if (isDemo) {
-      const unsubscribe = (useMockNotesStore as any).subscribe?.(
-        (state: any) => state.notes.production,
+      const unsubscribe = useMockNotesStore.subscribe(
+        (state) => state.notes.production,
         () => forceUpdate({})
       )
       return () => {

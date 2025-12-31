@@ -2,7 +2,7 @@
  * Server-side production members functions
  */
 import { createClient } from '@/lib/supabase/server'
-import { ProductionMember } from './production-members.types'
+import { ProductionMember, RawMemberRow, mapMember } from './production-members.types'
 
 // Re-export types for convenience
 export type { ProductionMember } from './production-members.types'
@@ -37,20 +37,7 @@ export async function getProductionMembers(productionId: string): Promise<Produc
     throw error
   }
 
-  return (data ?? []).map((row: any) => ({
-    id: row.id,
-    productionId: row.production_id,
-    userId: row.user_id,
-    role: row.role,
-    createdAt: row.created_at ? new Date(row.created_at) : new Date(),
-    updatedAt: row.updated_at ? new Date(row.updated_at) : new Date(),
-    user: row.users ? {
-      id: row.users.id,
-      email: row.users.email,
-      fullName: row.users.full_name,
-      avatarUrl: row.users.avatar_url,
-    } : undefined,
-  }))
+  return (data ?? []).map((row) => mapMember(row as RawMemberRow))
 }
 
 /**

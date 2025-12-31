@@ -112,7 +112,7 @@ export const getSortFieldsForModule = <T extends keyof ModuleSortFieldsMap>(modu
 
 export const validateSortFieldForModule = (sortBy: string, moduleType: 'cue' | 'work' | 'production' | 'actor') => {
   const validFields = getSortFieldsForModule(moduleType)
-  return validFields.includes(sortBy as any)
+  return (validFields as readonly string[]).includes(sortBy)
 }
 
 // Helper function to validate filter/sort preset config based on module

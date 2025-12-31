@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { subscribeWithSelector } from 'zustand/middleware'
 import type {
   Note,
   ModuleType,
@@ -42,7 +43,7 @@ interface ScriptContext {
 
 type FixtureContext = Pick<FixtureInfo, 'lwid' | 'channel' | 'position' | 'unitNumber' | 'fixtureType' | 'purpose'>
 
-export const useMockNotesStore = create<MockNotesState>((set, get) => ({
+export const useMockNotesStore = create<MockNotesState>()(subscribeWithSelector((set, get) => ({
   notes: {
     cue: [],
     work: [],
@@ -1088,4 +1089,4 @@ export const useMockNotesStore = create<MockNotesState>((set, get) => ({
       }
     })
   }
-}))
+})))

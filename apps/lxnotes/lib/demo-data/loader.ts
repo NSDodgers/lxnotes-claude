@@ -11,6 +11,7 @@ import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useProductionStore } from '@/lib/stores/production-store'
 import generateDemoNotes from './notes/demo-notes-data'
+import type { Note } from '@/types'
 import { PIRATES_PRODUCTION } from './production/pirates-info'
 import { DEMO_METADATA } from './version'
 import { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from './script/pirates-pages-songs'
@@ -73,13 +74,13 @@ export async function initializeDemoSession(): Promise<void> {
     const { workNotes, cueNotes, productionNotes } = generateDemoNotes()
 
     // Helper to strip id/timestamps for createMany
-    const toPayload = (note: any) => {
+    const toPayload = (note: Note) => {
       const { id, createdAt, updatedAt, ...rest } = note
       return rest
     }
 
     // Work notes (store for fixture linking later)
-    let storedWorkNotes: any[] = []
+    let storedWorkNotes: Note[] = []
     {
       const existing = await storage.notes.getAll('work')
       if (existing.length > 0) {

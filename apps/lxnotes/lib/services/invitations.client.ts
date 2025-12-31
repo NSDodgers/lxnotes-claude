@@ -2,7 +2,7 @@
  * Client-side invitation functions
  */
 import { createClient as createBrowserClient } from '@/lib/supabase/client'
-import { ProductionInvitation, mapInvitation } from './invitations.types'
+import { ProductionInvitation, RawInvitationRow, mapInvitation } from './invitations.types'
 
 // Re-export types for convenience
 export type { ProductionInvitation } from './invitations.types'
@@ -32,8 +32,8 @@ export async function getPendingInvitationsClient(productionId: string): Promise
     throw error
   }
 
-  return (data ?? []).map((row: any) => ({
-    ...mapInvitation(row),
+  return (data ?? []).map((row) => ({
+    ...mapInvitation(row as RawInvitationRow),
     inviter: row.users ? {
       id: row.users.id,
       email: row.users.email,

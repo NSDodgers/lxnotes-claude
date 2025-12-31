@@ -17,6 +17,20 @@ interface Production {
   updatedAt: Date
 }
 
+// Raw Supabase production type (snake_case from database)
+interface RawProduction {
+  id: string
+  name: string
+  abbreviation: string
+  logo?: string | null
+  description?: string | null
+  start_date?: string | null
+  end_date?: string | null
+  is_demo?: boolean | null
+  created_at: string
+  updated_at: string
+}
+
 interface ProductionListProps {
   initialProductions?: Production[]
 }
@@ -33,7 +47,8 @@ export function ProductionList({ initialProductions = [] }: ProductionListProps)
 
     // Subscribe to realtime updates (Note: currently disabled, see realtime.ts)
     const unsubscribe = subscribeToProductionsList({
-      onInsert: (newProduction: any) => {
+      onInsert: (row) => {
+        const newProduction = row as unknown as RawProduction
         if (!newProduction.is_demo) {
           setProductions(prev => [{
             id: newProduction.id,
@@ -49,7 +64,8 @@ export function ProductionList({ initialProductions = [] }: ProductionListProps)
           }, ...prev])
         }
       },
-      onUpdate: (updatedProduction: any) => {
+      onUpdate: (row) => {
+        const updatedProduction = row as unknown as RawProduction
         setProductions(prev =>
           prev.map(p =>
             p.id === updatedProduction.id
@@ -69,7 +85,8 @@ export function ProductionList({ initialProductions = [] }: ProductionListProps)
           )
         )
       },
-      onDelete: (oldProduction: any) => {
+      onDelete: (row) => {
+        const oldProduction = row as unknown as RawProduction
         setProductions(prev => prev.filter(p => p.id !== oldProduction.id))
       },
       onError: (err: Error) => {

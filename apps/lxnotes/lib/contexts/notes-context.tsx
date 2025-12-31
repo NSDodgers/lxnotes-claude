@@ -336,8 +336,34 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   )
 }
 
+// Raw database note type (snake_case from Supabase)
+interface RawDbNote {
+  id: string
+  production_id: string
+  module_type: string
+  title: string
+  description?: string | null
+  type?: string | null
+  priority: string
+  status: string
+  created_by?: string | null
+  assigned_to?: string | null
+  completed_by?: string | null
+  created_at: string | null
+  updated_at: string | null
+  completed_at?: string | null
+  due_date?: string | null
+  cue_number?: string | null
+  script_page_id?: string | null
+  scene_song_id?: string | null
+  lightwright_item_id?: string | null
+  channel_numbers?: string | null
+  position_unit?: string | null
+  scenery_needs?: string | null
+}
+
 // Helper function to convert database note to Note type
-function convertDbNoteToNote(dbNote: any): Note {
+function convertDbNoteToNote(dbNote: RawDbNote): Note {
   return {
     id: dbNote.id,
     productionId: dbNote.production_id,
@@ -350,8 +376,8 @@ function convertDbNoteToNote(dbNote: any): Note {
     createdBy: dbNote.created_by ?? undefined,
     assignedTo: dbNote.assigned_to ?? undefined,
     completedBy: dbNote.completed_by ?? undefined,
-    createdAt: new Date(dbNote.created_at),
-    updatedAt: new Date(dbNote.updated_at),
+    createdAt: dbNote.created_at ? new Date(dbNote.created_at) : new Date(),
+    updatedAt: dbNote.updated_at ? new Date(dbNote.updated_at) : new Date(),
     completedAt: dbNote.completed_at ? new Date(dbNote.completed_at) : undefined,
     dueDate: dbNote.due_date ? new Date(dbNote.due_date) : undefined,
     cueNumber: dbNote.cue_number ?? undefined,

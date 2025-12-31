@@ -77,6 +77,7 @@ export class PDFGenerationService {
       }
 
       // Generate PDF blob using @react-pdf/renderer
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pdfBlob = await pdf(pdfDocument as any).toBlob()
 
       // Generate filename

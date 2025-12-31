@@ -2,7 +2,7 @@
  * Server-side invitation functions
  */
 import { createClient } from '@/lib/supabase/server'
-import { ProductionInvitation, mapInvitation } from './invitations.types'
+import { ProductionInvitation, RawInvitationRow, mapInvitation } from './invitations.types'
 
 // Re-export types for convenience
 export type { ProductionInvitation } from './invitations.types'
@@ -75,8 +75,8 @@ export async function getPendingInvitations(productionId: string): Promise<Produ
     throw error
   }
 
-  return (data ?? []).map((row: any) => ({
-    ...mapInvitation(row),
+  return (data ?? []).map((row) => ({
+    ...mapInvitation(row as RawInvitationRow),
     inviter: row.users ? {
       id: row.users.id,
       email: row.users.email,
@@ -109,8 +109,8 @@ export async function getPendingInvitationsForEmail(email: string): Promise<Prod
     throw error
   }
 
-  return (data ?? []).map((row: any) => ({
-    ...mapInvitation(row),
+  return (data ?? []).map((row) => ({
+    ...mapInvitation(row as RawInvitationRow),
     production: row.productions ? {
       id: row.productions.id,
       name: row.productions.name,

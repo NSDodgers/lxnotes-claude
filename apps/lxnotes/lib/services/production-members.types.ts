@@ -18,14 +18,31 @@ export interface ProductionMember {
   }
 }
 
-export function mapMember(row: any): ProductionMember {
+// Raw database member type (snake_case from Supabase)
+export interface RawMemberRow {
+  id: string
+  production_id: string
+  user_id: string
+  role: string
+  created_at: string | null
+  updated_at: string | null
+  // Joined user data (optional)
+  users?: {
+    id: string
+    email: string
+    full_name: string | null
+    avatar_url: string | null
+  }
+}
+
+export function mapMember(row: RawMemberRow): ProductionMember {
   return {
     id: row.id,
     productionId: row.production_id,
     userId: row.user_id,
-    role: row.role,
-    createdAt: new Date(row.created_at),
-    updatedAt: new Date(row.updated_at),
+    role: row.role as 'admin' | 'member',
+    createdAt: row.created_at ? new Date(row.created_at) : new Date(),
+    updatedAt: row.updated_at ? new Date(row.updated_at) : new Date(),
     user: row.users ? {
       id: row.users.id,
       email: row.users.email,

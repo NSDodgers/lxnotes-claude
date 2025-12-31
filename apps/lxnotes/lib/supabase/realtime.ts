@@ -273,7 +273,14 @@ export function subscribeToProduction(
  * because broad table subscriptions without RLS filters can be security/performance risks
  * and homepage lists should typically just refresh on load or manual refresh.
  */
-export function subscribeToProductionsList(callbacks: any): () => void {
+interface ProductionListCallbacks {
+  onInsert?: (production: Record<string, unknown>) => void
+  onUpdate?: (production: Record<string, unknown>) => void
+  onDelete?: (production: Record<string, unknown>) => void
+  onError?: (error: Error) => void
+}
+
+export function subscribeToProductionsList(_callbacks: ProductionListCallbacks): () => void {
   if (isDev) console.warn('subscribeToProductionsList is deprecated/disabled. Use manual refresh.')
   return () => { }
 }
