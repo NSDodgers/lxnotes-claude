@@ -75,7 +75,8 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
       customPriorities: {
         cue: [],
         work: [],
-        production: []
+        production: [],
+        actor: []
       },
       systemOverrides: [],
       

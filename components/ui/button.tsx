@@ -23,6 +23,7 @@ const buttonVariants = cva(
         cue: "bg-modules-cue text-white shadow-lg shadow-modules-cue/30 hover:shadow-modules-cue/50 hover:bg-modules-cue/90 btn-glow",
         work: "bg-modules-work text-white shadow-lg shadow-modules-work/30 hover:shadow-modules-work/50 hover:bg-modules-work/90 btn-glow",
         production: "bg-modules-production text-white shadow-lg shadow-modules-production/30 hover:shadow-modules-production/50 hover:bg-modules-production/90 btn-glow",
+        actor: "bg-modules-production text-white shadow-lg shadow-modules-production/30 hover:shadow-modules-production/50 hover:bg-modules-production/90 btn-glow", // For Director Notes app
         // Status variants - dark mode optimized
         complete: "bg-transparent border border-status-complete/30 text-status-complete hover:bg-status-complete/10 hover:border-status-complete/50 transition-all duration-200",
         cancelled: "bg-transparent border border-status-cancelled/30 text-status-cancelled hover:bg-status-cancelled/10 hover:border-status-cancelled/50 transition-all duration-200",

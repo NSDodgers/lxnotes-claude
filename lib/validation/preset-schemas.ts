@@ -43,7 +43,7 @@ export const filterSortPresetConfigSchema = z.object({
 
 export const filterSortPresetSchema = basePresetSchema.extend({
   type: z.literal('filter_sort'),
-  moduleType: z.enum(['cue', 'work', 'production'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
     message: 'Module type is required',
   }),
   config: filterSortPresetConfigSchema,
@@ -96,25 +96,27 @@ export const updateEmailMessagePresetSchema = emailMessagePresetConfigSchema.par
 const cueNotesSortFields = ['cue_number', 'priority', 'type', 'created_at', 'completed_at', 'cancelled_at'] as const
 const workNotesSortFields = ['priority', 'type', 'channel', 'position', 'created_at', 'completed_at', 'cancelled_at'] as const
 const productionNotesSortFields = ['priority', 'department', 'created_at', 'completed_at', 'cancelled_at'] as const
+const actorNotesSortFields = ['priority', 'type', 'created_at', 'completed_at', 'cancelled_at'] as const // For Director Notes
 
 const sortFieldsMap = {
   cue: cueNotesSortFields,
   work: workNotesSortFields,
   production: productionNotesSortFields,
-} as const satisfies Record<'cue' | 'work' | 'production', readonly [string, ...string[]]>
+  actor: actorNotesSortFields,
+} as const satisfies Record<'cue' | 'work' | 'production' | 'actor', readonly [string, ...string[]]>
 
 type ModuleSortFieldsMap = typeof sortFieldsMap
 
 export const getSortFieldsForModule = <T extends keyof ModuleSortFieldsMap>(moduleType: T) =>
   sortFieldsMap[moduleType]
 
-export const validateSortFieldForModule = (sortBy: string, moduleType: 'cue' | 'work' | 'production') => {
+export const validateSortFieldForModule = (sortBy: string, moduleType: 'cue' | 'work' | 'production' | 'actor') => {
   const validFields = getSortFieldsForModule(moduleType)
   return validFields.includes(sortBy as any)
 }
 
 // Helper function to validate filter/sort preset config based on module
-export const createModuleSpecificFilterSortSchema = (moduleType: 'cue' | 'work' | 'production') => {
+export const createModuleSpecificFilterSortSchema = (moduleType: 'cue' | 'work' | 'production' | 'actor') => {
   const validSortFields = getSortFieldsForModule(moduleType)
 
   return filterSortPresetConfigSchema.extend({

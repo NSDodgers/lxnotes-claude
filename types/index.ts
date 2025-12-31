@@ -1,6 +1,8 @@
-export type ModuleType = 'cue' | 'work' | 'production'
+export type ModuleType = 'cue' | 'work' | 'production' | 'actor'
 export type NoteStatus = 'todo' | 'complete' | 'cancelled'
 export type UserRole = 'admin' | 'user'
+export type AppId = 'lxnotes' | 'director_notes'
+export type DepartmentRole = 'head' | 'member'
 
 // Custom types and priorities system
 export interface CustomType {
@@ -89,6 +91,12 @@ export interface Note {
   updatedAt: Date
   completedAt?: Date
   dueDate?: Date
+
+  // Cross-app fields
+  appId?: AppId // Which app owns this note (default: 'lxnotes')
+  sourceDepartmentId?: string // Department that created this note
+  isTransferred?: boolean // Whether this note has been sent to another app
+  transferredAt?: Date // When note was sent (null = not sent)
 
   // Module-specific fields
   cueNumber?: string // Cue number for cue notes (system looks up script context from this)
@@ -235,6 +243,7 @@ export interface ProductionMember {
   productionId: string
   userId: string
   role: UserRole
+  primaryDepartmentId?: string // User's primary department for note routing
   joinedAt: Date
 }
 
@@ -365,4 +374,45 @@ export interface ImportOptions {
   skipDuplicates: boolean
   deactivateMissing: boolean
   selectedRowsToSkip: number[] // Specific row numbers to skip
+}
+
+// ============================================
+// Cross-App Department Types
+// ============================================
+
+export interface Department {
+  id: string
+  productionId: string
+  name: string // 'Lighting', 'Direction', 'Sound', etc.
+  slug: string // 'lighting', 'direction' (URL-safe)
+  appId: AppId // Which app owns this department
+  color?: string // Optional department color (hex)
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface DepartmentMember {
+  id: string
+  departmentId: string
+  userId: string
+  role: DepartmentRole // 'head' or 'member'
+  createdAt: Date
+}
+
+export interface NoteTransfer {
+  id: string
+  // Source (the original note)
+  sourceNoteId: string
+  sourceAppId: AppId
+  sourceDepartmentId?: string
+  // Target (the copied note)
+  targetNoteId?: string
+  targetAppId: AppId
+  targetDepartmentId: string
+  // Metadata
+  sentBy: string
+  sentAt: Date
+  inReplyToId?: string // For reply chains
+  createdAt: Date
 }

@@ -181,7 +181,8 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const moduleName = {
     cue: 'Cue Notes',
     work: 'Work Notes',
-    production: 'Production Notes'
+    production: 'Production Notes',
+    actor: 'Actor Notes'
   }[moduleType]
 
   // Resolve placeholders in email content for preview

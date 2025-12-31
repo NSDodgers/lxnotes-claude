@@ -63,7 +63,8 @@ export class SessionStorageAdapter implements StorageAdapter {
       const allNotes = this.getItem<Record<ModuleType, Note[]>>('notes') || {
         cue: [],
         work: [],
-        production: []
+        production: [],
+        actor: []
       }
       return allNotes[moduleType] || []
     },
@@ -84,7 +85,8 @@ export class SessionStorageAdapter implements StorageAdapter {
       const allNotes = this.getItem<Record<ModuleType, Note[]>>('notes') || {
         cue: [],
         work: [],
-        production: []
+        production: [],
+        actor: []
       }
 
       const newNote: Note = {
@@ -140,7 +142,8 @@ export class SessionStorageAdapter implements StorageAdapter {
       const allNotes = this.getItem<Record<ModuleType, Note[]>>('notes') || {
         cue: [],
         work: [],
-        production: []
+        production: [],
+        actor: []
       }
 
       const createdNotes: Note[] = notes.map(noteData => ({

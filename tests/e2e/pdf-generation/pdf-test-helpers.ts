@@ -33,7 +33,8 @@ export class PDFTestHelpers {
     const moduleRoutes = {
       cue: '/cue-notes',
       work: '/work-notes',
-      production: '/production-notes'
+      production: '/production-notes',
+      actor: '/actor-notes' // For future Director Notes app
     }
 
     await this.page.goto(`http://localhost:3000${moduleRoutes[moduleType]}`)

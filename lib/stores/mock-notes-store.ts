@@ -46,7 +46,8 @@ export const useMockNotesStore = create<MockNotesState>((set, get) => ({
   notes: {
     cue: [],
     work: [],
-    production: []
+    production: [],
+    actor: []
   },
 
   getAllNotes: (moduleType) => {
@@ -1082,7 +1083,8 @@ export const useMockNotesStore = create<MockNotesState>((set, get) => ({
       notes: {
         cue: cueNotes,
         work: workNotes,
-        production: productionNotes
+        production: productionNotes,
+        actor: [] // Actor notes are empty in demo mode (for future Director Notes app)
       }
     })
   }

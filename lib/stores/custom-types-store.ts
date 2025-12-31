@@ -88,7 +88,8 @@ export const useCustomTypesStore = create<CustomTypesState>()(
       customTypes: {
         cue: [],
         work: [],
-        production: []
+        production: [],
+        actor: []
       },
       systemOverrides: [],
       

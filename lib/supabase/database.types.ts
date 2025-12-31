@@ -163,6 +163,89 @@ export type Database = {
           },
         ]
       }
+      department_members: {
+        Row: {
+          created_at: string | null
+          department_id: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          department_id: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          department_id?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "department_members_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "department_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          app_id: string
+          color: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          production_id: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          app_id: string
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          production_id: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          app_id?: string
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          production_id?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_production_id_fkey"
+            columns: ["production_id"]
+            isOneToOne: false
+            referencedRelation: "productions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fixtures: {
         Row: {
           address: number | null
@@ -234,8 +317,94 @@ export type Database = {
           },
         ]
       }
+      note_transfers: {
+        Row: {
+          created_at: string | null
+          id: string
+          in_reply_to_id: string | null
+          sent_at: string | null
+          sent_by: string
+          source_app_id: string
+          source_department_id: string | null
+          source_note_id: string
+          target_app_id: string
+          target_department_id: string
+          target_note_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          in_reply_to_id?: string | null
+          sent_at?: string | null
+          sent_by: string
+          source_app_id: string
+          source_department_id?: string | null
+          source_note_id: string
+          target_app_id: string
+          target_department_id: string
+          target_note_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          in_reply_to_id?: string | null
+          sent_at?: string | null
+          sent_by?: string
+          source_app_id?: string
+          source_department_id?: string | null
+          source_note_id?: string
+          target_app_id?: string
+          target_department_id?: string
+          target_note_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "note_transfers_in_reply_to_id_fkey"
+            columns: ["in_reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "note_transfers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_transfers_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_transfers_source_department_id_fkey"
+            columns: ["source_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_transfers_source_note_id_fkey"
+            columns: ["source_note_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_transfers_target_department_id_fkey"
+            columns: ["target_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_transfers_target_note_id_fkey"
+            columns: ["target_note_id"]
+            isOneToOne: false
+            referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notes: {
         Row: {
+          app_id: string | null
           assigned_to: string | null
           channel_numbers: string | null
           completed_at: string | null
@@ -246,6 +415,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          is_transferred: boolean | null
           lightwright_item_id: string | null
           module_type: string
           position_unit: string | null
@@ -254,12 +424,15 @@ export type Database = {
           scene_song_id: string | null
           scenery_needs: string | null
           script_page_id: string | null
+          source_department_id: string | null
           status: string
           title: string
+          transferred_at: string | null
           type: string | null
           updated_at: string | null
         }
         Insert: {
+          app_id?: string | null
           assigned_to?: string | null
           channel_numbers?: string | null
           completed_at?: string | null
@@ -270,6 +443,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          is_transferred?: boolean | null
           lightwright_item_id?: string | null
           module_type: string
           position_unit?: string | null
@@ -278,12 +452,15 @@ export type Database = {
           scene_song_id?: string | null
           scenery_needs?: string | null
           script_page_id?: string | null
+          source_department_id?: string | null
           status?: string
           title: string
+          transferred_at?: string | null
           type?: string | null
           updated_at?: string | null
         }
         Update: {
+          app_id?: string | null
           assigned_to?: string | null
           channel_numbers?: string | null
           completed_at?: string | null
@@ -294,6 +471,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          is_transferred?: boolean | null
           lightwright_item_id?: string | null
           module_type?: string
           position_unit?: string | null
@@ -302,8 +480,10 @@ export type Database = {
           scene_song_id?: string | null
           scenery_needs?: string | null
           script_page_id?: string | null
+          source_department_id?: string | null
           status?: string
           title?: string
+          transferred_at?: string | null
           type?: string | null
           updated_at?: string | null
         }
@@ -313,6 +493,13 @@ export type Database = {
             columns: ["production_id"]
             isOneToOne: false
             referencedRelation: "productions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notes_source_department_id_fkey"
+            columns: ["source_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
         ]
@@ -413,6 +600,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          primary_department_id: string | null
           production_id: string
           role: string
           updated_at: string | null
@@ -421,6 +609,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          primary_department_id?: string | null
           production_id: string
           role?: string
           updated_at?: string | null
@@ -429,12 +618,20 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          primary_department_id?: string | null
           production_id?: string
           role?: string
           updated_at?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "production_members_primary_department_id_fkey"
+            columns: ["primary_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "production_members_production_id_fkey"
             columns: ["production_id"]
@@ -662,8 +859,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_deleted_productions: { Args: never; Returns: undefined }
+      get_department_production_id: {
+        Args: { check_department_id: string }
+        Returns: string
+      }
       has_production_access: {
         Args: { check_production_id: string; check_user_id: string }
+        Returns: boolean
+      }
+      is_department_head: {
+        Args: { check_department_id: string; check_user_id: string }
+        Returns: boolean
+      }
+      is_department_member: {
+        Args: { check_department_id: string; check_user_id: string }
         Returns: boolean
       }
       is_production_admin: {

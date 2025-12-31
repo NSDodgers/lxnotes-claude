@@ -19,7 +19,8 @@ export class PDFGenerationService {
     this.strategies = {
       cue: new CueNotesPDFStrategy(),
       work: new WorkNotesPDFStrategy(),
-      production: new ProductionNotesPDFStrategy()
+      production: new ProductionNotesPDFStrategy(),
+      actor: new ProductionNotesPDFStrategy() // Actor notes use same PDF layout as production notes
     }
   }
 

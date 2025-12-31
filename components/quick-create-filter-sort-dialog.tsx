@@ -287,7 +287,8 @@ export function QuickCreateFilterSortDialog({
   const moduleNames = {
     cue: 'Cue Notes',
     work: 'Work Notes',
-    production: 'Production Notes'
+    production: 'Production Notes',
+    actor: 'Actor Notes'
   }
 
   return (

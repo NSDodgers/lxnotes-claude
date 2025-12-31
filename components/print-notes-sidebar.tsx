@@ -172,13 +172,15 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes }: PrintN
   const moduleName = {
     cue: 'Cue Notes',
     work: 'Work Notes',
-    production: 'Production Notes'
+    production: 'Production Notes',
+    actor: 'Actor Notes'
   }[moduleType]
 
   const moduleColor = {
     cue: 'modules-cue',
     work: 'modules-work',
-    production: 'modules-production'
+    production: 'modules-production',
+    actor: 'modules-production' // Actor uses same color as production for now
   }[moduleType]
 
   return (

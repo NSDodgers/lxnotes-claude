@@ -94,6 +94,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     cue: [],
     work: [],
     production: [],
+    actor: [],
   })
   const [isLoading, setIsLoading] = useState(isProductionMode && !isDemoMode)
   const [error, setError] = useState<Error | null>(null)
@@ -112,16 +113,18 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
           setIsLoading(true)
           setError(null)
 
-          const [cueNotes, workNotes, productionNotes] = await Promise.all([
+          const [cueNotes, workNotes, productionNotes, actorNotes] = await Promise.all([
             storageAdapter.notes.getAll('cue'),
             storageAdapter.notes.getAll('work'),
             storageAdapter.notes.getAll('production'),
+            storageAdapter.notes.getAll('actor'),
           ])
 
           setSupabaseNotes({
             cue: cueNotes,
             work: workNotes,
             production: productionNotes,
+            actor: actorNotes,
           })
         } catch (err) {
           console.error('Failed to load notes:', err)
@@ -309,6 +312,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       cue: mockNotesStore.getAllNotes('cue'),
       work: mockNotesStore.getAllNotes('work'),
       production: mockNotesStore.getAllNotes('production'),
+      actor: mockNotesStore.getAllNotes('actor'),
     }
     : supabaseNotes
 
