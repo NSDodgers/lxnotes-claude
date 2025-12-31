@@ -20,11 +20,22 @@ RETURNS TRIGGER AS $$
 DECLARE
   new_code VARCHAR(8);
   attempts INT := 0;
+  chars TEXT := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  bytes BYTEA;
+  i INT;
+  idx INT;
 BEGIN
   IF NEW.short_code IS NULL THEN
     LOOP
-      -- Generate 6-char alphanumeric code
-      new_code := UPPER(SUBSTRING(MD5(NEW.id::TEXT || NOW()::TEXT || attempts::TEXT) FROM 1 FOR 6));
+      -- Generate 6 random bytes
+      bytes := gen_random_bytes(6);
+      new_code := '';
+      
+      -- Convert each byte to a char from our alphabet
+      FOR i IN 0..5 LOOP
+        idx := get_byte(bytes, i) % 36;
+        new_code := new_code || substr(chars, idx + 1, 1);
+      END LOOP;
 
       -- Check for collision
       EXIT WHEN NOT EXISTS (SELECT 1 FROM productions WHERE short_code = new_code);
