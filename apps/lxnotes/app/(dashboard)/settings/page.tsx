@@ -9,6 +9,7 @@ import { PageStylePresetsManager } from '@/components/page-style-presets-manager
 import { FilterSortPresetsManager } from '@/components/filter-sort-presets-manager'
 import { EmailMessagePresetsManager } from '@/components/email-message-presets-manager'
 import { MemberManagement } from '@/components/production/member-management'
+import { ProductionLinkingSection } from '@/components/production/production-linking-section'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useAuthContext } from '@/components/auth/auth-provider'
 import Image from 'next/image'
@@ -164,6 +165,9 @@ export default function SettingsPage() {
 
                 </div>
               </div>
+
+              {/* Cross-App Linking - only show in production context */}
+              {showMembersTab && <ProductionLinkingSection />}
             </>
           )}
 

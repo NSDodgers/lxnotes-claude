@@ -68,6 +68,7 @@ export interface Production {
   description?: string
   startDate?: Date
   endDate?: Date
+  shortCode?: string // 6-char code for easy sharing/linking
   createdAt: Date
   updatedAt: Date
   // Soft-delete fields
@@ -415,4 +416,44 @@ export interface NoteTransfer {
   sentAt: Date
   inReplyToId?: string // For reply chains
   createdAt: Date
+}
+
+// ============================================
+// Cross-App Production Linking Types
+// ============================================
+
+export interface ProductionLink {
+  id: string
+  // Source production (the one being linked FROM - the remote production)
+  sourceProductionId: string
+  sourceAppId: AppId
+  // Target production (the one being linked TO - the local production)
+  targetProductionId: string
+  targetAppId: AppId
+  // Metadata
+  createdBy: string
+  createdAt: Date
+  // Joined data (optional, from queries)
+  sourceProduction?: {
+    id: string
+    name: string
+    shortCode: string
+  }
+}
+
+// Raw database type for production_links
+export interface RawProductionLinkRow {
+  id: string
+  source_production_id: string
+  source_app_id: string
+  target_production_id: string
+  target_app_id: string
+  created_by: string
+  created_at: string | null
+  // Joined data
+  productions?: {
+    id: string
+    name: string
+    short_code: string | null
+  }
 }
