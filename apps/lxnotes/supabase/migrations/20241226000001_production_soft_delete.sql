@@ -10,14 +10,15 @@ ALTER TABLE productions ADD COLUMN IF NOT EXISTS deleted_by UUID REFERENCES auth
 CREATE INDEX IF NOT EXISTS idx_productions_deleted_at ON productions(deleted_at);
 
 -- Create cleanup function for 30-day retention
-CREATE OR REPLACE FUNCTION cleanup_deleted_productions()
+-- Uses SECURITY DEFINER with empty search_path to prevent search_path injection
+CREATE OR REPLACE FUNCTION public.cleanup_deleted_productions()
 RETURNS void AS $$
 BEGIN
-  DELETE FROM productions
+  DELETE FROM public.productions
   WHERE deleted_at IS NOT NULL
   AND deleted_at < NOW() - INTERVAL '30 days';
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
 -- Note: To schedule automatic cleanup with pg_cron (if available):
 -- SELECT cron.schedule('cleanup-deleted-productions', '0 0 * * *', 'SELECT cleanup_deleted_productions()');
