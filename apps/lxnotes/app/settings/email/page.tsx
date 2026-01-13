@@ -11,6 +11,12 @@ interface EmailSettings {
   fromEmail?: string
   fromName?: string
   templateId?: string
+  notesDistributionTemplateId?: string
+}
+
+interface MailerSendTemplate {
+  id: string
+  name: string
 }
 
 export default function EmailSettingsPage() {
@@ -25,6 +31,8 @@ export default function EmailSettingsPage() {
   const [testEmail, setTestEmail] = useState('')
   const [isSendingTest, setIsSendingTest] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [templates, setTemplates] = useState<MailerSendTemplate[]>([])
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false)
 
   useEffect(() => {
     if (!authLoading && user && isSuperAdmin) {
@@ -46,6 +54,28 @@ export default function EmailSettingsPage() {
     }
   }
 
+  const fetchTemplates = async () => {
+    setIsLoadingTemplates(true)
+    try {
+      const response = await fetch('/api/admin/email-settings/templates')
+      if (response.ok) {
+        const data = await response.json()
+        setTemplates(data.templates || [])
+      }
+    } catch (error) {
+      console.error('Error fetching templates:', error)
+    } finally {
+      setIsLoadingTemplates(false)
+    }
+  }
+
+  // Fetch templates when settings indicate API key is set
+  useEffect(() => {
+    if (settings.apiKeySet) {
+      fetchTemplates()
+    }
+  }, [settings.apiKeySet])
+
   const handleSave = async () => {
     setIsSaving(true)
     setMessage(null)
@@ -59,6 +89,7 @@ export default function EmailSettingsPage() {
           fromEmail: settings.fromEmail,
           fromName: settings.fromName,
           templateId: settings.templateId,
+          notesDistributionTemplateId: settings.notesDistributionTemplateId,
         }),
       })
 
@@ -245,25 +276,95 @@ export default function EmailSettingsPage() {
             </div>
           </div>
 
-          {/* Template ID (optional) */}
+          {/* Email Templates */}
           <div className="bg-bg-secondary rounded-lg p-6 border border-bg-tertiary">
-            <h2 className="text-lg font-semibold text-text-primary mb-4">Template (Optional)</h2>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
-                MailerSend Template ID
-              </label>
-              <input
-                type="text"
-                value={settings.templateId || ''}
-                onChange={(e) => setSettings({ ...settings, templateId: e.target.value })}
-                placeholder="Leave empty to use default template"
-                className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-modules-production"
-              />
-              <p className="text-xs text-text-muted mt-1">
-                If set, invitation emails will use this MailerSend template instead of the
-                default HTML template.
-              </p>
+            <h2 className="text-lg font-semibold text-text-primary mb-4">Email Templates</h2>
+
+            {/* Invitation Template */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  Invitation Email Template
+                </label>
+                <p className="text-xs text-text-muted mb-2">
+                  Used when inviting new team members to a production.
+                </p>
+                {templates.length > 0 ? (
+                  <select
+                    value={settings.templateId || ''}
+                    onChange={(e) => setSettings({ ...settings, templateId: e.target.value || undefined })}
+                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
+                  >
+                    <option value="">Use default HTML template</option>
+                    {templates.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={settings.templateId || ''}
+                    onChange={(e) => setSettings({ ...settings, templateId: e.target.value })}
+                    placeholder="Template ID (optional)"
+                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-modules-production"
+                  />
+                )}
+              </div>
             </div>
+
+            {/* Notes Distribution Template */}
+            <div className="space-y-4 pt-4 border-t border-bg-tertiary">
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  Notes Distribution Template
+                </label>
+                <p className="text-xs text-text-muted mb-2">
+                  Used when emailing notes with PDF attachments to team members.
+                </p>
+                {templates.length > 0 ? (
+                  <select
+                    value={settings.notesDistributionTemplateId || ''}
+                    onChange={(e) => setSettings({ ...settings, notesDistributionTemplateId: e.target.value || undefined })}
+                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
+                  >
+                    <option value="">Use default HTML template</option>
+                    {templates.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={settings.notesDistributionTemplateId || ''}
+                    onChange={(e) => setSettings({ ...settings, notesDistributionTemplateId: e.target.value })}
+                    placeholder="Template ID (optional)"
+                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-modules-production"
+                  />
+                )}
+              </div>
+            </div>
+
+            {isLoadingTemplates && (
+              <p className="text-xs text-text-muted mt-4 flex items-center gap-2">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Loading templates from MailerSend...
+              </p>
+            )}
+
+            {settings.apiKeySet && templates.length === 0 && !isLoadingTemplates && (
+              <p className="text-xs text-text-muted mt-4">
+                No templates found in MailerSend account. You can create templates in the{' '}
+                <a
+                  href="https://app.mailersend.com/templates"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-modules-production hover:underline"
+                >
+                  MailerSend Dashboard
+                </a>
+                .
+              </p>
+            )}
           </div>
 
           {/* Save Button */}

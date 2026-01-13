@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Mail, Eye } from 'lucide-react'
@@ -21,7 +21,6 @@ import { Button } from '@/components/ui/button'
 import {
   PresetFormField,
   PresetFormInput,
-  PresetFormTextarea,
   PresetFormToggle
 } from './preset-dialog'
 import { PresetSelector } from './preset-selector'
@@ -34,6 +33,7 @@ interface QuickCreateEmailMessageSidebarProps {
   onPresetCreated: (preset: EmailMessagePreset) => void
   moduleType?: ModuleType
   defaultValues?: Partial<EmailMessageFormData>
+  editingPreset?: EmailMessagePreset | null
 }
 
 export function QuickCreateEmailMessageSidebar({
@@ -41,10 +41,11 @@ export function QuickCreateEmailMessageSidebar({
   onClose,
   onPresetCreated,
   moduleType,
-  defaultValues = {}
+  defaultValues = {},
+  editingPreset
 }: QuickCreateEmailMessageSidebarProps) {
-  const { addPreset, getAvailablePlaceholders, resolvePlaceholders } = useEmailMessagePresetsStore()
-  const { presets: filterSortPresets, getPresetsByModule } = useFilterSortPresetsStore()
+  const { addPreset, updatePreset, getAvailablePlaceholders, resolvePlaceholders } = useEmailMessagePresetsStore()
+  const { getPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -65,51 +66,117 @@ export function QuickCreateEmailMessageSidebar({
     },
   })
 
+  // Populate form when editing
+  useEffect(() => {
+    if (editingPreset) {
+      form.reset({
+        name: editingPreset.name,
+        recipients: editingPreset.config.recipients,
+        subject: editingPreset.config.subject,
+        message: editingPreset.config.message,
+        filterAndSortPresetId: editingPreset.config.filterAndSortPresetId,
+        pageStylePresetId: editingPreset.config.pageStylePresetId,
+        includeNotesInBody: editingPreset.config.includeNotesInBody,
+        attachPdf: editingPreset.config.attachPdf,
+      })
+    } else {
+      // Reset to defaults if not editing
+      form.reset({
+        name: '',
+        recipients: '',
+        subject: '',
+        message: '',
+        filterAndSortPresetId: null,
+        pageStylePresetId: null,
+        includeNotesInBody: true,
+        attachPdf: false,
+        ...defaultValues,
+      })
+    }
+    // Note: defaultValues is intentionally excluded from dependencies because it's passed
+    // as a default prop value (= {}) which creates a new reference on every render.
+    // We only want to reset the form when isOpen or editingPreset changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingPreset, isOpen])
+
   const moduleFilterPresets = moduleType ? getPresetsByModule(moduleType) : []
 
   const handleSubmit = async (data: EmailMessageFormData) => {
     setIsSubmitting(true)
 
     try {
-      // Create preset using store
-      const newPresetData = {
-        type: 'email_message' as const,
-        moduleType: 'all' as const,
-        name: data.name,
-        productionId: 'prod-1', // TODO: Get from production context
-        config: {
-          recipients: data.recipients,
-          subject: data.subject,
-          message: data.message,
-          filterAndSortPresetId: data.filterAndSortPresetId,
-          pageStylePresetId: data.pageStylePresetId,
-          includeNotesInBody: data.includeNotesInBody,
-          attachPdf: data.attachPdf,
-        },
-        isDefault: false,
-        createdBy: 'user', // TODO: Get from auth
+      if (editingPreset) {
+        // Update existing preset
+        updatePreset(editingPreset.id, {
+          name: data.name,
+          config: {
+            recipients: data.recipients,
+            subject: data.subject,
+            message: data.message,
+            filterAndSortPresetId: data.filterAndSortPresetId,
+            pageStylePresetId: data.pageStylePresetId,
+            includeNotesInBody: data.includeNotesInBody,
+            attachPdf: data.attachPdf,
+          }
+        })
+
+        // Pass back updated preset
+        const updatedPreset = {
+          ...editingPreset,
+          name: data.name,
+          config: {
+            recipients: data.recipients,
+            subject: data.subject,
+            message: data.message,
+            filterAndSortPresetId: data.filterAndSortPresetId,
+            pageStylePresetId: data.pageStylePresetId,
+            includeNotesInBody: data.includeNotesInBody,
+            attachPdf: data.attachPdf,
+          },
+          updatedAt: new Date()
+        }
+        onPresetCreated(updatedPreset)
+      } else {
+        // Create new preset
+        const newPresetData = {
+          type: 'email_message' as const,
+          moduleType: 'all' as const,
+          name: data.name,
+          productionId: 'prod-1', // TODO: Get from production context
+          config: {
+            recipients: data.recipients,
+            subject: data.subject,
+            message: data.message,
+            filterAndSortPresetId: data.filterAndSortPresetId,
+            pageStylePresetId: data.pageStylePresetId,
+            includeNotesInBody: data.includeNotesInBody,
+            attachPdf: data.attachPdf,
+          },
+          isDefault: false,
+          createdBy: 'user', // TODO: Get from auth
+        }
+
+        addPreset(newPresetData)
+
+        // Mock created preset since store doesn't return it
+        const createdPreset: EmailMessagePreset = {
+          id: `email-message-${Math.random().toString(36).substr(2, 9)}`,
+          productionId: 'prod-1',
+          type: 'email_message',
+          moduleType: 'all',
+          name: data.name,
+          config: newPresetData.config,
+          isDefault: false,
+          createdBy: 'user',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+
+        onPresetCreated(createdPreset)
       }
-
-      addPreset(newPresetData)
-
-      // Create the preset object to return
-      const createdPreset: EmailMessagePreset = {
-        id: `email-message-${Math.random().toString(36).substr(2, 9)}`,
-        productionId: 'prod-1', // TODO: Get from production context
-        type: 'email_message',
-        moduleType: 'all',
-        name: data.name,
-        config: newPresetData.config,
-        isDefault: false,
-        createdBy: 'user',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-
-      onPresetCreated(createdPreset)
       onClose()
     } catch (error) {
-      console.error('Failed to create preset:', error)
+      console.error('Failed to save preset:', error)
     } finally {
       setIsSubmitting(false)
     }
@@ -159,10 +226,10 @@ export function QuickCreateEmailMessageSidebar({
         <SheetHeader className="p-6 pb-4 border-b border-bg-tertiary">
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-text-primary" />
-            <SheetTitle>Create Email Message Preset</SheetTitle>
+            <SheetTitle>{editingPreset ? 'Edit Email Message Preset' : 'Create Email Message Preset'}</SheetTitle>
           </div>
           <SheetDescription>
-            Quick create for email template
+            {editingPreset ? 'Edit your existing email template' : 'Quick create for email template'}
           </SheetDescription>
         </SheetHeader>
 
@@ -379,12 +446,12 @@ Best regards,
               {isSubmitting ? (
                 <>
                   <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Creating...
+                  {editingPreset ? 'Saving...' : 'Creating...'}
                 </>
               ) : (
                 <>
                   <Mail className="h-3 w-3" />
-                  Create Preset
+                  {editingPreset ? 'Save Changes' : 'Create Preset'}
                 </>
               )}
             </Button>

@@ -3,37 +3,25 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
 import type { EmailMessagePreset, PlaceholderDefinition } from '@/types'
 
-interface PlaceholderValues {
-  productionTitle?: string
-  userFirstName?: string
-  userLastName?: string
-  userFullName?: string
-  noteCount?: number
-  todoCount?: number
-  completeCount?: number
-  cancelledCount?: number
-  filterDescription?: string
-  sortDescription?: string
-  dateRange?: string
-}
+import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
 
 interface EmailMessagePresetsState {
   presets: EmailMessagePreset[]
   loading: boolean
-  
+
   // CRUD operations
   addPreset: (preset: Omit<EmailMessagePreset, 'id' | 'createdAt' | 'updatedAt'>) => void
   updatePreset: (id: string, updates: Partial<EmailMessagePreset>) => void
   deletePreset: (id: string) => void
   getPreset: (id: string) => EmailMessagePreset | undefined
-  
+
   // Placeholder management
   getAvailablePlaceholders: () => PlaceholderDefinition[]
-  resolvePlaceholders: (text: string, data?: PlaceholderValues) => string
-  
+  resolvePlaceholders: (text: string, data?: PlaceholderData) => string
+
   // System defaults
   getSystemDefaults: () => EmailMessagePreset[]
-  
+
   // Utilities
   setLoading: (loading: boolean) => void
 }
@@ -42,16 +30,16 @@ interface EmailMessagePresetsState {
 const getAvailablePlaceholders = (): PlaceholderDefinition[] => [
   // Production placeholders
   { key: '{{PRODUCTION_TITLE}}', label: 'Production Title', description: 'Current production name', category: 'production' },
-  
+
   // User placeholders
   { key: '{{USER_FIRST_NAME}}', label: 'User First Name', description: 'Sender\'s first name', category: 'user' },
   { key: '{{USER_LAST_NAME}}', label: 'User Last Name', description: 'Sender\'s last name', category: 'user' },
   { key: '{{USER_FULL_NAME}}', label: 'User Full Name', description: 'Sender\'s full name', category: 'user' },
-  
+
   // Date placeholders
   { key: '{{CURRENT_DATE}}', label: 'Current Date', description: 'Today\'s date in readable format', category: 'date' },
   { key: '{{CURRENT_TIME}}', label: 'Current Time', description: 'Current time', category: 'date' },
-  
+
   // Notes placeholders
   { key: '{{NOTE_COUNT}}', label: 'Note Count', description: 'Number of notes matching filter criteria', category: 'notes' },
   { key: '{{TODO_COUNT}}', label: 'Todo Count', description: 'Number of outstanding todo notes', category: 'notes' },
@@ -66,7 +54,7 @@ const getAvailablePlaceholders = (): PlaceholderDefinition[] => [
 const getSystemDefaults = (): EmailMessagePreset[] => {
   const baseDate = new Date()
   const productionId = 'prod-1' // TODO: Replace with actual production ID
-  
+
   return [
     {
       id: 'sys-email-1',
@@ -132,31 +120,7 @@ Thanks,
   ]
 }
 
-// Simple placeholder resolution (in a real app, this would use actual data)
-const resolvePlaceholders = (text: string, data?: PlaceholderValues): string => {
-  const placeholders: Record<string, string> = {
-    '{{PRODUCTION_TITLE}}': data?.productionTitle || 'Sample Production',
-    '{{USER_FIRST_NAME}}': data?.userFirstName || 'Dev',
-    '{{USER_LAST_NAME}}': data?.userLastName || 'User',
-    '{{USER_FULL_NAME}}': data?.userFullName || 'Dev User',
-    '{{CURRENT_DATE}}': new Date().toLocaleDateString(),
-    '{{CURRENT_TIME}}': new Date().toLocaleTimeString(),
-    '{{NOTE_COUNT}}': data?.noteCount?.toString() || '0',
-    '{{TODO_COUNT}}': data?.todoCount?.toString() || '0',
-    '{{COMPLETE_COUNT}}': data?.completeCount?.toString() || '0',
-    '{{CANCELLED_COUNT}}': data?.cancelledCount?.toString() || '0',
-    '{{FILTER_DESCRIPTION}}': data?.filterDescription || 'All notes',
-    '{{SORT_DESCRIPTION}}': data?.sortDescription || 'Default sort',
-    '{{DATE_RANGE}}': data?.dateRange || 'All dates',
-  }
-  
-  let resolved = text
-  Object.entries(placeholders).forEach(([placeholder, value]) => {
-    resolved = resolved.replace(new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'), value)
-  })
-  
-  return resolved
-}
+// Simple placeholder resolution is now handled by shared utility
 
 // Check if we're in demo mode
 const isDemoMode = () => {
@@ -169,7 +133,7 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
     (set, get) => ({
       presets: getSystemDefaults(),
       loading: false,
-      
+
       addPreset: (presetData) => {
         const timestamp = new Date()
         const newPreset: EmailMessagePreset = {
@@ -178,12 +142,12 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
           createdAt: timestamp,
           updatedAt: timestamp,
         }
-        
+
         set(state => ({
           presets: [...state.presets, newPreset]
         }))
       },
-      
+
       updatePreset: (id, updates) => {
         set(state => ({
           presets: state.presets.map(preset =>
@@ -193,29 +157,34 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
           )
         }))
       },
-      
+
       deletePreset: (id) => {
         set(state => ({
           presets: state.presets.filter(preset => preset.id !== id)
         }))
       },
-      
+
       getPreset: (id) => {
         return get().presets.find(preset => preset.id === id)
       },
-      
+
       getAvailablePlaceholders: () => {
         return getAvailablePlaceholders()
       },
-      
+
       resolvePlaceholders: (text, data) => {
-        return resolvePlaceholders(text, data)
+        return resolvePlaceholders(text, data || {
+          productionTitle: 'Sample Production',
+          userFullName: 'Dev User',
+          userFirstName: 'Dev',
+          userLastName: 'User'
+        } as PlaceholderData)
       },
-      
+
       getSystemDefaults: () => {
         return getSystemDefaults()
       },
-      
+
       setLoading: (loading) => {
         set({ loading })
       },

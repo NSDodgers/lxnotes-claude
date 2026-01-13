@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { apiKey, fromEmail, fromName, templateId } = body
+    const { apiKey, fromEmail, fromName, templateId, notesDistributionTemplateId } = body
 
     // Validate required fields
     if (!fromEmail || !fromName) {
@@ -99,6 +99,7 @@ export async function POST(request: Request) {
       fromEmail,
       fromName,
       templateId: templateId || null,
+      notesDistributionTemplateId: notesDistributionTemplateId || null,
     }
 
     // Upsert settings

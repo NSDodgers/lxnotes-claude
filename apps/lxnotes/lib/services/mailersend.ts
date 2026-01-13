@@ -1,13 +1,14 @@
 /**
- * MailerSend email service for sending invitations
+ * MailerSend email service for sending invitations and notes distribution
  */
-import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend'
+import { MailerSend, EmailParams, Sender, Recipient, Attachment } from 'mailersend'
 
 export interface MailerSendSettings {
   apiKey: string
   fromEmail: string
   fromName: string
-  templateId?: string
+  templateId?: string                    // For invitation emails
+  notesDistributionTemplateId?: string   // For notes distribution emails
 }
 
 export interface InvitationEmailData {
@@ -176,6 +177,162 @@ export async function sendTestEmail(
     await mailerSend.email.send(emailParams)
   } catch (error) {
     console.error('Error sending test email:', error)
+    throw error
+  }
+}
+
+/**
+ * Data for sending notes distribution emails
+ */
+export interface NoteEmailData {
+  recipientEmails: string[]
+  subject: string
+  message: string
+  htmlMessage?: string
+  productionName: string
+  moduleName: string
+  senderName: string
+  senderEmail: string           // Used for Reply-To header
+  noteCount: number
+  todoCount: number
+  completeCount: number
+  cancelledCount: number
+  filterDescription: string
+  includeNotesInBody: boolean
+  notesTableHtml?: string       // Pre-generated HTML table of notes
+  pdfAttachment?: {
+    filename: string
+    content: string             // Base64-encoded PDF
+  }
+}
+
+/**
+ * Generate default HTML email for notes distribution
+ */
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function generateDefaultNoteEmailHtml(data: NoteEmailData): string {
+  const notesSection = data.includeNotesInBody && data.notesTableHtml
+    ? `
+      <div style="margin: 20px 0;">
+        ${data.notesTableHtml}
+      </div>
+    `
+    : ''
+
+  const attachmentNote = data.pdfAttachment
+    ? `<p style="color: #9ca3af; font-size: 14px;">📎 PDF attached: ${escapeHtml(data.pdfAttachment.filename)}</p>`
+    : ''
+
+  // Safe to interpolate generated HTML (notesTableHtml) but user content must be escaped
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #1f2937;">${escapeHtml(data.moduleName)} - ${escapeHtml(data.productionName)}</h2>
+      <p style="color: #4b5563; white-space: pre-wrap;">${escapeHtml(data.message)}</p>
+      <div style="margin: 20px 0; padding: 15px; background: #f3f4f6; border-radius: 6px;">
+        <p style="margin: 0; color: #6b7280; font-size: 14px;">
+          <strong>Summary:</strong> ${data.noteCount} notes
+          (${data.todoCount} todo, ${data.completeCount} complete, ${data.cancelledCount} cancelled)
+        </p>
+        <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 14px;">
+          <strong>Filter:</strong> ${escapeHtml(data.filterDescription)}
+        </p>
+      </div>
+      ${notesSection}
+      ${attachmentNote}
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+      <p style="color: #9ca3af; font-size: 12px;">
+        Sent from LX Notes by ${escapeHtml(data.senderName)}
+      </p>
+    </div>
+  `
+}
+
+/**
+ * Generate plain text version of notes email
+ */
+function generateNoteEmailText(data: NoteEmailData): string {
+  return `
+${data.moduleName} - ${data.productionName}
+
+${data.message}
+
+Summary: ${data.noteCount} notes (${data.todoCount} todo, ${data.completeCount} complete, ${data.cancelledCount} cancelled)
+Filter: ${data.filterDescription}
+
+${data.pdfAttachment ? `PDF attached: ${data.pdfAttachment.filename}` : ''}
+
+Sent from LX Notes by ${data.senderName}
+  `.trim()
+}
+
+/**
+ * Send notes distribution email using MailerSend
+ */
+export async function sendNoteEmail(
+  settings: MailerSendSettings,
+  data: NoteEmailData
+): Promise<void> {
+  const mailerSend = new MailerSend({ apiKey: settings.apiKey })
+  const sender = new Sender(settings.fromEmail, settings.fromName)
+
+  const recipients = data.recipientEmails.map(email => new Recipient(email, email))
+
+  const emailParams = new EmailParams()
+    .setFrom(sender)
+    .setTo(recipients)
+    .setReplyTo(new Recipient(data.senderEmail, data.senderName))
+    .setSubject(data.subject)
+
+  // Use notes distribution template if configured
+  if (settings.notesDistributionTemplateId) {
+    emailParams
+      .setTemplateId(settings.notesDistributionTemplateId)
+      .setPersonalization(data.recipientEmails.map(email => ({
+        email,
+        data: {
+          productionTitle: data.productionName,
+          moduleName: data.moduleName,
+          userFullName: data.senderName,
+          senderEmail: data.senderEmail,
+          noteCount: String(data.noteCount),
+          todoCount: String(data.todoCount),
+          completeCount: String(data.completeCount),
+          cancelledCount: String(data.cancelledCount),
+          filterDescription: data.filterDescription,
+          message: data.message,
+          attachmentFilename: data.pdfAttachment?.filename || '',
+        },
+      })))
+  } else {
+    // Fallback to default HTML template
+    emailParams
+      .setHtml(data.htmlMessage || generateDefaultNoteEmailHtml(data))
+      .setText(generateNoteEmailText(data))
+  }
+
+  // Add PDF attachment if provided
+  if (data.pdfAttachment) {
+    emailParams.setAttachments([
+      new Attachment(
+        data.pdfAttachment.content,
+        data.pdfAttachment.filename,
+        'attachment'
+      )
+    ])
+  }
+
+  try {
+    await mailerSend.email.send(emailParams)
+  } catch (error) {
+    console.error('Error sending notes email:', error)
     throw error
   }
 }
