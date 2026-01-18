@@ -67,7 +67,7 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
     const [adapter, setAdapter] = useState<ReturnType<typeof createSupabaseStorageAdapter> | null>(null)
 
     // FIX: Move handleRealtimeUpdate outside useEffect to prevent stale closures
-    // Use useCallback with proper dependencies
+    // Use useCallback without fixtureStore dependency (Zustand stores are stable)
     const handleRealtimeUpdate = useCallback(async (storageAdapter: ReturnType<typeof createSupabaseStorageAdapter>, prodId: string) => {
         if (!isMountedRef.current) return
 
@@ -86,7 +86,8 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
                 setIsSyncing(false)
             }
         }
-    }, [fixtureStore])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     // Initialize Adapter & Load Initial Data
     useEffect(() => {
@@ -150,7 +151,8 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
         return () => {
             isMountedRef.current = false
         }
-    }, [resolvedProductionId, isDemoMode, fixtureStore, handleRealtimeUpdate])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [resolvedProductionId, isDemoMode])
 
     return (
         <FixturesContext.Provider value={{
