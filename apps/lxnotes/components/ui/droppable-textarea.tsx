@@ -1,9 +1,76 @@
 'use client'
 
-import React, { useState, useRef, useCallback, forwardRef, useImperativeHandle } from 'react'
-import { PlaceholderChip } from '@/components/placeholder-chip'
+import React, { useState, useRef, useCallback, forwardRef, useImperativeHandle, useLayoutEffect } from 'react'
 import { cn } from '@/lib/utils'
 import type { PlaceholderDefinition } from '@/types'
+
+// Selection save/restore utilities for cursor position preservation
+interface SavedSelection {
+  start: number
+  end: number
+}
+
+const saveSelection = (el: HTMLElement): SavedSelection | null => {
+  const sel = window.getSelection()
+  if (!sel || sel.rangeCount === 0) return null
+
+  const range = sel.getRangeAt(0)
+  const preCaretRange = range.cloneRange()
+  preCaretRange.selectNodeContents(el)
+  preCaretRange.setEnd(range.startContainer, range.startOffset)
+  const start = preCaretRange.toString().length
+
+  preCaretRange.setEnd(range.endContainer, range.endOffset)
+  const end = preCaretRange.toString().length
+
+  return { start, end }
+}
+
+const restoreSelection = (el: HTMLElement, pos: SavedSelection): void => {
+  const sel = window.getSelection()
+  if (!sel) return
+
+  // Walk text nodes to find position
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null)
+  let currentPos = 0
+  let startNode: Node | null = null
+  let startOffset = 0
+  let endNode: Node | null = null
+  let endOffset = 0
+
+  let node: Node | null
+  while ((node = walker.nextNode())) {
+    const nodeLength = node.textContent?.length || 0
+
+    // Find start position
+    if (!startNode && currentPos + nodeLength >= pos.start) {
+      startNode = node
+      startOffset = pos.start - currentPos
+    }
+
+    // Find end position
+    if (!endNode && currentPos + nodeLength >= pos.end) {
+      endNode = node
+      endOffset = pos.end - currentPos
+      break
+    }
+
+    currentPos += nodeLength
+  }
+
+  // If we found both positions, restore the selection
+  if (startNode && endNode) {
+    try {
+      const range = document.createRange()
+      range.setStart(startNode, startOffset)
+      range.setEnd(endNode, endOffset)
+      sel.removeAllRanges()
+      sel.addRange(range)
+    } catch {
+      // Fallback: place cursor at end
+    }
+  }
+}
 
 export interface DroppableTextareaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'onChange'> {
   value: string
@@ -19,6 +86,81 @@ interface ParsedContent {
   type: 'text' | 'placeholder' | 'linebreak'
   content: string
   placeholder?: PlaceholderDefinition
+}
+
+// Escape HTML to prevent XSS
+const escapeHtml = (text: string): string => {
+  const div = document.createElement('div')
+  div.textContent = text
+  return div.innerHTML
+}
+
+// Get SVG icon for category
+const getCategoryIconSvg = (category: PlaceholderDefinition['category']): string => {
+  const baseAttrs = 'xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"'
+  switch (category) {
+    case 'production':
+      return `<svg ${baseAttrs}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`
+    case 'user':
+      return `<svg ${baseAttrs}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
+    case 'date':
+      return `<svg ${baseAttrs}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>`
+    case 'notes':
+      return `<svg ${baseAttrs}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`
+    default:
+      return `<svg ${baseAttrs}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`
+  }
+}
+
+// Get gradient style for category
+const getCategoryGradient = (category: PlaceholderDefinition['category']): string => {
+  switch (category) {
+    case 'production':
+      return 'linear-gradient(to right, #a855f7, #9333ea)'
+    case 'user':
+      return 'linear-gradient(to right, #3b82f6, #2563eb)'
+    case 'date':
+      return 'linear-gradient(to right, #22c55e, #16a34a)'
+    case 'notes':
+      return 'linear-gradient(to right, #f97316, #ea580c)'
+    default:
+      return 'linear-gradient(to right, #6b7280, #4b5563)'
+  }
+}
+
+// Extract readable name from placeholder key
+const getDisplayName = (key: string): string => {
+  return key
+    .replace(/^\{\{|\}\}$/g, '')
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, l => l.toUpperCase())
+}
+
+// Build HTML for a placeholder chip
+const buildPlaceholderChipHtml = (placeholder: PlaceholderDefinition): string => {
+  const gradient = getCategoryGradient(placeholder.category)
+  const icon = getCategoryIconSvg(placeholder.category)
+  const displayName = escapeHtml(getDisplayName(placeholder.key))
+
+  return `<span contenteditable="false" data-placeholder-key="${escapeHtml(placeholder.key)}" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:12px;font-weight:500;cursor:default;user-select:none;background:${gradient};color:white;box-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);margin:0 2px;white-space:nowrap;"><span style="display:flex;align-items:center;gap:4px;">${icon}<span style="max-width:96px;overflow:hidden;text-overflow:ellipsis;">${displayName}</span></span></span>`
+}
+
+// Build HTML from parsed content
+const buildHtml = (parts: ParsedContent[], placeholderText: string): string => {
+  if (parts.length === 0) {
+    return `<span style="color:var(--text-muted);pointer-events:none;">${escapeHtml(placeholderText)}</span>`
+  }
+
+  return parts.map(part => {
+    if (part.type === 'placeholder' && part.placeholder) {
+      return buildPlaceholderChipHtml(part.placeholder)
+    } else if (part.type === 'linebreak') {
+      return '<br>'
+    }
+    // Text content - escape and return directly (no wrapper span to avoid duplication)
+    return escapeHtml(part.content)
+  }).join('')
 }
 
 // Parse text content to identify placeholders and line breaks
@@ -90,10 +232,37 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
     const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null)
     const contentRef = useRef<HTMLDivElement>(null)
     const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null)
+    const lastHtmlRef = useRef<string>('')
+    const isTypingRef = useRef(false)
 
     useImperativeHandle(ref, () => contentRef.current!, [])
 
     const parsedContent = parseContent(value, availablePlaceholders)
+
+    // Sync DOM only when value changes externally (not from typing)
+    useLayoutEffect(() => {
+      if (!contentRef.current) return
+
+      const newHtml = buildHtml(parsedContent, placeholder || 'Enter text or drag placeholders here...')
+
+      // Only update DOM if content changed externally (not from typing)
+      // Compare against what we last set, not current innerHTML
+      if (newHtml !== lastHtmlRef.current && !isTypingRef.current) {
+        // Save cursor position before update
+        const savedSelection = saveSelection(contentRef.current)
+
+        contentRef.current.innerHTML = newHtml
+        lastHtmlRef.current = newHtml
+
+        // Restore cursor position after update (for external changes like drop)
+        if (savedSelection && document.activeElement === contentRef.current) {
+          restoreSelection(contentRef.current, savedSelection)
+        }
+      }
+
+      // Reset typing flag after effect runs
+      isTypingRef.current = false
+    }, [parsedContent, placeholder])
 
     const updateValue = useCallback((newValue: string) => {
       onChange(newValue)
@@ -186,11 +355,6 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
       }, 0)
     }, [value, updateValue, getCursorPosition])
 
-    const removePlaceholder = useCallback((placeholderToRemove: string) => {
-      const newValue = value.replace(placeholderToRemove, '')
-      updateValue(newValue)
-    }, [value, updateValue])
-
     const handleDragOver = useCallback((e: React.DragEvent) => {
       e.preventDefault()
       e.dataTransfer.dropEffect = 'copy'
@@ -228,7 +392,40 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
     }, [insertAtCursor])
 
     const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {
-      const newValue = e.currentTarget.textContent || ''
+      // Mark as typing so useLayoutEffect doesn't replace DOM
+      isTypingRef.current = true
+
+      // Walk the DOM to reconstruct value, preserving placeholder keys
+      const extractValue = (node: Node): string => {
+        let result = ''
+
+        for (let i = 0; i < node.childNodes.length; i++) {
+          const child = node.childNodes[i]
+
+          if (child.nodeType === Node.TEXT_NODE) {
+            // Text node - use its content directly
+            result += child.textContent || ''
+          } else if (child.nodeType === Node.ELEMENT_NODE) {
+            const element = child as HTMLElement
+
+            // Check for placeholder chip with data attribute
+            const placeholderKey = element.getAttribute('data-placeholder-key')
+            if (placeholderKey) {
+              result += placeholderKey
+            } else if (element.tagName === 'BR') {
+              // Line break
+              result += '\n'
+            } else {
+              // Recurse into other elements (like spans for text)
+              result += extractValue(element)
+            }
+          }
+        }
+
+        return result
+      }
+
+      const newValue = extractValue(e.currentTarget)
       updateValue(newValue)
     }, [updateValue])
 
@@ -287,34 +484,8 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
             minHeight: `${rows * 1.5}rem`,
             lineHeight: '1.5',
           }}
-        >
-          {/* Render content with chips */}
-          {parsedContent.length === 0 ? (
-            <span className="text-text-muted pointer-events-none">
-              {placeholder || 'Enter text or drag placeholders here...'}
-            </span>
-          ) : (
-            parsedContent.map((part, index) => {
-              if (part.type === 'placeholder' && part.placeholder) {
-                return (
-                  <PlaceholderChip
-                    key={`${part.content}-${index}`}
-                    placeholder={part.placeholder}
-                    variant="inline"
-                    onRemove={() => removePlaceholder(part.content)}
-                  />
-                )
-              } else if (part.type === 'linebreak') {
-                return <br key={index} />
-              }
-              return (
-                <span key={index}>
-                  {part.content}
-                </span>
-              )
-            })
-          )}
-        </div>
+          // No dangerouslySetInnerHTML - we manage DOM imperatively via useLayoutEffect
+        />
 
         {/* Drop zone overlay */}
         {isDragOver && (
