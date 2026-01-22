@@ -196,7 +196,7 @@ export interface FilterSortPreset extends Preset {
 
 export interface EmailMessagePreset extends Preset {
   type: 'email_message'
-  moduleType: 'all'
+  moduleType: ModuleType
   config: {
     recipients: string // Comma-separated email addresses
     subject: string // Subject line with placeholders

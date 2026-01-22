@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Mail, Eye, Send, Loader2 } from 'lucide-react'
+import { Mail, Eye, Send, Loader2, Lock } from 'lucide-react'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
@@ -13,6 +13,7 @@ import { PresetSelector } from './preset-selector'
 import { QuickCreateFilterSortSidebar } from './quick-create-filter-sort-sidebar'
 import { QuickCreatePageStyleSidebar } from './quick-create-page-style-sidebar'
 import { QuickCreateEmailMessageSidebar } from './quick-create-email-message-sidebar'
+import { PlaceholderTextDisplay } from './placeholder-text-display'
 import {
   Sheet,
   SheetContent,
@@ -35,7 +36,7 @@ interface EmailNotesSidebarProps {
 }
 
 export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSidebarProps) {
-  const { presets: emailPresets, resolvePlaceholders } = useEmailMessagePresetsStore()
+  const { getPresetsByModule: getEmailPresetsByModule, resolvePlaceholders, getAvailablePlaceholders } = useEmailMessagePresetsStore()
   const { presets: filterSortPresets, getPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { name: productionName, logo: productionLogo } = useProductionStore()
@@ -64,6 +65,14 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const [attachPdf, setAttachPdf] = useState(false)
 
   const moduleFilterPresets = getPresetsByModule(moduleType)
+  const moduleEmailPresets = getEmailPresetsByModule(moduleType)
+
+  const moduleDisplayNames: Record<ModuleType, string> = {
+    cue: 'Cue Notes',
+    work: 'Work Notes',
+    production: 'Production Notes',
+    actor: 'Actor Notes'
+  }
 
   const handlePresetLoad = (preset: EmailMessagePreset | null) => {
     setSelectedEmailPreset(preset)
@@ -90,6 +99,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const getPreviewData = () => ({
     productionTitle: productionName,
     userFullName: 'Dev User',
+    moduleName: moduleDisplayNames[moduleType],
     noteCount: 15,
     todoCount: 8,
     completeCount: 7,
@@ -231,12 +241,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
     setShowEmailMessageQuickCreate(true)
   }
 
-  const moduleName = {
-    cue: 'Cue Notes',
-    work: 'Work Notes',
-    production: 'Production Notes',
-    actor: 'Actor Notes'
-  }[moduleType]
+  const moduleName = moduleDisplayNames[moduleType]
 
   // Resolve placeholders in email content for preview
   const previewSubject = selectedEmailPreset
@@ -278,7 +283,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
                   Use a saved template or create a custom message
                 </p>
                 <PresetSelector
-                  presets={emailPresets}
+                  presets={moduleEmailPresets}
                   selectedId={selectedEmailPreset?.id || null}
                   onSelect={(preset) => handlePresetLoad(preset as EmailMessagePreset)}
                   placeholder="Create custom message or select template..."
@@ -291,47 +296,81 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
               </div>
             </div>
 
-            {/* Manual Email Fields */}
+            {/* Email Fields */}
             <div className="space-y-4">
+              {selectedEmailPreset && (
+                <div className="flex items-center gap-2 text-xs text-text-muted bg-bg-tertiary/50 px-3 py-2 rounded-lg">
+                  <Lock className="h-3 w-3" />
+                  <span>Fields are controlled by the selected preset. Clear the preset to edit manually.</span>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="recipients">
                   Recipients <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="recipients"
-                  type="email"
-                  value={recipients}
-                  onChange={(e) => setRecipients(e.target.value)}
-                  placeholder="user@example.com, user2@example.com"
-                  required
-                />
+                {selectedEmailPreset ? (
+                  <div className="px-3 py-2 bg-bg-tertiary/50 border border-bg-hover rounded-lg min-h-[40px]">
+                    <span className="text-sm text-text-primary">
+                      {recipients || <span className="text-text-muted italic">No recipients set</span>}
+                    </span>
+                  </div>
+                ) : (
+                  <Input
+                    id="recipients"
+                    type="email"
+                    value={recipients}
+                    onChange={(e) => setRecipients(e.target.value)}
+                    placeholder="user@example.com, user2@example.com"
+                    required
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="subject">
                   Subject <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="subject"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  placeholder="Subject line..."
-                  required
-                />
+                {selectedEmailPreset ? (
+                  <div className="px-3 py-2 bg-bg-tertiary/50 border border-bg-hover rounded-lg min-h-[40px] flex items-center flex-wrap gap-1">
+                    <PlaceholderTextDisplay
+                      text={subject}
+                      availablePlaceholders={getAvailablePlaceholders()}
+                    />
+                  </div>
+                ) : (
+                  <Input
+                    id="subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Subject line..."
+                    required
+                  />
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="message">
                   Message <span className="text-red-500">*</span>
                 </Label>
-                <Textarea
-                  id="message"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Email message..."
-                  rows={4}
-                  required
-                />
+                {selectedEmailPreset ? (
+                  <div className="px-3 py-2 bg-bg-tertiary/50 border border-bg-hover rounded-lg min-h-[100px]">
+                    <PlaceholderTextDisplay
+                      text={message}
+                      availablePlaceholders={getAvailablePlaceholders()}
+                      multiline
+                    />
+                  </div>
+                ) : (
+                  <Textarea
+                    id="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Email message..."
+                    rows={4}
+                    required
+                  />
+                )}
               </div>
             </div>
 
@@ -346,9 +385,10 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
                     id="includeNotesInBody"
                     checked={includeNotesInBody}
                     onChange={(e) => setIncludeNotesInBody(e.target.checked)}
-                    className="rounded"
+                    disabled={!!selectedEmailPreset}
+                    className="rounded disabled:opacity-50"
                   />
-                  <Label htmlFor="includeNotesInBody" className="text-sm">
+                  <Label htmlFor="includeNotesInBody" className={`text-sm ${selectedEmailPreset ? 'text-text-muted' : ''}`}>
                     Include notes summary in email body
                   </Label>
                 </div>
@@ -359,9 +399,10 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
                     id="attachPdf"
                     checked={attachPdf}
                     onChange={(e) => setAttachPdf(e.target.checked)}
-                    className="rounded"
+                    disabled={!!selectedEmailPreset}
+                    className="rounded disabled:opacity-50"
                   />
-                  <Label htmlFor="attachPdf" className="text-sm">
+                  <Label htmlFor="attachPdf" className={`text-sm ${selectedEmailPreset ? 'text-text-muted' : ''}`}>
                     Attach PDF report
                   </Label>
                 </div>
@@ -452,17 +493,6 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
               </div>
             )}
 
-            {/* Summary */}
-            <div className="bg-bg-tertiary rounded-lg p-4">
-              <h4 className="font-medium text-text-primary mb-2">Email Summary</h4>
-              <div className="space-y-1 text-sm text-text-secondary">
-                <p>• Module: {moduleName}</p>
-                <p>• Recipients: {recipients || 'Not specified (required)'}</p>
-                <p>• Subject: {subject || 'Not specified (required)'}</p>
-                <p>• Include notes in body: {includeNotesInBody ? 'Yes' : 'No'}</p>
-                <p>• Attach PDF: {attachPdf ? 'Yes' : 'No'}</p>
-              </div>
-            </div>
           </div>
 
           {/* Sticky Footer */}
@@ -536,6 +566,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
             setEditingEmailPreset(null)
           }}
           onPresetCreated={handleEmailPresetCreated}
+          moduleType={moduleType}
           editingPreset={editingEmailPreset}
         />
       )}

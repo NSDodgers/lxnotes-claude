@@ -31,7 +31,7 @@ interface QuickCreateEmailMessageSidebarProps {
   isOpen: boolean
   onClose: () => void
   onPresetCreated: (preset: EmailMessagePreset) => void
-  moduleType?: ModuleType
+  moduleType: ModuleType
   defaultValues?: Partial<EmailMessageFormData>
   editingPreset?: EmailMessagePreset | null
 }
@@ -55,6 +55,7 @@ export function QuickCreateEmailMessageSidebar({
     resolver: zodResolver(emailMessageFormSchema),
     defaultValues: {
       name: '',
+      moduleType: moduleType,
       recipients: '',
       subject: '',
       message: '',
@@ -71,6 +72,7 @@ export function QuickCreateEmailMessageSidebar({
     if (editingPreset) {
       form.reset({
         name: editingPreset.name,
+        moduleType: editingPreset.moduleType,
         recipients: editingPreset.config.recipients,
         subject: editingPreset.config.subject,
         message: editingPreset.config.message,
@@ -83,6 +85,7 @@ export function QuickCreateEmailMessageSidebar({
       // Reset to defaults if not editing
       form.reset({
         name: '',
+        moduleType: moduleType,
         recipients: '',
         subject: '',
         message: '',
@@ -97,9 +100,9 @@ export function QuickCreateEmailMessageSidebar({
     // as a default prop value (= {}) which creates a new reference on every render.
     // We only want to reset the form when isOpen or editingPreset changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editingPreset, isOpen])
+  }, [editingPreset, isOpen, moduleType])
 
-  const moduleFilterPresets = moduleType ? getPresetsByModule(moduleType) : []
+  const moduleFilterPresets = getPresetsByModule(moduleType)
 
   const handleSubmit = async (data: EmailMessageFormData) => {
     setIsSubmitting(true)
@@ -140,7 +143,7 @@ export function QuickCreateEmailMessageSidebar({
         // Create new preset
         const newPresetData = {
           type: 'email_message' as const,
-          moduleType: 'all' as const,
+          moduleType: data.moduleType,
           name: data.name,
           productionId: 'prod-1', // TODO: Get from production context
           config: {
@@ -163,7 +166,7 @@ export function QuickCreateEmailMessageSidebar({
           id: `email-message-${Math.random().toString(36).substr(2, 9)}`,
           productionId: 'prod-1',
           type: 'email_message',
-          moduleType: 'all',
+          moduleType: data.moduleType,
           name: data.name,
           config: newPresetData.config,
           isDefault: false,
@@ -206,9 +209,17 @@ export function QuickCreateEmailMessageSidebar({
     form.setValue('name', defaultName)
   }
 
+  const moduleDisplayNames: Record<ModuleType, string> = {
+    cue: 'Cue Notes',
+    work: 'Work Notes',
+    production: 'Production Notes',
+    actor: 'Actor Notes'
+  }
+
   const getPreviewData = () => ({
     productionTitle: 'Sample Production',
     userFullName: 'Dev User',
+    moduleName: moduleDisplayNames[moduleType],
     noteCount: 15,
     todoCount: 8,
     completeCount: 7,
@@ -234,7 +245,7 @@ export function QuickCreateEmailMessageSidebar({
         </SheetHeader>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6">
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             {/* Preset Name */}
             <PresetFormField label="Preset Name" required>
@@ -397,18 +408,6 @@ Best regards,
                 </PresetFormField>
               )}
 
-              <PresetFormField
-                label="Default Page Style Preset"
-                description="Pre-select a page style for PDF attachments"
-              >
-                <PresetSelector
-                  presets={pageStylePresets}
-                  selectedId={form.watch('pageStylePresetId')}
-                  onSelect={(preset) => form.setValue('pageStylePresetId', preset?.id || null)}
-                  placeholder="None (optional)"
-                />
-              </PresetFormField>
-
               <div className="grid gap-4 md:grid-cols-2">
                 <PresetFormToggle
                   checked={form.watch('includeNotesInBody')}
@@ -419,11 +418,30 @@ Best regards,
 
                 <PresetFormToggle
                   checked={form.watch('attachPdf')}
-                  onCheckedChange={(checked) => form.setValue('attachPdf', checked)}
-                  label="Attach PDF by Default"
+                  onCheckedChange={(checked) => {
+                    form.setValue('attachPdf', checked)
+                    if (!checked) {
+                      form.setValue('pageStylePresetId', null)
+                    }
+                  }}
+                  label="Attach PDF of notes"
                   description="Generate PDF attachment"
                 />
               </div>
+
+              {form.watch('attachPdf') && (
+                <PresetFormField
+                  label="Page Style Preset"
+                  description="Page style for PDF attachment"
+                >
+                  <PresetSelector
+                    presets={pageStylePresets}
+                    selectedId={form.watch('pageStylePresetId')}
+                    onSelect={(preset) => form.setValue('pageStylePresetId', preset?.id || null)}
+                    placeholder="None (optional)"
+                  />
+                </PresetFormField>
+              )}
             </div>
           </form>
         </div>

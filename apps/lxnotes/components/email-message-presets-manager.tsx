@@ -22,25 +22,36 @@ import {
   PresetFormToggle
 } from './preset-dialog'
 import { emailMessageFormSchema, type EmailMessageFormData } from '@/lib/validation/preset-schemas'
-import type { EmailMessagePreset } from '@/types'
+import type { EmailMessagePreset, ModuleType } from '@/types'
 import { cn } from '@/lib/utils'
 
+// Module display names for UI
+const moduleDisplayNames: Record<ModuleType, string> = {
+  cue: 'Cue Notes',
+  work: 'Work Notes',
+  production: 'Production Notes',
+  actor: 'Actor Notes',
+}
+
+const moduleOptions: ModuleType[] = ['cue', 'work', 'production']
+
 export function EmailMessagePresetsManager() {
-  const { 
-    presets, 
-    addPreset, 
-    updatePreset, 
-    deletePreset, 
+  const {
+    presets,
+    addPreset,
+    updatePreset,
+    deletePreset,
     getAvailablePlaceholders,
-    resolvePlaceholders 
+    resolvePlaceholders
   } = useEmailMessagePresetsStore()
-  const { presets: filterSortPresets } = useFilterSortPresetsStore()
+  const { getPresetsByModule: getFilterPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
-  
+
   const [collapsed, setCollapsed] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingPreset, setEditingPreset] = useState<EmailMessagePreset | null>(null)
   const [showPreview, setShowPreview] = useState(false)
+  const [moduleFilter, setModuleFilter] = useState<ModuleType | 'all'>('all')
   
   // Refs no longer needed with DroppableInput/DroppableTextarea
 
@@ -48,6 +59,7 @@ export function EmailMessagePresetsManager() {
     resolver: zodResolver(emailMessageFormSchema),
     defaultValues: {
       name: '',
+      moduleType: 'cue',
       recipients: '',
       subject: '',
       message: '',
@@ -61,13 +73,18 @@ export function EmailMessagePresetsManager() {
   const watchedAttachPdf = form.watch('attachPdf')
   const watchedSubject = form.watch('subject')
   const watchedMessage = form.watch('message')
+  const watchedModuleType = form.watch('moduleType')
 
   const availablePlaceholders = getAvailablePlaceholders()
+
+  // Get module-specific filter presets for the form
+  const moduleFilterPresets = getFilterPresetsByModule(watchedModuleType)
 
   const handleCreate = () => {
     setEditingPreset(null)
     form.reset({
       name: '',
+      moduleType: 'cue',
       recipients: '',
       subject: '',
       message: '',
@@ -84,6 +101,7 @@ export function EmailMessagePresetsManager() {
     setEditingPreset(preset)
     form.reset({
       name: preset.name,
+      moduleType: preset.moduleType,
       recipients: preset.config.recipients,
       subject: preset.config.subject,
       message: preset.config.message,
@@ -105,6 +123,7 @@ export function EmailMessagePresetsManager() {
       // Update existing preset
       updatePreset(editingPreset.id, {
         name: data.name,
+        moduleType: data.moduleType,
         config: {
           recipients: data.recipients,
           subject: data.subject,
@@ -119,7 +138,7 @@ export function EmailMessagePresetsManager() {
       // Create new preset
       addPreset({
         type: 'email_message',
-        moduleType: 'all',
+        moduleType: data.moduleType,
         name: data.name,
         productionId: 'prod-1', // TODO: Get from production context
         config: {
@@ -135,7 +154,7 @@ export function EmailMessagePresetsManager() {
         createdBy: 'user', // TODO: Get from auth
       })
     }
-    
+
     setIsDialogOpen(false)
     setEditingPreset(null)
     form.reset()
@@ -153,6 +172,7 @@ export function EmailMessagePresetsManager() {
   const getPreviewData = () => ({
     productionTitle: 'Sample Production',
     userFullName: 'Dev User',
+    moduleName: moduleDisplayNames[watchedModuleType],
     noteCount: 15,
     todoCount: 8,
     completeCount: 7,
@@ -162,8 +182,13 @@ export function EmailMessagePresetsManager() {
     dateRange: 'All dates',
   })
 
-  const nonSystemPresets = presets.filter(p => !p.isDefault)
-  const systemPresets = presets.filter(p => p.isDefault)
+  // Filter presets by selected module
+  const filteredPresets = moduleFilter === 'all'
+    ? presets
+    : presets.filter(p => p.moduleType === moduleFilter)
+
+  const nonSystemPresets = filteredPresets.filter(p => !p.isDefault)
+  const systemPresets = filteredPresets.filter(p => p.isDefault)
 
   return (
     <>
@@ -175,22 +200,35 @@ export function EmailMessagePresetsManager() {
           >
             <h2 className="text-lg font-semibold text-text-primary">Email Message Presets</h2>
             <div className="flex items-center gap-2 text-text-secondary">
-              <span className="text-sm">({presets.length})</span>
+              <span className="text-sm">({filteredPresets.length})</span>
               {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
             </div>
           </button>
-          <button 
-            onClick={handleCreate}
-            className="text-sm text-modules-production hover:text-modules-production/80 font-medium flex items-center gap-1"
-          >
-            <Plus className="h-4 w-4" />
-            Add Preset
-          </button>
+          <div className="flex items-center gap-3">
+            {/* Module filter dropdown */}
+            <select
+              value={moduleFilter}
+              onChange={(e) => setModuleFilter(e.target.value as ModuleType | 'all')}
+              className="text-sm bg-bg-tertiary border border-bg-hover rounded px-2 py-1 text-text-primary"
+            >
+              <option value="all">All Modules</option>
+              {moduleOptions.map((mod) => (
+                <option key={mod} value={mod}>{moduleDisplayNames[mod]}</option>
+              ))}
+            </select>
+            <button
+              onClick={handleCreate}
+              className="text-sm text-modules-production hover:text-modules-production/80 font-medium flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Add Preset
+            </button>
+          </div>
         </div>
         
         {!collapsed && (
           <div className="space-y-3">
-            {presets.length === 0 ? (
+            {filteredPresets.length === 0 ? (
               <p className="text-text-secondary text-sm py-4">
                 No email message presets created yet. Click &quot;Add Preset&quot; to create your first one.
               </p>
@@ -246,7 +284,7 @@ export function EmailMessagePresetsManager() {
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <PresetDialogContent className="space-y-6">
             {/* Basic info */}
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               <PresetFormField label="Preset Name" required>
                 <PresetFormInput
                   {...form.register('name')}
@@ -259,8 +297,29 @@ export function EmailMessagePresetsManager() {
                 )}
               </PresetFormField>
 
-              <PresetFormField 
-                label="Recipients" 
+              <PresetFormField label="Module" required description="Which module this preset is for">
+                <select
+                  value={watchedModuleType}
+                  onChange={(e) => {
+                    form.setValue('moduleType', e.target.value as ModuleType)
+                    // Clear filter preset when module changes since it's module-specific
+                    form.setValue('filterAndSortPresetId', null)
+                  }}
+                  className="w-full px-3 py-2 bg-bg-tertiary border border-bg-hover rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-modules-production"
+                >
+                  {moduleOptions.map((mod) => (
+                    <option key={mod} value={mod}>{moduleDisplayNames[mod]}</option>
+                  ))}
+                </select>
+                {form.formState.errors.moduleType && (
+                  <p className="text-sm text-destructive mt-1">
+                    {form.formState.errors.moduleType.message}
+                  </p>
+                )}
+              </PresetFormField>
+
+              <PresetFormField
+                label="Recipients"
                 description="Comma-separated email addresses"
               >
                 <PresetFormInput
@@ -369,13 +428,13 @@ Best regards,
             {/* Integration settings */}
             <div className="space-y-4">
               <h4 className="text-sm font-medium text-text-secondary">Integration Settings</h4>
-              
-              <PresetFormField 
-                label="Filter & Sort Preset" 
-                description="Choose which notes to include in the email"
+
+              <PresetFormField
+                label="Filter & Sort Preset"
+                description={`Choose which notes to include (${moduleDisplayNames[watchedModuleType]} presets only)`}
               >
                 <PresetSelector
-                  presets={filterSortPresets}
+                  presets={moduleFilterPresets}
                   selectedId={form.watch('filterAndSortPresetId')}
                   onSelect={(preset) => form.setValue('filterAndSortPresetId', preset?.id || null)}
                   placeholder="Select filter & sort preset..."
@@ -392,8 +451,13 @@ Best regards,
 
                 <PresetFormToggle
                   checked={watchedAttachPdf}
-                  onCheckedChange={(checked) => form.setValue('attachPdf', checked)}
-                  label="Attach PDF"
+                  onCheckedChange={(checked) => {
+                    form.setValue('attachPdf', checked)
+                    if (!checked) {
+                      form.setValue('pageStylePresetId', null)
+                    }
+                  }}
+                  label="Attach PDF of notes"
                   description="Generate and attach a PDF file"
                 />
               </div>

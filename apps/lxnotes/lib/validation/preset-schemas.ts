@@ -72,7 +72,9 @@ export const emailMessagePresetConfigSchema = z.object({
 
 export const emailMessagePresetSchema = basePresetSchema.extend({
   type: z.literal('email_message'),
-  moduleType: z.literal('all'),
+  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
+    message: 'Module type is required',
+  }),
   config: emailMessagePresetConfigSchema,
 })
 
@@ -147,6 +149,9 @@ export const filterSortFormSchema = z.object({
 
 export const emailMessageFormSchema = z.object({
   name: basePresetSchema.shape.name,
+  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
+    message: 'Module type is required',
+  }),
   recipients: emailMessagePresetConfigSchema.shape.recipients,
   subject: emailMessagePresetConfigSchema.shape.subject,
   message: emailMessagePresetConfigSchema.shape.message,

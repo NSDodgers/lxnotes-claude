@@ -133,6 +133,7 @@ export const usePageStylePresetsStore = create<PageStylePresetsState>()(
     }),
     {
       name: 'page-style-presets-storage',
+      version: 1,
       storage: createJSONStorage(() =>
         createSafeStorage(
           'page-style-presets-storage',
@@ -140,6 +141,19 @@ export const usePageStylePresetsStore = create<PageStylePresetsState>()(
         )
       ),
       skipHydration: true,
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as { presets: PageStylePreset[] }
+        const systemDefaults = getSystemDefaults()
+        const systemDefaultIds = new Set(systemDefaults.map(p => p.id))
+
+        // Ensure system defaults are always present
+        const userPresets = (state.presets || []).filter(p => !systemDefaultIds.has(p.id) && !p.isDefault)
+
+        return {
+          ...state,
+          presets: [...systemDefaults, ...userPresets]
+        }
+      },
     }
   )
 )

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { EmailMessagePreset, PlaceholderDefinition } from '@/types'
+import type { EmailMessagePreset, PlaceholderDefinition, ModuleType } from '@/types'
 
 import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
 
@@ -14,6 +14,9 @@ interface EmailMessagePresetsState {
   updatePreset: (id: string, updates: Partial<EmailMessagePreset>) => void
   deletePreset: (id: string) => void
   getPreset: (id: string) => EmailMessagePreset | undefined
+
+  // Module-specific operations
+  getPresetsByModule: (moduleType: ModuleType) => EmailMessagePreset[]
 
   // Placeholder management
   getAvailablePlaceholders: () => PlaceholderDefinition[]
@@ -30,6 +33,7 @@ interface EmailMessagePresetsState {
 const getAvailablePlaceholders = (): PlaceholderDefinition[] => [
   // Production placeholders
   { key: '{{PRODUCTION_TITLE}}', label: 'Production Title', description: 'Current production name', category: 'production' },
+  { key: '{{MODULE_NAME}}', label: 'Module Name', description: 'Current module (e.g., Cue Notes, Work Notes)', category: 'production' },
 
   // User placeholders
   { key: '{{USER_FIRST_NAME}}', label: 'User First Name', description: 'Sender\'s first name', category: 'user' },
@@ -50,24 +54,38 @@ const getAvailablePlaceholders = (): PlaceholderDefinition[] => [
   { key: '{{DATE_RANGE}}', label: 'Date Range', description: 'Date range of included notes (if date filters applied)', category: 'notes' },
 ]
 
-// System default email message presets
+// Module display names for system default naming
+const moduleDisplayNames: Record<ModuleType, string> = {
+  cue: 'Cue Notes',
+  work: 'Work Notes',
+  production: 'Production Notes',
+  actor: 'Actor Notes',
+}
+
+// System default email message presets (module-specific)
 const getSystemDefaults = (): EmailMessagePreset[] => {
   const baseDate = new Date()
   const productionId = 'prod-1' // TODO: Replace with actual production ID
 
-  return [
-    {
-      id: 'sys-email-1',
+  const modules: ModuleType[] = ['cue', 'work', 'production']
+  const presets: EmailMessagePreset[] = []
+
+  modules.forEach((moduleType, moduleIndex) => {
+    const moduleName = moduleDisplayNames[moduleType]
+
+    // Daily Report preset for each module
+    presets.push({
+      id: `sys-email-daily-${moduleType}`,
       productionId,
       type: 'email_message',
-      moduleType: 'all',
-      name: 'Daily Report',
+      moduleType,
+      name: `Daily Report - ${moduleName}`,
       config: {
         recipients: '',
-        subject: '{{PRODUCTION_TITLE}} - Daily Report for {{CURRENT_DATE}}',
+        subject: `{{PRODUCTION_TITLE}} - ${moduleName} Daily Report for {{CURRENT_DATE}}`,
         message: `Hello team,
 
-Here's the daily report for {{PRODUCTION_TITLE}} as of {{CURRENT_DATE}}.
+Here's the ${moduleName.toLowerCase()} daily report for {{PRODUCTION_TITLE}} as of {{CURRENT_DATE}}.
 
 Summary:
 - Outstanding items: {{TODO_COUNT}}
@@ -87,19 +105,21 @@ Best regards,
       createdBy: 'system',
       createdAt: baseDate,
       updatedAt: baseDate,
-    },
-    {
-      id: 'sys-email-2',
+    })
+
+    // Tech Rehearsal preset for each module
+    presets.push({
+      id: `sys-email-tech-${moduleType}`,
       productionId,
       type: 'email_message',
-      moduleType: 'all',
-      name: 'Tech Rehearsal Notes',
+      moduleType,
+      name: `Tech Rehearsal - ${moduleName}`,
       config: {
         recipients: '',
-        subject: '{{PRODUCTION_TITLE}} - Tech Rehearsal Notes {{CURRENT_DATE}}',
+        subject: `{{PRODUCTION_TITLE}} - ${moduleName} Tech Rehearsal {{CURRENT_DATE}}`,
         message: `Team,
 
-Tech rehearsal notes for {{PRODUCTION_TITLE}} from {{CURRENT_DATE}}.
+${moduleName} tech rehearsal notes for {{PRODUCTION_TITLE}} from {{CURRENT_DATE}}.
 
 Priority items requiring attention: {{TODO_COUNT}}
 
@@ -116,8 +136,10 @@ Thanks,
       createdBy: 'system',
       createdAt: baseDate,
       updatedAt: baseDate,
-    },
-  ]
+    })
+  })
+
+  return presets
 }
 
 // Simple placeholder resolution is now handled by shared utility
@@ -168,6 +190,10 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
         return get().presets.find(preset => preset.id === id)
       },
 
+      getPresetsByModule: (moduleType) => {
+        return get().presets.filter(preset => preset.moduleType === moduleType)
+      },
+
       getAvailablePlaceholders: () => {
         return getAvailablePlaceholders()
       },
@@ -191,6 +217,7 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
     }),
     {
       name: 'email-message-presets-storage',
+      version: 2, // Bumped for module-specific presets migration
       storage: createJSONStorage(() =>
         createSafeStorage(
           'email-message-presets-storage',
@@ -198,6 +225,34 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
         )
       ),
       skipHydration: true,
+      migrate: (persistedState: unknown, version: number) => {
+        // Type for v1 presets that may have moduleType: 'all'
+        type V1Preset = Omit<EmailMessagePreset, 'moduleType'> & { moduleType: ModuleType | 'all' }
+        const state = persistedState as { presets: V1Preset[] }
+
+        if (version < 2) {
+          // Migration from version 1: Convert moduleType: 'all' to module-specific
+          // Keep user presets (convert 'all' to 'cue' as default)
+          // Replace system defaults with new module-specific versions
+          const userPresets = state.presets
+            .filter(p => !p.isDefault)
+            .map(p => ({
+              ...p,
+              // If moduleType is 'all', convert to 'cue' as a sensible default
+              moduleType: (p.moduleType === 'all' ? 'cue' : p.moduleType) as ModuleType
+            }))
+
+          // Get fresh module-specific system defaults
+          const systemDefaults = getSystemDefaults()
+
+          return {
+            ...state,
+            presets: [...systemDefaults, ...userPresets]
+          }
+        }
+
+        return state
+      },
     }
   )
 )

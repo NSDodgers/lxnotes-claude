@@ -6,6 +6,7 @@ export interface PlaceholderData {
     userFullName: string
     userFirstName?: string
     userLastName?: string
+    moduleName?: string
     noteStats?: {
         total: number
         todo: number
@@ -38,6 +39,7 @@ export function resolvePlaceholders(text: string, data: PlaceholderData): string
         .replace(/\{\{USER_FULL_NAME\}\}/g, data.userFullName || '')
         .replace(/\{\{USER_FIRST_NAME\}\}/g, data.userFirstName || data.userFullName?.split(' ')[0] || '')
         .replace(/\{\{USER_LAST_NAME\}\}/g, data.userLastName || data.userFullName?.split(' ').slice(1).join(' ') || '')
+        .replace(/\{\{MODULE_NAME\}\}/g, data.moduleName || '')
         .replace(/\{\{CURRENT_DATE\}\}/g, new Date().toLocaleDateString())
         .replace(/\{\{CURRENT_TIME\}\}/g, new Date().toLocaleTimeString())
         .replace(/\{\{NOTE_COUNT\}\}/g, String(total))

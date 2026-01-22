@@ -92,7 +92,10 @@ export function PresetSelector({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-bg-secondary border border-bg-tertiary rounded-lg shadow-lg max-h-60 overflow-auto">
+        <div
+          className="absolute z-50 w-full mt-1 bg-bg-secondary border border-bg-tertiary rounded-lg shadow-lg max-h-60 overflow-auto"
+          onWheel={(e) => e.stopPropagation()}
+        >
           <div className="py-1">
             {/* Quick create option */}
             {enableQuickCreate && onQuickCreate && (

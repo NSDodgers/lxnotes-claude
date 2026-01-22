@@ -77,26 +77,26 @@ export function UserMenu({ collapsed = false, dropdownDirection = 'up' }: UserMe
           collapsed && 'justify-center'
         )}
       >
-        {avatarUrl ? (
-          <Image
-            src={avatarUrl}
-            alt={displayName}
-            width={32}
-            height={32}
-            className="rounded-full object-cover"
-            unoptimized
-          />
-        ) : (
-          <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium">
-            {displayName.charAt(0).toUpperCase()}
-          </div>
-        )}
+        <div className="h-8 w-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-primary-foreground text-sm font-medium overflow-hidden">
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt=""
+              width={32}
+              height={32}
+              className="rounded-full object-cover"
+              unoptimized
+            />
+          ) : (
+            displayName.charAt(0).toUpperCase()
+          )}
+        </div>
         {!collapsed && (
-          <div className="text-sm text-left flex-1 min-w-0">
-            <p className="text-text-primary truncate flex items-center gap-1">
-              {displayName}
+          <div className="text-sm text-left flex-1 min-w-0 overflow-hidden">
+            <p className="text-text-primary flex items-center gap-1">
+              <span className="truncate">{displayName}</span>
               {isSuperAdmin && (
-                <span title="Super Admin">
+                <span title="Super Admin" className="flex-shrink-0">
                   <Shield className="h-3 w-3 text-yellow-500" />
                 </span>
               )}

@@ -191,6 +191,7 @@ export function PlaceholderChip({
         )}
         contentEditable={false}
         suppressContentEditableWarning
+        data-placeholder-key={placeholder.key}
         title={`${placeholder.label}: ${placeholder.description}\nValue: ${placeholder.key}`}
       >
         {chipContent}

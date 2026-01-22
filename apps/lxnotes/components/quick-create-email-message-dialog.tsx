@@ -30,7 +30,7 @@ interface QuickCreateEmailMessageDialogProps {
   isOpen: boolean
   onClose: () => void
   onPresetCreated: (preset: EmailMessagePreset) => void
-  moduleType?: ModuleType
+  moduleType: ModuleType
   defaultValues?: Partial<EmailMessageFormData>
 }
 
@@ -53,6 +53,7 @@ export function QuickCreateEmailMessageDialog({
     resolver: zodResolver(emailMessageFormSchema),
     defaultValues: {
       name: '',
+      moduleType: moduleType,
       recipients: '',
       subject: '',
       message: '',
@@ -64,16 +65,16 @@ export function QuickCreateEmailMessageDialog({
     },
   })
 
-  const moduleFilterPresets = moduleType ? getPresetsByModule(moduleType) : []
+  const moduleFilterPresets = getPresetsByModule(moduleType)
 
   const handleSubmit = async (data: EmailMessageFormData) => {
     setIsSubmitting(true)
-    
+
     try {
       // Create preset using store
       const newPresetData = {
         type: 'email_message' as const,
-        moduleType: 'all' as const,
+        moduleType: data.moduleType,
         name: data.name,
         productionId: 'prod-1', // TODO: Get from production context
         config: {
@@ -88,15 +89,15 @@ export function QuickCreateEmailMessageDialog({
         isDefault: false,
         createdBy: 'user', // TODO: Get from auth
       }
-      
+
       addPreset(newPresetData)
-      
+
       // Create the preset object to return
       const createdPreset: EmailMessagePreset = {
         id: `email-message-${Math.random().toString(36).substr(2, 9)}`,
         productionId: 'prod-1', // TODO: Get from production context
         type: 'email_message',
-        moduleType: 'all',
+        moduleType: data.moduleType,
         name: data.name,
         config: newPresetData.config,
         isDefault: false,
@@ -104,7 +105,7 @@ export function QuickCreateEmailMessageDialog({
         createdAt: new Date(),
         updatedAt: new Date(),
       }
-      
+
       onPresetCreated(createdPreset)
       onClose()
     } catch (error) {
@@ -139,9 +140,17 @@ export function QuickCreateEmailMessageDialog({
     form.setValue('name', defaultName)
   }
 
+  const moduleDisplayNames: Record<ModuleType, string> = {
+    cue: 'Cue Notes',
+    work: 'Work Notes',
+    production: 'Production Notes',
+    actor: 'Actor Notes'
+  }
+
   const getPreviewData = () => ({
     productionTitle: 'Sample Production',
     userFullName: 'Dev User',
+    moduleName: moduleDisplayNames[moduleType],
     noteCount: 15,
     todoCount: 8,
     completeCount: 7,
@@ -325,18 +334,6 @@ Best regards,
                 </PresetFormField>
               )}
 
-              <PresetFormField 
-                label="Default Page Style Preset" 
-                description="Pre-select a page style for PDF attachments"
-              >
-                <PresetSelector
-                  presets={pageStylePresets}
-                  selectedId={form.watch('pageStylePresetId')}
-                  onSelect={(preset) => form.setValue('pageStylePresetId', preset?.id || null)}
-                  placeholder="None (optional)"
-                />
-              </PresetFormField>
-
               <div className="grid gap-4 md:grid-cols-2">
                 <PresetFormToggle
                   checked={form.watch('includeNotesInBody')}
@@ -347,11 +344,30 @@ Best regards,
 
                 <PresetFormToggle
                   checked={form.watch('attachPdf')}
-                  onCheckedChange={(checked) => form.setValue('attachPdf', checked)}
-                  label="Attach PDF by Default"
+                  onCheckedChange={(checked) => {
+                    form.setValue('attachPdf', checked)
+                    if (!checked) {
+                      form.setValue('pageStylePresetId', null)
+                    }
+                  }}
+                  label="Attach PDF of notes"
                   description="Generate PDF attachment"
                 />
               </div>
+
+              {form.watch('attachPdf') && (
+                <PresetFormField
+                  label="Page Style Preset"
+                  description="Page style for PDF attachment"
+                >
+                  <PresetSelector
+                    presets={pageStylePresets}
+                    selectedId={form.watch('pageStylePresetId')}
+                    onSelect={(preset) => form.setValue('pageStylePresetId', preset?.id || null)}
+                    placeholder="None (optional)"
+                  />
+                </PresetFormField>
+              )}
             </div>
           </div>
         </QuickCreatePresetDialogContent>
