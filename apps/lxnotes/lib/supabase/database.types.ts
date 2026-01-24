@@ -412,6 +412,8 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           cue_number: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           description: string | null
           due_date: string | null
           id: string
@@ -440,6 +442,8 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           cue_number?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -468,6 +472,8 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           cue_number?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           description?: string | null
           due_date?: string | null
           id?: string

@@ -41,6 +41,8 @@ function dbNoteToNote(row: DbNote): Note {
     channelNumbers: row.channel_numbers ?? undefined,
     positionUnit: row.position_unit ?? undefined,
     sceneryNeeds: row.scenery_needs ?? undefined,
+    deletedAt: row.deleted_at ? new Date(row.deleted_at) : undefined,
+    deletedBy: row.deleted_by ?? undefined,
   }
 }
 
@@ -126,6 +128,7 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
           .select('*')
           .eq('production_id', productionId)
           .eq('module_type', moduleType)
+          .is('deleted_at', null)
           .order('created_at', { ascending: false })
 
         if (error) throw error
@@ -133,6 +136,22 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
       },
 
       async get(id: string): Promise<Note | null> {
+        const { data, error } = await supabase
+          .from('notes')
+          .select('*')
+          .eq('id', id)
+          .eq('production_id', productionId)
+          .is('deleted_at', null)
+          .single()
+
+        if (error) {
+          if (error.code === 'PGRST116') return null // Not found
+          throw error
+        }
+        return data ? dbNoteToNote(data) : null
+      },
+
+      async getIncludingDeleted(id: string): Promise<Note | null> {
         const { data, error } = await supabase
           .from('notes')
           .select('*')
@@ -190,7 +209,44 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
         return dbNoteToNote(data)
       },
 
-      async delete(id: string): Promise<void> {
+      async delete(id: string, userId?: string): Promise<void> {
+        // Soft delete by setting deleted_at timestamp
+        const { error } = await supabase
+          .from('notes')
+          .update({
+            deleted_at: new Date().toISOString(),
+            deleted_by: userId ?? null,
+          })
+          .eq('id', id)
+          .eq('production_id', productionId)
+
+        if (error) throw error
+      },
+
+      // softDelete is an alias for delete (both perform soft delete)
+      softDelete: async function(id: string, userId?: string): Promise<void> {
+        return this.delete(id, userId)
+      },
+
+      async restore(id: string): Promise<Note> {
+        // Restore a soft-deleted note
+        const { data, error } = await supabase
+          .from('notes')
+          .update({
+            deleted_at: null,
+            deleted_by: null,
+          })
+          .eq('id', id)
+          .eq('production_id', productionId)
+          .select()
+          .single()
+
+        if (error) throw error
+        return dbNoteToNote(data)
+      },
+
+      async hardDelete(id: string): Promise<void> {
+        // Permanent deletion - use with caution
         const { error } = await supabase
           .from('notes')
           .delete()

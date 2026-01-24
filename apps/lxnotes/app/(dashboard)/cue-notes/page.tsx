@@ -23,6 +23,7 @@ import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { ScriptManager } from '@/components/script-manager'
+import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import { isDemoMode } from '@/lib/demo-data'
 import Image from 'next/image'
 import { DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
@@ -1891,7 +1892,9 @@ export default function CueNotesPage() {
             </div>
 
             {/* Right: Action Buttons */}
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end items-center gap-3">
+              <UndoRedoButtons />
+              <div className="h-6 w-px bg-border" />
               <Button
                 onClick={() => setIsPrintViewOpen(true)}
                 variant="secondary"
