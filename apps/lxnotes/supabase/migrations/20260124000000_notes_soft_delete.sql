@@ -19,3 +19,7 @@ BEGIN
   AND deleted_at < NOW() - INTERVAL '90 days';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
+
+-- Revoke execute from public - only service_role/postgres should call this
+REVOKE EXECUTE ON FUNCTION public.cleanup_deleted_notes() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.cleanup_deleted_notes() TO service_role;

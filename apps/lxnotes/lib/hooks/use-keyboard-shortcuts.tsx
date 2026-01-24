@@ -55,18 +55,16 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       // Check if we're in an input field or textarea
+      // When in text inputs, let the browser handle undo/redo for text editing
       const target = event.target as HTMLElement
       const isInputField =
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
         target.isContentEditable
 
-      // Allow undo/redo in input fields, but not other shortcuts
-      const isUndoRedo =
-        (event.metaKey || event.ctrlKey) &&
-        (event.key === 'z' || event.key === 'Z')
-
-      if (isInputField && !isUndoRedo) {
+      if (isInputField) {
+        // Let browser handle all keyboard shortcuts in input fields
+        // including native text undo/redo
         return
       }
 

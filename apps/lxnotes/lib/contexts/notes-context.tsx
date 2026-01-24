@@ -8,7 +8,7 @@
  * - Production mode: Uses Supabase with realtime subscriptions
  */
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode, useRef } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import type { Note, ModuleType, NoteStatus } from '@/types'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
@@ -19,7 +19,6 @@ import {
   createCreateCommand,
   createUpdateCommand,
   createDeleteCommand,
-  type UndoableCommand,
 } from '@/lib/undo/types'
 import { toast } from 'sonner'
 
@@ -91,6 +90,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   const pathname = usePathname()
   const mockNotesStore = useMockNotesStore()
   const undoStore = useUndoStore()
+
+  // Ref to hold undoLastAction for use in toast callbacks
+  // (needed because undoLastAction is defined after deleteNote)
+  const undoLastActionRef = useRef<(() => Promise<void>) | null>(null)
 
   // Track undo/redo availability
   const canUndo = useUndoStore((state) => state.pointer >= 0)
@@ -343,7 +346,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         toast('Note deleted', {
           action: {
             label: 'Undo',
-            onClick: () => undoStore.undo(),
+            onClick: () => undoLastActionRef.current?.(),
           },
         })
       }
@@ -374,7 +377,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         toast('Note deleted', {
           action: {
             label: 'Undo',
-            onClick: () => undoStore.undo(),
+            onClick: () => undoLastActionRef.current?.(),
           },
         })
       }
@@ -479,6 +482,14 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       undoStore.push(command)
     }
   }, [isDemoMode, adapter, mockNotesStore, undoStore])
+
+  // Update ref so toast callbacks can access undoLastAction
+  undoLastActionRef.current = undoLastAction
+
+  // Clear undo history when switching productions
+  useEffect(() => {
+    undoStore.setProductionId(resolvedProductionId ?? null)
+  }, [resolvedProductionId, undoStore])
 
   // Redo last undone action
   const redoLastAction = useCallback(async (): Promise<void> => {
