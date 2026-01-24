@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
+import { Toaster } from 'sonner'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
@@ -10,6 +11,7 @@ import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { NotesProvider } from '@/lib/contexts/notes-context'
 import { FixturesProvider } from '@/lib/contexts/fixtures-context'
 import { AuthProvider } from '@/components/auth/auth-provider'
+import { KeyboardShortcutsProvider } from '@/lib/hooks/use-keyboard-shortcuts'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -38,7 +40,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <NotesProvider>
           <FixturesProvider>
-            {children}
+            <KeyboardShortcutsProvider>
+              {children}
+              <Toaster
+                position="bottom-right"
+                theme="dark"
+                toastOptions={{
+                  style: {
+                    background: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--border))',
+                    color: 'hsl(var(--foreground))',
+                  },
+                }}
+              />
+            </KeyboardShortcutsProvider>
           </FixturesProvider>
         </NotesProvider>
       </QueryClientProvider>

@@ -109,6 +109,10 @@ export interface Note {
   channelNumbers?: string
   positionUnit?: string
   sceneryNeeds?: string
+
+  // Soft-delete fields
+  deletedAt?: Date
+  deletedBy?: string
 }
 
 export interface ScriptPage {

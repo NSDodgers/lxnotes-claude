@@ -32,9 +32,13 @@ export interface StorageAdapter {
   notes: {
     getAll(moduleType: ModuleType): Promise<Note[]>
     get(id: string): Promise<Note | null>
+    getIncludingDeleted?(id: string): Promise<Note | null>
     create(note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<Note>
     update(id: string, updates: Partial<Note>): Promise<Note>
-    delete(id: string): Promise<void>
+    delete(id: string, userId?: string): Promise<void>
+    softDelete?(id: string, userId?: string): Promise<void>
+    restore?(id: string): Promise<Note>
+    hardDelete?(id: string): Promise<void>
     createMany(notes: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<Note[]>
   }
 

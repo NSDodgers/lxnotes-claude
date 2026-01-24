@@ -8,13 +8,20 @@
  * - Production mode: Uses Supabase with realtime subscriptions
  */
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import type { Note, ModuleType, NoteStatus } from '@/types'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
-import { subscribeToProduction, subscribeToNoteChanges } from '@/lib/supabase/realtime'
-// import { toast } from 'sonner'
+import { subscribeToNoteChanges } from '@/lib/supabase/realtime'
+import { useUndoStore } from '@/lib/stores/undo-store'
+import {
+  createCreateCommand,
+  createUpdateCommand,
+  createDeleteCommand,
+  type UndoableCommand,
+} from '@/lib/undo/types'
+import { toast } from 'sonner'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -39,6 +46,12 @@ interface NotesContextType {
 
   // Validation
   validateNote: (moduleType: ModuleType, note: Partial<Note>) => { valid: boolean; errors: string[] }
+
+  // Undo/Redo operations
+  undoLastAction: () => Promise<void>
+  redoLastAction: () => Promise<void>
+  canUndo: boolean
+  canRedo: boolean
 }
 
 const NotesContext = createContext<NotesContextType | null>(null)
@@ -77,6 +90,11 @@ interface NotesProviderProps {
 export function NotesProvider({ children, productionId }: NotesProviderProps) {
   const pathname = usePathname()
   const mockNotesStore = useMockNotesStore()
+  const undoStore = useUndoStore()
+
+  // Track undo/redo availability
+  const canUndo = useUndoStore((state) => state.pointer >= 0)
+  const canRedo = useUndoStore((state) => state.pointer < state.stack.length - 1)
 
   // Determine mode based on URL or explicit productionId
   const isDemoMode = pathname.startsWith('/demo')
@@ -170,12 +188,35 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
           const moduleType = updatedNote.module_type as ModuleType
           const note = convertDbNoteToNote(updatedNote)
 
-          setSupabaseNotes(prev => ({
-            ...prev,
-            [moduleType]: prev[moduleType].map(n =>
-              n.id === note.id ? note : n
-            ),
-          }))
+          // Handle soft delete: if deleted_at is set, remove from UI
+          if (updatedNote.deleted_at) {
+            if (isDev) console.log('[NotesContext] Note soft-deleted, removing from UI:', note.id)
+            setSupabaseNotes(prev => ({
+              ...prev,
+              [moduleType]: prev[moduleType].filter(n => n.id !== note.id),
+            }))
+            return
+          }
+
+          // Handle restore: if deleted_at is null and note not in state, add it
+          setSupabaseNotes(prev => {
+            const existsInState = prev[moduleType].some(n => n.id === note.id)
+            if (!existsInState) {
+              // Note was restored (deleted_at went from value to null)
+              if (isDev) console.log('[NotesContext] Note restored, adding to UI:', note.id)
+              return {
+                ...prev,
+                [moduleType]: [note, ...prev[moduleType]],
+              }
+            }
+            // Normal update
+            return {
+              ...prev,
+              [moduleType]: prev[moduleType].map(n =>
+                n.id === note.id ? note : n
+              ),
+            }
+          })
         },
         onNoteDelete: (deletedNote) => {
           const moduleType = deletedNote.module_type as ModuleType
@@ -208,7 +249,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   // Add note based on mode
   const addNote = useCallback(async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<Note> => {
     if (isDemoMode || !adapter) {
-      return mockNotesStore.addNote(noteData)
+      const newNote = mockNotesStore.addNote(noteData)
+      // Push to undo stack
+      undoStore.push(createCreateCommand(newNote))
+      return newNote
     }
 
     try {
@@ -218,28 +262,50 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         ...prev,
         [noteData.moduleType]: [newNote, ...prev[noteData.moduleType]],
       }))
+      // Push to undo stack
+      undoStore.push(createCreateCommand(newNote))
       return newNote
     } catch (err) {
       console.error('Failed to create note:', err)
-      // toast.error('Failed to create note')
+      toast.error('Failed to create note')
       throw err
     }
-  }, [isDemoMode, adapter, mockNotesStore])
+  }, [isDemoMode, adapter, mockNotesStore, undoStore])
 
   // Update note based on mode
   const updateNote = useCallback(async (id: string, updates: Partial<Note>): Promise<void> => {
     if (isDemoMode || !adapter) {
+      // Find the note before update for undo
+      const previousNote = Object.values(mockNotesStore.notes)
+        .flat()
+        .find(n => n.id === id)
+
       mockNotesStore.updateNote(id, updates)
+
+      // Find the updated note for undo
+      const updatedNote = Object.values(mockNotesStore.notes)
+        .flat()
+        .find(n => n.id === id)
+
+      if (previousNote && updatedNote) {
+        undoStore.push(createUpdateCommand(previousNote, updatedNote))
+      }
       return
     }
 
+    // Find the note before update for undo
+    const previousNote = Object.values(supabaseNotes)
+      .flat()
+      .find(n => n.id === id)
+
     // Optimistic update
     const previousNotes = { ...supabaseNotes }
+    const updatedAt = new Date()
     setSupabaseNotes(prev => {
       const updatedNotes = { ...prev }
       for (const moduleType of Object.keys(updatedNotes) as ModuleType[]) {
         updatedNotes[moduleType] = updatedNotes[moduleType].map(note =>
-          note.id === id ? { ...note, ...updates, updatedAt: new Date() } : note
+          note.id === id ? { ...note, ...updates, updatedAt } : note
         )
       }
       return updatedNotes
@@ -247,21 +313,47 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
 
     try {
       await adapter.notes.update(id, updates)
+
+      // Push to undo stack after successful update
+      if (previousNote) {
+        const updatedNote = { ...previousNote, ...updates, updatedAt }
+        undoStore.push(createUpdateCommand(previousNote, updatedNote))
+      }
     } catch (err) {
       console.error('Failed to update note:', err)
-      // toast.error('Failed to save changes')
+      toast.error('Failed to save changes')
       // Revert optimistic update
       setSupabaseNotes(previousNotes)
       throw err
     }
-  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes])
+  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes, undoStore])
 
   // Delete note based on mode
   const deleteNote = useCallback(async (id: string): Promise<void> => {
     if (isDemoMode || !adapter) {
+      // Find the note before delete for undo
+      const noteToDelete = Object.values(mockNotesStore.notes)
+        .flat()
+        .find(n => n.id === id)
+
       mockNotesStore.deleteNote(id)
+
+      if (noteToDelete) {
+        undoStore.push(createDeleteCommand(noteToDelete))
+        toast('Note deleted', {
+          action: {
+            label: 'Undo',
+            onClick: () => undoStore.undo(),
+          },
+        })
+      }
       return
     }
+
+    // Find the note before delete for undo
+    const noteToDelete = Object.values(supabaseNotes)
+      .flat()
+      .find(n => n.id === id)
 
     // Optimistic update
     const previousNotes = { ...supabaseNotes }
@@ -275,14 +367,25 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
 
     try {
       await adapter.notes.delete(id)
+
+      // Push to undo stack after successful delete
+      if (noteToDelete) {
+        undoStore.push(createDeleteCommand(noteToDelete))
+        toast('Note deleted', {
+          action: {
+            label: 'Undo',
+            onClick: () => undoStore.undo(),
+          },
+        })
+      }
     } catch (err) {
       console.error('Failed to delete note:', err)
-      // toast.error('Failed to delete note')
+      toast.error('Failed to delete note')
       // Revert
       setSupabaseNotes(previousNotes)
       throw err
     }
-  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes])
+  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes, undoStore])
 
   // Set notes (for bulk operations like demo initialization)
   const setNotes = useCallback((moduleType: ModuleType, notes: Note[]) => {
@@ -305,6 +408,145 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     }
     return mockNotesStore.validateProductionNote(note)
   }, [mockNotesStore])
+
+  // Undo last action
+  const undoLastAction = useCallback(async (): Promise<void> => {
+    const command = undoStore.undo()
+    if (!command) return
+
+    try {
+      switch (command.type) {
+        case 'create':
+          // Undo create = soft delete the note
+          if (isDemoMode || !adapter) {
+            mockNotesStore.deleteNote(command.entityId)
+          } else {
+            // Soft delete via adapter
+            await adapter.notes.delete(command.entityId)
+            setSupabaseNotes(prev => ({
+              ...prev,
+              [command.moduleType]: prev[command.moduleType].filter(n => n.id !== command.entityId),
+            }))
+          }
+          toast('Undone: Note creation')
+          break
+
+        case 'update':
+          // Undo update = restore previous state
+          if (command.previousState) {
+            if (isDemoMode || !adapter) {
+              mockNotesStore.updateNote(command.entityId, command.previousState)
+            } else {
+              await adapter.notes.update(command.entityId, command.previousState)
+              setSupabaseNotes(prev => ({
+                ...prev,
+                [command.moduleType]: prev[command.moduleType].map(n =>
+                  n.id === command.entityId ? command.previousState! : n
+                ),
+              }))
+            }
+            toast('Undone: Note edit')
+          }
+          break
+
+        case 'delete':
+          // Undo delete = restore the note
+          if (command.previousState) {
+            if (isDemoMode || !adapter) {
+              // For demo mode, we need to add it back
+              mockNotesStore.setNotes(command.moduleType, [
+                command.previousState,
+                ...mockNotesStore.getAllNotes(command.moduleType),
+              ])
+            } else {
+              // Restore via adapter
+              if (adapter.notes.restore) {
+                await adapter.notes.restore(command.entityId)
+                setSupabaseNotes(prev => ({
+                  ...prev,
+                  [command.moduleType]: [command.previousState!, ...prev[command.moduleType]],
+                }))
+              }
+            }
+            toast('Undone: Note deletion')
+          }
+          break
+      }
+    } catch (err) {
+      console.error('Failed to undo:', err)
+      toast.error('Failed to undo action')
+      // Re-push the command since undo failed
+      undoStore.push(command)
+    }
+  }, [isDemoMode, adapter, mockNotesStore, undoStore])
+
+  // Redo last undone action
+  const redoLastAction = useCallback(async (): Promise<void> => {
+    const command = undoStore.redo()
+    if (!command) return
+
+    try {
+      switch (command.type) {
+        case 'create':
+          // Redo create = restore the note
+          if (command.newState) {
+            if (isDemoMode || !adapter) {
+              mockNotesStore.setNotes(command.moduleType, [
+                command.newState,
+                ...mockNotesStore.getAllNotes(command.moduleType),
+              ])
+            } else {
+              if (adapter.notes.restore) {
+                await adapter.notes.restore(command.entityId)
+                setSupabaseNotes(prev => ({
+                  ...prev,
+                  [command.moduleType]: [command.newState!, ...prev[command.moduleType]],
+                }))
+              }
+            }
+            toast('Redone: Note creation')
+          }
+          break
+
+        case 'update':
+          // Redo update = apply new state
+          if (command.newState) {
+            if (isDemoMode || !adapter) {
+              mockNotesStore.updateNote(command.entityId, command.newState)
+            } else {
+              await adapter.notes.update(command.entityId, command.newState)
+              setSupabaseNotes(prev => ({
+                ...prev,
+                [command.moduleType]: prev[command.moduleType].map(n =>
+                  n.id === command.entityId ? command.newState! : n
+                ),
+              }))
+            }
+            toast('Redone: Note edit')
+          }
+          break
+
+        case 'delete':
+          // Redo delete = soft delete the note
+          if (isDemoMode || !adapter) {
+            mockNotesStore.deleteNote(command.entityId)
+          } else {
+            await adapter.notes.delete(command.entityId)
+            setSupabaseNotes(prev => ({
+              ...prev,
+              [command.moduleType]: prev[command.moduleType].filter(n => n.id !== command.entityId),
+            }))
+          }
+          toast('Redone: Note deletion')
+          break
+      }
+    } catch (err) {
+      console.error('Failed to redo:', err)
+      toast.error('Failed to redo action')
+      // Move pointer back since redo failed
+      undoStore.undo()
+    }
+  }, [isDemoMode, adapter, mockNotesStore, undoStore])
 
   // Get current notes for context value
   const notes: Record<ModuleType, Note[]> = isDemoMode || !resolvedProductionId
@@ -329,6 +571,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         deleteNote,
         setNotes,
         validateNote,
+        undoLastAction,
+        redoLastAction,
+        canUndo,
+        canRedo,
       }}
     >
       {children}
@@ -360,6 +606,8 @@ interface RawDbNote {
   channel_numbers?: string | null
   position_unit?: string | null
   scenery_needs?: string | null
+  deleted_at?: string | null
+  deleted_by?: string | null
 }
 
 // Helper function to convert database note to Note type
@@ -387,5 +635,7 @@ function convertDbNoteToNote(dbNote: RawDbNote): Note {
     channelNumbers: dbNote.channel_numbers ?? undefined,
     positionUnit: dbNote.position_unit ?? undefined,
     sceneryNeeds: dbNote.scenery_needs ?? undefined,
+    deletedAt: dbNote.deleted_at ? new Date(dbNote.deleted_at) : undefined,
+    deletedBy: dbNote.deleted_by ?? undefined,
   }
 }

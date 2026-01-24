@@ -40,6 +40,7 @@ import { useNotes } from '@/lib/contexts/notes-context'
 // Lazy loaded via dynamic import to avoid loading 4,682 lines on page load
 // import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 import { isDemoMode } from '@/lib/demo-data'
+import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import Image from 'next/image'
 
 export default function WorkNotesPage() {
@@ -239,7 +240,9 @@ export default function WorkNotesPage() {
             {/* Right: Action Buttons */}
             <div className="flex flex-col items-end gap-2">
               {/* Row 1: View/Export Actions */}
-              <div className="flex gap-3">
+              <div className="flex items-center gap-3">
+                <UndoRedoButtons />
+                <div className="h-6 w-px bg-border" />
                 <Button
                   onClick={() => setIsPrintViewOpen(true)}
                   variant="secondary"

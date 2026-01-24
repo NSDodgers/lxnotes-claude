@@ -27,6 +27,7 @@ import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { isDemoMode } from '@/lib/demo-data'
+import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import Image from 'next/image'
 
 // Mock data for development - REMOVED: This large array was never used
@@ -1118,7 +1119,9 @@ export default function ProductionNotesPage() {
             </div>
 
             {/* Right: Action Buttons */}
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end items-center gap-3">
+              <UndoRedoButtons />
+              <div className="h-6 w-px bg-border" />
               <Button
                 onClick={() => setIsPrintViewOpen(true)}
                 variant="secondary"
