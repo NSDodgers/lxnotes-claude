@@ -95,6 +95,9 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   // (needed because undoLastAction is defined after deleteNote)
   const undoLastActionRef = useRef<(() => Promise<void>) | null>(null)
 
+  // Guard to prevent concurrent undo/redo operations (avoids race conditions from rapid key presses)
+  const isUndoRedoInProgress = useRef(false)
+
   // Track undo/redo availability
   const canUndo = useUndoStore((state) => state.pointer >= 0)
   const canRedo = useUndoStore((state) => state.pointer < state.stack.length - 1)
@@ -285,12 +288,9 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
 
       mockNotesStore.updateNote(id, updates)
 
-      // Find the updated note for undo
-      const updatedNote = Object.values(mockNotesStore.notes)
-        .flat()
-        .find(n => n.id === id)
-
-      if (previousNote && updatedNote) {
+      // Compute the updated note directly (don't read from store - hook snapshot is stale)
+      if (previousNote) {
+        const updatedNote = { ...previousNote, ...updates, updatedAt: new Date() }
         undoStore.push(createUpdateCommand(previousNote, updatedNote))
       }
       return
@@ -412,12 +412,17 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     return mockNotesStore.validateProductionNote(note)
   }, [mockNotesStore])
 
-  // Undo last action
+  // Undo last action (uses peek + commit pattern for safe error handling)
   const undoLastAction = useCallback(async (): Promise<void> => {
-    const command = undoStore.undo()
-    if (!command) return
+    // Prevent concurrent undo/redo operations
+    if (isUndoRedoInProgress.current) return
+    isUndoRedoInProgress.current = true
 
     try {
+      // Peek at the command without moving pointer
+      const command = undoStore.peekUndo()
+      if (!command) return
+
       switch (command.type) {
         case 'create':
           // Undo create = soft delete the note
@@ -475,11 +480,15 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
           }
           break
       }
+
+      // Only move pointer after successful undo
+      undoStore.commitUndo()
     } catch (err) {
       console.error('Failed to undo:', err)
       toast.error('Failed to undo action')
-      // Re-push the command since undo failed
-      undoStore.push(command)
+      // Pointer was never moved, so no cleanup needed
+    } finally {
+      isUndoRedoInProgress.current = false
     }
   }, [isDemoMode, adapter, mockNotesStore, undoStore])
 
@@ -491,12 +500,17 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     undoStore.setProductionId(resolvedProductionId ?? null)
   }, [resolvedProductionId, undoStore])
 
-  // Redo last undone action
+  // Redo last undone action (uses peek + commit pattern for safe error handling)
   const redoLastAction = useCallback(async (): Promise<void> => {
-    const command = undoStore.redo()
-    if (!command) return
+    // Prevent concurrent undo/redo operations
+    if (isUndoRedoInProgress.current) return
+    isUndoRedoInProgress.current = true
 
     try {
+      // Peek at the command without moving pointer
+      const command = undoStore.peekRedo()
+      if (!command) return
+
       switch (command.type) {
         case 'create':
           // Redo create = restore the note
@@ -551,11 +565,15 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
           toast('Redone: Note deletion')
           break
       }
+
+      // Only move pointer after successful redo
+      undoStore.commitRedo()
     } catch (err) {
       console.error('Failed to redo:', err)
       toast.error('Failed to redo action')
-      // Move pointer back since redo failed
-      undoStore.undo()
+      // Pointer was never moved, so no cleanup needed
+    } finally {
+      isUndoRedoInProgress.current = false
     }
   }, [isDemoMode, adapter, mockNotesStore, undoStore])
 

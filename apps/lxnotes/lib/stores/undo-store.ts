@@ -37,11 +37,23 @@ interface UndoState {
   /** Push a new command after an operation */
   push: (command: UndoableCommand) => void
 
-  /** Get the command to undo (returns null if nothing to undo) */
+  /** Get the command to undo (returns null if nothing to undo) - MOVES POINTER */
   undo: () => UndoableCommand | null
 
-  /** Get the command to redo (returns null if nothing to redo) */
+  /** Get the command to redo (returns null if nothing to redo) - MOVES POINTER */
   redo: () => UndoableCommand | null
+
+  /** Peek at the command to undo without moving pointer */
+  peekUndo: () => UndoableCommand | null
+
+  /** Peek at the command to redo without moving pointer */
+  peekRedo: () => UndoableCommand | null
+
+  /** Commit the undo by moving pointer back (call after successful undo) */
+  commitUndo: () => void
+
+  /** Commit the redo by moving pointer forward (call after successful redo) */
+  commitRedo: () => void
 
   /** Clear the entire stack */
   clear: () => void
@@ -95,6 +107,7 @@ export const useUndoStore = create<UndoState>()(
       })
     },
 
+    // Legacy undo - moves pointer immediately (kept for backwards compatibility)
     undo: () => {
       const state = get()
       if (state.pointer < 0) {
@@ -106,6 +119,7 @@ export const useUndoStore = create<UndoState>()(
       return command
     },
 
+    // Legacy redo - moves pointer immediately (kept for backwards compatibility)
     redo: () => {
       const state = get()
       if (state.pointer >= state.stack.length - 1) {
@@ -115,6 +129,40 @@ export const useUndoStore = create<UndoState>()(
       const command = state.stack[state.pointer + 1]
       set({ pointer: state.pointer + 1 })
       return command
+    },
+
+    // Peek at undo command without moving pointer
+    peekUndo: () => {
+      const state = get()
+      if (state.pointer < 0) {
+        return null
+      }
+      return state.stack[state.pointer]
+    },
+
+    // Peek at redo command without moving pointer
+    peekRedo: () => {
+      const state = get()
+      if (state.pointer >= state.stack.length - 1) {
+        return null
+      }
+      return state.stack[state.pointer + 1]
+    },
+
+    // Commit undo by moving pointer back (call after successful undo)
+    commitUndo: () => {
+      const state = get()
+      if (state.pointer >= 0) {
+        set({ pointer: state.pointer - 1 })
+      }
+    },
+
+    // Commit redo by moving pointer forward (call after successful redo)
+    commitRedo: () => {
+      const state = get()
+      if (state.pointer < state.stack.length - 1) {
+        set({ pointer: state.pointer + 1 })
+      }
     },
 
     clear: () => {

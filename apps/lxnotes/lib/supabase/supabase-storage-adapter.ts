@@ -223,18 +223,9 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
         if (error) throw error
       },
 
-      async softDelete(id: string, userId?: string): Promise<void> {
-        // Alias for delete() - explicit soft delete
-        const { error } = await supabase
-          .from('notes')
-          .update({
-            deleted_at: new Date().toISOString(),
-            deleted_by: userId ?? null,
-          })
-          .eq('id', id)
-          .eq('production_id', productionId)
-
-        if (error) throw error
+      // softDelete is an alias for delete (both perform soft delete)
+      softDelete: async function(id: string, userId?: string): Promise<void> {
+        return this.delete(id, userId)
       },
 
       async restore(id: string): Promise<Note> {
