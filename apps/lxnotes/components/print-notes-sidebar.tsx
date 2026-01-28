@@ -51,9 +51,12 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
   const { getPresetsByModule: getPrintPresetsByModule } = usePrintPresetsStore()
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
-  // Prefer production context (Supabase) over local store
-  const productionName = productionContext?.production?.name || localProductionStore.name
-  const productionLogo = productionContext?.production?.logo || localProductionStore.logo
+  // Prefer production context (Supabase) if available, otherwise use local store
+  // Crucially, if we have a production context, use its values even if falsy/undefined (e.g. no logo)
+  // to avoid falling back to local store defaults when we shouldn't.
+  const activeProduction = productionContext?.production
+  const productionName = activeProduction ? activeProduction.name : localProductionStore.name
+  const productionLogo = activeProduction ? activeProduction.logo : localProductionStore.logo
   const { getPriorities } = useCustomPrioritiesStore()
   const mockNotesStore = useMockNotesStore()
 
