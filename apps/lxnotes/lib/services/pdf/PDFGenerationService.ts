@@ -10,6 +10,7 @@ import { WorkNotesPDF } from '@/components/pdf/WorkNotesPDF'
 import { ProductionNotesPDF } from '@/components/pdf/ProductionNotesPDF'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
+import { DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 
 export class PDFGenerationService {
   private static instance: PDFGenerationService
@@ -53,7 +54,9 @@ export class PDFGenerationService {
       const commonProps = {
         notes: formattedNotes,
         productionName: request.productionName || 'LX Notes Production',
-        productionLogo: request.productionLogo,
+        productionLogo: request.productionLogo === DEFAULT_PRODUCTION_LOGO
+          ? undefined
+          : request.productionLogo,
         includeCheckboxes: request.pageStylePreset.config.includeCheckboxes,
         dateGenerated: new Date(),
         filterPresetName: request.filterPreset.name,

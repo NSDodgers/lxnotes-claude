@@ -29,7 +29,13 @@ export function MultiSelect({
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState('')
+  const [mounted, setMounted] = React.useState(false)
   const searchInputRef = React.useRef<HTMLInputElement>(null)
+
+  // Prevent hydration mismatch from Radix UI ID generation
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Filter options based on search query
   const filteredOptions = React.useMemo(() => {
@@ -114,6 +120,25 @@ export function MultiSelect({
         setOpen(false)
       }
     }
+  }
+
+  // Render placeholder during SSR to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        role="combobox"
+        aria-expanded={false}
+        className={cn(
+          'justify-between bg-secondary text-secondary-foreground border-border hover:bg-secondary/80',
+          className
+        )}
+      >
+        <span className="truncate">{getDisplayText()}</span>
+        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+    )
   }
 
   return (

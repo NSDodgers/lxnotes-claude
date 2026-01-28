@@ -34,71 +34,54 @@ export class PDFTestHelpers {
       cue: '/cue-notes',
       work: '/work-notes',
       production: '/production-notes',
-      actor: '/actor-notes' // For future Director Notes app
+      actor: '/actor-notes'
     }
 
-    await this.page.goto(`http://localhost:3000${moduleRoutes[moduleType]}`)
+    await this.page.goto(`http://localhost:3001${moduleRoutes[moduleType]}`)
     await this.page.waitForLoadState('networkidle')
   }
 
   /**
-   * Open the print dialog
+   * Open the print sidebar by clicking the print button
    */
-  async openPrintDialog(): Promise<void> {
-    // Look for print button - check multiple possible selectors
-    const printButton = this.page.locator('[data-testid="print-button"], button:has-text("Print"), button:has-text("Generate PDF")')
+  async openPrintSidebar(): Promise<void> {
+    const printButton = this.page.locator('[data-testid="print-notes-button"], [data-testid="print-button"], button:has-text("Print"), button:has-text("PDF")')
     await printButton.first().click()
 
-    // Wait for dialog to appear
-    await this.page.waitForSelector('[role="dialog"]', { timeout: 5000 })
+    // Wait for the sidebar sheet to appear with card grid
+    await this.page.waitForSelector('[data-testid="preset-card-grid"], [role="dialog"]', { timeout: 5000 })
   }
 
   /**
-   * Select a filter/sort preset by name
+   * @deprecated Use openPrintSidebar instead. Kept for backwards compatibility.
    */
-  async selectFilterPreset(presetName: string): Promise<void> {
-    // Find the filter preset selector
-    const filterSelector = this.page.locator('[data-testid="filter-preset-selector"], .filter-preset-selector')
-    await filterSelector.click()
-
-    // Wait for dropdown options
-    await this.page.waitForSelector('[role="option"], .preset-option')
-
-    // Select the specific preset
-    await this.page.locator(`[role="option"]:has-text("${presetName}"), .preset-option:has-text("${presetName}")`).click()
+  async openPrintDialog(): Promise<void> {
+    return this.openPrintSidebar()
   }
 
   /**
-   * Select a page style preset by name
+   * Select a print preset card by name from the card grid, then proceed to confirm panel
    */
-  async selectPageStylePreset(presetName: string): Promise<void> {
-    // Find the page style preset selector
-    const pageStyleSelector = this.page.locator('[data-testid="page-style-preset-selector"], .page-style-preset-selector')
-    await pageStyleSelector.click()
+  async selectPrintPresetCard(presetName: string): Promise<void> {
+    const card = this.page.locator(`[data-testid^="preset-card-"]:has-text("${presetName}")`)
+    await card.click()
 
-    // Wait for dropdown options
-    await this.page.waitForSelector('[role="option"], .preset-option')
-
-    // Select the specific preset
-    await this.page.locator(`[role="option"]:has-text("${presetName}"), .preset-option:has-text("${presetName}")`).click()
+    // Wait for confirm panel to appear
+    await this.page.waitForSelector('[data-testid="confirm-send-panel"]', { timeout: 5000 })
   }
 
   /**
-   * Generate PDF and capture the download
+   * Generate PDF from the confirm panel by clicking the submit button
    */
-  async generatePDF(): Promise<{ pdfBlob: Buffer; filename: string }> {
-    // Set up download promise before clicking
+  async generatePDFFromConfirm(): Promise<{ pdfBlob: Buffer; filename: string }> {
     const downloadPromise = this.page.waitForEvent('download', { timeout: 30000 })
 
-    // Click generate/download button
-    const generateButton = this.page.locator('button:has-text("Generate PDF"), button:has-text("Download"), [data-testid="generate-pdf-button"]')
-    await generateButton.click()
+    const submitButton = this.page.locator('[data-testid="confirm-panel-submit"]')
+    await submitButton.click()
 
-    // Wait for download to complete
     const download = await downloadPromise
     const filename = download.suggestedFilename()
 
-    // Get the downloaded file as buffer
     const pdfBlob = await download.createReadStream().then(stream => {
       return new Promise<Buffer>((resolve, reject) => {
         const chunks: Buffer[] = []
@@ -112,107 +95,91 @@ export class PDFTestHelpers {
   }
 
   /**
-   * Create a custom page style preset for testing
+   * Open the custom one-off print view from the card grid
    */
-  async createCustomPageStylePreset(
-    name: string,
-    config: {
-      paperSize: 'a4' | 'letter' | 'legal'
-      orientation: 'portrait' | 'landscape'
-      includeCheckboxes: boolean
-    }
-  ): Promise<void> {
-    // Click quick create button for page style
-    await this.page.locator('[data-testid="quick-create-page-style"], button:has-text("New Page Style")').click({ timeout: 5000 })
-
-    // Fill in the form
-    await this.page.fill('[data-testid="preset-name"], input[placeholder*="name"]', name)
-
-    // Select paper size
-    await this.page.selectOption('[data-testid="paper-size"], select[name="paperSize"]', config.paperSize)
-
-    // Select orientation
-    await this.page.selectOption('[data-testid="orientation"], select[name="orientation"]', config.orientation)
-
-    // Set checkbox option
-    const checkboxToggle = this.page.locator('[data-testid="include-checkboxes"], input[type="checkbox"][name*="checkbox"]')
-    if (config.includeCheckboxes) {
-      await checkboxToggle.check()
-    } else {
-      await checkboxToggle.uncheck()
-    }
-
-    // Save the preset
-    await this.page.locator('button:has-text("Save"), button:has-text("Create")').click()
-
-    // Wait for dialog to close
-    await this.page.waitForSelector('[role="dialog"]', { state: 'hidden', timeout: 5000 })
+  async openCustomPrintView(): Promise<void> {
+    const customLink = this.page.locator('[data-testid="preset-card-custom-one-off"]')
+    await customLink.click()
+    await this.page.waitForTimeout(500)
   }
 
   /**
-   * Create a custom filter/sort preset for testing
+   * In custom print view, select a filter preset from the PresetSelector dropdown
    */
-  async createCustomFilterPreset(
-    name: string,
-    moduleType: ModuleType,
-    config: {
-      statusFilter?: 'todo' | 'complete' | 'cancelled' | null
-      typeFilters?: string[]
-      priorityFilters?: string[]
-      sortBy?: string
-      sortOrder?: 'asc' | 'desc'
-      groupByType?: boolean
-    }
-  ): Promise<void> {
-    // Click quick create button for filter
-    await this.page.locator('[data-testid="quick-create-filter"], button:has-text("New Filter")').click({ timeout: 5000 })
+  async selectFilterPresetInCustomView(presetName: string): Promise<void> {
+    // Click the filter preset selector button
+    const filterSelector = this.page.locator('button:has-text("Select filtering options...")').first()
+    await filterSelector.click()
+    await this.page.waitForTimeout(300)
 
-    // Fill in the form
-    await this.page.fill('[data-testid="preset-name"], input[placeholder*="name"]', name)
+    // Select the preset from the dropdown
+    await this.page.locator(`[role="option"]:has-text("${presetName}"), .preset-option:has-text("${presetName}")`).click()
+  }
 
-    // Configure status filter
-    if (config.statusFilter) {
-      await this.page.selectOption('[data-testid="status-filter"], select[name="statusFilter"]', config.statusFilter)
-    }
+  /**
+   * In custom print view, select a page style preset from the PresetSelector dropdown
+   */
+  async selectPageStylePresetInCustomView(presetName: string): Promise<void> {
+    const pageStyleSelector = this.page.locator('button:has-text("Select page formatting...")').first()
+    await pageStyleSelector.click()
+    await this.page.waitForTimeout(300)
 
-    // Configure type filters (checkboxes)
-    if (config.typeFilters) {
-      for (const type of config.typeFilters) {
-        await this.page.check(`input[type="checkbox"][value="${type}"]`)
-      }
-    }
+    await this.page.locator(`[role="option"]:has-text("${presetName}"), .preset-option:has-text("${presetName}")`).click()
+  }
 
-    // Configure priority filters (checkboxes)
-    if (config.priorityFilters) {
-      for (const priority of config.priorityFilters) {
-        await this.page.check(`input[type="checkbox"][value="${priority}"]`)
-      }
-    }
+  /**
+   * Generate PDF from the custom one-off view
+   */
+  async generatePDFFromCustomView(): Promise<{ pdfBlob: Buffer; filename: string }> {
+    const downloadPromise = this.page.waitForEvent('download', { timeout: 30000 })
 
-    // Configure sorting
-    if (config.sortBy) {
-      await this.page.selectOption('[data-testid="sort-by"], select[name="sortBy"]', config.sortBy)
-    }
+    const generateButton = this.page.locator('button:has-text("Generate PDF")')
+    await generateButton.click()
 
-    if (config.sortOrder) {
-      await this.page.selectOption('[data-testid="sort-order"], select[name="sortOrder"]', config.sortOrder)
-    }
+    const download = await downloadPromise
+    const filename = download.suggestedFilename()
 
-    // Configure grouping
-    if (config.groupByType !== undefined) {
-      const groupToggle = this.page.locator('[data-testid="group-by-type"], input[type="checkbox"][name*="group"]')
-      if (config.groupByType) {
-        await groupToggle.check()
-      } else {
-        await groupToggle.uncheck()
-      }
-    }
+    const pdfBlob = await download.createReadStream().then(stream => {
+      return new Promise<Buffer>((resolve, reject) => {
+        const chunks: Buffer[] = []
+        stream.on('data', (chunk: Buffer) => chunks.push(chunk))
+        stream.on('end', () => resolve(Buffer.concat(chunks)))
+        stream.on('error', reject)
+      })
+    })
 
-    // Save the preset
-    await this.page.locator('button:has-text("Save"), button:has-text("Create")').click()
+    return { pdfBlob, filename }
+  }
 
-    // Wait for dialog to close
-    await this.page.waitForSelector('[role="dialog"]', { state: 'hidden', timeout: 5000 })
+  /**
+   * @deprecated Old dropdown-based flow. Use selectPrintPresetCard + generatePDFFromConfirm
+   * or openCustomPrintView + selectFilterPresetInCustomView + selectPageStylePresetInCustomView + generatePDFFromCustomView
+   */
+  async selectFilterPreset(presetName: string): Promise<void> {
+    return this.selectFilterPresetInCustomView(presetName)
+  }
+
+  /**
+   * @deprecated Old dropdown-based flow. Use the card-based flow instead.
+   */
+  async selectPageStylePreset(presetName: string): Promise<void> {
+    return this.selectPageStylePresetInCustomView(presetName)
+  }
+
+  /**
+   * @deprecated Use generatePDFFromConfirm or generatePDFFromCustomView
+   */
+  async generatePDF(): Promise<{ pdfBlob: Buffer; filename: string }> {
+    return this.generatePDFFromCustomView()
+  }
+
+  /**
+   * Open the wizard from the card grid to create a new print preset
+   */
+  async openPrintWizard(): Promise<void> {
+    const createCard = this.page.locator('[data-testid="preset-card-create-new"]')
+    await createCard.click()
+    await this.page.waitForSelector('[data-testid="preset-wizard"]', { timeout: 5000 })
   }
 
   /**
@@ -232,30 +199,15 @@ export class PDFTestHelpers {
     const errors: string[] = []
 
     try {
-      // Basic validation - check if it's a valid PDF
       if (!pdfBlob.length) {
         errors.push('PDF blob is empty')
         return { success: false, errors }
       }
 
-      // Check PDF header
       const pdfHeader = pdfBlob.slice(0, 8).toString()
       if (!pdfHeader.startsWith('%PDF-')) {
         errors.push('Invalid PDF header')
       }
-
-      // Check filename contains expected elements
-      const moduleNames = {
-        cue: 'Cue_Notes',
-        work: 'Work_Notes',
-        production: 'Production_Notes'
-      }
-
-      // Additional validations would go here:
-      // - Parse PDF content using pdf-parse library
-      // - Check page dimensions
-      // - Verify text content
-      // - Count pages
 
       return {
         success: errors.length === 0,
@@ -273,62 +225,29 @@ export class PDFTestHelpers {
    * Wait for UI to be ready after navigation
    */
   async waitForUIReady(): Promise<void> {
-    // Wait for the main content to load
     await this.page.waitForSelector('main, [data-testid="main-content"]', { timeout: 10000 })
 
-    // Wait for any loading spinners to disappear
     await this.page.waitForSelector('.loading, [data-testid="loading"]', { state: 'hidden', timeout: 5000 }).catch(() => {
       // Loading spinner might not exist, which is fine
     })
 
-    // Wait for network to be idle
     await this.page.waitForLoadState('networkidle')
   }
 
   /**
-   * Check if a preset exists in the dropdown
+   * Navigate back from confirm panel to card grid
    */
-  async presetExists(presetName: string, presetType: 'filter' | 'pageStyle'): Promise<boolean> {
-    try {
-      const selectorMap = {
-        filter: '[data-testid="filter-preset-selector"], .filter-preset-selector',
-        pageStyle: '[data-testid="page-style-preset-selector"], .page-style-preset-selector'
-      }
-
-      const selector = this.page.locator(selectorMap[presetType])
-      await selector.click()
-
-      // Check if option exists
-      const option = this.page.locator(`[role="option"]:has-text("${presetName}"), .preset-option:has-text("${presetName}")`)
-      const exists = await option.count() > 0
-
-      // Close dropdown by clicking elsewhere
-      await this.page.keyboard.press('Escape')
-
-      return exists
-    } catch {
-      return false
-    }
-  }
-
-  /**
-   * Get the currently selected preset name
-   */
-  async getSelectedPresetName(presetType: 'filter' | 'pageStyle'): Promise<string> {
-    const selectorMap = {
-      filter: '[data-testid="filter-preset-selector"], .filter-preset-selector',
-      pageStyle: '[data-testid="page-style-preset-selector"], .page-style-preset-selector'
-    }
-
-    const selector = this.page.locator(selectorMap[presetType])
-    return await selector.textContent() || ''
+  async goBackToCardGrid(): Promise<void> {
+    const backButton = this.page.locator('[data-testid="confirm-panel-back"]')
+    await backButton.click()
+    await this.page.waitForSelector('[data-testid="preset-card-grid"]', { timeout: 5000 })
   }
 }
 
 export const PDF_PAPER_DIMENSIONS = {
-  letter: { width: 612, height: 792 },   // 8.5" x 11" at 72 DPI
-  a4: { width: 595, height: 842 },       // 210mm x 297mm at 72 DPI
-  legal: { width: 612, height: 1008 }    // 8.5" x 14" at 72 DPI
+  letter: { width: 612, height: 792 },
+  a4: { width: 595, height: 842 },
+  legal: { width: 612, height: 1008 }
 } as const
 
 export const SYSTEM_PRESETS = {
@@ -353,5 +272,10 @@ export const SYSTEM_PRESETS = {
       'By Department',
       'All Todo Notes'
     ]
+  },
+  print: {
+    cue: ['Outstanding Cue Notes - Letter Portrait'],
+    work: ['Outstanding Work Notes - Letter Portrait'],
+    production: ['Outstanding Production Notes - Letter Portrait'],
   }
 } as const

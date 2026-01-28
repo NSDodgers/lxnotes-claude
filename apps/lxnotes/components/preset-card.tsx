@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Edit2, Trash2, ChevronDown, ChevronUp, FileText, Filter, Mail } from 'lucide-react'
+import { Edit2, Trash2, ChevronDown, ChevronUp, FileText, Filter, Mail, Printer } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { AnyPreset, PageStylePreset, FilterSortPreset, EmailMessagePreset } from '@/types'
+import type { AnyPreset, PageStylePreset, FilterSortPreset, EmailMessagePreset, PrintPreset } from '@/types'
 
 interface PresetCardProps {
   preset: AnyPreset
@@ -24,6 +24,8 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
         return <Filter className="h-4 w-4 text-modules-work" />
       case 'email_message':
         return <Mail className="h-4 w-4 text-modules-cue" />
+      case 'print':
+        return <Printer className="h-4 w-4 text-modules-production" />
     }
   }
 
@@ -46,6 +48,12 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
         const hasFilter = config.filterAndSortPresetId ? '✓' : '✗'
         const hasPDF = config.attachPdf ? '✓' : '✗'
         return `${recipientCount} recipients • Filter: ${hasFilter} • PDF: ${hasPDF}`
+      }
+      case 'print': {
+        const config = (preset as PrintPreset).config
+        const hasFilter = config.filterSortPresetId ? '✓' : '✗'
+        const hasStyle = config.pageStylePresetId ? '✓' : '✗'
+        return `Filter: ${hasFilter} • Page Style: ${hasStyle}`
       }
     }
   }

@@ -15,16 +15,17 @@ test.describe('Module-Specific PDF Features', () => {
   test.describe('Cue Notes Module Specific Features', () => {
     test('Cue Notes PDF includes script page and scene/song columns', async ({ page }) => {
       await pdfHelpers.navigateToModule('cue')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
       // Select presets that will show cue-specific data
-      await pdfHelpers.selectFilterPreset('All Todo Notes') // Sorted by cue_number
-      await pdfHelpers.selectPageStylePreset('Letter Landscape') // More space for columns
+      await pdfHelpers.selectFilterPresetInCustomView('All Todo Notes')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Landscape') // More space for columns
 
       await pdfHelpers.takeScreenshot('cue-specific-columns')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
@@ -45,30 +46,22 @@ test.describe('Module-Specific PDF Features', () => {
 
     test('Cue Notes sorting by cue number works correctly', async ({ page }) => {
       await pdfHelpers.navigateToModule('cue')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
-      // Create custom preset that sorts by cue number specifically
-      await pdfHelpers.createCustomFilterPreset('Cue Number Sort Test', 'cue', {
-        statusFilter: null, // All statuses
-        typeFilters: ['cue', 'director', 'designer'],
-        priorityFilters: ['critical', 'very_high', 'medium', 'low'],
-        sortBy: 'cue_number',
-        sortOrder: 'asc',
-        groupByType: false
-      })
-
-      await pdfHelpers.selectFilterPreset('Cue Number Sort Test')
-      await pdfHelpers.selectPageStylePreset('Letter Portrait')
+      // Use system filter that sorts by cue number
+      await pdfHelpers.selectFilterPresetInCustomView('Outstanding Cues')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
       await pdfHelpers.takeScreenshot('cue-number-sort')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
         moduleType: 'cue',
-        filterPresetName: 'Cue Number Sort Test',
+        filterPresetName: 'Outstanding Cues',
         pageStylePresetName: 'Letter Portrait'
       })
 
@@ -78,16 +71,17 @@ test.describe('Module-Specific PDF Features', () => {
 
     test('Cue Notes with scene/song grouping and filtering', async ({ page }) => {
       await pdfHelpers.navigateToModule('cue')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
       // Test the high priority first preset which includes grouping
-      await pdfHelpers.selectFilterPreset('High Priority First')
-      await pdfHelpers.selectPageStylePreset('A4 Portrait')
+      await pdfHelpers.selectFilterPresetInCustomView('High Priority First')
+      await pdfHelpers.selectPageStylePresetInCustomView('A4 Portrait')
 
       await pdfHelpers.takeScreenshot('cue-scene-song-grouping')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
@@ -104,16 +98,17 @@ test.describe('Module-Specific PDF Features', () => {
   test.describe('Work Notes Module Specific Features', () => {
     test('Work Notes PDF includes channel and position columns', async ({ page }) => {
       await pdfHelpers.navigateToModule('work')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
       // Select presets that will show work-specific data
-      await pdfHelpers.selectFilterPreset('By Channel') // Sorted by channel
-      await pdfHelpers.selectPageStylePreset('Letter Landscape') // More space for columns
+      await pdfHelpers.selectFilterPresetInCustomView('By Channel')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Landscape') // More space for columns
 
       await pdfHelpers.takeScreenshot('work-specific-columns')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
@@ -134,16 +129,17 @@ test.describe('Module-Specific PDF Features', () => {
 
     test('Work Notes sorting by channel works correctly', async ({ page }) => {
       await pdfHelpers.navigateToModule('work')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
       // Use the "By Channel" preset which sorts by channel
-      await pdfHelpers.selectFilterPreset('By Channel')
-      await pdfHelpers.selectPageStylePreset('Letter Portrait')
+      await pdfHelpers.selectFilterPresetInCustomView('By Channel')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
       await pdfHelpers.takeScreenshot('work-channel-sort')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
@@ -158,16 +154,17 @@ test.describe('Module-Specific PDF Features', () => {
 
     test('Work Notes sorting by position works correctly', async ({ page }) => {
       await pdfHelpers.navigateToModule('work')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
-      // Use the "All Todo Notes" preset which sorts by position
-      await pdfHelpers.selectFilterPreset('All Todo Notes')
-      await pdfHelpers.selectPageStylePreset('Letter Portrait')
+      // Use the "All Todo Notes" preset
+      await pdfHelpers.selectFilterPresetInCustomView('All Todo Notes')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
       await pdfHelpers.takeScreenshot('work-position-sort')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
@@ -182,30 +179,22 @@ test.describe('Module-Specific PDF Features', () => {
 
     test('Work Notes with extended priority scale', async ({ page }) => {
       await pdfHelpers.navigateToModule('work')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
-      // Create custom preset using work-specific priority levels
-      await pdfHelpers.createCustomFilterPreset('Extended Priority Test', 'work', {
-        statusFilter: null,
-        typeFilters: ['work', 'focus', 'electrician'],
-        priorityFilters: ['critical', 'very_high', 'high', 'medium_high', 'medium', 'medium_low', 'low', 'very_low', 'uncritical'],
-        sortBy: 'priority',
-        sortOrder: 'desc',
-        groupByType: false
-      })
-
-      await pdfHelpers.selectFilterPreset('Extended Priority Test')
-      await pdfHelpers.selectPageStylePreset('Letter Portrait')
+      // Use system filter with priority sorting
+      await pdfHelpers.selectFilterPresetInCustomView('Outstanding Work')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
       await pdfHelpers.takeScreenshot('work-extended-priorities')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
         moduleType: 'work',
-        filterPresetName: 'Extended Priority Test',
+        filterPresetName: 'Outstanding Work',
         pageStylePresetName: 'Letter Portrait'
       })
 
@@ -217,16 +206,17 @@ test.describe('Module-Specific PDF Features', () => {
   test.describe('Production Notes Module Specific Features', () => {
     test('Production Notes PDF includes department grouping', async ({ page }) => {
       await pdfHelpers.navigateToModule('production')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
       // Select preset that groups by department
-      await pdfHelpers.selectFilterPreset('By Department')
-      await pdfHelpers.selectPageStylePreset('Letter Portrait')
+      await pdfHelpers.selectFilterPresetInCustomView('By Department')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
       await pdfHelpers.takeScreenshot('production-department-grouping')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
@@ -247,16 +237,17 @@ test.describe('Module-Specific PDF Features', () => {
 
     test('Production Notes sorting by department works correctly', async ({ page }) => {
       await pdfHelpers.navigateToModule('production')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
       // Use the "By Department" preset which sorts by department
-      await pdfHelpers.selectFilterPreset('By Department')
-      await pdfHelpers.selectPageStylePreset('A4 Portrait')
+      await pdfHelpers.selectFilterPresetInCustomView('By Department')
+      await pdfHelpers.selectPageStylePresetInCustomView('A4 Portrait')
 
       await pdfHelpers.takeScreenshot('production-department-sort')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
@@ -271,30 +262,22 @@ test.describe('Module-Specific PDF Features', () => {
 
     test('Production Notes with department-specific types', async ({ page }) => {
       await pdfHelpers.navigateToModule('production')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
-      // Create custom preset using production-specific types
-      await pdfHelpers.createCustomFilterPreset('Department Specific Test', 'production', {
-        statusFilter: null,
-        typeFilters: ['scenic', 'costumes', 'lighting', 'props', 'sound', 'video'],
-        priorityFilters: ['critical', 'very_high', 'medium', 'low'],
-        sortBy: 'department',
-        sortOrder: 'asc',
-        groupByType: true
-      })
-
-      await pdfHelpers.selectFilterPreset('Department Specific Test')
-      await pdfHelpers.selectPageStylePreset('Letter Portrait')
+      // Use system filter for production
+      await pdfHelpers.selectFilterPresetInCustomView('Outstanding Issues')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
       await pdfHelpers.takeScreenshot('production-department-types')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
         moduleType: 'production',
-        filterPresetName: 'Department Specific Test',
+        filterPresetName: 'Outstanding Issues',
         pageStylePresetName: 'Letter Portrait'
       })
 
@@ -304,16 +287,17 @@ test.describe('Module-Specific PDF Features', () => {
 
     test('Production Notes simplified column layout', async ({ page }) => {
       await pdfHelpers.navigateToModule('production')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
       // Production notes should have fewer columns than other modules
-      await pdfHelpers.selectFilterPreset('Outstanding Issues')
-      await pdfHelpers.selectPageStylePreset('Letter Landscape')
+      await pdfHelpers.selectFilterPresetInCustomView('Outstanding Issues')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Landscape')
 
       await pdfHelpers.takeScreenshot('production-simplified-layout')
 
       // Generate PDF
-      const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+      const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
       // Validate the PDF
       const validation = await pdfHelpers.validatePDF(pdfBlob, {
@@ -339,14 +323,15 @@ test.describe('Module-Specific PDF Features', () => {
 
       for (const moduleTest of moduleTests) {
         await pdfHelpers.navigateToModule(moduleTest.module)
-        await pdfHelpers.openPrintDialog()
+        await pdfHelpers.openPrintSidebar()
+        await pdfHelpers.openCustomPrintView()
 
-        await pdfHelpers.selectFilterPreset(moduleTest.filterPreset)
-        await pdfHelpers.selectPageStylePreset('Letter Portrait')
+        await pdfHelpers.selectFilterPresetInCustomView(moduleTest.filterPreset)
+        await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
         await pdfHelpers.takeScreenshot(`cross-module-${moduleTest.module}`)
 
-        const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+        const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
         results.push({
           module: moduleTest.module,
@@ -354,8 +339,9 @@ test.describe('Module-Specific PDF Features', () => {
           filename
         })
 
-        // Close dialog before next iteration
+        // Close sidebar before next iteration
         await page.keyboard.press('Escape')
+        await page.waitForTimeout(300)
       }
 
       // Verify each module produced a PDF
@@ -371,104 +357,89 @@ test.describe('Module-Specific PDF Features', () => {
     })
 
     test('Module-specific sort fields work correctly', async ({ page }) => {
-      // Test cue_number sort (Cue Notes only)
+      // Test cue sort (Cue Notes)
       await pdfHelpers.navigateToModule('cue')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
-      await pdfHelpers.createCustomFilterPreset('Cue Number Test', 'cue', {
-        statusFilter: null,
-        typeFilters: ['cue'],
-        priorityFilters: ['critical', 'very_high', 'medium'],
-        sortBy: 'cue_number',
-        sortOrder: 'asc',
-        groupByType: false
-      })
+      await pdfHelpers.selectFilterPresetInCustomView('Outstanding Cues')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
-      await pdfHelpers.selectFilterPreset('Cue Number Test')
-      await pdfHelpers.selectPageStylePreset('Letter Portrait')
-
-      const { pdfBlob: cuePdf } = await pdfHelpers.generatePDF()
+      const { pdfBlob: cuePdf } = await pdfHelpers.generatePDFFromCustomView()
       expect(cuePdf.length).toBeGreaterThan(1000)
 
-      // Close dialog
+      // Close sidebar
       await page.keyboard.press('Escape')
+      await page.waitForTimeout(300)
 
-      // Test channel sort (Work Notes only)
+      // Test channel sort (Work Notes)
       await pdfHelpers.navigateToModule('work')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
-      await pdfHelpers.selectFilterPreset('By Channel') // Uses channel sort
-      await pdfHelpers.selectPageStylePreset('Letter Portrait')
+      await pdfHelpers.selectFilterPresetInCustomView('By Channel')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
-      const { pdfBlob: workPdf } = await pdfHelpers.generatePDF()
+      const { pdfBlob: workPdf } = await pdfHelpers.generatePDFFromCustomView()
       expect(workPdf.length).toBeGreaterThan(1000)
 
-      // Close dialog
+      // Close sidebar
       await page.keyboard.press('Escape')
+      await page.waitForTimeout(300)
 
-      // Test department sort (Production Notes only)
+      // Test department sort (Production Notes)
       await pdfHelpers.navigateToModule('production')
-      await pdfHelpers.openPrintDialog()
+      await pdfHelpers.openPrintSidebar()
+      await pdfHelpers.openCustomPrintView()
 
-      await pdfHelpers.selectFilterPreset('By Department') // Uses department sort
-      await pdfHelpers.selectPageStylePreset('Letter Portrait')
+      await pdfHelpers.selectFilterPresetInCustomView('By Department')
+      await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
-      const { pdfBlob: prodPdf } = await pdfHelpers.generatePDF()
+      const { pdfBlob: prodPdf } = await pdfHelpers.generatePDFFromCustomView()
       expect(prodPdf.length).toBeGreaterThan(1000)
     })
 
     test('Module-specific type filters are enforced', async ({ page }) => {
-      // Test that each module only shows its relevant types
+      // Test that each module shows its relevant filter presets
       const moduleTypeTests = [
         {
           module: 'cue' as const,
-          validTypes: ['cue', 'director', 'choreographer', 'designer', 'stage_manager'],
           filterPreset: 'Outstanding Cues'
         },
         {
           module: 'work' as const,
-          validTypes: ['work', 'focus', 'paperwork', 'electrician', 'think'],
           filterPreset: 'Outstanding Work'
         },
         {
           module: 'production' as const,
-          validTypes: ['scenic', 'costumes', 'lighting', 'props', 'sound', 'video'],
           filterPreset: 'Outstanding Issues'
         }
       ]
 
       for (const moduleTest of moduleTypeTests) {
         await pdfHelpers.navigateToModule(moduleTest.module)
-        await pdfHelpers.openPrintDialog()
+        await pdfHelpers.openPrintSidebar()
+        await pdfHelpers.openCustomPrintView()
 
-        // Create a filter using module-specific types
-        await pdfHelpers.createCustomFilterPreset(`${moduleTest.module} Types Test`, moduleTest.module, {
-          statusFilter: null,
-          typeFilters: moduleTest.validTypes.slice(0, 3), // Use first 3 types
-          priorityFilters: ['critical', 'very_high', 'medium'],
-          sortBy: 'priority',
-          sortOrder: 'desc',
-          groupByType: false
-        })
-
-        await pdfHelpers.selectFilterPreset(`${moduleTest.module} Types Test`)
-        await pdfHelpers.selectPageStylePreset('Letter Portrait')
+        await pdfHelpers.selectFilterPresetInCustomView(moduleTest.filterPreset)
+        await pdfHelpers.selectPageStylePresetInCustomView('Letter Portrait')
 
         await pdfHelpers.takeScreenshot(`module-types-${moduleTest.module}`)
 
-        const { pdfBlob, filename } = await pdfHelpers.generatePDF()
+        const { pdfBlob, filename } = await pdfHelpers.generatePDFFromCustomView()
 
         const validation = await pdfHelpers.validatePDF(pdfBlob, {
           moduleType: moduleTest.module,
-          filterPresetName: `${moduleTest.module} Types Test`,
+          filterPresetName: moduleTest.filterPreset,
           pageStylePresetName: 'Letter Portrait'
         })
 
         expect(validation.success).toBe(true)
         expect(validation.errors).toHaveLength(0)
 
-        // Close dialog before next iteration
+        // Close sidebar before next iteration
         await page.keyboard.press('Escape')
+        await page.waitForTimeout(300)
       }
     })
   })

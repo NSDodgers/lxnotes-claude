@@ -62,6 +62,13 @@ const moduleDisplayNames: Record<ModuleType, string> = {
   actor: 'Actor Notes',
 }
 
+// Map module types to their first system default filter/sort preset ID
+const moduleFilterPresetIds: Record<string, string> = {
+  cue: 'sys-filter-cue-1',
+  work: 'sys-filter-work-1',
+  production: 'sys-filter-prod-1',
+}
+
 // System default email message presets (module-specific)
 const getSystemDefaults = (): EmailMessagePreset[] => {
   const baseDate = new Date()
@@ -96,8 +103,8 @@ Summary:
 
 Best regards,
 {{USER_FULL_NAME}}`,
-        filterAndSortPresetId: null,
-        pageStylePresetId: null,
+        filterAndSortPresetId: moduleFilterPresetIds[moduleType] || null,
+        pageStylePresetId: 'sys-page-style-1',
         includeNotesInBody: true,
         attachPdf: true,
       },
@@ -127,8 +134,8 @@ Notes are attached as PDF.
 
 Thanks,
 {{USER_FULL_NAME}}`,
-        filterAndSortPresetId: null,
-        pageStylePresetId: null,
+        filterAndSortPresetId: moduleFilterPresetIds[moduleType] || null,
+        pageStylePresetId: 'sys-page-style-1',
         includeNotesInBody: false,
         attachPdf: true,
       },

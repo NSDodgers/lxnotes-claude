@@ -82,17 +82,37 @@ export const createEmailMessagePresetSchema = emailMessagePresetSchema.omit({
   productionId: true,
 })
 
+// Print Preset schema
+export const printPresetConfigSchema = z.object({
+  filterSortPresetId: z.string().nullable(),
+  pageStylePresetId: z.string().nullable(),
+})
+
+export const printPresetSchema = basePresetSchema.extend({
+  type: z.literal('print'),
+  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
+    message: 'Module type is required',
+  }),
+  config: printPresetConfigSchema,
+})
+
+export const createPrintPresetSchema = printPresetSchema.omit({
+  productionId: true,
+})
+
 // Union schema for any preset type
 export const anyPresetSchema = z.discriminatedUnion('type', [
   pageStylePresetSchema,
   filterSortPresetSchema,
   emailMessagePresetSchema,
+  printPresetSchema,
 ])
 
 // Preset update schemas (for editing existing presets)
 export const updatePageStylePresetSchema = pageStylePresetConfigSchema.partial()
 export const updateFilterSortPresetSchema = filterSortPresetConfigSchema.partial()
 export const updateEmailMessagePresetSchema = emailMessagePresetConfigSchema.partial()
+export const updatePrintPresetSchema = printPresetConfigSchema.partial()
 
 // Module-specific sort field validation
 const cueNotesSortFields = ['cue_number', 'priority', 'type', 'created_at', 'completed_at', 'cancelled_at'] as const
@@ -161,10 +181,21 @@ export const emailMessageFormSchema = z.object({
   attachPdf: z.boolean(),
 })
 
+export const printFormSchema = z.object({
+  name: basePresetSchema.shape.name,
+  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
+    message: 'Module type is required',
+  }),
+  filterSortPresetId: printPresetConfigSchema.shape.filterSortPresetId,
+  pageStylePresetId: printPresetConfigSchema.shape.pageStylePresetId,
+})
+
 // Type exports for use in components
 export type PageStyleFormData = z.infer<typeof pageStyleFormSchema>
 export type FilterSortFormData = z.infer<typeof filterSortFormSchema>
 export type EmailMessageFormData = z.infer<typeof emailMessageFormSchema>
+export type PrintFormData = z.infer<typeof printFormSchema>
 export type CreatePageStylePresetData = z.infer<typeof createPageStylePresetSchema>
 export type CreateFilterSortPresetData = z.infer<typeof createFilterSortPresetSchema>
 export type CreateEmailMessagePresetData = z.infer<typeof createEmailMessagePresetSchema>
+export type CreatePrintPresetData = z.infer<typeof createPrintPresetSchema>

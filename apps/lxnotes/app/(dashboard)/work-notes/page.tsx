@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { MultiSelect } from '@/components/ui/multi-select'
-import { useProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
+import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
@@ -79,7 +79,7 @@ export default function WorkNotesPage() {
 
   // Get production data from context (Supabase) if available, otherwise fall back to store
   const productionContext = useProductionOptional()
-  const storeData = useProductionStore()
+  const storeData = useCurrentProductionStore()
   const pathname = usePathname()
   const isProductionMode = pathname.startsWith('/production/')
   // When in production mode (real Supabase), use placeholder during loading and when no logo

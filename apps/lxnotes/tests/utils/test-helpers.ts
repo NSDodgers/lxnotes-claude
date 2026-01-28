@@ -112,44 +112,76 @@ export class TestHelpers {
     includeCheckboxes: boolean;
   }) {
     await this.navigateToSettingsTab('presets');
+    // Building block presets are in the collapsible section
+    await this.expandBuildingBlocks();
     await this.page.click(`${selectors.settings.presets.pageStyleSection} ${selectors.settings.presets.addButton}`);
-    
+
     await this.page.fill('[data-testid="preset-name"]', name);
     await this.page.selectOption('[data-testid="paper-size"]', config.paperSize);
     await this.page.selectOption('[data-testid="orientation"]', config.orientation);
-    
+
     if (config.includeCheckboxes) {
       await this.page.check('[data-testid="include-checkboxes"]');
     } else {
       await this.page.uncheck('[data-testid="include-checkboxes"]');
     }
-    
+
     await this.saveDialog();
   }
 
   async createFilterSortPreset(name: string, moduleType: 'cue' | 'work' | 'production') {
     await this.navigateToSettingsTab('presets');
+    await this.expandBuildingBlocks();
     await this.page.click(`${selectors.settings.presets.filterSortSection} ${selectors.settings.presets.addButton}`);
-    
+
     await this.page.fill('[data-testid="preset-name"]', name);
     await this.page.selectOption('[data-testid="module-type"]', moduleType);
-    
+
     await this.saveDialog();
   }
 
-  // Print/Email helpers
-  async openPrintView(module: 'cue' | 'work' | 'production') {
+  // Building Blocks section is collapsed by default on the Presets tab
+  async expandBuildingBlocks() {
+    const toggle = this.page.locator('[data-testid="building-blocks-toggle"]');
+    // Check if the section is already expanded by looking for filter/sort content
+    const filterSection = this.page.locator(selectors.settings.presets.filterSortSection);
+    if (!(await filterSection.isVisible().catch(() => false))) {
+      await toggle.click();
+      await this.page.waitForTimeout(300);
+    }
+  }
+
+  // Print/Email helpers — new card-based flow
+  async openPrintSidebar(module: 'cue' | 'work' | 'production') {
     await this.navigateToModule(`${module}-notes` as any);
     await this.page.click(selectors.printEmail.printButton);
-    await this.page.waitForSelector('[data-testid="print-dialog"]');
+    // Sidebar now shows card grid
+    await this.page.waitForSelector('[data-testid="preset-card-grid"], [role="dialog"]', { timeout: 5000 });
   }
 
-  async openEmailView(module: 'cue' | 'work' | 'production') {
+  async openEmailSidebar(module: 'cue' | 'work' | 'production') {
     await this.navigateToModule(`${module}-notes` as any);
     await this.page.click(selectors.printEmail.emailButton);
-    await this.page.waitForSelector('[data-testid="email-dialog"]');
+    await this.page.waitForSelector('[data-testid="preset-card-grid"], [role="dialog"]', { timeout: 5000 });
   }
 
+  /** @deprecated Use openPrintSidebar */
+  async openPrintView(module: 'cue' | 'work' | 'production') {
+    return this.openPrintSidebar(module);
+  }
+
+  /** @deprecated Use openEmailSidebar */
+  async openEmailView(module: 'cue' | 'work' | 'production') {
+    return this.openEmailSidebar(module);
+  }
+
+  async selectPresetCard(presetName: string) {
+    const card = this.page.locator(`[data-testid^="preset-card-"]:has-text("${presetName}")`);
+    await card.click();
+    await this.page.waitForSelector('[data-testid="confirm-send-panel"]', { timeout: 5000 });
+  }
+
+  /** @deprecated Use selectPresetCard */
   async selectPreset(selectorTestId: string, presetName: string) {
     await this.page.click(`[data-testid="${selectorTestId}"]`);
     await this.page.click(`[data-testid="preset-option"]:has-text("${presetName}")`);

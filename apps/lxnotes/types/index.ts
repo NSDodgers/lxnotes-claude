@@ -164,7 +164,7 @@ export interface LightwrightItem {
 export interface Preset {
   id: string
   productionId: string
-  type: 'page_style' | 'filter_sort' | 'email_message'
+  type: 'page_style' | 'filter_sort' | 'email_message' | 'print'
   moduleType: ModuleType | 'all'
   name: string
   config: Record<string, any>
@@ -212,8 +212,17 @@ export interface EmailMessagePreset extends Preset {
   }
 }
 
+export interface PrintPreset extends Preset {
+  type: 'print'
+  moduleType: ModuleType
+  config: {
+    filterSortPresetId: string | null
+    pageStylePresetId: string | null
+  }
+}
+
 // Union type for all preset types
-export type AnyPreset = PageStylePreset | FilterSortPreset | EmailMessagePreset
+export type AnyPreset = PageStylePreset | FilterSortPreset | EmailMessagePreset | PrintPreset
 
 // Placeholder types for email templates
 export interface PlaceholderDefinition {

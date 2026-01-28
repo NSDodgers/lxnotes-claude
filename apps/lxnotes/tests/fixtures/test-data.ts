@@ -156,13 +156,25 @@ export const selectors = {
     },
   },
   printEmail: {
-    printButton: '[data-testid="print-notes"]',
-    emailButton: '[data-testid="email-notes"]',
-    presetSelector: '[data-testid="preset-selector"]',
+    printButton: '[data-testid="print-notes-button"]',
+    emailButton: '[data-testid="email-notes-button"]',
+    cardGrid: '[data-testid="preset-card-grid"]',
+    createNewCard: '[data-testid="preset-card-create-new"]',
+    customOneOff: '[data-testid="preset-card-custom-one-off"]',
+    confirmPanel: '[data-testid="confirm-send-panel"]',
+    confirmBack: '[data-testid="confirm-panel-back"]',
+    confirmSubmit: '[data-testid="confirm-panel-submit"]',
+    wizard: '[data-testid="preset-wizard"]',
     generateButton: '[data-testid="generate-pdf"]',
     sendButton: '[data-testid="send-email"]',
-    preview: '[data-testid="preview-section"]',
   },
+};
+
+export const testPrintPreset = {
+  name: 'Test Cue Print Preset',
+  moduleType: 'cue' as ModuleType,
+  filterSortPresetId: null,
+  pageStylePresetId: null,
 };
 
 // Test data generators

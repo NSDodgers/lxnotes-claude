@@ -5,7 +5,7 @@ import { GripVertical, RotateCcw, Download, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { useProductionStore } from '@/lib/stores/production-store'
+import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { usePositionStore } from '@/lib/stores/position-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import {
@@ -78,7 +78,7 @@ function SortableItem({ id, position, index }: SortableItemProps) {
 }
 
 export function PositionManager() {
-  const { name: productionName } = useProductionStore()
+  const { name: productionName } = useCurrentProductionStore()
   const { getOrderedPositions, updateOrder, clearOrder, orders } = usePositionStore()
   const { getUniquePositions, lastPositionUpdate } = useFixtureStore()
 

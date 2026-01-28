@@ -10,6 +10,8 @@ test.describe('Filter & Sort Presets', () => {
     await page.goto('/cue-notes');
     await helpers.waitForAppReady();
     await helpers.navigateToSettingsTab('presets');
+    // Filter/sort presets are now inside the Building Blocks collapsible section
+    await helpers.expandBuildingBlocks();
   });
 
   test('should display filter & sort presets section', async ({ page }) => {

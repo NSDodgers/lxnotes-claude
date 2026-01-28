@@ -9,7 +9,7 @@ import { SessionStorageAdapter } from '@/lib/storage/session-storage'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
-import { useProductionStore } from '@/lib/stores/production-store'
+import { useDemoProductionStore } from '@/lib/stores/production-store'
 import generateDemoNotes from './notes/demo-notes-data'
 import type { Note } from '@/types'
 import { PIRATES_PRODUCTION } from './production/pirates-info'
@@ -54,9 +54,10 @@ export async function initializeDemoSession(): Promise<void> {
   // Check if already initialized
   const isInitialized = await storage.isInitialized()
 
-  // Always set production data for the Zustand production store
+  // Always set production data for the demo-specific Zustand production store
   // This ensures the Pirates logo/info appears even if storage was already initialized
-  useProductionStore.getState().updateProduction(PIRATES_PRODUCTION)
+  // Using the isolated demo store prevents contaminating the user's regular production settings
+  useDemoProductionStore.getState().updateProduction(PIRATES_PRODUCTION)
 
   try {
     // First-time initialization only

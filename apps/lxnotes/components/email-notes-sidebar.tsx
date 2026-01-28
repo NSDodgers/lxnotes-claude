@@ -1,19 +1,17 @@
 'use client'
 
-import { useState } from 'react'
-import { Mail, Eye, Send, Loader2, Lock } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Mail, Send, Loader2 } from 'lucide-react'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
-import { useProductionStore } from '@/lib/stores/production-store'
+import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
-import { PresetSelector } from './preset-selector'
-import { QuickCreateFilterSortSidebar } from './quick-create-filter-sort-sidebar'
-import { QuickCreatePageStyleSidebar } from './quick-create-page-style-sidebar'
-import { QuickCreateEmailMessageSidebar } from './quick-create-email-message-sidebar'
-import { PlaceholderTextDisplay } from './placeholder-text-display'
+import { PresetCardGrid } from './preset-card-grid'
+import { ConfirmSendPanel, EmailOverrides } from './confirm-send-panel'
+import { PresetWizard } from './preset-wizard'
 import {
   Sheet,
   SheetContent,
@@ -25,9 +23,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import type { ModuleType, EmailMessagePreset, FilterSortPreset, PageStylePreset } from '@/types'
+import type { ModuleType, EmailMessagePreset } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import { PlaceholderData } from '@/lib/utils/placeholders'
 
 interface EmailNotesSidebarProps {
   moduleType: ModuleType
@@ -35,95 +34,110 @@ interface EmailNotesSidebarProps {
   onClose: () => void
 }
 
+type SidebarView = 'cards' | 'confirm' | 'wizard' | 'custom'
+
+const moduleDisplayNames: Record<ModuleType, string> = {
+  cue: 'Cue Notes',
+  work: 'Work Notes',
+  production: 'Production Notes',
+  actor: 'Actor Notes',
+}
+
 export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSidebarProps) {
-  const { getPresetsByModule: getEmailPresetsByModule, resolvePlaceholders, getAvailablePlaceholders } = useEmailMessagePresetsStore()
-  const { presets: filterSortPresets, getPresetsByModule } = useFilterSortPresetsStore()
+  const { getPresetsByModule: getEmailPresetsByModule, resolvePlaceholders } = useEmailMessagePresetsStore()
+  const { presets: filterSortPresets } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
-  const { name: productionName, logo: productionLogo } = useProductionStore()
+  const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
+  // Prefer production context (Supabase) over local store
+  const productionName = productionContext?.production?.name || localProductionStore.name
+  const productionLogo = productionContext?.production?.logo || localProductionStore.logo
   const productionId = productionContext?.productionId
   const { getPriorities } = useCustomPrioritiesStore()
+  const mockNotesStore = useMockNotesStore()
 
-  const [selectedEmailPreset, setSelectedEmailPreset] = useState<EmailMessagePreset | null>(null)
+  const [view, setView] = useState<SidebarView>('cards')
+  const [selectedPreset, setSelectedPreset] = useState<EmailMessagePreset | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [sendError, setSendError] = useState<string | null>(null)
-  const [selectedFilterPreset, setSelectedFilterPreset] = useState<string | null>(null)
-  const [selectedPageStylePreset, setSelectedPageStylePreset] = useState<string | null>(null)
-  const [showPreview, setShowPreview] = useState(false)
-  const [showFilterQuickCreate, setShowFilterQuickCreate] = useState(false)
-  const [showPageStyleQuickCreate, setShowPageStyleQuickCreate] = useState(false)
-  const [showEmailMessageQuickCreate, setShowEmailMessageQuickCreate] = useState(false)
-  const [editingFilterPreset, setEditingFilterPreset] = useState<FilterSortPreset | null>(null)
-  const [editingPageStylePreset, setEditingPageStylePreset] = useState<PageStylePreset | null>(null)
-  const [editingEmailPreset, setEditingEmailPreset] = useState<EmailMessagePreset | null>(null)
 
-  // Manual email fields (when not using preset)
+  // Custom one-off form state
   const [recipients, setRecipients] = useState('')
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [includeNotesInBody, setIncludeNotesInBody] = useState(true)
   const [attachPdf, setAttachPdf] = useState(false)
 
-  const moduleFilterPresets = getPresetsByModule(moduleType)
   const moduleEmailPresets = getEmailPresetsByModule(moduleType)
+  const notes = mockNotesStore.getAllNotes(moduleType)
+  const moduleName = moduleDisplayNames[moduleType]
 
-  const moduleDisplayNames: Record<ModuleType, string> = {
-    cue: 'Cue Notes',
-    work: 'Work Notes',
-    production: 'Production Notes',
-    actor: 'Actor Notes'
+  const placeholderData: PlaceholderData = useMemo(() => {
+    const todoNotes = notes.filter(n => n.status === 'todo')
+    const completeNotes = notes.filter(n => n.status === 'complete')
+    const cancelledNotes = notes.filter(n => n.status === 'cancelled')
+
+    return {
+      productionTitle: productionName || 'Production',
+      userFullName: 'Dev User',
+      userFirstName: 'Dev',
+      userLastName: 'User',
+      moduleName,
+      noteCount: notes.length,
+      todoCount: todoNotes.length,
+      completeCount: completeNotes.length,
+      cancelledCount: cancelledNotes.length,
+      filterDescription: 'All notes',
+      sortDescription: 'Default order',
+      dateRange: 'All dates',
+    }
+  }, [notes, productionName, moduleName])
+
+  const handleSelectPreset = (preset: EmailMessagePreset | any) => {
+    setSelectedPreset(preset as EmailMessagePreset)
+    setView('confirm')
   }
 
-  const handlePresetLoad = (preset: EmailMessagePreset | null) => {
-    setSelectedEmailPreset(preset)
-    if (preset) {
-      setRecipients(preset.config.recipients)
-      setSubject(preset.config.subject)
-      setMessage(preset.config.message)
-      setSelectedFilterPreset(preset.config.filterAndSortPresetId)
-      setSelectedPageStylePreset(preset.config.pageStylePresetId)
-      setIncludeNotesInBody(preset.config.includeNotesInBody)
-      setAttachPdf(preset.config.attachPdf)
-    } else {
-      // Clear form
-      setRecipients('')
-      setSubject('')
-      setMessage('')
-      setSelectedFilterPreset(null)
-      setSelectedPageStylePreset(null)
-      setIncludeNotesInBody(true)
-      setAttachPdf(false)
-    }
+  const handleSendFromConfirm = async (overrides?: EmailOverrides) => {
+    if (!selectedPreset) return
+
+    const config = selectedPreset.config
+    const finalRecipients = overrides?.recipients ?? config.recipients
+    const finalSubject = overrides?.subject ?? config.subject
+    const finalMessage = overrides?.message ?? config.message
+
+    await doSend(
+      finalRecipients,
+      resolvePlaceholders(finalSubject, placeholderData),
+      resolvePlaceholders(finalMessage, placeholderData),
+      config.includeNotesInBody,
+      config.attachPdf,
+      config.filterAndSortPresetId,
+      config.pageStylePresetId,
+    )
   }
 
-  const getPreviewData = () => ({
-    productionTitle: productionName,
-    userFullName: 'Dev User',
-    moduleName: moduleDisplayNames[moduleType],
-    noteCount: 15,
-    todoCount: 8,
-    completeCount: 7,
-    cancelledCount: 0,
-    filterDescription: 'All notes',
-    sortDescription: 'Sorted by priority (descending)',
-    dateRange: 'All dates',
-  })
+  const handleSendCustom = async () => {
+    if (!recipients || !subject || !message) return
+    await doSend(recipients, subject, message, includeNotesInBody, attachPdf, null, null)
+  }
 
-  const handleSend = async () => {
-    if (!recipients || !subject || !message) {
-      return
-    }
-
+  const doSend = async (
+    recipientList: string,
+    subjectLine: string,
+    messageBody: string,
+    withNotesInBody: boolean,
+    withPdf: boolean,
+    filterPresetId: string | null,
+    pageStylePresetId: string | null,
+  ) => {
     setIsSending(true)
     setSendError(null)
 
     try {
-      // Get notes and calculate stats
-      const mockNotesStore = useMockNotesStore.getState()
-      const notes = mockNotesStore.getAllNotes(moduleType)
-      const filterPreset = filterSortPresets.find(p => p.id === selectedFilterPreset)
-
-      // Apply filter to get actual notes that will be in PDF
+      const filterPreset = filterPresetId
+        ? filterSortPresets.find(p => p.id === filterPresetId)
+        : null
       const customPriorities = getPriorities(moduleType)
       const filteredNotes = filterPreset
         ? filterAndSortNotes(notes, filterPreset, customPriorities)
@@ -136,12 +150,11 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
         cancelled: filteredNotes.filter(n => n.status === 'cancelled').length,
       }
 
-      // Generate PDF if attachment enabled
       let pdfBase64: string | undefined
       let pdfFilename: string | undefined
 
-      if (attachPdf && filterPreset && selectedPageStylePreset) {
-        const pageStylePreset = pageStylePresets.find(p => p.id === selectedPageStylePreset)
+      if (withPdf && filterPreset && pageStylePresetId) {
+        const pageStylePreset = pageStylePresets.find(p => p.id === pageStylePresetId)
         if (pageStylePreset) {
           const pdfService = PDFGenerationService.getInstance()
           const result = await pdfService.generatePDF({
@@ -150,11 +163,10 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
             pageStylePreset,
             notes,
             productionName,
-            productionLogo
+            productionLogo,
           })
 
           if (result.success && result.pdfBlob) {
-            // Convert Blob to base64
             const arrayBuffer = await result.pdfBlob.arrayBuffer()
             const uint8Array = new Uint8Array(arrayBuffer)
             let binary = ''
@@ -167,15 +179,14 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
         }
       }
 
-      // Build request payload
       const payload = {
         productionId,
         moduleType,
-        recipients,
-        subject,
-        message,
-        includeNotesInBody,
-        attachPdf,
+        recipients: recipientList,
+        subject: subjectLine,
+        message: messageBody,
+        includeNotesInBody: withNotesInBody,
+        attachPdf: withPdf,
         pdfBase64,
         pdfFilename,
         noteStats,
@@ -186,7 +197,6 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
         dateRange: 'All dates',
       }
 
-      // Send via API
       const response = await fetch('/api/email/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -199,8 +209,6 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       }
 
       const result = await response.json()
-
-      // Success - show alert and close
       alert(`Email sent successfully to ${result.recipientCount} recipient(s)!`)
       onClose()
     } catch (error) {
@@ -211,365 +219,177 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
     }
   }
 
-  const handleFilterPresetCreated = (preset: FilterSortPreset) => {
-    setSelectedFilterPreset(preset.id)
-    setShowFilterQuickCreate(false)
+  const handleClose = () => {
+    setView('cards')
+    setSelectedPreset(null)
+    setSendError(null)
+    onClose()
   }
-
-  const handlePageStylePresetCreated = (preset: PageStylePreset) => {
-    setSelectedPageStylePreset(preset.id)
-    setShowPageStyleQuickCreate(false)
-  }
-
-  const handleEmailPresetCreated = (preset: EmailMessagePreset) => {
-    handlePresetLoad(preset)
-    setShowEmailMessageQuickCreate(false)
-  }
-
-  const handleEditFilterPreset = (preset: FilterSortPreset) => {
-    setEditingFilterPreset(preset)
-    setShowFilterQuickCreate(true)
-  }
-
-  const handleEditPageStylePreset = (preset: PageStylePreset) => {
-    setEditingPageStylePreset(preset)
-    setShowPageStyleQuickCreate(true)
-  }
-
-  const handleEditEmailPreset = (preset: EmailMessagePreset) => {
-    setEditingEmailPreset(preset)
-    setShowEmailMessageQuickCreate(true)
-  }
-
-  const moduleName = moduleDisplayNames[moduleType]
-
-  // Resolve placeholders in email content for preview
-  const previewSubject = selectedEmailPreset
-    ? resolvePlaceholders(subject, getPreviewData())
-    : subject
-
-  const previewMessage = selectedEmailPreset
-    ? resolvePlaceholders(message, getPreviewData())
-    : message
 
   return (
-    <>
-      <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="right" className="w-full sm:max-w-3xl flex flex-col overflow-hidden p-0">
-          <SheetHeader className="p-6 pb-4 border-b border-bg-tertiary">
-            <div className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-text-primary" />
-              <SheetTitle>Email {moduleName}</SheetTitle>
-            </div>
-            <SheetDescription>
-              Send notes via email with optional PDF attachment
-            </SheetDescription>
-          </SheetHeader>
-
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {/* Email Message Preset */}
-            <div className="space-y-3">
-              <h3 className="font-medium text-text-primary flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                Email Template
-              </h3>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-text-secondary">
-                  Email Message Preset (optional)
-                </label>
-                <p className="text-xs text-text-muted">
-                  Use a saved template or create a custom message
-                </p>
-                <PresetSelector
-                  presets={moduleEmailPresets}
-                  selectedId={selectedEmailPreset?.id || null}
-                  onSelect={(preset) => handlePresetLoad(preset as EmailMessagePreset)}
-                  placeholder="Create custom message or select template..."
-                  enableQuickCreate={true}
-                  presetType="email_message"
-                  onQuickCreate={() => setShowEmailMessageQuickCreate(true)}
-                  onEdit={(preset) => handleEditEmailPreset(preset as EmailMessagePreset)}
-                  canEdit={() => true}
-                />
+    <Sheet open={isOpen} onOpenChange={handleClose}>
+      <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col overflow-hidden p-0">
+        {view === 'cards' && (
+          <>
+            <SheetHeader className="p-6 pb-4 border-b border-bg-tertiary">
+              <div className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-text-primary" />
+                <SheetTitle>Send Email</SheetTitle>
               </div>
+              <SheetDescription>
+                Send {moduleName.toLowerCase()} via email
+              </SheetDescription>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto p-6">
+              <PresetCardGrid
+                presets={moduleEmailPresets}
+                moduleType={moduleType}
+                notes={notes}
+                variant="email"
+                onSelectPreset={handleSelectPreset}
+                onCreateNew={() => setView('wizard')}
+                onCustomOneOff={() => setView('custom')}
+              />
             </div>
+          </>
+        )}
 
-            {/* Email Fields */}
-            <div className="space-y-4">
-              {selectedEmailPreset && (
-                <div className="flex items-center gap-2 text-xs text-text-muted bg-bg-tertiary/50 px-3 py-2 rounded-lg">
-                  <Lock className="h-3 w-3" />
-                  <span>Fields are controlled by the selected preset. Clear the preset to edit manually.</span>
-                </div>
-              )}
+        {view === 'confirm' && selectedPreset && (
+          <div className="flex-1 flex flex-col p-6 overflow-hidden">
+            <ConfirmSendPanel
+              preset={selectedPreset}
+              moduleType={moduleType}
+              notes={notes}
+              placeholderData={placeholderData}
+              variant="email"
+              isSubmitting={isSending}
+              submitError={sendError}
+              onBack={() => {
+                setView('cards')
+                setSelectedPreset(null)
+                setSendError(null)
+              }}
+              onSubmit={handleSendFromConfirm}
+            />
+          </div>
+        )}
 
+        {view === 'wizard' && (
+          <div className="flex-1 flex flex-col p-6 overflow-hidden">
+            <PresetWizard
+              variant="email"
+              moduleType={moduleType}
+              onComplete={() => setView('cards')}
+              onBack={() => setView('cards')}
+            />
+          </div>
+        )}
+
+        {view === 'custom' && (
+          <>
+            <SheetHeader className="p-6 pb-4 border-b border-bg-tertiary">
+              <div className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-text-primary" />
+                <SheetTitle>Custom Email</SheetTitle>
+              </div>
+              <SheetDescription>
+                One-off email — this won&apos;t be saved as a preset
+              </SheetDescription>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="recipients">
+                <Label htmlFor="custom-recipients">
                   Recipients <span className="text-red-500">*</span>
                 </Label>
-                {selectedEmailPreset ? (
-                  <div className="px-3 py-2 bg-bg-tertiary/50 border border-bg-hover rounded-lg min-h-[40px]">
-                    <span className="text-sm text-text-primary">
-                      {recipients || <span className="text-text-muted italic">No recipients set</span>}
-                    </span>
-                  </div>
-                ) : (
-                  <Input
-                    id="recipients"
-                    type="email"
-                    value={recipients}
-                    onChange={(e) => setRecipients(e.target.value)}
-                    placeholder="user@example.com, user2@example.com"
-                    required
-                  />
-                )}
+                <Input
+                  id="custom-recipients"
+                  type="email"
+                  value={recipients}
+                  onChange={(e) => setRecipients(e.target.value)}
+                  placeholder="user@example.com, user2@example.com"
+                />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="subject">
+                <Label htmlFor="custom-subject">
                   Subject <span className="text-red-500">*</span>
                 </Label>
-                {selectedEmailPreset ? (
-                  <div className="px-3 py-2 bg-bg-tertiary/50 border border-bg-hover rounded-lg min-h-[40px] flex items-center flex-wrap gap-1">
-                    <PlaceholderTextDisplay
-                      text={subject}
-                      availablePlaceholders={getAvailablePlaceholders()}
-                    />
-                  </div>
-                ) : (
-                  <Input
-                    id="subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Subject line..."
-                    required
-                  />
-                )}
+                <Input
+                  id="custom-subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="Subject line..."
+                />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="message">
+                <Label htmlFor="custom-message">
                   Message <span className="text-red-500">*</span>
                 </Label>
-                {selectedEmailPreset ? (
-                  <div className="px-3 py-2 bg-bg-tertiary/50 border border-bg-hover rounded-lg min-h-[100px]">
-                    <PlaceholderTextDisplay
-                      text={message}
-                      availablePlaceholders={getAvailablePlaceholders()}
-                      multiline
-                    />
-                  </div>
-                ) : (
-                  <Textarea
-                    id="message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Email message..."
-                    rows={4}
-                    required
-                  />
-                )}
+                <Textarea
+                  id="custom-message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Email message..."
+                  rows={4}
+                />
               </div>
-            </div>
-
-            {/* Email Options */}
-            <div className="space-y-3">
-              <h3 className="font-medium text-text-primary">Options</h3>
-
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    id="includeNotesInBody"
+                    id="custom-includeNotes"
                     checked={includeNotesInBody}
                     onChange={(e) => setIncludeNotesInBody(e.target.checked)}
-                    disabled={!!selectedEmailPreset}
-                    className="rounded disabled:opacity-50"
+                    className="rounded"
                   />
-                  <Label htmlFor="includeNotesInBody" className={`text-sm ${selectedEmailPreset ? 'text-text-muted' : ''}`}>
+                  <Label htmlFor="custom-includeNotes" className="text-sm">
                     Include notes summary in email body
                   </Label>
                 </div>
-
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    id="attachPdf"
+                    id="custom-attachPdf"
                     checked={attachPdf}
                     onChange={(e) => setAttachPdf(e.target.checked)}
-                    disabled={!!selectedEmailPreset}
-                    className="rounded disabled:opacity-50"
+                    className="rounded"
                   />
-                  <Label htmlFor="attachPdf" className={`text-sm ${selectedEmailPreset ? 'text-text-muted' : ''}`}>
+                  <Label htmlFor="custom-attachPdf" className="text-sm">
                     Attach PDF report
                   </Label>
                 </div>
               </div>
             </div>
-
-            {/* PDF Configuration (if attachment enabled) */}
-            {attachPdf && (
-              <div className="space-y-3 p-4 bg-bg-secondary rounded-lg">
-                <h4 className="font-medium text-text-primary">PDF Attachment Settings</h4>
-
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <Label className="text-sm">Filter & Sort Preset</Label>
-                    <PresetSelector
-                      presets={moduleFilterPresets}
-                      selectedId={selectedFilterPreset}
-                      onSelect={(preset) => setSelectedFilterPreset(preset?.id || null)}
-                      placeholder="Select filtering options..."
-                      enableQuickCreate={true}
-                      presetType="filter_sort"
-                      moduleType={moduleType}
-                      onQuickCreate={() => setShowFilterQuickCreate(true)}
-                      onEdit={(preset) => handleEditFilterPreset(preset as FilterSortPreset)}
-                      canEdit={() => true}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-sm">Page Style Preset</Label>
-                    <PresetSelector
-                      presets={pageStylePresets}
-                      selectedId={selectedPageStylePreset}
-                      onSelect={(preset) => setSelectedPageStylePreset(preset?.id || null)}
-                      placeholder="Select page formatting..."
-                      enableQuickCreate={true}
-                      presetType="page_style"
-                      onQuickCreate={() => setShowPageStyleQuickCreate(true)}
-                      onEdit={(preset) => handleEditPageStylePreset(preset as PageStylePreset)}
-                      canEdit={() => true}
-                    />
-                  </div>
+            <div className="border-t border-bg-tertiary p-6">
+              {sendError && (
+                <div className="mb-4 p-3 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 text-sm">
+                  {sendError}
                 </div>
+              )}
+              <div className="flex items-center justify-between">
+                <Button variant="outline" onClick={() => { setView('cards'); setSendError(null) }}>
+                  Back
+                </Button>
+                <Button
+                  onClick={handleSendCustom}
+                  disabled={!recipients || !subject || !message || isSending}
+                >
+                  {isSending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Send Email
+                    </>
+                  )}
+                </Button>
               </div>
-            )}
-
-            {/* Preview */}
-            {(recipients || subject || message) && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-medium text-text-secondary">Preview</h4>
-                  <button
-                    onClick={() => setShowPreview(!showPreview)}
-                    className="text-sm text-modules-production hover:text-modules-production/80 flex items-center gap-1"
-                  >
-                    <Eye className="h-3 w-3" />
-                    {showPreview ? 'Hide' : 'Show'} preview
-                  </button>
-                </div>
-
-                {showPreview && (
-                  <div className="border border-bg-tertiary rounded-lg p-4 bg-white text-black">
-                    <div className="space-y-3">
-                      <div className="border-b border-gray-300 pb-2">
-                        <div className="text-sm text-gray-600">To: {recipients || 'No recipients'}</div>
-                        <div className="text-sm text-gray-600">Subject: {previewSubject || 'No subject'}</div>
-                      </div>
-
-                      <div className="whitespace-pre-wrap text-sm">
-                        {previewMessage || 'No message content'}
-                      </div>
-
-                      {includeNotesInBody && (
-                        <div className="border-t border-gray-300 pt-2">
-                          <div className="text-xs text-gray-500">Notes Summary:</div>
-                          <div className="text-sm">• 15 total notes (8 todo, 7 complete)</div>
-                        </div>
-                      )}
-
-                      {attachPdf && (
-                        <div className="border-t border-gray-300 pt-2">
-                          <div className="text-xs text-gray-500">📎 PDF attachment will be included</div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-          </div>
-
-          {/* Sticky Footer */}
-          <div className="border-t border-bg-tertiary p-6">
-            {sendError && (
-              <div className="mb-4 p-3 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 text-sm">
-                {sendError}
-              </div>
-            )}
-            <div className="flex items-center justify-end gap-3">
-              <Button
-                variant="secondary"
-                onClick={onClose}
-                disabled={isSending}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSend}
-                disabled={!recipients || !subject || !message || isSending}
-                className="flex items-center gap-2"
-              >
-                {isSending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    Send Email
-                  </>
-                )}
-              </Button>
             </div>
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      {/* Quick Create Sidebars */}
-      {showFilterQuickCreate && (
-        <QuickCreateFilterSortSidebar
-          isOpen={showFilterQuickCreate}
-          onClose={() => {
-            setShowFilterQuickCreate(false)
-            setEditingFilterPreset(null)
-          }}
-          onPresetCreated={handleFilterPresetCreated}
-          moduleType={moduleType}
-          editingPreset={editingFilterPreset}
-        />
-      )}
-
-      {showPageStyleQuickCreate && (
-        <QuickCreatePageStyleSidebar
-          isOpen={showPageStyleQuickCreate}
-          onClose={() => {
-            setShowPageStyleQuickCreate(false)
-            setEditingPageStylePreset(null)
-          }}
-          onPresetCreated={handlePageStylePresetCreated}
-          editingPreset={editingPageStylePreset}
-        />
-      )}
-
-      {showEmailMessageQuickCreate && (
-        <QuickCreateEmailMessageSidebar
-          isOpen={showEmailMessageQuickCreate}
-          onClose={() => {
-            setShowEmailMessageQuickCreate(false)
-            setEditingEmailPreset(null)
-          }}
-          onPresetCreated={handleEmailPresetCreated}
-          moduleType={moduleType}
-          editingPreset={editingEmailPreset}
-        />
-      )}
-    </>
+          </>
+        )}
+      </SheetContent>
+    </Sheet>
   )
 }

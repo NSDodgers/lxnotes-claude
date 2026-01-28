@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Text, Image } from '@react-pdf/renderer'
 import { commonStyles } from './styles'
+import { DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 
 interface PDFHeaderProps {
   productionName: string
@@ -39,7 +40,7 @@ export const PDFHeader: React.FC<PDFHeaderProps> = ({
   return (
     <View style={commonStyles.header}>
       {/* Logo on left - supports both file paths and base64 */}
-      {productionLogo && (
+      {productionLogo && productionLogo !== DEFAULT_PRODUCTION_LOGO && (
         // eslint-disable-next-line jsx-a11y/alt-text
         <Image src={productionLogo} style={commonStyles.logo} />
       )}

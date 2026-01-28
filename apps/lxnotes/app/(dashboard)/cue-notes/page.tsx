@@ -16,7 +16,7 @@ import type { Note, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MultiSelect } from '@/components/ui/multi-select'
-import { useProductionStore } from '@/lib/stores/production-store'
+import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
@@ -1780,7 +1780,7 @@ export default function CueNotesPage() {
   }, [isDemo])
   // Get production data from context (Supabase) if available, otherwise fall back to store
   const productionContext = useProductionOptional()
-  const storeData = useProductionStore()
+  const storeData = useCurrentProductionStore()
   const pathname = usePathname()
   const isProductionMode = pathname.startsWith('/production/')
   // When in production mode (real Supabase), use placeholder during loading and when no logo

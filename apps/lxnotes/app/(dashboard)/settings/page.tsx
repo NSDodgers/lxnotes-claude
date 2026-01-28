@@ -1,13 +1,14 @@
 'use client'
 
-import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users, X, UserPlus } from 'lucide-react'
+import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users, X, UserPlus, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
+import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { TypesManager } from '@/components/types-manager'
 import { PrioritiesManager } from '@/components/priorities-manager'
 import { PageStylePresetsManager } from '@/components/page-style-presets-manager'
 import { FilterSortPresetsManager } from '@/components/filter-sort-presets-manager'
 import { EmailMessagePresetsManager } from '@/components/email-message-presets-manager'
+import { PrintPresetsManager } from '@/components/print-presets-manager'
 import { MemberManagement } from '@/components/production/member-management'
 import { ProductionLinkingSection } from '@/components/production/production-linking-section'
 import { useProductionOptional } from '@/components/production/production-provider'
@@ -16,8 +17,13 @@ import Image from 'next/image'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general')
-  const { name, abbreviation, logo, updateProduction, clearLogo } = useProductionStore()
+  const { name, abbreviation, logo, updateProduction, clearLogo } = useCurrentProductionStore()
   const [logoPreview, setLogoPreview] = useState(logo)
+
+  // Sync logoPreview when store logo changes (e.g., auto-reset on name change)
+  useEffect(() => {
+    setLogoPreview(logo)
+  }, [logo])
 
   // Get production context (null if not in production mode)
   const productionContext = useProductionOptional()
@@ -217,12 +223,21 @@ export default function SettingsPage() {
           )}
 
           {activeTab === 'presets' && (
-            <div className="space-y-6">
-              <PageStylePresetsManager />
-
-              <FilterSortPresetsManager />
+            <div className="space-y-8">
+              {/* Action Presets - primary section */}
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold text-text-primary">Action Presets</h2>
+                <p className="text-sm text-text-secondary">
+                  Presets for sending emails and printing PDFs — the things you use regularly.
+                </p>
+              </div>
 
               <EmailMessagePresetsManager />
+
+              <PrintPresetsManager />
+
+              {/* Building Blocks - collapsible section */}
+              <BuildingBlocksSection />
             </div>
           )}
 
@@ -241,5 +256,34 @@ export default function SettingsPage() {
           </p>
         </div>
       </div>
+  )
+}
+
+function BuildingBlocksSection() {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <div className="border-t border-bg-tertiary pt-6">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-3 w-full text-left"
+        data-testid="building-blocks-toggle"
+      >
+        {expanded ? <ChevronUp className="h-5 w-5 text-text-secondary" /> : <ChevronDown className="h-5 w-5 text-text-secondary" />}
+        <div>
+          <h2 className="text-lg font-semibold text-text-primary">Building Blocks</h2>
+          <p className="text-sm text-text-secondary">
+            Filter/sort and page style presets used by action presets above
+          </p>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="mt-4 space-y-6">
+          <FilterSortPresetsManager />
+          <PageStylePresetsManager />
+        </div>
+      )}
+    </div>
   )
 }
