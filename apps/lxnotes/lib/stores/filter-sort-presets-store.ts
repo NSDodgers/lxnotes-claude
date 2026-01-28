@@ -1,239 +1,42 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { FilterSortPreset, ModuleType, NoteStatus } from '@/types'
+import type { FilterSortPreset, ModuleType } from '@/types'
+import { generateSystemFilterPresets } from '@/lib/utils/generate-dynamic-presets'
+import { useCustomTypesStore } from './custom-types-store'
+import { useCustomPrioritiesStore } from './custom-priorities-store'
 
 interface FilterSortPresetsState {
+  // Only stores user-created presets (system presets are computed dynamically)
   presets: FilterSortPreset[]
   loading: boolean
-  
-  // CRUD operations
+
+  // CRUD operations for user presets
   addPreset: (preset: Omit<FilterSortPreset, 'id' | 'createdAt' | 'updatedAt'>) => void
   updatePreset: (id: string, updates: Partial<FilterSortPreset>) => void
   deletePreset: (id: string) => void
   getPreset: (id: string) => FilterSortPreset | undefined
-  
-  // Filtering by module
+
+  // Returns all presets (system + user) for a module
   getPresetsByModule: (moduleType: ModuleType) => FilterSortPreset[]
-  
-  // System defaults
+
+  // Returns only dynamically generated system presets
   getSystemDefaults: (moduleType: ModuleType) => FilterSortPreset[]
-  
+
   // Utilities
   setLoading: (loading: boolean) => void
 }
 
-// System default filter/sort presets for each module
-const getSystemDefaults = (moduleType: ModuleType): FilterSortPreset[] => {
-  const baseDate = new Date()
-  const productionId = 'prod-1' // TODO: Replace with actual production ID
+/**
+ * Compute system filter presets dynamically based on current types/priorities stores.
+ * This ensures presets stay in sync with visible types and priorities.
+ */
+function computeSystemPresets(moduleType: ModuleType): FilterSortPreset[] {
+  // Access the stores directly to get current types and priorities
+  const types = useCustomTypesStore.getState().getTypes(moduleType)
+  const priorities = useCustomPrioritiesStore.getState().getPriorities(moduleType)
 
-  switch (moduleType) {
-    case 'cue':
-      return [
-        {
-          id: 'sys-filter-cue-1',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'cue',
-          name: 'Outstanding Cues',
-          config: {
-            statusFilter: 'todo',
-            typeFilters: ['cue', 'director', 'choreographer', 'designer', 'stage_manager', 'associate', 'assistant', 'spot', 'programmer', 'production', 'paperwork', 'think'],
-            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
-            sortBy: 'priority',
-            sortOrder: 'desc',
-            groupByType: false,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-        {
-          id: 'sys-filter-cue-2',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'cue',
-          name: 'High Priority First',
-          config: {
-            statusFilter: null,
-            typeFilters: ['cue', 'director', 'choreographer', 'designer', 'stage_manager', 'associate', 'assistant', 'spot', 'programmer', 'production', 'paperwork', 'think'],
-            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
-            sortBy: 'priority',
-            sortOrder: 'desc',
-            groupByType: true,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-        {
-          id: 'sys-filter-cue-3',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'cue',
-          name: 'All Todo Notes',
-          config: {
-            statusFilter: 'todo',
-            typeFilters: ['cue', 'director', 'choreographer', 'designer', 'stage_manager', 'associate', 'assistant', 'spot', 'programmer', 'production', 'paperwork', 'think'],
-            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
-            sortBy: 'cue_number',
-            sortOrder: 'asc',
-            groupByType: false,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-        {
-          id: 'sys-filter-cue-4',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'cue',
-          name: 'By Cue Number (Grouped)',
-          config: {
-            statusFilter: 'todo',
-            typeFilters: ['cue', 'director', 'choreographer', 'designer', 'stage_manager', 'associate', 'assistant', 'spot', 'programmer', 'production', 'paperwork', 'think'],
-            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
-            sortBy: 'cue_number',
-            sortOrder: 'asc',
-            groupByType: true,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-      ]
-
-    case 'production':
-      return [
-        {
-          id: 'sys-filter-prod-1',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'production',
-          name: 'Outstanding Issues',
-          config: {
-            statusFilter: 'todo',
-            typeFilters: ['scenic', 'costumes', 'lighting', 'props', 'sound', 'video', 'stage_management', 'directing', 'choreography', 'production_management'],
-            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
-            sortBy: 'priority',
-            sortOrder: 'desc',
-            groupByType: false,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-        {
-          id: 'sys-filter-prod-2',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'production',
-          name: 'By Department',
-          config: {
-            statusFilter: null,
-            typeFilters: ['scenic', 'costumes', 'lighting', 'props', 'sound', 'video', 'stage_management', 'directing', 'choreography', 'production_management'],
-            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
-            sortBy: 'department',
-            sortOrder: 'asc',
-            groupByType: true,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-        {
-          id: 'sys-filter-prod-3',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'production',
-          name: 'All Todo Notes',
-          config: {
-            statusFilter: 'todo',
-            typeFilters: ['scenic', 'costumes', 'lighting', 'props', 'sound', 'video', 'stage_management', 'directing', 'choreography', 'production_management'],
-            priorityFilters: ['critical', 'very_high', 'medium', 'low', 'very_low'],
-            sortBy: 'created_at',
-            sortOrder: 'desc',
-            groupByType: false,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-      ]
-
-    case 'work':
-      return [
-        {
-          id: 'sys-filter-work-1',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'work',
-          name: 'Outstanding Work',
-          config: {
-            statusFilter: 'todo',
-            typeFilters: ['work', 'focus', 'paperwork', 'electrician', 'think'],
-            priorityFilters: ['critical', 'very_high', 'high', 'medium_high', 'medium', 'medium_low', 'low', 'very_low', 'uncritical'],
-            sortBy: 'priority',
-            sortOrder: 'desc',
-            groupByType: false,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-        {
-          id: 'sys-filter-work-2',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'work',
-          name: 'By Channel',
-          config: {
-            statusFilter: null,
-            typeFilters: ['work', 'focus', 'paperwork', 'electrician', 'think'],
-            priorityFilters: ['critical', 'very_high', 'high', 'medium_high', 'medium', 'medium_low', 'low', 'very_low', 'uncritical'],
-            sortBy: 'channel',
-            sortOrder: 'asc',
-            groupByType: false,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-        {
-          id: 'sys-filter-work-3',
-          productionId,
-          type: 'filter_sort',
-          moduleType: 'work',
-          name: 'All Todo Notes',
-          config: {
-            statusFilter: 'todo',
-            typeFilters: ['work', 'focus', 'paperwork', 'electrician', 'think'],
-            priorityFilters: ['critical', 'very_high', 'high', 'medium_high', 'medium', 'medium_low', 'low', 'very_low', 'uncritical'],
-            sortBy: 'position',
-            sortOrder: 'asc',
-            groupByType: false,
-          },
-          isDefault: true,
-          createdBy: 'system',
-          createdAt: baseDate,
-          updatedAt: baseDate,
-        },
-      ]
-
-    default:
-      return []
-  }
+  return generateSystemFilterPresets(moduleType, types, priorities)
 }
 
 // Check if we're in demo mode
@@ -245,13 +48,10 @@ const isDemoMode = () => {
 export const useFilterSortPresetsStore = create<FilterSortPresetsState>()(
   persist(
     (set, get) => ({
-      presets: [
-        ...getSystemDefaults('cue'),
-        ...getSystemDefaults('production'),
-        ...getSystemDefaults('work'),
-      ],
+      // Only user-created presets are stored (system presets computed on demand)
+      presets: [],
       loading: false,
-      
+
       addPreset: (presetData) => {
         const timestamp = new Date()
         const newPreset: FilterSortPreset = {
@@ -260,13 +60,16 @@ export const useFilterSortPresetsStore = create<FilterSortPresetsState>()(
           createdAt: timestamp,
           updatedAt: timestamp,
         }
-        
+
         set(state => ({
           presets: [...state.presets, newPreset]
         }))
       },
-      
+
       updatePreset: (id, updates) => {
+        // Don't allow updating system presets
+        if (id.startsWith('sys-')) return
+
         set(state => ({
           presets: state.presets.map(preset =>
             preset.id === id
@@ -275,25 +78,47 @@ export const useFilterSortPresetsStore = create<FilterSortPresetsState>()(
           )
         }))
       },
-      
+
       deletePreset: (id) => {
+        // Don't allow deleting system presets
+        if (id.startsWith('sys-')) return
+
         set(state => ({
           presets: state.presets.filter(preset => preset.id !== id)
         }))
       },
-      
+
       getPreset: (id) => {
-        return get().presets.find(preset => preset.id === id)
+        // Check user presets first
+        const userPreset = get().presets.find(preset => preset.id === id)
+        if (userPreset) return userPreset
+
+        // Check system presets across all modules
+        const modules: ModuleType[] = ['cue', 'work', 'production']
+        for (const moduleType of modules) {
+          const systemPresets = computeSystemPresets(moduleType)
+          const systemPreset = systemPresets.find(p => p.id === id)
+          if (systemPreset) return systemPreset
+        }
+
+        return undefined
       },
-      
+
       getPresetsByModule: (moduleType) => {
-        return get().presets.filter(preset => preset.moduleType === moduleType)
+        // Compute system presets dynamically (respects visible types/priorities)
+        const systemPresets = computeSystemPresets(moduleType)
+
+        // Get user presets for this module
+        const userPresets = get().presets.filter(preset => preset.moduleType === moduleType)
+
+        // Return system presets first, then user presets
+        return [...systemPresets, ...userPresets]
       },
-      
+
       getSystemDefaults: (moduleType) => {
-        return getSystemDefaults(moduleType)
+        return computeSystemPresets(moduleType)
       },
-      
+
       setLoading: (loading) => {
         set({ loading })
       },
@@ -307,6 +132,16 @@ export const useFilterSortPresetsStore = create<FilterSortPresetsState>()(
         )
       ),
       skipHydration: true,
+      // Migrate old presets: filter out system presets (they're now computed)
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as { presets?: FilterSortPreset[] }
+        if (state?.presets) {
+          // Remove system presets from stored data (they'll be computed dynamically)
+          state.presets = state.presets.filter(p => !p.id.startsWith('sys-'))
+        }
+        return state as FilterSortPresetsState
+      },
+      version: 1,
     }
   )
 )

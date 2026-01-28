@@ -45,7 +45,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 
 export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSidebarProps) {
   const { getPresetsByModule: getEmailPresetsByModule, resolvePlaceholders } = useEmailMessagePresetsStore()
-  const { presets: filterSortPresets } = useFilterSortPresetsStore()
+  const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
@@ -139,7 +139,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
 
     try {
       const filterPreset = filterPresetId
-        ? filterSortPresets.find(p => p.id === filterPresetId)
+        ? getFilterPreset(filterPresetId)
         : null
       const customPriorities = getPriorities(moduleType)
       const filteredNotes = filterPreset

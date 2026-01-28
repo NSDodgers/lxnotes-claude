@@ -1,4 +1,5 @@
 import type { Note, ModuleType, FilterSortPreset, CustomPriority } from '@/types'
+import { ALL_TYPES_SENTINEL } from './generate-dynamic-presets'
 
 /**
  * Filters notes based on filter preset configuration
@@ -10,9 +11,11 @@ export function filterNotes(notes: Note[], filterPreset: FilterSortPreset): Note
       return false
     }
 
-    // Type filters
-    if (filterPreset.config.typeFilters.length > 0 &&
-        !filterPreset.config.typeFilters.includes(note.type || '')) {
+    // Type filters - skip if ALL_TYPES_SENTINEL is present (means include all types)
+    const typeFilters = filterPreset.config.typeFilters
+    if (typeFilters.length > 0 &&
+        !typeFilters.includes(ALL_TYPES_SENTINEL) &&
+        !typeFilters.includes(note.type || '')) {
       return false
     }
 

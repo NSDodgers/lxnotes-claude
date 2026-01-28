@@ -46,7 +46,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 }
 
 export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNotes }: PrintNotesSidebarProps) {
-  const { presets: filterSortPresets, getPresetsByModule } = useFilterSortPresetsStore()
+  const { getPreset: getFilterPreset, getPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { getPresetsByModule: getPrintPresetsByModule } = usePrintPresetsStore()
   const localProductionStore = useCurrentProductionStore()
@@ -87,14 +87,26 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
     noteCount: notes.length,
   }), [productionName, moduleName, notes.length])
 
-  const handleSelectPreset = (preset: PrintPreset | any) => {
-    setSelectedPreset(preset as PrintPreset)
-    setView('confirm')
+  const [generatingPresetId, setGeneratingPresetId] = useState<string | null>(null)
+
+  const handleSelectPreset = async (preset: PrintPreset | any) => {
+    const printPreset = preset as PrintPreset
+    setGeneratingPresetId(printPreset.id)
+    setGenerateError(null)
+
+    try {
+      await doGenerate(
+        printPreset.config.filterSortPresetId,
+        printPreset.config.pageStylePresetId,
+      )
+    } finally {
+      setGeneratingPresetId(null)
+    }
   }
 
   const doGenerate = async (filterPresetId: string | null, pageStylePresetId: string | null) => {
     const filterPreset = filterPresetId
-      ? filterSortPresets.find(p => p.id === filterPresetId)
+      ? getFilterPreset(filterPresetId)
       : null
     const pageStylePreset = pageStylePresetId
       ? pageStylePresets.find(p => p.id === pageStylePresetId)
@@ -175,6 +187,11 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
               </SheetDescription>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto p-6">
+              {generateError && (
+                <div className="mb-4 p-3 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 text-sm">
+                  {generateError}
+                </div>
+              )}
               <PresetCardGrid
                 presets={printPresets}
                 moduleType={moduleType}
@@ -183,6 +200,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
                 onSelectPreset={handleSelectPreset}
                 onCreateNew={() => setView('wizard')}
                 onCustomOneOff={() => setView('custom')}
+                loadingPresetId={generatingPresetId}
               />
             </div>
           </>
@@ -316,8 +334,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
         editingPreset={editingFilterPreset}
         moduleType={moduleType}
         onSave={(presetId) => {
-          const preset = filterSortPresets.find(p => p.id === presetId)
-            || useFilterSortPresetsStore.getState().presets.find(p => p.id === presetId)
+          const preset = useFilterSortPresetsStore.getState().getPreset(presetId)
           if (preset) setCustomFilterPreset(preset)
         }}
       />

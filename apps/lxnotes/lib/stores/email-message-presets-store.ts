@@ -104,7 +104,7 @@ Summary:
 Best regards,
 {{USER_FULL_NAME}}`,
         filterAndSortPresetId: moduleFilterPresetIds[moduleType] || null,
-        pageStylePresetId: 'sys-page-style-1',
+        pageStylePresetId: 'sys-page-style-2', // Letter Landscape
         includeNotesInBody: true,
         attachPdf: true,
       },
@@ -135,7 +135,7 @@ Notes are attached as PDF.
 Thanks,
 {{USER_FULL_NAME}}`,
         filterAndSortPresetId: moduleFilterPresetIds[moduleType] || null,
-        pageStylePresetId: 'sys-page-style-1',
+        pageStylePresetId: 'sys-page-style-2', // Letter Landscape
         includeNotesInBody: false,
         attachPdf: true,
       },

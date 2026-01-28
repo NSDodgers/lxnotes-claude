@@ -1,12 +1,10 @@
 'use client'
 
-import { useMemo } from 'react'
-import { Plus, Mail, Send, Download, Printer, Paperclip } from 'lucide-react'
+import { Plus, Send, Download, Loader2, ArrowUpNarrowWide, ArrowDownWideNarrow, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { EmailMessagePreset, PrintPreset, ModuleType, Note } from '@/types'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
+import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 
 type ActionPreset = EmailMessagePreset | PrintPreset
 
@@ -19,6 +17,7 @@ interface PresetCardGridProps {
   onCreateNew: () => void
   onCustomOneOff: () => void
   className?: string
+  loadingPresetId?: string | null
 }
 
 export function PresetCardGrid({
@@ -30,6 +29,7 @@ export function PresetCardGrid({
   onCreateNew,
   onCustomOneOff,
   className,
+  loadingPresetId,
 }: PresetCardGridProps) {
   return (
     <div className={cn('space-y-4', className)}>
@@ -44,10 +44,10 @@ export function PresetCardGrid({
           <ActionPresetCard
             key={preset.id}
             preset={preset}
-            moduleType={moduleType}
-            notes={notes}
             variant={variant}
             onClick={() => onSelectPreset(preset)}
+            isLoading={loadingPresetId === preset.id}
+            disabled={!!loadingPresetId}
           />
         ))}
 
@@ -55,16 +55,16 @@ export function PresetCardGrid({
         <button
           onClick={onCreateNew}
           className={cn(
-            'flex flex-col items-center justify-center gap-2 p-4',
+            'flex flex-col items-center justify-center gap-1.5 p-3',
             'rounded-lg border-2 border-dashed border-bg-tertiary',
             'hover:border-text-secondary hover:bg-bg-hover transition-colors',
             'text-text-secondary hover:text-text-primary',
-            'min-h-[120px]'
+            'min-h-[80px]'
           )}
           data-testid="preset-card-create-new"
         >
-          <Plus className="h-6 w-6" />
-          <span className="text-sm font-medium">New Preset</span>
+          <Plus className="h-5 w-5" />
+          <span className="text-xs font-medium">New Preset</span>
         </button>
       </div>
 
@@ -95,73 +95,111 @@ export function PresetCardGrid({
 // Individual action preset card
 interface ActionPresetCardProps {
   preset: ActionPreset
-  moduleType: ModuleType
-  notes: Note[]
   variant: 'email' | 'print'
   onClick: () => void
+  isLoading?: boolean
+  disabled?: boolean
 }
 
-function ActionPresetCard({ preset, moduleType, notes, variant, onClick }: ActionPresetCardProps) {
+// Map sort field to display label for tooltips
+const sortFieldLabels: Record<string, string> = {
+  cue_number: 'Cue #',
+  priority: 'Priority',
+  created_at: 'Created',
+  completed_at: 'Completed',
+  cancelled_at: 'Cancelled',
+  channel: 'Channel',
+  position: 'Position',
+  department: 'Dept',
+  type: 'Type',
+}
+
+function ActionPresetCard({ preset, variant, onClick, isLoading, disabled }: ActionPresetCardProps) {
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
-  const { getPriorities } = useCustomPrioritiesStore()
+  const { getPreset: getPageStylePreset } = usePageStylePresetsStore()
 
-  // Resolve note count from linked filter preset
-  const noteCount = useMemo(() => {
-    const filterPresetId = preset.type === 'email_message'
-      ? (preset as EmailMessagePreset).config.filterAndSortPresetId
-      : (preset as PrintPreset).config.filterSortPresetId
+  // Get linked presets for metadata
+  const filterPresetId = preset.type === 'email_message'
+    ? (preset as EmailMessagePreset).config.filterAndSortPresetId
+    : (preset as PrintPreset).config.filterSortPresetId
 
-    if (!filterPresetId) return notes.length
+  const pageStylePresetId = preset.type === 'print'
+    ? (preset as PrintPreset).config.pageStylePresetId
+    : (preset as EmailMessagePreset).config.pageStylePresetId
 
-    const filterPreset = getFilterPreset(filterPresetId)
-    if (!filterPreset) return notes.length
+  const filterPreset = filterPresetId ? getFilterPreset(filterPresetId) : null
+  const pageStylePreset = pageStylePresetId ? getPageStylePreset(pageStylePresetId) : null
 
-    const customPriorities = getPriorities(moduleType)
-    return filterAndSortNotes(notes, filterPreset, customPriorities).length
-  }, [preset, notes, moduleType, getFilterPreset, getPriorities])
+  // Get sort info for tooltip
+  const sortBy = filterPreset?.config.sortBy || 'created_at'
+  const sortOrder = filterPreset?.config.sortOrder || 'desc'
+  const sortLabel = sortFieldLabels[sortBy] || sortBy
 
-  const hasPdf = preset.type === 'email_message'
-    ? (preset as EmailMessagePreset).config.attachPdf
-    : true // Print presets always produce PDF
+  // Get page style info for tooltip
+  const paperSize = pageStylePreset?.config.paperSize || 'letter'
+  const orientation = pageStylePreset?.config.orientation || 'portrait'
+  const pageTooltip = `${paperSize.charAt(0).toUpperCase() + paperSize.slice(1)} ${orientation.charAt(0).toUpperCase() + orientation.slice(1)}`
 
-  const actionLabel = variant === 'email' ? 'Send' : 'Download'
+  // Check if this is an "All" preset (overview presets)
+  const isAllPreset = preset.name.toLowerCase().startsWith('all ')
+
   const ActionIcon = variant === 'email' ? Send : Download
+  const SortIcon = sortOrder === 'asc' ? ArrowUpNarrowWide : ArrowDownWideNarrow
 
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={cn(
-        'flex flex-col items-start gap-2 p-4',
-        'rounded-lg border border-bg-tertiary bg-bg-secondary',
-        'hover:bg-bg-hover hover:border-text-secondary/30 transition-colors',
-        'text-left min-h-[120px]',
-        'group'
+        'flex flex-col items-start gap-2 p-3',
+        'rounded-lg border transition-colors',
+        'text-left min-h-[80px]',
+        'group',
+        // Different styling for "All" presets vs type-specific
+        isAllPreset
+          ? 'bg-bg-tertiary/50 border-text-tertiary/30 hover:bg-bg-tertiary hover:border-text-secondary/40'
+          : 'bg-bg-secondary border-bg-tertiary hover:bg-bg-hover hover:border-text-secondary/30',
+        disabled && !isLoading && 'opacity-50 cursor-not-allowed',
+        isLoading && 'cursor-wait'
       )}
       data-testid={`preset-card-${preset.id}`}
     >
-      {/* Preset name */}
+      {/* Preset name - prominent */}
       <div className="font-medium text-sm text-text-primary leading-tight line-clamp-2">
         {preset.name}
       </div>
 
-      {/* Stats */}
-      <div className="flex flex-col gap-1 text-xs text-text-secondary mt-auto">
-        <span>{noteCount} note{noteCount !== 1 ? 's' : ''}</span>
-        {hasPdf && (
-          <span className="flex items-center gap-1">
-            <Paperclip className="h-3 w-3" />
-            PDF
-          </span>
-        )}
-      </div>
+      {/* Footer: icons left, action right */}
+      <div className="flex items-center justify-between w-full mt-auto">
+        {/* Metadata icons - minimal, tooltips only */}
+        <div className="flex items-center gap-2 text-text-tertiary">
+          {pageStylePreset && (
+            <span title={pageTooltip}>
+              <FileText className="h-3.5 w-3.5" />
+            </span>
+          )}
+          {filterPreset && (
+            <span title={`Sort: ${sortLabel} (${sortOrder})`}>
+              <SortIcon className="h-3.5 w-3.5" />
+            </span>
+          )}
+        </div>
 
-      {/* Action hint */}
-      <div className={cn(
-        'flex items-center gap-1.5 text-xs font-medium mt-1',
-        'text-text-secondary group-hover:text-text-primary transition-colors'
-      )}>
-        <ActionIcon className="h-3.5 w-3.5" />
-        {actionLabel}
+        {/* Action */}
+        <div className={cn(
+          'flex items-center gap-1 text-[10px] font-medium',
+          'text-text-tertiary group-hover:text-text-secondary transition-colors',
+          isLoading && 'text-text-secondary'
+        )}>
+          {isLoading ? (
+            <>
+              <Loader2 className="h-3 w-3 animate-spin" />
+              <span>Generating...</span>
+            </>
+          ) : (
+            <ActionIcon className="h-3.5 w-3.5" />
+          )}
+        </div>
       </div>
     </button>
   )
