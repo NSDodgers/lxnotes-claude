@@ -196,6 +196,14 @@ dist
 # Claude Code artifacts
 .claude/
 
+# AI agent skill symlinks (created by npx skills)
+.agent/
+.codex/
+.cursor/
+.gemini/
+.github/skills/
+.opencode/
+
 # MCP configuration (may contain sensitive API keys)
 .mcp.json
 
