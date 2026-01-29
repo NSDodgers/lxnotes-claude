@@ -53,60 +53,47 @@ export async function POST(request: Request) {
     // Create the invitation
     const invitation = await createInvitation(productionId, email, role, user.id)
 
-    // Try to send email via MailerSend if configured
+    // Try to send email via Resend if configured
     let emailWarning: string | undefined
 
     try {
-      // Get MailerSend settings from app_settings
-      const { data: settingsData } = await supabase
-        .from('app_settings')
-        .select('value')
-        .eq('key', 'mailersend')
-        .single()
+      const { sendInvitationEmail, isResendConfigured } = await import('@/lib/services/resend')
 
-      if (settingsData?.value) {
-        const { sendInvitationEmail } = await import('@/lib/services/mailersend')
-        const settings = settingsData.value as {
-          apiKey: string
-          fromEmail: string
-          fromName: string
-          templateId?: string
-        }
+      if (isResendConfigured()) {
+        // Get production name for the email
+        const { data: production } = await supabase
+          .from('productions')
+          .select('name')
+          .eq('id', productionId)
+          .single()
 
-        if (settings.apiKey && settings.fromEmail) {
-          // Get production name for the email
-          const { data: production } = await supabase
-            .from('productions')
-            .select('name')
-            .eq('id', productionId)
-            .single()
+        // Get inviter name
+        const { data: inviter } = await supabase
+          .from('users')
+          .select('full_name, email')
+          .eq('id', user.id)
+          .single()
 
-          // Get inviter name
-          const { data: inviter } = await supabase
-            .from('users')
-            .select('full_name, email')
-            .eq('id', user.id)
-            .single()
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'
+        // Point to home page where user can sign in with Google
+        // After sign-in, auth/callback will auto-accept pending invitations
+        const inviteUrl = baseUrl
 
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
-          // Point to home page where user can sign in with Google
-          // After sign-in, auth/callback will auto-accept pending invitations
-          const inviteUrl = baseUrl
-
-          await sendInvitationEmail(settings, {
-            recipientEmail: email,
-            productionName: production?.name || 'Production',
-            inviterName: inviter?.full_name || inviter?.email || 'A team member',
-            role,
-            inviteUrl,
-            expiresAt: invitation.expiresAt,
-          })
-        }
+        await sendInvitationEmail({
+          recipientEmail: email,
+          productionName: production?.name || 'Production',
+          inviterName: inviter?.full_name || inviter?.email || 'A team member',
+          role,
+          inviteUrl,
+          expiresAt: invitation.expiresAt,
+        })
+      } else {
+        emailWarning = 'Invitation created, but email not sent (RESEND_API_KEY not configured).'
       }
     } catch (emailError) {
       // Log and set warning
       console.error('Failed to send invitation email:', emailError)
-      emailWarning = 'Invitation created, but failed to send email. Please verify MailerSend settings.'
+      emailWarning = 'Invitation created, but failed to send email.'
     }
 
     return NextResponse.json({ ...invitation, warning: emailWarning }, { status: 201 })

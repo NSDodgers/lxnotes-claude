@@ -1,4 +1,4 @@
-import type { FilterSortPreset, PrintPreset, ModuleType, CustomType, CustomPriority } from '@/types'
+import type { FilterSortPreset, PrintPreset, EmailMessagePreset, ModuleType, CustomType, CustomPriority } from '@/types'
 
 /**
  * Sentinel value indicating "all types" - when present in typeFilters,
@@ -45,17 +45,21 @@ function generatePrintPresetId(moduleType: ModuleType, suffix: string): string {
   return `sys-print-${moduleType}-${suffix}`
 }
 
+function generateEmailPresetId(moduleType: ModuleType, suffix: string): string {
+  return `sys-email-${moduleType}-${suffix}`
+}
+
 /**
  * Generates system filter/sort presets dynamically based on visible types and priorities.
  *
  * Standard presets (4):
- * - All Outstanding (by [Sort])
- * - All Outstanding Grouped (by [Sort]) - groupByType: true
+ * - All To-Do (by [Sort])
+ * - All To-Do Grouped (by [Sort]) - groupByType: true
  * - All Complete (by Date)
  * - All Cancelled (by Date)
  *
  * Type-specific presets (one per visible type):
- * - [TypeLabel] Todo (by [Sort])
+ * - [TypeLabel] To-Do (by [Sort])
  */
 export function generateSystemFilterPresets(
   moduleType: ModuleType,
@@ -72,13 +76,13 @@ export function generateSystemFilterPresets(
 
   const presets: FilterSortPreset[] = []
 
-  // 1. All Outstanding (by Sort)
+  // 1. All To-Do (by Sort)
   presets.push({
-    id: generateFilterPresetId(moduleType, 'all-todo'),
+    id: generateFilterPresetId(moduleType, 'all-to-do'),
     productionId,
     type: 'filter_sort',
     moduleType,
-    name: `All Outstanding (by ${sortLabel})`,
+    name: `All To-Do (by ${sortLabel})`,
     config: {
       statusFilter: 'todo',
       typeFilters: [ALL_TYPES_SENTINEL],
@@ -93,13 +97,13 @@ export function generateSystemFilterPresets(
     updatedAt: baseDate,
   })
 
-  // 2. All Outstanding Grouped (by Sort)
+  // 2. All To-Do Grouped (by Sort)
   presets.push({
-    id: generateFilterPresetId(moduleType, 'all-todo-grouped'),
+    id: generateFilterPresetId(moduleType, 'all-to-do-grouped'),
     productionId,
     type: 'filter_sort',
     moduleType,
-    name: `All Outstanding Grouped (by ${sortLabel})`,
+    name: `All To-Do Grouped (by ${sortLabel})`,
     config: {
       statusFilter: 'todo',
       typeFilters: [ALL_TYPES_SENTINEL],
@@ -163,7 +167,7 @@ export function generateSystemFilterPresets(
       productionId,
       type: 'filter_sort',
       moduleType,
-      name: `${type.label} Todo (by ${sortLabel})`,
+      name: `${type.label} To-Do (by ${sortLabel})`,
       config: {
         statusFilter: 'todo',
         typeFilters: [type.value],
@@ -206,6 +210,53 @@ export function generateSystemPrintPresets(
       config: {
         filterSortPresetId: filterPreset.id,
         pageStylePresetId: 'sys-page-style-2', // Letter Landscape with checkboxes
+      },
+      isDefault: true,
+      createdBy: 'system',
+      createdAt: baseDate,
+      updatedAt: baseDate,
+    }
+  })
+}
+
+/**
+ * Generates system email presets that correspond to filter presets.
+ * Each filter preset gets a matching email preset with standard subject/body templates.
+ *
+ * Email presets per module:
+ * - 4 "All" presets (To-Do, To-Do Grouped, Complete, Cancelled)
+ * - 1 preset per visible type (e.g., "SM Notes", "Director Notes")
+ */
+export function generateSystemEmailPresets(
+  moduleType: ModuleType,
+  filterPresets: FilterSortPreset[]
+): EmailMessagePreset[] {
+  const baseDate = new Date()
+  const productionId = 'prod-1'
+
+  return filterPresets.map((filterPreset) => {
+    // Extract suffix from filter preset ID for deterministic email preset ID
+    const idSuffix = filterPreset.id.replace(`sys-filter-${moduleType}-`, '')
+
+    // Create a cleaner preset name for email (remove the "(by X)" suffix)
+    const emailName = filterPreset.name.replace(/\s*\(by [^)]+\)$/, '')
+
+    return {
+      id: generateEmailPresetId(moduleType, idSuffix),
+      productionId,
+      type: 'email_message' as const,
+      moduleType,
+      name: emailName,
+      config: {
+        recipients: '', // User fills in once, saved in preset
+        subject: `{{PRODUCTION_TITLE}} - {{MODULE_NAME}} - ${emailName} - {{CURRENT_DATE}} {{CURRENT_TIME}}`,
+        message: `Please find the attached notes report.
+
+{{USER_FULL_NAME}}`,
+        filterAndSortPresetId: filterPreset.id,
+        pageStylePresetId: 'sys-page-style-2', // Letter Landscape with checkboxes
+        includeNotesInBody: false,
+        attachPdf: true,
       },
       isDefault: true,
       createdBy: 'system',

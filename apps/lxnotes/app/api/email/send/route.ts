@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isProductionMember } from '@/lib/services/production-members'
-import { sendNoteEmail, MailerSendSettings, NoteEmailData } from '@/lib/services/mailersend'
+import { sendNoteEmail, isResendConfigured, NoteEmailData } from '@/lib/services/resend'
 import type { ModuleType } from '@/types'
 import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
 
@@ -111,24 +111,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Get MailerSend settings
-    const { data: settingsData, error: settingsError } = await supabase
-      .from('app_settings')
-      .select('value')
-      .eq('key', 'mailersend')
-      .single()
-
-    if (settingsError || !settingsData?.value) {
+    // Check if Resend is configured
+    if (!isResendConfigured()) {
       return NextResponse.json(
-        { error: 'Email service is not configured. Please contact an administrator.' },
-        { status: 503 }
-      )
-    }
-
-    const mailerSettings = settingsData.value as unknown as MailerSendSettings
-    if (!mailerSettings.apiKey) {
-      return NextResponse.json(
-        { error: 'Email service API key is not set. Please contact an administrator.' },
+        { error: 'Email service is not configured. RESEND_API_KEY environment variable is not set.' },
         { status: 503 }
       )
     }
@@ -205,6 +191,7 @@ export async function POST(request: Request) {
       subject: resolvedSubject,
       message: resolvedMessage,
       productionName: production.name,
+      moduleType,
       moduleName: getModuleName(moduleType),
       senderName: fullName,
       senderEmail,
@@ -221,7 +208,7 @@ export async function POST(request: Request) {
     }
 
     // Send email
-    await sendNoteEmail(mailerSettings, emailData)
+    await sendNoteEmail(emailData)
 
     return NextResponse.json({
       success: true,

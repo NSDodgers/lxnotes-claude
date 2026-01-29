@@ -25,7 +25,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import type { ModuleType, EmailMessagePreset } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
-import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import { useNotes } from '@/lib/contexts/notes-context'
 import { PlaceholderData } from '@/lib/utils/placeholders'
 
 interface EmailNotesSidebarProps {
@@ -57,7 +57,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const productionLogo = activeProduction ? activeProduction.logo : localProductionStore.logo
   const productionId = productionContext?.productionId
   const { getPriorities } = useCustomPrioritiesStore()
-  const mockNotesStore = useMockNotesStore()
+  const { getNotes } = useNotes()
 
   const [view, setView] = useState<SidebarView>('cards')
   const [selectedPreset, setSelectedPreset] = useState<EmailMessagePreset | null>(null)
@@ -72,7 +72,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const [attachPdf, setAttachPdf] = useState(false)
 
   const moduleEmailPresets = getEmailPresetsByModule(moduleType)
-  const notes = mockNotesStore.getAllNotes(moduleType)
+  const notes = getNotes(moduleType)
   const moduleName = moduleDisplayNames[moduleType]
 
   const placeholderData: PlaceholderData = useMemo(() => {
@@ -258,8 +258,12 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
         )}
 
         {view === 'confirm' && selectedPreset && (
-          <div className="flex-1 flex flex-col p-6 overflow-hidden">
-            <ConfirmSendPanel
+          <>
+            <SheetHeader className="sr-only">
+              <SheetTitle>Send {selectedPreset.name}</SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 flex flex-col p-6 overflow-hidden">
+              <ConfirmSendPanel
               preset={selectedPreset}
               moduleType={moduleType}
               notes={notes}
@@ -274,18 +278,24 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
               }}
               onSubmit={handleSendFromConfirm}
             />
-          </div>
+            </div>
+          </>
         )}
 
         {view === 'wizard' && (
-          <div className="flex-1 flex flex-col p-6 overflow-hidden">
-            <PresetWizard
+          <>
+            <SheetHeader className="sr-only">
+              <SheetTitle>Create Email Preset</SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 flex flex-col p-6 overflow-hidden">
+              <PresetWizard
               variant="email"
               moduleType={moduleType}
               onComplete={() => setView('cards')}
               onBack={() => setView('cards')}
             />
-          </div>
+            </div>
+          </>
         )}
 
         {view === 'custom' && (

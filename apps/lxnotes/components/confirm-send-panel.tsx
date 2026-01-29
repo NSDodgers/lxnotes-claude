@@ -6,10 +6,14 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { DroppableInput } from '@/components/ui/droppable-input'
+import { DroppableTextarea } from '@/components/ui/droppable-textarea'
+import { PlaceholderChipPanel } from '@/components/placeholder-chip-panel'
 import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
 import type { EmailMessagePreset, PrintPreset, ModuleType, Note } from '@/types'
 
@@ -100,6 +104,11 @@ export function ConfirmSendPanel({
     onSubmit(hasOverrides ? overrides : undefined)
   }
 
+  // For email, recipients must be set
+  const canSubmit = isEmail
+    ? resolvedRecipients.trim().length > 0
+    : true
+
   return (
     <div className="flex flex-col h-full" data-testid="confirm-send-panel">
       {/* Header */}
@@ -139,6 +148,7 @@ export function ConfirmSendPanel({
               onStartEdit={() => setEditingField('subject')}
               onSave={(val) => handleFieldEdit('subject', val)}
               onCancel={handleCancelEdit}
+              showPlaceholders
               testId="confirm-field-subject"
             />
 
@@ -152,6 +162,7 @@ export function ConfirmSendPanel({
               onSave={(val) => handleFieldEdit('message', val)}
               onCancel={handleCancelEdit}
               multiline
+              showPlaceholders
               testId="confirm-field-message"
             />
           </div>
@@ -194,9 +205,14 @@ export function ConfirmSendPanel({
 
       {/* Action button */}
       <div className="pt-4 border-t border-bg-tertiary">
+        {isEmail && !canSubmit && (
+          <p className="text-sm text-text-muted mb-3 text-center">
+            Please add recipients to send email
+          </p>
+        )}
         <Button
           onClick={handleSubmit}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !canSubmit}
           className="w-full"
           data-testid="confirm-panel-submit"
         >
@@ -231,6 +247,7 @@ interface EditableFieldProps {
   onSave: (value: string) => void
   onCancel: () => void
   multiline?: boolean
+  showPlaceholders?: boolean // Show placeholder chips when editing
   testId: string
 }
 
@@ -243,9 +260,12 @@ function EditableField({
   onSave,
   onCancel,
   multiline,
+  showPlaceholders,
   testId,
 }: EditableFieldProps) {
   const [editValue, setEditValue] = useState('')
+  const { getAvailablePlaceholders } = useEmailMessagePresetsStore()
+  const placeholders = getAvailablePlaceholders()
 
   const handleStartEdit = () => {
     setEditValue(rawValue ?? value)
@@ -258,21 +278,51 @@ function EditableField({
 
   if (isEditing) {
     return (
-      <div className="space-y-1" data-testid={testId}>
+      <div className="space-y-2" data-testid={testId}>
         <div className="text-xs font-medium text-text-secondary">{label}</div>
-        {multiline ? (
-          <Textarea
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            className="min-h-[100px] text-sm"
-            autoFocus
-          />
+        {showPlaceholders ? (
+          // Use droppable inputs with placeholder support
+          multiline ? (
+            <DroppableTextarea
+              value={editValue}
+              onChange={setEditValue}
+              availablePlaceholders={placeholders}
+              className="min-h-[100px] text-sm"
+            />
+          ) : (
+            <DroppableInput
+              value={editValue}
+              onChange={setEditValue}
+              availablePlaceholders={placeholders}
+              className="text-sm"
+            />
+          )
         ) : (
-          <Input
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            className="text-sm"
-            autoFocus
+          // Regular inputs for non-placeholder fields
+          multiline ? (
+            <Textarea
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              className="min-h-[100px] text-sm"
+              autoFocus
+            />
+          ) : (
+            <Input
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              className="text-sm"
+              autoFocus
+            />
+          )
+        )}
+        {/* Show placeholder chips when editing subject/message */}
+        {showPlaceholders && (
+          <PlaceholderChipPanel
+            placeholders={placeholders}
+            title="Drag placeholders into field"
+            collapsible={false}
+            searchable={false}
+            className="max-h-48"
           />
         )}
         <div className="flex gap-2">

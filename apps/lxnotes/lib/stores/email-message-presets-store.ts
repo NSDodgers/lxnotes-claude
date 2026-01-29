@@ -2,27 +2,29 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
 import type { EmailMessagePreset, PlaceholderDefinition, ModuleType } from '@/types'
-
+import { generateSystemEmailPresets } from '@/lib/utils/generate-dynamic-presets'
+import { useFilterSortPresetsStore } from './filter-sort-presets-store'
 import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
 
 interface EmailMessagePresetsState {
+  // Only stores user-created presets (system presets are computed dynamically)
   presets: EmailMessagePreset[]
   loading: boolean
 
-  // CRUD operations
+  // CRUD operations for user presets
   addPreset: (preset: Omit<EmailMessagePreset, 'id' | 'createdAt' | 'updatedAt'>) => void
   updatePreset: (id: string, updates: Partial<EmailMessagePreset>) => void
   deletePreset: (id: string) => void
   getPreset: (id: string) => EmailMessagePreset | undefined
 
-  // Module-specific operations
+  // Returns all presets (system + user) for a module
   getPresetsByModule: (moduleType: ModuleType) => EmailMessagePreset[]
 
   // Placeholder management
   getAvailablePlaceholders: () => PlaceholderDefinition[]
   resolvePlaceholders: (text: string, data?: PlaceholderData) => string
 
-  // System defaults
+  // Returns only dynamically generated system presets
   getSystemDefaults: () => EmailMessagePreset[]
 
   // Utilities
@@ -54,102 +56,16 @@ const getAvailablePlaceholders = (): PlaceholderDefinition[] => [
   { key: '{{DATE_RANGE}}', label: 'Date Range', description: 'Date range of included notes (if date filters applied)', category: 'notes' },
 ]
 
-// Module display names for system default naming
-const moduleDisplayNames: Record<ModuleType, string> = {
-  cue: 'Cue Notes',
-  work: 'Work Notes',
-  production: 'Production Notes',
-  actor: 'Actor Notes',
+/**
+ * Compute system email presets dynamically based on current filter presets.
+ * Each filter preset gets a corresponding email preset.
+ */
+function computeSystemEmailPresets(moduleType: ModuleType): EmailMessagePreset[] {
+  // Get the dynamically generated filter presets for this module
+  const filterPresets = useFilterSortPresetsStore.getState().getSystemDefaults(moduleType)
+
+  return generateSystemEmailPresets(moduleType, filterPresets)
 }
-
-// Map module types to their first system default filter/sort preset ID
-const moduleFilterPresetIds: Record<string, string> = {
-  cue: 'sys-filter-cue-1',
-  work: 'sys-filter-work-1',
-  production: 'sys-filter-prod-1',
-}
-
-// System default email message presets (module-specific)
-const getSystemDefaults = (): EmailMessagePreset[] => {
-  const baseDate = new Date()
-  const productionId = 'prod-1' // TODO: Replace with actual production ID
-
-  const modules: ModuleType[] = ['cue', 'work', 'production']
-  const presets: EmailMessagePreset[] = []
-
-  modules.forEach((moduleType, moduleIndex) => {
-    const moduleName = moduleDisplayNames[moduleType]
-
-    // Daily Report preset for each module
-    presets.push({
-      id: `sys-email-daily-${moduleType}`,
-      productionId,
-      type: 'email_message',
-      moduleType,
-      name: `Daily Report - ${moduleName}`,
-      config: {
-        recipients: '',
-        subject: `{{PRODUCTION_TITLE}} - ${moduleName} Daily Report for {{CURRENT_DATE}}`,
-        message: `Hello team,
-
-Here's the ${moduleName.toLowerCase()} daily report for {{PRODUCTION_TITLE}} as of {{CURRENT_DATE}}.
-
-Summary:
-- Outstanding items: {{TODO_COUNT}}
-- Completed today: {{COMPLETE_COUNT}}
-- Total notes: {{NOTE_COUNT}}
-
-{{FILTER_DESCRIPTION}}
-
-Best regards,
-{{USER_FULL_NAME}}`,
-        filterAndSortPresetId: moduleFilterPresetIds[moduleType] || null,
-        pageStylePresetId: 'sys-page-style-2', // Letter Landscape
-        includeNotesInBody: true,
-        attachPdf: true,
-      },
-      isDefault: true,
-      createdBy: 'system',
-      createdAt: baseDate,
-      updatedAt: baseDate,
-    })
-
-    // Tech Rehearsal preset for each module
-    presets.push({
-      id: `sys-email-tech-${moduleType}`,
-      productionId,
-      type: 'email_message',
-      moduleType,
-      name: `Tech Rehearsal - ${moduleName}`,
-      config: {
-        recipients: '',
-        subject: `{{PRODUCTION_TITLE}} - ${moduleName} Tech Rehearsal {{CURRENT_DATE}}`,
-        message: `Team,
-
-${moduleName} tech rehearsal notes for {{PRODUCTION_TITLE}} from {{CURRENT_DATE}}.
-
-Priority items requiring attention: {{TODO_COUNT}}
-
-Notes are attached as PDF.
-
-Thanks,
-{{USER_FULL_NAME}}`,
-        filterAndSortPresetId: moduleFilterPresetIds[moduleType] || null,
-        pageStylePresetId: 'sys-page-style-2', // Letter Landscape
-        includeNotesInBody: false,
-        attachPdf: true,
-      },
-      isDefault: true,
-      createdBy: 'system',
-      createdAt: baseDate,
-      updatedAt: baseDate,
-    })
-  })
-
-  return presets
-}
-
-// Simple placeholder resolution is now handled by shared utility
 
 // Check if we're in demo mode
 const isDemoMode = () => {
@@ -160,7 +76,8 @@ const isDemoMode = () => {
 export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
   persist(
     (set, get) => ({
-      presets: getSystemDefaults(),
+      // Only user-created presets are stored (system presets computed on demand)
+      presets: [],
       loading: false,
 
       addPreset: (presetData) => {
@@ -178,6 +95,9 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
       },
 
       updatePreset: (id, updates) => {
+        // Don't allow updating system presets
+        if (id.startsWith('sys-')) return
+
         set(state => ({
           presets: state.presets.map(preset =>
             preset.id === id
@@ -188,17 +108,39 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
       },
 
       deletePreset: (id) => {
+        // Don't allow deleting system presets
+        if (id.startsWith('sys-')) return
+
         set(state => ({
           presets: state.presets.filter(preset => preset.id !== id)
         }))
       },
 
       getPreset: (id) => {
-        return get().presets.find(preset => preset.id === id)
+        // Check user presets first
+        const userPreset = get().presets.find(preset => preset.id === id)
+        if (userPreset) return userPreset
+
+        // Check system presets across all modules
+        const modules: ModuleType[] = ['cue', 'work', 'production']
+        for (const moduleType of modules) {
+          const systemPresets = computeSystemEmailPresets(moduleType)
+          const systemPreset = systemPresets.find(p => p.id === id)
+          if (systemPreset) return systemPreset
+        }
+
+        return undefined
       },
 
       getPresetsByModule: (moduleType) => {
-        return get().presets.filter(preset => preset.moduleType === moduleType)
+        // Compute system presets dynamically (respects visible types/priorities)
+        const systemPresets = computeSystemEmailPresets(moduleType)
+
+        // Get user presets for this module
+        const userPresets = get().presets.filter(preset => preset.moduleType === moduleType)
+
+        // Return system presets first, then user presets
+        return [...systemPresets, ...userPresets]
       },
 
       getAvailablePlaceholders: () => {
@@ -215,7 +157,9 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
       },
 
       getSystemDefaults: () => {
-        return getSystemDefaults()
+        // Return all system presets across all modules
+        const modules: ModuleType[] = ['cue', 'work', 'production']
+        return modules.flatMap(moduleType => computeSystemEmailPresets(moduleType))
       },
 
       setLoading: (loading) => {
@@ -224,7 +168,7 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
     }),
     {
       name: 'email-message-presets-storage',
-      version: 2, // Bumped for module-specific presets migration
+      version: 3, // Bumped for dynamic presets migration
       storage: createJSONStorage(() =>
         createSafeStorage(
           'email-message-presets-storage',
@@ -233,32 +177,17 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
       ),
       skipHydration: true,
       migrate: (persistedState: unknown, version: number) => {
-        // Type for v1 presets that may have moduleType: 'all'
-        type V1Preset = Omit<EmailMessagePreset, 'moduleType'> & { moduleType: ModuleType | 'all' }
-        const state = persistedState as { presets: V1Preset[] }
+        const state = persistedState as { presets?: EmailMessagePreset[] }
 
-        if (version < 2) {
-          // Migration from version 1: Convert moduleType: 'all' to module-specific
-          // Keep user presets (convert 'all' to 'cue' as default)
-          // Replace system defaults with new module-specific versions
-          const userPresets = state.presets
-            .filter(p => !p.isDefault)
-            .map(p => ({
-              ...p,
-              // If moduleType is 'all', convert to 'cue' as a sensible default
-              moduleType: (p.moduleType === 'all' ? 'cue' : p.moduleType) as ModuleType
-            }))
-
-          // Get fresh module-specific system defaults
-          const systemDefaults = getSystemDefaults()
-
-          return {
-            ...state,
-            presets: [...systemDefaults, ...userPresets]
+        if (version < 3) {
+          // Migration: Remove system presets from stored data
+          // They'll now be computed dynamically based on visible types
+          if (state?.presets) {
+            state.presets = state.presets.filter(p => !p.id.startsWith('sys-'))
           }
         }
 
-        return state
+        return state as EmailMessagePresetsState
       },
     }
   )

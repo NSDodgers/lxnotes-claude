@@ -24,8 +24,12 @@ test.describe('Email Message Presets', () => {
   test('should display system default presets', async ({ page }) => {
     const emailSection = page.locator('[data-testid="email-message-presets"]');
 
-    await expect(emailSection).toContainText('Daily Report');
-    await expect(emailSection).toContainText('Tech Rehearsal Notes');
+    // System presets are now dynamically generated based on filter presets
+    // Standard "All" presets
+    await expect(emailSection).toContainText('All To-Do');
+    await expect(emailSection).toContainText('All To-Do Grouped');
+    await expect(emailSection).toContainText('All Complete');
+    await expect(emailSection).toContainText('All Cancelled');
   });
 
   test('should create new email message preset', async ({ page }) => {
