@@ -24,6 +24,7 @@ import {
 import { emailMessageFormSchema, type EmailMessageFormData } from '@/lib/validation/preset-schemas'
 import type { EmailMessagePreset, ModuleType } from '@/types'
 import { cn } from '@/lib/utils'
+import { useAuthContext } from '@/components/auth/auth-provider'
 
 // Module display names for UI
 const moduleDisplayNames: Record<ModuleType, string> = {
@@ -46,6 +47,10 @@ export function EmailMessagePresetsManager() {
   } = useEmailMessagePresetsStore()
   const { getPresetsByModule: getFilterPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
+  const { user } = useAuthContext()
+
+  // Get user's name from auth metadata
+  const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
 
   const [collapsed, setCollapsed] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -171,7 +176,7 @@ export function EmailMessagePresetsManager() {
 
   const getPreviewData = () => ({
     productionTitle: 'Sample Production',
-    userFullName: 'Dev User',
+    userFullName,
     moduleName: moduleDisplayNames[watchedModuleType],
     noteCount: 15,
     todoCount: 8,

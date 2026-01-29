@@ -28,6 +28,7 @@ import type { ModuleType, PrintPreset, FilterSortPreset, PageStylePreset, Note }
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { PlaceholderData } from '@/lib/utils/placeholders'
+import { useAuthContext } from '@/components/auth/auth-provider'
 
 interface PrintNotesSidebarProps {
   moduleType: ModuleType
@@ -51,6 +52,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
   const { getPresetsByModule: getPrintPresetsByModule } = usePrintPresetsStore()
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
+  const { user } = useAuthContext()
   // Prefer production context (Supabase) if available, otherwise use local store
   // Crucially, if we have a production context, use its values even if falsy/undefined (e.g. no logo)
   // to avoid falling back to local store defaults when we shouldn't.
@@ -59,6 +61,9 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
   const productionLogo = activeProduction ? activeProduction.logo : localProductionStore.logo
   const { getPriorities } = useCustomPrioritiesStore()
   const mockNotesStore = useMockNotesStore()
+
+  // Get user's name from auth metadata
+  const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
 
   const [view, setView] = useState<SidebarView>('cards')
   const [selectedPreset, setSelectedPreset] = useState<PrintPreset | null>(null)
@@ -82,10 +87,10 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
 
   const placeholderData: PlaceholderData = useMemo(() => ({
     productionTitle: productionName || 'Production',
-    userFullName: 'Dev User',
+    userFullName,
     moduleName,
     noteCount: notes.length,
-  }), [productionName, moduleName, notes.length])
+  }), [productionName, moduleName, notes.length, userFullName])
 
   const [generatingPresetId, setGeneratingPresetId] = useState<string | null>(null)
 

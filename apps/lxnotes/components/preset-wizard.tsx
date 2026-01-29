@@ -16,6 +16,7 @@ import { usePrintPresetsStore } from '@/lib/stores/print-presets-store'
 import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { PlaceholderData } from '@/lib/utils/placeholders'
+import { useAuthContext } from '@/components/auth/auth-provider'
 import type { ModuleType, EmailMessagePreset, PrintPreset } from '@/types'
 
 interface PresetWizardProps {
@@ -49,6 +50,13 @@ export function PresetWizard({
   const { addPreset: addPrintPreset, updatePreset: updatePrintPreset } = usePrintPresetsStore()
   const { name: productionName } = useCurrentProductionStore()
   const mockNotesStore = useMockNotesStore()
+  const { user } = useAuthContext()
+
+  // Get user's name from auth metadata
+  const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
+  const nameParts = userFullName.split(' ')
+  const userFirstName = nameParts[0] || 'User'
+  const userLastName = nameParts.slice(1).join(' ') || ''
 
   const filterPresets = getFilterPresets(moduleType)
   const notes = mockNotesStore.getAllNotes(moduleType)
@@ -105,9 +113,9 @@ export function PresetWizard({
 
   const placeholderData: PlaceholderData = {
     productionTitle: productionName || 'Production',
-    userFullName: 'Dev User',
-    userFirstName: 'Dev',
-    userLastName: 'User',
+    userFullName,
+    userFirstName,
+    userLastName,
     moduleName: moduleDisplayNames[moduleType],
     noteCount: notes.length,
   }

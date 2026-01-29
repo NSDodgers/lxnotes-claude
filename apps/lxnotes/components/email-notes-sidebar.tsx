@@ -27,6 +27,7 @@ import type { ModuleType, EmailMessagePreset } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { PlaceholderData } from '@/lib/utils/placeholders'
+import { useAuthContext } from '@/components/auth/auth-provider'
 
 interface EmailNotesSidebarProps {
   moduleType: ModuleType
@@ -49,6 +50,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
+  const { user } = useAuthContext()
   // Prefer production context (Supabase) if available, otherwise use local store
   // Crucially, if we have a production context, use its values even if falsy/undefined (e.g. no logo)
   // to avoid falling back to local store defaults when we shouldn't.
@@ -58,6 +60,12 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const productionId = productionContext?.productionId
   const { getPriorities } = useCustomPrioritiesStore()
   const { getNotes } = useNotes()
+
+  // Get user's name from auth metadata
+  const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
+  const nameParts = userFullName.split(' ')
+  const userFirstName = nameParts[0] || 'User'
+  const userLastName = nameParts.slice(1).join(' ') || ''
 
   const [view, setView] = useState<SidebarView>('cards')
   const [selectedPreset, setSelectedPreset] = useState<EmailMessagePreset | null>(null)
@@ -82,9 +90,9 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
 
     return {
       productionTitle: productionName || 'Production',
-      userFullName: 'Dev User',
-      userFirstName: 'Dev',
-      userLastName: 'User',
+      userFullName,
+      userFirstName,
+      userLastName,
       moduleName,
       noteCount: notes.length,
       todoCount: todoNotes.length,
@@ -94,7 +102,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       sortDescription: 'Default order',
       dateRange: 'All dates',
     }
-  }, [notes, productionName, moduleName])
+  }, [notes, productionName, moduleName, userFullName, userFirstName, userLastName])
 
   const handleSelectPreset = (preset: EmailMessagePreset | any) => {
     setSelectedPreset(preset as EmailMessagePreset)
