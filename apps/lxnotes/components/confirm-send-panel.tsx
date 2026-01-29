@@ -15,6 +15,7 @@ import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
+import { useProductionOptional } from '@/components/production/production-provider'
 import type { EmailMessagePreset, PrintPreset, ModuleType, Note } from '@/types'
 
 type ActionPreset = EmailMessagePreset | PrintPreset
@@ -51,6 +52,9 @@ export function ConfirmSendPanel({
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { getPriorities } = useCustomPrioritiesStore()
+  const productionContext = useProductionOptional()
+  const savedRecipients = productionContext?.production?.savedRecipients || []
+  const updateSavedRecipients = productionContext?.updateSavedRecipients
 
   // Per-field override state
   const [editingField, setEditingField] = useState<string | null>(null)
@@ -134,8 +138,17 @@ export function ConfirmSendPanel({
               value={resolvedRecipients}
               isEditing={editingField === 'recipients'}
               onStartEdit={() => setEditingField('recipients')}
-              onSave={(val) => handleFieldEdit('recipients', val)}
+              onSave={(val, shouldSave) => {
+                handleFieldEdit('recipients', val)
+                // Save new recipients to production if requested
+                if (shouldSave && updateSavedRecipients) {
+                  const newEmails = val.split(',').map(e => e.trim()).filter(e => e.length > 0)
+                  const uniqueEmails = [...new Set([...savedRecipients, ...newEmails])]
+                  updateSavedRecipients(uniqueEmails).catch(console.error)
+                }
+              }}
               onCancel={handleCancelEdit}
+              savedRecipients={savedRecipients}
               testId="confirm-field-recipients"
             />
 
@@ -244,10 +257,11 @@ interface EditableFieldProps {
   rawValue?: string // unresolved value for editing (with placeholders)
   isEditing: boolean
   onStartEdit: () => void
-  onSave: (value: string) => void
+  onSave: (value: string, shouldSaveToContacts?: boolean) => void
   onCancel: () => void
   multiline?: boolean
   showPlaceholders?: boolean // Show placeholder chips when editing
+  savedRecipients?: string[] // Saved recipients for quick selection
   testId: string
 }
 
@@ -261,25 +275,56 @@ function EditableField({
   onCancel,
   multiline,
   showPlaceholders,
+  savedRecipients,
   testId,
 }: EditableFieldProps) {
   const [editValue, setEditValue] = useState('')
+  const [saveToContacts, setSaveToContacts] = useState(false)
   const { getAvailablePlaceholders } = useEmailMessagePresetsStore()
   const placeholders = getAvailablePlaceholders()
 
   const handleStartEdit = () => {
     setEditValue(rawValue ?? value)
+    setSaveToContacts(false)
     onStartEdit()
   }
 
   const handleSave = () => {
-    onSave(editValue)
+    onSave(editValue, saveToContacts)
+  }
+
+  const handleAddSavedRecipient = (email: string) => {
+    const current = editValue.trim()
+    if (current) {
+      // Add to existing, avoid duplicates
+      const existing = current.split(',').map(e => e.trim()).filter(e => e)
+      if (!existing.includes(email)) {
+        setEditValue([...existing, email].join(', '))
+      }
+    } else {
+      setEditValue(email)
+    }
   }
 
   if (isEditing) {
     return (
       <div className="space-y-2" data-testid={testId}>
         <div className="text-xs font-medium text-text-secondary">{label}</div>
+        {/* Show saved recipients as clickable chips */}
+        {savedRecipients && savedRecipients.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {savedRecipients.map((email) => (
+              <button
+                key={email}
+                type="button"
+                onClick={() => handleAddSavedRecipient(email)}
+                className="px-2 py-0.5 text-xs bg-bg-tertiary hover:bg-bg-hover text-text-secondary rounded-full transition-colors"
+              >
+                + {email}
+              </button>
+            ))}
+          </div>
+        )}
         {showPlaceholders ? (
           // Use droppable inputs with placeholder support
           multiline ? (
@@ -324,6 +369,18 @@ function EditableField({
             searchable={false}
             className="max-h-48"
           />
+        )}
+        {/* Save to contacts checkbox for recipients field */}
+        {savedRecipients !== undefined && (
+          <label className="flex items-center gap-2 text-xs text-text-secondary cursor-pointer">
+            <input
+              type="checkbox"
+              checked={saveToContacts}
+              onChange={(e) => setSaveToContacts(e.target.checked)}
+              className="rounded border-bg-tertiary"
+            />
+            Save to contacts for this production
+          </label>
         )}
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={handleSave}>

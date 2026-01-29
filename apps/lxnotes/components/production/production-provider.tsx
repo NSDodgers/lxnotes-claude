@@ -13,6 +13,7 @@ export interface Production {
   startDate?: Date
   endDate?: Date
   isDemo: boolean
+  savedRecipients: string[]
   createdAt: Date
   updatedAt: Date
 }
@@ -23,6 +24,7 @@ interface ProductionContextType {
   isLoading: boolean
   error: Error | null
   refetch: () => Promise<void>
+  updateSavedRecipients: (recipients: string[]) => Promise<void>
 }
 
 const ProductionContext = createContext<ProductionContextType | null>(null)
@@ -78,6 +80,26 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
   }, [productionId])
 
+  const updateSavedRecipients = useCallback(async (recipients: string[]) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ savedRecipients: recipients }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update recipients')
+      }
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, savedRecipients: recipients } : null)
+    } catch (err) {
+      console.error('Error updating saved recipients:', err)
+      throw err
+    }
+  }, [productionId])
+
   useEffect(() => {
     fetchProduction()
 
@@ -93,6 +115,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
           startDate: updatedProduction.start_date ? new Date(updatedProduction.start_date) : undefined,
           endDate: updatedProduction.end_date ? new Date(updatedProduction.end_date) : undefined,
           isDemo: updatedProduction.is_demo ?? false,
+          savedRecipients: (updatedProduction as Record<string, unknown>).saved_recipients as string[] ?? [],
           createdAt: new Date(updatedProduction.created_at!),
           updatedAt: new Date(updatedProduction.updated_at!),
         })
@@ -115,6 +138,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
         isLoading,
         error,
         refetch: fetchProduction,
+        updateSavedRecipients,
       }}
     >
       {children}
