@@ -127,7 +127,8 @@ const button = {
   textDecoration: 'none',
   textAlign: 'center' as const,
   display: 'inline-block',
-  padding: '12px 24px',
+  // 14px vertical + 16px font ≈ 44px height (minimum touch target)
+  padding: '14px 28px',
 }
 
 const expirationText = {

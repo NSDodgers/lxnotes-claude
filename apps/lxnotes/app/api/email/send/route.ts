@@ -185,6 +185,12 @@ export async function POST(request: Request) {
       }
     }
 
+    // Generate idempotency key to prevent duplicate sends on retry/double-click
+    // Key is based on production, module, user, and timestamp (rounded to minute)
+    // This allows the same user to intentionally send again after 1 minute
+    const timestampMinute = Math.floor(Date.now() / 60000)
+    const idempotencyKey = `notes-${productionId}-${moduleType}-${user.id}-${timestampMinute}`
+
     // Prepare email data
     const emailData: NoteEmailData = {
       recipientEmails,
@@ -205,6 +211,7 @@ export async function POST(request: Request) {
         filename: pdfFilename || `${moduleType}_notes.pdf`,
         content: pdfBase64,
       } : undefined,
+      idempotencyKey,
     }
 
     // Send email

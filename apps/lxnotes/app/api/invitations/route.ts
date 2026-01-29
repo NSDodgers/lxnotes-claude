@@ -86,6 +86,7 @@ export async function POST(request: Request) {
           role,
           inviteUrl,
           expiresAt: invitation.expiresAt,
+          invitationId: invitation.id,
         })
       } else {
         emailWarning = 'Invitation created, but email not sent (RESEND_API_KEY not configured).'
