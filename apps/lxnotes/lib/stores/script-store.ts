@@ -1,12 +1,14 @@
 import { create } from 'zustand'
 import type { ScriptPage, SceneSong } from '@/types'
-// Import directly from source to avoid circular dependency via demo-data index
-import { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from '@/lib/demo-data/script/pirates-pages-songs'
 
 interface ScriptState {
   pages: ScriptPage[]
   scenes: SceneSong[]
   songs: SceneSong[]
+
+  // Initialization functions
+  setScriptData: (pages: ScriptPage[], scenes: SceneSong[], songs: SceneSong[]) => void
+  reset: () => void
 
   // CRUD operations for pages
   addPage: (page: Omit<ScriptPage, 'id' | 'createdAt' | 'updatedAt'>) => ScriptPage
@@ -59,10 +61,18 @@ const parseCueNumber = (cueNumber: string): number => {
 }
 
 export const useScriptStore = create<ScriptState>((set, get) => ({
-  // Pirates of Penzance script data
-  pages: PIRATES_PAGES,
-  scenes: PIRATES_ACTS, // Acts (Act 1, Act 2)
-  songs: PIRATES_SONGS, // All songs with continuation chains
+  // Initialize with empty data - demo mode will populate via setScriptData
+  pages: [],
+  scenes: [],
+  songs: [],
+
+  setScriptData: (pages, scenes, songs) => {
+    set({ pages, scenes, songs })
+  },
+
+  reset: () => {
+    set({ pages: [], scenes: [], songs: [] })
+  },
 
   addPage: (pageData) => {
     const newPage: ScriptPage = {

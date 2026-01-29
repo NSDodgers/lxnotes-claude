@@ -10,6 +10,7 @@ import { createSafeStorage } from '@/lib/storage/safe-storage'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useDemoProductionStore } from '@/lib/stores/production-store'
+import { useScriptStore } from '@/lib/stores/script-store'
 import generateDemoNotes from './notes/demo-notes-data'
 import type { Note } from '@/types'
 import { PIRATES_PRODUCTION } from './production/pirates-info'
@@ -65,10 +66,14 @@ export async function initializeDemoSession(): Promise<void> {
       // Load production info
       await storage.production.set(PIRATES_PRODUCTION)
 
-      // Load script data (pages, songs, acts)
+      // Load script data (pages, songs, acts) to session storage
       await storage.script.setPages(PIRATES_PAGES)
       await storage.script.setScenesSongs([...PIRATES_ACTS, ...PIRATES_SONGS])
     }
+
+    // Always populate the script store with Pirates data for demo mode
+    // This ensures the in-memory store has the data regardless of session storage state
+    useScriptStore.getState().setScriptData(PIRATES_PAGES, PIRATES_ACTS, PIRATES_SONGS)
 
     // Load demo notes into the in-memory notes store (session-scoped)
     const notesStore = useMockNotesStore.getState()
@@ -204,6 +209,10 @@ export async function resetDemoData(): Promise<void> {
   // Clear fixture store data
   const fixtureStore = useFixtureStore.getState()
   fixtureStore.clearData()
+
+  // Clear script store data
+  const scriptStore = useScriptStore.getState()
+  scriptStore.reset()
 
   console.log('🔄 Demo data cleared')
 

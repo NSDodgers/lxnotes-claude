@@ -1,8 +1,9 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react'
 import { getProduction } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
+import { useScriptStore } from '@/lib/stores/script-store'
 import type { EmailMessagePreset } from '@/types'
 
 export interface Production {
@@ -64,6 +65,8 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
   const [production, setProduction] = useState<Production | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const previousProductionIdRef = useRef<string | null>(null)
+  const resetScriptStore = useScriptStore((state) => state.reset)
 
   const fetchProduction = useCallback(async () => {
     try {
@@ -123,6 +126,18 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
       throw err
     }
   }, [productionId])
+
+  // Reset script store when switching to a different production
+  // This ensures new/different productions don't inherit script data from previous productions or demo mode
+  useEffect(() => {
+    // Reset on first mount or when production ID changes
+    // ProductionProvider is only used for non-demo productions, so always reset
+    // Demo mode has its own initialization that populates the script store
+    if (previousProductionIdRef.current !== productionId) {
+      resetScriptStore()
+    }
+    previousProductionIdRef.current = productionId
+  }, [productionId, resetScriptStore])
 
   useEffect(() => {
     fetchProduction()
