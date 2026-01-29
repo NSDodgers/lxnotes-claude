@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import { getProduction } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
+import type { EmailMessagePreset } from '@/types'
 
 export interface Production {
   id: string
@@ -13,7 +14,7 @@ export interface Production {
   startDate?: Date
   endDate?: Date
   isDemo: boolean
-  savedRecipients: string[]
+  emailPresets: EmailMessagePreset[]
   createdAt: Date
   updatedAt: Date
 }
@@ -24,7 +25,8 @@ interface ProductionContextType {
   isLoading: boolean
   error: Error | null
   refetch: () => Promise<void>
-  updateSavedRecipients: (recipients: string[]) => Promise<void>
+  updateEmailPreset: (preset: EmailMessagePreset) => Promise<void>
+  deleteEmailPreset: (presetId: string) => Promise<void>
 }
 
 const ProductionContext = createContext<ProductionContextType | null>(null)
@@ -80,22 +82,44 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
   }, [productionId])
 
-  const updateSavedRecipients = useCallback(async (recipients: string[]) => {
+  const updateEmailPreset = useCallback(async (preset: EmailMessagePreset) => {
     try {
-      const response = await fetch(`/api/productions/${productionId}`, {
-        method: 'PATCH',
+      const response = await fetch(`/api/productions/${productionId}/email-presets`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ savedRecipients: recipients }),
+        body: JSON.stringify(preset),
       })
 
       if (!response.ok) {
-        throw new Error('Failed to update recipients')
+        throw new Error('Failed to update email preset')
       }
 
+      const { emailPresets } = await response.json()
+
       // Update local state
-      setProduction(prev => prev ? { ...prev, savedRecipients: recipients } : null)
+      setProduction(prev => prev ? { ...prev, emailPresets } : null)
     } catch (err) {
-      console.error('Error updating saved recipients:', err)
+      console.error('Error updating email preset:', err)
+      throw err
+    }
+  }, [productionId])
+
+  const deleteEmailPreset = useCallback(async (presetId: string) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}/email-presets/${presetId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete email preset')
+      }
+
+      const { emailPresets } = await response.json()
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, emailPresets } : null)
+    } catch (err) {
+      console.error('Error deleting email preset:', err)
       throw err
     }
   }, [productionId])
@@ -115,7 +139,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
           startDate: updatedProduction.start_date ? new Date(updatedProduction.start_date) : undefined,
           endDate: updatedProduction.end_date ? new Date(updatedProduction.end_date) : undefined,
           isDemo: updatedProduction.is_demo ?? false,
-          savedRecipients: (updatedProduction as Record<string, unknown>).saved_recipients as string[] ?? [],
+          emailPresets: ((updatedProduction as Record<string, unknown>).email_presets as EmailMessagePreset[]) ?? [],
           createdAt: new Date(updatedProduction.created_at!),
           updatedAt: new Date(updatedProduction.updated_at!),
         })
@@ -138,7 +162,8 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
         isLoading,
         error,
         refetch: fetchProduction,
-        updateSavedRecipients,
+        updateEmailPreset,
+        deleteEmailPreset,
       }}
     >
       {children}

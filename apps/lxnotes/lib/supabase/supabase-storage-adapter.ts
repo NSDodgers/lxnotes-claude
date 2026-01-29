@@ -537,7 +537,7 @@ export async function getProduction(id: string) {
     startDate: data.start_date ? new Date(data.start_date) : undefined,
     endDate: data.end_date ? new Date(data.end_date) : undefined,
     isDemo: data.is_demo ?? false,
-    savedRecipients: (data as Record<string, unknown>).saved_recipients as string[] ?? [],
+    emailPresets: ((data as Record<string, unknown>).email_presets ?? []) as import('@/types').EmailMessagePreset[],
     createdAt: new Date(data.created_at!),
     updatedAt: new Date(data.updated_at!),
     deletedAt: data.deleted_at ? new Date(data.deleted_at) : undefined,

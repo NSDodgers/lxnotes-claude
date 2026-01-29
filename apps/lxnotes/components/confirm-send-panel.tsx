@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { ArrowLeft, Pencil, Send, Download, Loader2, Check, X } from 'lucide-react'
+import { ArrowLeft, Pencil, Send, Download, Loader2, Check, X, Save } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -53,12 +53,13 @@ export function ConfirmSendPanel({
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { getPriorities } = useCustomPrioritiesStore()
   const productionContext = useProductionOptional()
-  const savedRecipients = productionContext?.production?.savedRecipients || []
-  const updateSavedRecipients = productionContext?.updateSavedRecipients
+  const updateEmailPreset = productionContext?.updateEmailPreset
 
   // Per-field override state
   const [editingField, setEditingField] = useState<string | null>(null)
   const [overrides, setOverrides] = useState<EmailOverrides>({})
+  const [isSavingPreset, setIsSavingPreset] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   const isEmail = variant === 'email' && preset.type === 'email_message'
   const emailPreset = isEmail ? (preset as EmailMessagePreset) : null
@@ -97,6 +98,7 @@ export function ConfirmSendPanel({
   const handleFieldEdit = (field: string, value: string) => {
     setOverrides(prev => ({ ...prev, [field]: value }))
     setEditingField(null)
+    setSaveSuccess(false) // Reset save success when editing
   }
 
   const handleCancelEdit = () => {
@@ -107,6 +109,40 @@ export function ConfirmSendPanel({
     const hasOverrides = Object.keys(overrides).length > 0
     onSubmit(hasOverrides ? overrides : undefined)
   }
+
+  // Save current configuration to production preset
+  const handleSaveToPreset = async () => {
+    if (!updateEmailPreset || !emailPreset) return
+
+    setIsSavingPreset(true)
+    setSaveSuccess(false)
+
+    try {
+      const updatedPreset: EmailMessagePreset = {
+        ...emailPreset,
+        config: {
+          ...emailPreset.config,
+          recipients: overrides.recipients ?? emailPreset.config.recipients,
+          subject: overrides.subject ?? emailPreset.config.subject,
+          message: overrides.message ?? emailPreset.config.message,
+        },
+        updatedAt: new Date(),
+      }
+
+      await updateEmailPreset(updatedPreset)
+      setSaveSuccess(true)
+
+      // Clear overrides since they're now saved to the preset
+      setOverrides({})
+    } catch (err) {
+      console.error('Error saving preset:', err)
+    } finally {
+      setIsSavingPreset(false)
+    }
+  }
+
+  const hasUnsavedChanges = Object.keys(overrides).length > 0
+  const canSaveToPreset = isEmail && hasUnsavedChanges && updateEmailPreset
 
   // For email, recipients must be set
   const canSubmit = isEmail
@@ -138,17 +174,8 @@ export function ConfirmSendPanel({
               value={resolvedRecipients}
               isEditing={editingField === 'recipients'}
               onStartEdit={() => setEditingField('recipients')}
-              onSave={(val, shouldSave) => {
-                handleFieldEdit('recipients', val)
-                // Save new recipients to production if requested
-                if (shouldSave && updateSavedRecipients) {
-                  const newEmails = val.split(',').map(e => e.trim()).filter(e => e.length > 0)
-                  const uniqueEmails = [...new Set([...savedRecipients, ...newEmails])]
-                  updateSavedRecipients(uniqueEmails).catch(console.error)
-                }
-              }}
+              onSave={(val) => handleFieldEdit('recipients', val)}
               onCancel={handleCancelEdit}
-              savedRecipients={savedRecipients}
               testId="confirm-field-recipients"
             />
 
@@ -214,6 +241,48 @@ export function ConfirmSendPanel({
             {submitError}
           </div>
         )}
+
+        {/* Save to preset option */}
+        {canSaveToPreset && (
+          <div className="rounded-lg border border-bg-tertiary bg-bg-secondary p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm">
+                <span className="text-text-primary">Save changes to preset?</span>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  Everyone on this production will see these settings
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleSaveToPreset}
+                disabled={isSavingPreset}
+                data-testid="save-to-preset-btn"
+              >
+                {isSavingPreset ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : saveSuccess ? (
+                  <>
+                    <Check className="h-3 w-3 mr-1" />
+                    Saved
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-3 w-3 mr-1" />
+                    Save
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Save success message */}
+        {saveSuccess && !hasUnsavedChanges && (
+          <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-400">
+            Preset saved for this production
+          </div>
+        )}
       </div>
 
       {/* Action button */}
@@ -257,11 +326,10 @@ interface EditableFieldProps {
   rawValue?: string // unresolved value for editing (with placeholders)
   isEditing: boolean
   onStartEdit: () => void
-  onSave: (value: string, shouldSaveToContacts?: boolean) => void
+  onSave: (value: string) => void
   onCancel: () => void
   multiline?: boolean
   showPlaceholders?: boolean // Show placeholder chips when editing
-  savedRecipients?: string[] // Saved recipients for quick selection
   testId: string
 }
 
@@ -275,56 +343,25 @@ function EditableField({
   onCancel,
   multiline,
   showPlaceholders,
-  savedRecipients,
   testId,
 }: EditableFieldProps) {
   const [editValue, setEditValue] = useState('')
-  const [saveToContacts, setSaveToContacts] = useState(false)
   const { getAvailablePlaceholders } = useEmailMessagePresetsStore()
   const placeholders = getAvailablePlaceholders()
 
   const handleStartEdit = () => {
     setEditValue(rawValue ?? value)
-    setSaveToContacts(false)
     onStartEdit()
   }
 
   const handleSave = () => {
-    onSave(editValue, saveToContacts)
-  }
-
-  const handleAddSavedRecipient = (email: string) => {
-    const current = editValue.trim()
-    if (current) {
-      // Add to existing, avoid duplicates
-      const existing = current.split(',').map(e => e.trim()).filter(e => e)
-      if (!existing.includes(email)) {
-        setEditValue([...existing, email].join(', '))
-      }
-    } else {
-      setEditValue(email)
-    }
+    onSave(editValue)
   }
 
   if (isEditing) {
     return (
       <div className="space-y-2" data-testid={testId}>
         <div className="text-xs font-medium text-text-secondary">{label}</div>
-        {/* Show saved recipients as clickable chips */}
-        {savedRecipients && savedRecipients.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {savedRecipients.map((email) => (
-              <button
-                key={email}
-                type="button"
-                onClick={() => handleAddSavedRecipient(email)}
-                className="px-2 py-0.5 text-xs bg-bg-tertiary hover:bg-bg-hover text-text-secondary rounded-full transition-colors"
-              >
-                + {email}
-              </button>
-            ))}
-          </div>
-        )}
         {showPlaceholders ? (
           // Use droppable inputs with placeholder support
           multiline ? (
@@ -370,22 +407,10 @@ function EditableField({
             className="max-h-48"
           />
         )}
-        {/* Save to contacts checkbox for recipients field */}
-        {savedRecipients !== undefined && (
-          <label className="flex items-center gap-2 text-xs text-text-secondary cursor-pointer">
-            <input
-              type="checkbox"
-              checked={saveToContacts}
-              onChange={(e) => setSaveToContacts(e.target.checked)}
-              className="rounded border-bg-tertiary"
-            />
-            Save to contacts for this production
-          </label>
-        )}
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={handleSave}>
             <Check className="h-3 w-3 mr-1" />
-            Save
+            Done
           </Button>
           <Button size="sm" variant="ghost" onClick={onCancel}>
             <X className="h-3 w-3 mr-1" />
