@@ -483,7 +483,10 @@ export async function createProduction(data: {
 }) {
   const supabase = createClient()
 
-  const { data: production, error } = await supabase
+  // Insert without .select() to avoid RLS SELECT policy conflict
+  // The AFTER INSERT trigger adds the user as admin, but RETURNING evaluates
+  // before we can read the row back. So we insert first, then query separately.
+  const { error: insertError } = await supabase
     .from('productions')
     .insert({
       name: data.name,
@@ -494,10 +497,20 @@ export async function createProduction(data: {
       end_date: data.endDate?.toISOString().split('T')[0] ?? null,
       is_demo: false,
     })
+
+  if (insertError) throw insertError
+
+  // Now query the production - the trigger has added us as admin so we have access
+  const { data: production, error: selectError } = await supabase
+    .from('productions')
     .select()
+    .eq('name', data.name)
+    .eq('abbreviation', data.abbreviation)
+    .order('created_at', { ascending: false })
+    .limit(1)
     .single()
 
-  if (error) throw error
+  if (selectError) throw selectError
 
   return {
     id: production.id,

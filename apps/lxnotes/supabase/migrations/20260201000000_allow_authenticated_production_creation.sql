@@ -19,11 +19,13 @@ CREATE POLICY "Authenticated users can create productions" ON productions
 -- ============================================
 
 -- Trigger function to automatically add the production creator as an admin member
+-- Note: SET row_security = off is required to bypass RLS on production_members table
 CREATE OR REPLACE FUNCTION public.handle_new_production()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
+SET row_security = off
 AS $$
 BEGIN
   -- Add the creator as an admin member of the new production
