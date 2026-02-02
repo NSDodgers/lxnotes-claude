@@ -6,7 +6,7 @@ import { ProductionList } from '@/components/home/production-list'
 import { CreateProductionDialog } from '@/components/home/create-production-dialog'
 import { GoogleSignInButton } from '@/components/auth/google-sign-in-button'
 import { UserMenu } from '@/components/auth/user-menu'
-import { getCurrentUser, isSuperAdmin, getUserProductions } from '@/lib/auth'
+import { getCurrentUser, getUserProductions } from '@/lib/auth'
 
 // Force dynamic rendering since this page uses cookies for auth
 export const dynamic = 'force-dynamic'
@@ -23,7 +23,6 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const user = await getCurrentUser()
-  const superAdmin = user ? await isSuperAdmin(user.id) : false
   const productions = user ? await getUserProductions(user.id) : []
 
   // Check for pending invitations if user is logged in
@@ -109,39 +108,40 @@ export default async function HomePage() {
           </>
         )}
 
-        {/* Logged In - No Access State */}
-        {user && productions.length === 0 && !superAdmin && (
+        {/* Logged In - No Productions State */}
+        {user && productions.length === 0 && (
           <div className="mb-8 p-6 bg-bg-secondary rounded-lg border border-border">
             <p className="text-text-secondary mb-4">
-              You don&apos;t have access to any productions yet.
+              You don&apos;t have any productions yet.
             </p>
-            <p className="text-sm text-text-muted">
-              Contact an admin to be added to a production, or try the demo below.
+            <p className="text-sm text-text-muted mb-4">
+              Create your first production to get started, or try the demo below.
             </p>
-            <Link
-              href="/demo/cue-notes"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 mt-4 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-all"
-            >
-              Try Demo
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <CreateProductionDialog />
+              <Link
+                href="/demo/cue-notes"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-bg-tertiary hover:bg-bg-tertiary/80 text-text-primary font-medium rounded-lg transition-all border border-border"
+              >
+                Try Demo
+              </Link>
+            </div>
           </div>
         )}
 
-        {/* Logged In - With Access State */}
-        {user && (productions.length > 0 || superAdmin) && (
+        {/* Logged In - With Productions State */}
+        {user && productions.length > 0 && (
           <>
-            {/* Action Buttons for Super Admin */}
-            {superAdmin && (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <CreateProductionDialog />
-                <Link
-                  href="/demo/cue-notes"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-tertiary text-text-primary font-medium rounded-lg transition-all border border-border"
-                >
-                  Try Demo
-                </Link>
-              </div>
-            )}
+            {/* Action Buttons for Authenticated Users */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <CreateProductionDialog />
+              <Link
+                href="/demo/cue-notes"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-tertiary text-text-primary font-medium rounded-lg transition-all border border-border"
+              >
+                Try Demo
+              </Link>
+            </div>
 
             {/* Productions Section */}
             <div className="mt-8 text-left">
