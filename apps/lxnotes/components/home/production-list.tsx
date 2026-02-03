@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { subscribeToProductionsList } from '@/lib/supabase/realtime'
 import { ProductionCard } from './production-card'
+import { DeleteProductionDialog } from './delete-production-dialog'
 
 interface Production {
   id: string
@@ -33,10 +34,13 @@ interface RawProduction {
 
 interface ProductionListProps {
   initialProductions?: Production[]
+  adminProductionIds?: string[]
 }
 
-export function ProductionList({ initialProductions = [] }: ProductionListProps) {
+export function ProductionList({ initialProductions = [], adminProductionIds = [] }: ProductionListProps) {
   const [productions, setProductions] = useState<Production[]>(initialProductions)
+  const [deletingProduction, setDeletingProduction] = useState<Production | null>(null)
+  const adminSet = new Set(adminProductionIds)
 
   useEffect(() => {
     // Update state if initialProductions changes (e.g., after navigation)
@@ -108,11 +112,34 @@ export function ProductionList({ initialProductions = [] }: ProductionListProps)
     )
   }
 
+  const handleDeleteSuccess = () => {
+    if (deletingProduction) {
+      setProductions((prev) => prev.filter((p) => p.id !== deletingProduction.id))
+      setDeletingProduction(null)
+    }
+  }
+
   return (
-    <div className="max-h-[300px] overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-bg-tertiary scrollbar-track-transparent">
-      {productions.map((production) => (
-        <ProductionCard key={production.id} production={production} />
-      ))}
-    </div>
+    <>
+      <div className="max-h-[300px] overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-bg-tertiary scrollbar-track-transparent">
+        {productions.map((production) => (
+          <ProductionCard
+            key={production.id}
+            production={production}
+            isAdmin={adminSet.has(production.id)}
+            onDelete={() => setDeletingProduction(production)}
+          />
+        ))}
+      </div>
+
+      {deletingProduction && (
+        <DeleteProductionDialog
+          production={deletingProduction}
+          isOpen={!!deletingProduction}
+          onClose={() => setDeletingProduction(null)}
+          onSuccess={handleDeleteSuccess}
+        />
+      )}
+    </>
   )
 }

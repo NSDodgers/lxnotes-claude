@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
+import { ProductionCardMenu } from './production-card-menu'
 
 interface ProductionCardProps {
   production: {
@@ -13,9 +14,11 @@ interface ProductionCardProps {
     description?: string
     updatedAt: Date
   }
+  isAdmin?: boolean
+  onDelete?: () => void
 }
 
-export function ProductionCard({ production }: ProductionCardProps) {
+export function ProductionCard({ production, isAdmin, onDelete }: ProductionCardProps) {
   const timeAgo = getTimeAgo(production.updatedAt)
 
   return (
@@ -62,6 +65,13 @@ export function ProductionCard({ production }: ProductionCardProps) {
         <div className="flex-shrink-0 text-right">
           <span className="text-xs text-text-muted">{timeAgo}</span>
         </div>
+
+        {/* Admin Menu (shows before arrow) */}
+        {isAdmin && onDelete && (
+          <div className="flex-shrink-0">
+            <ProductionCardMenu onDelete={onDelete} />
+          </div>
+        )}
 
         {/* Arrow */}
         <div className="flex-shrink-0 text-text-muted group-hover:text-emerald-400 transition-colors">

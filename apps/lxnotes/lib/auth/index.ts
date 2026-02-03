@@ -163,3 +163,83 @@ export async function getUserProductions(userId: string): Promise<Production[]> 
     return []
   }
 }
+
+/**
+ * Get production IDs where user is an admin (server-side)
+ * Returns a Set for O(1) lookup
+ */
+export async function getUserAdminProductionIds(userId: string): Promise<Set<string>> {
+  try {
+    const supabase = await createClient()
+
+    const { data: adminMemberships } = await supabase
+      .from('production_members')
+      .select('production_id')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+
+    if (!adminMemberships || adminMemberships.length === 0) {
+      return new Set()
+    }
+
+    return new Set(adminMemberships.map((m) => m.production_id))
+  } catch (error) {
+    console.error('Error getting user admin production IDs:', error)
+    return new Set()
+  }
+}
+
+// Extended production interface for deleted items
+export interface DeletedProduction extends Production {
+  deletedAt: Date
+  deletedBy?: string
+}
+
+// Raw database row type with deleted fields
+interface RawDeletedProductionRow extends RawProductionRow {
+  deleted_at: string
+  deleted_by?: string | null
+}
+
+function mapDeletedProduction(row: RawDeletedProductionRow): DeletedProduction {
+  return {
+    ...mapProduction(row),
+    deletedAt: new Date(row.deleted_at),
+    deletedBy: row.deleted_by ?? undefined,
+  }
+}
+
+/**
+ * Get user's deleted (trashed) productions (server-side)
+ * Only returns productions where user is an admin
+ */
+export async function getUserDeletedProductions(userId: string): Promise<DeletedProduction[]> {
+  try {
+    const supabase = await createClient()
+
+    // Get productions where user is admin AND deleted_at is set
+    const { data: adminMemberships } = await supabase
+      .from('production_members')
+      .select('production_id')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+
+    if (!adminMemberships || adminMemberships.length === 0) {
+      return []
+    }
+
+    const productionIds = adminMemberships.map((m) => m.production_id)
+
+    const { data: deletedProductions } = await supabase
+      .from('productions')
+      .select('*')
+      .in('id', productionIds)
+      .not('deleted_at', 'is', null)
+      .order('deleted_at', { ascending: false })
+
+    return (deletedProductions ?? []).map((row) => mapDeletedProduction(row as RawDeletedProductionRow))
+  } catch (error) {
+    console.error('Error getting user deleted productions:', error)
+    return []
+  }
+}

@@ -3,10 +3,11 @@ import Link from 'next/link'
 import { Metadata } from 'next'
 import { PolicyFooter } from '@/components/layout/policy-footer'
 import { ProductionList } from '@/components/home/production-list'
+import { ProductionsTabs } from '@/components/home/productions-tabs'
 import { CreateProductionDialog } from '@/components/home/create-production-dialog'
 import { GoogleSignInButton } from '@/components/auth/google-sign-in-button'
 import { UserMenu } from '@/components/auth/user-menu'
-import { getCurrentUser, getUserProductions } from '@/lib/auth'
+import { getCurrentUser, getUserProductions, getUserAdminProductionIds, getUserDeletedProductions } from '@/lib/auth'
 
 // Force dynamic rendering since this page uses cookies for auth
 export const dynamic = 'force-dynamic'
@@ -24,6 +25,8 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const user = await getCurrentUser()
   const productions = user ? await getUserProductions(user.id) : []
+  const adminProductionIds = user ? await getUserAdminProductionIds(user.id) : new Set<string>()
+  const deletedProductions = user ? await getUserDeletedProductions(user.id) : []
 
   // Check for pending invitations if user is logged in
   if (user && user.email) {
@@ -143,13 +146,12 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            {/* Productions Section */}
-            <div className="mt-8 text-left">
-              <h3 className="text-lg font-semibold text-text-primary mb-4 text-center">
-                Your Productions
-              </h3>
-              <ProductionList initialProductions={productions} />
-            </div>
+            {/* Productions Section with Tabs */}
+            <ProductionsTabs
+              initialProductions={productions}
+              initialDeletedProductions={deletedProductions}
+              adminProductionIds={Array.from(adminProductionIds)}
+            />
           </>
         )}
 

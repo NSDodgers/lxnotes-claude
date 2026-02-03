@@ -23,6 +23,32 @@ export interface Production {
   printPresets: PrintPreset[]
   createdAt: Date
   updatedAt: Date
+  deletedAt?: Date
+  deletedBy?: string
+}
+
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
+import { AlertTriangle, RotateCcw, Loader2 } from 'lucide-react'
+
+export interface Production {
+  id: string
+  name: string
+  abbreviation: string
+  logo?: string
+  description?: string
+  startDate?: Date
+  endDate?: Date
+  isDemo: boolean
+  emailPresets: EmailMessagePreset[]
+  filterSortPresets: FilterSortPreset[]
+  pageStylePresets: PageStylePreset[]
+  printPresets: PrintPreset[]
+  createdAt: Date
+  updatedAt: Date
+  deletedAt?: Date
+  deletedBy?: string
 }
 
 interface ProductionContextType {
@@ -30,6 +56,7 @@ interface ProductionContextType {
   productionId: string
   isLoading: boolean
   error: Error | null
+  isAdmin: boolean
   refetch: () => Promise<void>
   updateEmailPreset: (preset: EmailMessagePreset) => Promise<void>
   deleteEmailPreset: (presetId: string) => Promise<void>
@@ -73,9 +100,12 @@ interface ProductionProviderProps {
 }
 
 export function ProductionProvider({ productionId, children }: ProductionProviderProps) {
+  const router = useRouter()
   const [production, setProduction] = useState<Production | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isRestoring, setIsRestoring] = useState(false)
   const previousProductionIdRef = useRef<string | null>(null)
   const resetScriptStore = useScriptStore((state) => state.reset)
   const clearFixtureData = useFixtureStore((state) => state.clearData)
@@ -86,8 +116,36 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
       setIsLoading(true)
       setError(null)
       const data = await getProduction(productionId)
+
       if (data) {
         setProduction(data)
+
+        // Check admin status for access control on deleted items
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (user) {
+          // Check if super admin
+          const { data: userData } = await supabase
+            .from('users')
+            .select('email')
+            .eq('id', user.id)
+            .single()
+
+          // Import SUPER_ADMIN_EMAIL constant dynamically or hardcode for client-side check if needed
+          // For now, let's rely on database role check which is safer
+
+          const { data: member } = await supabase
+            .from('production_members')
+            .select('role')
+            .eq('production_id', productionId)
+            .eq('user_id', user.id)
+            .single()
+
+          // Determine if admin (either explicit role OR super admin email check if we had it client-side)
+          // Currently relying on role 'admin'
+          setIsAdmin(member?.role === 'admin')
+        }
       } else {
         setError(new Error('Production not found'))
       }
@@ -97,6 +155,30 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
       setIsLoading(false)
     }
   }, [productionId])
+
+  const restoreProduction = async () => {
+    if (!production) return
+
+    try {
+      setIsRestoring(true)
+      const response = await fetch(`/api/productions/${productionId}/restore`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to restore production')
+      }
+
+      toast.success('Production restored')
+      // Refetch to clear deleted status
+      await fetchProduction()
+    } catch (err) {
+      console.error('Failed to restore:', err)
+      toast.error('Failed to restore production')
+    } finally {
+      setIsRestoring(false)
+    }
+  }
 
   const updateEmailPreset = useCallback(async (preset: EmailMessagePreset) => {
     try {
@@ -280,6 +362,17 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     previousProductionIdRef.current = productionId
   }, [productionId, resetScriptStore, clearFixtureData, clearPositionOrder])
 
+  // Access Control Effect
+  useEffect(() => {
+    if (!isLoading && production?.deletedAt) {
+      // If deleted and not admin, prompt/redirect
+      if (!isAdmin) {
+        toast.error('This production has been deleted')
+        router.push('/')
+      }
+    }
+  }, [isLoading, production, isAdmin, router])
+
   useEffect(() => {
     fetchProduction()
 
@@ -301,6 +394,8 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
           printPresets: ((updatedProduction as Record<string, unknown>).print_presets as PrintPreset[]) ?? [],
           createdAt: new Date(updatedProduction.created_at!),
           updatedAt: new Date(updatedProduction.updated_at!),
+          deletedAt: updatedProduction.deleted_at ? new Date(updatedProduction.deleted_at) : undefined,
+          deletedBy: updatedProduction.deleted_by ?? undefined,
         })
       },
       onError: (err) => {
@@ -313,6 +408,58 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
   }, [productionId, fetchProduction])
 
+  // Render "Deleted" state for admins who are allowed to stay and restore
+  if (!isLoading && production?.deletedAt && isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary p-4">
+        <div className="max-w-md w-full bg-bg-secondary rounded-lg border border-border p-6 text-center space-y-6">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto">
+            <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
+
+          <div>
+            <h1 className="text-xl font-bold text-text-primary mb-2">Production Deleted</h1>
+            <p className="text-text-secondary">
+              This production is currently in the trash. You can restore it to continue working, or it will be permanently deleted in 30 days.
+            </p>
+          </div>
+
+          <button
+            onClick={restoreProduction}
+            disabled={isRestoring}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+          >
+            {isRestoring ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Restoring...
+              </>
+            ) : (
+              <>
+                <RotateCcw className="h-4 w-4" />
+                Restore Production
+              </>
+            )}
+          </button>
+
+          <div className="pt-4 border-t border-border">
+            <button
+              onClick={() => router.push('/')}
+              className="text-sm text-text-muted hover:text-text-primary transition-colors"
+            >
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // For non-admins who are deleted, we return null while redirection happens
+  if (!isLoading && production?.deletedAt && !isAdmin) {
+    return null
+  }
+
   return (
     <ProductionContext.Provider
       value={{
@@ -320,6 +467,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
         productionId,
         isLoading,
         error,
+        isAdmin,
         refetch: fetchProduction,
         updateEmailPreset,
         deleteEmailPreset,
