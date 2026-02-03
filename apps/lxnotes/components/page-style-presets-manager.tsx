@@ -3,12 +3,20 @@
 import { useState } from 'react'
 import { Plus, ChevronDown, ChevronUp } from 'lucide-react'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { PresetCard } from './preset-card'
 import { PageStylePresetDialog } from './page-style-preset-dialog'
 import type { PageStylePreset } from '@/types'
 
 export function PageStylePresetsManager() {
-  const { presets, deletePreset } = usePageStylePresetsStore()
+  // Production context - null when in demo mode or outside ProductionProvider
+  const productionContext = useProductionOptional()
+
+  // Local store as fallback for demo mode
+  const store = usePageStylePresetsStore()
+
+  // Use production presets when available, otherwise fall back to local store
+  const presets = productionContext?.production?.pageStylePresets ?? store.presets
   const [collapsed, setCollapsed] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingPreset, setEditingPreset] = useState<PageStylePreset | null>(null)
@@ -23,8 +31,13 @@ export function PageStylePresetsManager() {
     setIsDialogOpen(true)
   }
 
-  const handleDelete = (id: string) => {
-    deletePreset(id)
+  const handleDelete = async (id: string) => {
+    if (productionContext?.deletePageStylePreset) {
+      await productionContext.deletePageStylePreset(id)
+    } else {
+      // Demo mode fallback
+      store.deletePreset(id)
+    }
   }
 
   const nonSystemPresets = presets.filter(p => !p.isDefault)
@@ -105,6 +118,8 @@ export function PageStylePresetsManager() {
           if (!open) setEditingPreset(null)
         }}
         editingPreset={editingPreset}
+        onProductionSave={productionContext?.updatePageStylePreset}
+        productionId={productionContext?.productionId}
       />
     </>
   )

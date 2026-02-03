@@ -5,6 +5,7 @@ import { Plus, ChevronDown, ChevronUp, Printer, Edit2, Trash2 } from 'lucide-rea
 import { usePrintPresetsStore } from '@/lib/stores/print-presets-store'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { PresetSelector } from './preset-selector'
 import {
   PresetDialog,
@@ -26,9 +27,23 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 const moduleOptions: ModuleType[] = ['cue', 'work', 'production']
 
 export function PrintPresetsManager() {
-  const { presets, addPreset, updatePreset, deletePreset } = usePrintPresetsStore()
-  const { getPresetsByModule: getFilterPresetsByModule } = useFilterSortPresetsStore()
-  const { presets: pageStylePresets } = usePageStylePresetsStore()
+  // Production context - null when in demo mode or outside ProductionProvider
+  const productionContext = useProductionOptional()
+
+  // Local store as fallback for demo mode
+  const store = usePrintPresetsStore()
+
+  // Use production presets when available, otherwise fall back to local store
+  const presets = productionContext?.production?.printPresets ?? store.presets
+
+  // Filter sort presets - use production when available
+  const filterSortStore = useFilterSortPresetsStore()
+  const filterSortPresets = productionContext?.production?.filterSortPresets ?? filterSortStore.presets
+  const getFilterPresetsByModule = (module: ModuleType) => filterSortPresets.filter(p => p.moduleType === module)
+
+  // Page style presets - use production when available
+  const pageStyleStore = usePageStylePresetsStore()
+  const pageStylePresets = productionContext?.production?.pageStylePresets ?? pageStyleStore.presets
 
   const [collapsed, setCollapsed] = useState(false)
   const [showDialog, setShowDialog] = useState(false)
@@ -66,7 +81,7 @@ export function PrintPresetsManager() {
     setShowDialog(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formName.trim()) return
 
     const config: PrintPreset['config'] = {
@@ -74,26 +89,57 @@ export function PrintPresetsManager() {
       pageStylePresetId: formPageStylePresetId,
     }
 
-    if (editingPreset && !editingPreset.isDefault) {
-      updatePreset(editingPreset.id, { name: formName, config })
-    } else {
-      addPreset({
-        productionId: 'prod-1',
+    if (productionContext?.updatePrintPreset) {
+      // Production mode - use API
+      const now = new Date()
+      const existingCreatedAt = editingPreset?.createdAt
+      const createdAt = existingCreatedAt instanceof Date
+        ? existingCreatedAt
+        : existingCreatedAt
+          ? new Date(existingCreatedAt)
+          : now
+
+      const preset: PrintPreset = {
+        id: (editingPreset && !editingPreset.isDefault) ? editingPreset.id : crypto.randomUUID(),
         type: 'print',
         moduleType: formModuleType,
         name: formName,
+        productionId: productionContext.productionId,
         config,
         isDefault: false,
-        createdBy: 'user',
-      })
+        createdBy: editingPreset?.createdBy ?? 'user',
+        createdAt,
+        updatedAt: now,
+      }
+      await productionContext.updatePrintPreset(preset)
+    } else {
+      // Demo mode fallback - use local store
+      if (editingPreset && !editingPreset.isDefault) {
+        store.updatePreset(editingPreset.id, { name: formName, config })
+      } else {
+        store.addPreset({
+          productionId: 'prod-1',
+          type: 'print',
+          moduleType: formModuleType,
+          name: formName,
+          config,
+          isDefault: false,
+          createdBy: 'user',
+        })
+      }
     }
 
     setShowDialog(false)
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this preset?')) {
-      deletePreset(id)
+      if (productionContext?.deletePrintPreset) {
+        await productionContext.deletePrintPreset(id)
+      } else {
+        // Demo mode fallback
+        store.deletePreset(id)
+      }
     }
   }
 

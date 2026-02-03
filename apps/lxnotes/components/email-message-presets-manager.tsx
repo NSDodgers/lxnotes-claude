@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { PresetCard } from './preset-card'
 import { PresetSelector } from './preset-selector'
 import { PlaceholderChipPanel } from './placeholder-chip-panel'
@@ -37,17 +38,18 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 const moduleOptions: ModuleType[] = ['cue', 'work', 'production']
 
 export function EmailMessagePresetsManager() {
-  const {
-    presets,
-    addPreset,
-    updatePreset,
-    deletePreset,
-    getAvailablePlaceholders,
-    resolvePlaceholders
-  } = useEmailMessagePresetsStore()
+  // Production context - null when in demo mode or outside ProductionProvider
+  const productionContext = useProductionOptional()
+
+  // Local store as fallback for demo mode
+  const store = useEmailMessagePresetsStore()
   const { getPresetsByModule: getFilterPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { user } = useAuthContext()
+
+  // Use production presets when available, otherwise fall back to local store
+  const presets = productionContext?.production?.emailPresets ?? store.presets
+  const { getAvailablePlaceholders, resolvePlaceholders } = store
 
   // Get user's name from auth metadata
   const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
@@ -119,33 +121,36 @@ export function EmailMessagePresetsManager() {
     setShowPreview(false)
   }
 
-  const handleDelete = (id: string) => {
-    deletePreset(id)
+  const handleDelete = async (id: string) => {
+    if (productionContext?.deleteEmailPreset) {
+      await productionContext.deleteEmailPreset(id)
+    } else {
+      // Demo mode fallback
+      store.deletePreset(id)
+    }
   }
 
-  const handleSubmit = (data: EmailMessageFormData) => {
-    if (editingPreset) {
-      // Update existing preset
-      updatePreset(editingPreset.id, {
-        name: data.name,
-        moduleType: data.moduleType,
-        config: {
-          recipients: data.recipients,
-          subject: data.subject,
-          message: data.message,
-          filterAndSortPresetId: data.filterAndSortPresetId,
-          pageStylePresetId: data.pageStylePresetId,
-          includeNotesInBody: data.includeNotesInBody,
-          attachPdf: data.attachPdf,
-        }
-      })
-    } else {
-      // Create new preset
-      addPreset({
+  const handleSubmit = async (data: EmailMessageFormData) => {
+    const productionId = productionContext?.productionId ?? 'demo'
+    const userId = user?.id ?? 'demo-user'
+
+    if (productionContext?.updateEmailPreset) {
+      // Production mode - use API
+      const now = new Date()
+      // Handle createdAt which may be a Date or ISO string from API
+      const existingCreatedAt = editingPreset?.createdAt
+      const createdAt = existingCreatedAt instanceof Date
+        ? existingCreatedAt
+        : existingCreatedAt
+          ? new Date(existingCreatedAt)
+          : now
+
+      const preset: EmailMessagePreset = {
+        id: editingPreset?.id ?? crypto.randomUUID(),
         type: 'email_message',
         moduleType: data.moduleType,
         name: data.name,
-        productionId: 'prod-1', // TODO: Get from production context
+        productionId,
         config: {
           recipients: data.recipients,
           subject: data.subject,
@@ -155,9 +160,47 @@ export function EmailMessagePresetsManager() {
           includeNotesInBody: data.includeNotesInBody,
           attachPdf: data.attachPdf,
         },
-        isDefault: false,
-        createdBy: 'user', // TODO: Get from auth
-      })
+        isDefault: editingPreset?.isDefault ?? false,
+        createdBy: editingPreset?.createdBy ?? userId,
+        createdAt,
+        updatedAt: now,
+      }
+      await productionContext.updateEmailPreset(preset)
+    } else {
+      // Demo mode fallback - use local store
+      if (editingPreset) {
+        store.updatePreset(editingPreset.id, {
+          name: data.name,
+          moduleType: data.moduleType,
+          config: {
+            recipients: data.recipients,
+            subject: data.subject,
+            message: data.message,
+            filterAndSortPresetId: data.filterAndSortPresetId,
+            pageStylePresetId: data.pageStylePresetId,
+            includeNotesInBody: data.includeNotesInBody,
+            attachPdf: data.attachPdf,
+          }
+        })
+      } else {
+        store.addPreset({
+          type: 'email_message',
+          moduleType: data.moduleType,
+          name: data.name,
+          productionId,
+          config: {
+            recipients: data.recipients,
+            subject: data.subject,
+            message: data.message,
+            filterAndSortPresetId: data.filterAndSortPresetId,
+            pageStylePresetId: data.pageStylePresetId,
+            includeNotesInBody: data.includeNotesInBody,
+            attachPdf: data.attachPdf,
+          },
+          isDefault: false,
+          createdBy: userId,
+        })
+      }
     }
 
     setIsDialogOpen(false)

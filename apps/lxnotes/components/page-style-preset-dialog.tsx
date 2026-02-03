@@ -22,6 +22,10 @@ interface PageStylePresetDialogProps {
   editingPreset?: PageStylePreset | null
   /** Called after successful save with the preset id */
   onSave?: (presetId: string) => void
+  /** Production context update function - when provided, saves to production instead of local store */
+  onProductionSave?: (preset: PageStylePreset) => Promise<void>
+  /** Production ID when saving to production */
+  productionId?: string
 }
 
 export function PageStylePresetDialog({
@@ -29,6 +33,8 @@ export function PageStylePresetDialog({
   onOpenChange,
   editingPreset,
   onSave,
+  onProductionSave,
+  productionId,
 }: PageStylePresetDialogProps) {
   const { addPreset, updatePreset } = usePageStylePresetsStore()
 
@@ -62,34 +68,66 @@ export function PageStylePresetDialog({
     }
   }, [open, editingPreset, form])
 
-  const handleSubmit = (data: PageStyleFormData) => {
+  const handleSubmit = async (data: PageStyleFormData) => {
     let presetId: string
-    if (editingPreset) {
-      updatePreset(editingPreset.id, {
-        name: data.name,
-        config: {
-          paperSize: data.paperSize,
-          orientation: data.orientation,
-          includeCheckboxes: data.includeCheckboxes,
-        }
-      })
-      presetId = editingPreset.id
-    } else {
-      addPreset({
+
+    if (onProductionSave) {
+      // Production mode - use API via production context
+      const now = new Date()
+      const existingCreatedAt = editingPreset?.createdAt
+      const createdAt = existingCreatedAt instanceof Date
+        ? existingCreatedAt
+        : existingCreatedAt
+          ? new Date(existingCreatedAt)
+          : now
+
+      presetId = editingPreset?.id ?? crypto.randomUUID()
+      const preset: PageStylePreset = {
+        id: presetId,
         type: 'page_style',
         moduleType: 'all',
         name: data.name,
-        productionId: 'prod-1',
+        productionId: productionId ?? 'unknown',
         config: {
           paperSize: data.paperSize,
           orientation: data.orientation,
           includeCheckboxes: data.includeCheckboxes,
         },
-        isDefault: false,
-        createdBy: 'user',
-      })
-      const storePresets = usePageStylePresetsStore.getState().presets
-      presetId = storePresets[storePresets.length - 1].id
+        isDefault: editingPreset?.isDefault ?? false,
+        createdBy: editingPreset?.createdBy ?? 'user',
+        createdAt,
+        updatedAt: now,
+      }
+      await onProductionSave(preset)
+    } else {
+      // Demo mode fallback - use local store
+      if (editingPreset) {
+        updatePreset(editingPreset.id, {
+          name: data.name,
+          config: {
+            paperSize: data.paperSize,
+            orientation: data.orientation,
+            includeCheckboxes: data.includeCheckboxes,
+          }
+        })
+        presetId = editingPreset.id
+      } else {
+        addPreset({
+          type: 'page_style',
+          moduleType: 'all',
+          name: data.name,
+          productionId: 'prod-1',
+          config: {
+            paperSize: data.paperSize,
+            orientation: data.orientation,
+            includeCheckboxes: data.includeCheckboxes,
+          },
+          isDefault: false,
+          createdBy: 'user',
+        })
+        const storePresets = usePageStylePresetsStore.getState().presets
+        presetId = storePresets[storePresets.length - 1].id
+      }
     }
 
     onOpenChange(false)

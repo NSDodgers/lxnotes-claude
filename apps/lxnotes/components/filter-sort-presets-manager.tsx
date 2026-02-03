@@ -3,12 +3,21 @@
 import { useState, useMemo } from 'react'
 import { Plus, ChevronDown, ChevronUp, Filter } from 'lucide-react'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { PresetCard } from './preset-card'
 import { FilterSortPresetDialog } from './filter-sort-preset-dialog'
 import type { FilterSortPreset, ModuleType } from '@/types'
 
 export function FilterSortPresetsManager() {
-  const { presets, deletePreset, getPresetsByModule } = useFilterSortPresetsStore()
+  // Production context - null when in demo mode or outside ProductionProvider
+  const productionContext = useProductionOptional()
+
+  // Local store as fallback for demo mode
+  const store = useFilterSortPresetsStore()
+
+  // Use production presets when available, otherwise fall back to local store
+  const presets = productionContext?.production?.filterSortPresets ?? store.presets
+  const getPresetsByModule = (module: ModuleType) => presets.filter(p => p.moduleType === module)
 
   const [collapsed, setCollapsed] = useState(false)
   const [selectedModule, setSelectedModule] = useState<ModuleType | 'all'>('all')
@@ -31,8 +40,13 @@ export function FilterSortPresetsManager() {
     setIsDialogOpen(true)
   }
 
-  const handleDelete = (id: string) => {
-    deletePreset(id)
+  const handleDelete = async (id: string) => {
+    if (productionContext?.deleteFilterSortPreset) {
+      await productionContext.deleteFilterSortPreset(id)
+    } else {
+      // Demo mode fallback
+      store.deletePreset(id)
+    }
   }
 
   const dialogModuleType: ModuleType = selectedModule !== 'all' ? selectedModule : 'cue'
@@ -136,6 +150,8 @@ export function FilterSortPresetsManager() {
         }}
         editingPreset={editingPreset}
         moduleType={dialogModuleType}
+        onProductionSave={productionContext?.updateFilterSortPreset}
+        productionId={productionContext?.productionId}
       />
     </>
   )

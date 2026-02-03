@@ -6,7 +6,7 @@ import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { usePositionStore } from '@/lib/stores/position-store'
-import type { EmailMessagePreset } from '@/types'
+import type { EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset } from '@/types'
 
 export interface Production {
   id: string
@@ -18,6 +18,9 @@ export interface Production {
   endDate?: Date
   isDemo: boolean
   emailPresets: EmailMessagePreset[]
+  filterSortPresets: FilterSortPreset[]
+  pageStylePresets: PageStylePreset[]
+  printPresets: PrintPreset[]
   createdAt: Date
   updatedAt: Date
 }
@@ -30,6 +33,12 @@ interface ProductionContextType {
   refetch: () => Promise<void>
   updateEmailPreset: (preset: EmailMessagePreset) => Promise<void>
   deleteEmailPreset: (presetId: string) => Promise<void>
+  updateFilterSortPreset: (preset: FilterSortPreset) => Promise<void>
+  deleteFilterSortPreset: (presetId: string) => Promise<void>
+  updatePageStylePreset: (preset: PageStylePreset) => Promise<void>
+  deletePageStylePreset: (presetId: string) => Promise<void>
+  updatePrintPreset: (preset: PrintPreset) => Promise<void>
+  deletePrintPreset: (presetId: string) => Promise<void>
 }
 
 const ProductionContext = createContext<ProductionContextType | null>(null)
@@ -131,6 +140,132 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
   }, [productionId])
 
+  const updateFilterSortPreset = useCallback(async (preset: FilterSortPreset) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}/filter-sort-presets`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preset),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update filter/sort preset')
+      }
+
+      const { filterSortPresets } = await response.json()
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, filterSortPresets } : null)
+    } catch (err) {
+      console.error('Error updating filter/sort preset:', err)
+      throw err
+    }
+  }, [productionId])
+
+  const deleteFilterSortPreset = useCallback(async (presetId: string) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}/filter-sort-presets/${presetId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete filter/sort preset')
+      }
+
+      const { filterSortPresets } = await response.json()
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, filterSortPresets } : null)
+    } catch (err) {
+      console.error('Error deleting filter/sort preset:', err)
+      throw err
+    }
+  }, [productionId])
+
+  const updatePageStylePreset = useCallback(async (preset: PageStylePreset) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}/page-style-presets`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preset),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update page style preset')
+      }
+
+      const { pageStylePresets } = await response.json()
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, pageStylePresets } : null)
+    } catch (err) {
+      console.error('Error updating page style preset:', err)
+      throw err
+    }
+  }, [productionId])
+
+  const deletePageStylePreset = useCallback(async (presetId: string) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}/page-style-presets/${presetId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete page style preset')
+      }
+
+      const { pageStylePresets } = await response.json()
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, pageStylePresets } : null)
+    } catch (err) {
+      console.error('Error deleting page style preset:', err)
+      throw err
+    }
+  }, [productionId])
+
+  const updatePrintPreset = useCallback(async (preset: PrintPreset) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}/print-presets`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preset),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update print preset')
+      }
+
+      const { printPresets } = await response.json()
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, printPresets } : null)
+    } catch (err) {
+      console.error('Error updating print preset:', err)
+      throw err
+    }
+  }, [productionId])
+
+  const deletePrintPreset = useCallback(async (presetId: string) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}/print-presets/${presetId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete print preset')
+      }
+
+      const { printPresets } = await response.json()
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, printPresets } : null)
+    } catch (err) {
+      console.error('Error deleting print preset:', err)
+      throw err
+    }
+  }, [productionId])
+
   // Reset stores when switching to a different production
   // This ensures new/different productions don't inherit data from previous productions or demo mode
   useEffect(() => {
@@ -161,6 +296,9 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
           endDate: updatedProduction.end_date ? new Date(updatedProduction.end_date) : undefined,
           isDemo: updatedProduction.is_demo ?? false,
           emailPresets: ((updatedProduction as Record<string, unknown>).email_presets as EmailMessagePreset[]) ?? [],
+          filterSortPresets: ((updatedProduction as Record<string, unknown>).filter_sort_presets as FilterSortPreset[]) ?? [],
+          pageStylePresets: ((updatedProduction as Record<string, unknown>).page_style_presets as PageStylePreset[]) ?? [],
+          printPresets: ((updatedProduction as Record<string, unknown>).print_presets as PrintPreset[]) ?? [],
           createdAt: new Date(updatedProduction.created_at!),
           updatedAt: new Date(updatedProduction.updated_at!),
         })
@@ -185,6 +323,12 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
         refetch: fetchProduction,
         updateEmailPreset,
         deleteEmailPreset,
+        updateFilterSortPreset,
+        deleteFilterSortPreset,
+        updatePageStylePreset,
+        deletePageStylePreset,
+        updatePrintPreset,
+        deletePrintPreset,
       }}
     >
       {children}

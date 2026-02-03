@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 const PUBLIC_ROUTES = ['/', '/auth', '/demo']
 
 // Routes that require super admin access
-const SUPER_ADMIN_ROUTES = ['/settings/email', '/admin']
+const SUPER_ADMIN_ROUTES = ['/admin']
 
 import { SUPER_ADMIN_EMAIL } from '@/lib/auth/constants'
 

@@ -26,6 +26,10 @@ interface FilterSortPresetDialogProps {
   moduleType: ModuleType
   /** Called after successful save with the preset id */
   onSave?: (presetId: string) => void
+  /** Production context update function - when provided, saves to production instead of local store */
+  onProductionSave?: (preset: FilterSortPreset) => Promise<void>
+  /** Production ID when saving to production */
+  productionId?: string
 }
 
 export function FilterSortPresetDialog({
@@ -34,6 +38,8 @@ export function FilterSortPresetDialog({
   editingPreset,
   moduleType,
   onSave,
+  onProductionSave,
+  productionId,
 }: FilterSortPresetDialogProps) {
   const { addPreset, updatePreset, presets } = useFilterSortPresetsStore()
   const { getTypes } = useCustomTypesStore()
@@ -103,27 +109,26 @@ export function FilterSortPresetDialog({
     return fields.map(field => ({ value: field, label: fieldLabels[field] || field }))
   }, [watchedModuleType])
 
-  const handleSubmit = (data: FilterSortFormData) => {
+  const handleSubmit = async (data: FilterSortFormData) => {
     let presetId: string
-    if (editingPreset) {
-      updatePreset(editingPreset.id, {
-        name: data.name,
-        config: {
-          statusFilter: data.statusFilter,
-          typeFilters: data.typeFilters,
-          priorityFilters: data.priorityFilters,
-          sortBy: data.sortBy,
-          sortOrder: data.sortOrder,
-          groupByType: data.groupByType,
-        }
-      })
-      presetId = editingPreset.id
-    } else {
-      addPreset({
+
+    if (onProductionSave) {
+      // Production mode - use API via production context
+      const now = new Date()
+      const existingCreatedAt = editingPreset?.createdAt
+      const createdAt = existingCreatedAt instanceof Date
+        ? existingCreatedAt
+        : existingCreatedAt
+          ? new Date(existingCreatedAt)
+          : now
+
+      presetId = editingPreset?.id ?? crypto.randomUUID()
+      const preset: FilterSortPreset = {
+        id: presetId,
         type: 'filter_sort',
         moduleType: data.moduleType,
         name: data.name,
-        productionId: 'prod-1',
+        productionId: productionId ?? 'unknown',
         config: {
           statusFilter: data.statusFilter,
           typeFilters: data.typeFilters,
@@ -132,12 +137,48 @@ export function FilterSortPresetDialog({
           sortOrder: data.sortOrder,
           groupByType: data.groupByType,
         },
-        isDefault: false,
-        createdBy: 'user',
-      })
-      // Get the newly added preset (last one in the store)
-      const storePresets = useFilterSortPresetsStore.getState().presets
-      presetId = storePresets[storePresets.length - 1].id
+        isDefault: editingPreset?.isDefault ?? false,
+        createdBy: editingPreset?.createdBy ?? 'user',
+        createdAt,
+        updatedAt: now,
+      }
+      await onProductionSave(preset)
+    } else {
+      // Demo mode fallback - use local store
+      if (editingPreset) {
+        updatePreset(editingPreset.id, {
+          name: data.name,
+          config: {
+            statusFilter: data.statusFilter,
+            typeFilters: data.typeFilters,
+            priorityFilters: data.priorityFilters,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            groupByType: data.groupByType,
+          }
+        })
+        presetId = editingPreset.id
+      } else {
+        addPreset({
+          type: 'filter_sort',
+          moduleType: data.moduleType,
+          name: data.name,
+          productionId: 'prod-1',
+          config: {
+            statusFilter: data.statusFilter,
+            typeFilters: data.typeFilters,
+            priorityFilters: data.priorityFilters,
+            sortBy: data.sortBy,
+            sortOrder: data.sortOrder,
+            groupByType: data.groupByType,
+          },
+          isDefault: false,
+          createdBy: 'user',
+        })
+        // Get the newly added preset (last one in the store)
+        const storePresets = useFilterSortPresetsStore.getState().presets
+        presetId = storePresets[storePresets.length - 1].id
+      }
     }
 
     onOpenChange(false)
