@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef, Re
 import { getProduction } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
 import { useScriptStore } from '@/lib/stores/script-store'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { usePositionStore } from '@/lib/stores/position-store'
 import type { EmailMessagePreset } from '@/types'
 
 export interface Production {
@@ -67,6 +69,8 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
   const [error, setError] = useState<Error | null>(null)
   const previousProductionIdRef = useRef<string | null>(null)
   const resetScriptStore = useScriptStore((state) => state.reset)
+  const clearFixtureData = useFixtureStore((state) => state.clearData)
+  const clearPositionOrder = usePositionStore((state) => state.clearOrder)
 
   const fetchProduction = useCallback(async () => {
     try {
@@ -127,17 +131,19 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
   }, [productionId])
 
-  // Reset script store when switching to a different production
-  // This ensures new/different productions don't inherit script data from previous productions or demo mode
+  // Reset stores when switching to a different production
+  // This ensures new/different productions don't inherit data from previous productions or demo mode
   useEffect(() => {
     // Reset on first mount or when production ID changes
     // ProductionProvider is only used for non-demo productions, so always reset
-    // Demo mode has its own initialization that populates the script store
+    // Demo mode has its own initialization that populates the stores
     if (previousProductionIdRef.current !== productionId) {
       resetScriptStore()
+      clearFixtureData()
+      clearPositionOrder(productionId)
     }
     previousProductionIdRef.current = productionId
-  }, [productionId, resetScriptStore])
+  }, [productionId, resetScriptStore, clearFixtureData, clearPositionOrder])
 
   useEffect(() => {
     fetchProduction()
