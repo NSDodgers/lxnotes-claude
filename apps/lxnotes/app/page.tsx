@@ -2,12 +2,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Metadata } from 'next'
 import { PolicyFooter } from '@/components/layout/policy-footer'
-import { ProductionList } from '@/components/home/production-list'
 import { ProductionsTabs } from '@/components/home/productions-tabs'
+import { PendingInvitationsList } from '@/components/home/pending-invitations-list'
 import { CreateProductionDialog } from '@/components/home/create-production-dialog'
 import { GoogleSignInButton } from '@/components/auth/google-sign-in-button'
 import { UserMenu } from '@/components/auth/user-menu'
 import { getCurrentUser, getUserProductions, getUserAdminProductionIds, getUserDeletedProductions } from '@/lib/auth'
+import { getPendingInvitationsForEmail } from '@/lib/services/invitations'
 
 // Force dynamic rendering since this page uses cookies for auth
 export const dynamic = 'force-dynamic'
@@ -28,16 +29,13 @@ export default async function HomePage() {
   const adminProductionIds = user ? await getUserAdminProductionIds(user.id) : new Set<string>()
   const deletedProductions = user ? await getUserDeletedProductions(user.id) : []
 
-  // Check for pending invitations if user is logged in
-  if (user && user.email) {
+  // Fetch pending invitations for logged-in users
+  let pendingInvitations: Awaited<ReturnType<typeof getPendingInvitationsForEmail>> = []
+  if (user?.email) {
     try {
-      const { acceptPendingInvitations } = await import('@/lib/services/invitations')
-      // Fire and forget - don't block page load
-      acceptPendingInvitations(user.email, user.id).catch(err =>
-        console.error('Error accepting invitations on home page:', err)
-      )
-    } catch (e) {
-      console.error('Failed to import invitations service:', e)
+      pendingInvitations = await getPendingInvitationsForEmail(user.email)
+    } catch (error) {
+      console.error('Error fetching pending invitations:', error)
     }
   }
 
@@ -113,28 +111,36 @@ export default async function HomePage() {
 
         {/* Logged In - No Productions State */}
         {user && productions.length === 0 && (
-          <div className="mb-8 p-6 bg-bg-secondary rounded-lg border border-border">
-            <p className="text-text-secondary mb-4">
-              You don&apos;t have any productions yet.
-            </p>
-            <p className="text-sm text-text-muted mb-4">
-              Create your first production to get started, or try the demo below.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <CreateProductionDialog />
-              <Link
-                href="/demo/cue-notes"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-bg-tertiary hover:bg-bg-tertiary/80 text-text-primary font-medium rounded-lg transition-all border border-border"
-              >
-                Try Demo
-              </Link>
+          <>
+            {/* Pending Invitations */}
+            <PendingInvitationsList invitations={pendingInvitations} />
+
+            <div className="mb-8 p-6 bg-bg-secondary rounded-lg border border-border">
+              <p className="text-text-secondary mb-4">
+                You don&apos;t have any productions yet.
+              </p>
+              <p className="text-sm text-text-muted mb-4">
+                Create your first production to get started, or try the demo below.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <CreateProductionDialog />
+                <Link
+                  href="/demo/cue-notes"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-bg-tertiary hover:bg-bg-tertiary/80 text-text-primary font-medium rounded-lg transition-all border border-border"
+                >
+                  Try Demo
+                </Link>
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Logged In - With Productions State */}
         {user && productions.length > 0 && (
           <>
+            {/* Pending Invitations */}
+            <PendingInvitationsList invitations={pendingInvitations} />
+
             {/* Action Buttons for Authenticated Users */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <CreateProductionDialog />

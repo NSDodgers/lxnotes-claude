@@ -75,9 +75,8 @@ export async function POST(request: Request) {
           .single()
 
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'
-        // Point to home page where user can sign in with Google
-        // After sign-in, auth/callback will auto-accept pending invitations
-        const inviteUrl = baseUrl
+        // Point to token-based acceptance page for email alias support
+        const inviteUrl = `${baseUrl}/invite/${invitation.token}`
 
         await sendInvitationEmail({
           recipientEmail: email,

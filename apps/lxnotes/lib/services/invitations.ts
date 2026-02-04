@@ -98,6 +98,11 @@ export async function getPendingInvitationsForEmail(email: string): Promise<Prod
       productions (
         id,
         name
+      ),
+      users!production_invitations_invited_by_fkey (
+        id,
+        email,
+        full_name
       )
     `)
     .eq('email', email.toLowerCase())
@@ -114,6 +119,11 @@ export async function getPendingInvitationsForEmail(email: string): Promise<Prod
     production: row.productions ? {
       id: row.productions.id,
       name: row.productions.name,
+    } : undefined,
+    inviter: row.users ? {
+      id: row.users.id,
+      email: row.users.email,
+      fullName: row.users.full_name,
     } : undefined,
   }))
 }
@@ -249,6 +259,108 @@ export async function acceptPendingInvitations(email: string, userId: string): P
     }
   } catch (error) {
     console.error('Error processing pending invitations:', error)
+  }
+}
+
+/** Result type for get_invitation_by_token RPC */
+interface GetInvitationByTokenResult {
+  found: boolean
+  error?: 'invalid_token' | 'production_deleted'
+  id?: string
+  status?: 'pending' | 'accepted' | 'expired' | 'cancelled'
+  role?: 'admin' | 'member'
+  email?: string
+  expires_at?: string
+  is_expired?: boolean
+  production?: { id: string; name: string }
+  inviter?: { id: string; email: string; full_name: string | null }
+}
+
+/**
+ * Get invitation details by token (server-side)
+ * Uses admin client to bypass RLS
+ */
+export async function getInvitationByToken(token: string): Promise<GetInvitationByTokenResult | null> {
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    let adminClient
+
+    try {
+      adminClient = createAdminClient()
+    } catch {
+      console.warn('Could not create admin client for invitation lookup')
+      return null
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (adminClient.rpc as any)('get_invitation_by_token', {
+      p_token: token,
+    }) as { data: GetInvitationByTokenResult | null; error: Error | null }
+
+    if (error) {
+      console.error('Error calling get_invitation_by_token:', error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error('Error in getInvitationByToken:', error)
+    return null
+  }
+}
+
+/** Result type for accept_invitation_by_token RPC */
+interface AcceptInvitationByTokenResult {
+  success: boolean
+  /**
+   * Error codes returned by the SQL function:
+   * - 'invalid_token': Token doesn't exist OR production was deleted (intentionally
+   *   conflated to prevent information leakage about deleted productions)
+   * - 'already_accepted': Invitation was already accepted by someone
+   * - 'cancelled': Invitation was cancelled by an admin
+   * - 'expired': Invitation passed its expiration date
+   */
+  error?: 'invalid_token' | 'already_accepted' | 'cancelled' | 'expired'
+  production_id?: string
+  role?: string
+  is_member?: boolean
+  already_member?: boolean
+}
+
+/**
+ * Accept invitation by token (server-side)
+ * Uses admin client to bypass RLS
+ */
+export async function acceptInvitationByToken(
+  token: string,
+  userId: string
+): Promise<AcceptInvitationByTokenResult> {
+  try {
+    const { createAdminClient } = await import('@/lib/supabase/admin')
+    let adminClient
+
+    try {
+      adminClient = createAdminClient()
+    } catch {
+      console.warn('Could not create admin client for invitation acceptance')
+      return { success: false, error: 'invalid_token' }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (adminClient.rpc as any)('accept_invitation_by_token', {
+      p_token: token,
+      p_user_id: userId,
+    }) as { data: AcceptInvitationByTokenResult | null; error: Error | null }
+
+    if (error) {
+      console.error('Error calling accept_invitation_by_token:', error)
+      return { success: false, error: 'invalid_token' }
+    }
+
+    return data ?? { success: false, error: 'invalid_token' }
+  } catch (error) {
+    console.error('Error in acceptInvitationByToken:', error)
+    return { success: false, error: 'invalid_token' }
   }
 }
 
