@@ -333,10 +333,12 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
 
       async setPages(pages: ScriptPage[]): Promise<void> {
         // Delete existing pages
-        await supabase
+        const { error: deleteError } = await supabase
           .from('script_pages')
           .delete()
           .eq('production_id', productionId)
+
+        if (deleteError) throw deleteError
 
         // Insert new pages
         if (pages.length > 0) {
@@ -382,10 +384,12 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
 
       async setScenesSongs(scenesSongs: SceneSong[]): Promise<void> {
         // Delete existing scenes/songs
-        await supabase
+        const { error: deleteError } = await supabase
           .from('scenes_songs')
           .delete()
           .eq('production_id', productionId)
+
+        if (deleteError) throw deleteError
 
         // Insert new scenes/songs
         if (scenesSongs.length > 0) {

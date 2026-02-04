@@ -793,8 +793,9 @@ export default function ManageScriptPage() {
         adapter.script.setPages(currentPages),
         adapter.script.setScenesSongs(allScenesSongs),
       ])
-    } catch (error) {
-      console.error('[ManageScriptPage] Failed to persist script data to Supabase:', error)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
+      console.error('[ManageScriptPage] Failed to persist script data to Supabase:', errorMessage, error)
     }
   }, [isDemoMode, productionId, getSortedPages, scenes, songs])
 
