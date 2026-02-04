@@ -764,8 +764,8 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:max-w-4xl max-w-none">
-        <SheetHeader className="pb-6">
+      <SheetContent side="right" className="w-full sm:max-w-4xl max-w-none flex flex-col">
+        <SheetHeader className="pb-6 flex-shrink-0">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-modules-cue" />
             <SheetTitle>Script Setup</SheetTitle>
@@ -775,7 +775,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col flex-1 min-h-0">
           {/* Header with Add Button */}
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -842,7 +842,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
           )}
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto pb-4">
             {pages.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="h-12 w-12 text-text-muted mx-auto mb-4" />
