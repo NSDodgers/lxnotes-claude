@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
+import { usePathname } from 'next/navigation'
 import { Upload, FileText, AlertCircle, CheckCircle, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -15,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { HookupParser } from '@/lib/services/hookup-parser'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { HookupHeaderMapping } from '@/components/hookup-header-mapping'
 import { HookupDataPreview } from '@/components/hookup-data-preview'
 import type {
@@ -45,13 +47,15 @@ interface UploadState {
   step: 'upload' | 'mapping' | 'preview' | 'result'
 }
 
-export function HookupUploadDialog({ 
-  isOpen, 
-  onClose, 
-  productionId 
+export function HookupUploadDialog({
+  isOpen,
+  onClose,
+  productionId
 }: HookupUploadDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { uploadFixtures, isProcessing } = useFixtureStore()
+  const pathname = usePathname()
+  const isDemoMode = pathname.startsWith('/demo')
+  const { uploadFixtures, isProcessing, getFixturesByProduction } = useFixtureStore()
   
   const [state, setState] = useState<UploadState>({
     isDragOver: false,
@@ -295,9 +299,21 @@ export function HookupUploadDialog({
         }
       })
 
-      // Upload to store
+      // Upload to store (local state)
       const storeResult = uploadFixtures(productionId, validParsedRows, state.importOptions.deactivateMissing)
-      
+
+      // Persist to Supabase if not in demo mode
+      if (!isDemoMode) {
+        try {
+          const storageAdapter = createSupabaseStorageAdapter(productionId)
+          const fixturesForProduction = getFixturesByProduction(productionId)
+          await storageAdapter.fixtures.upload(fixturesForProduction)
+        } catch (supabaseError) {
+          console.error('[HookupUploadDialog] Failed to persist fixtures to Supabase:', supabaseError)
+          // Continue anyway - local state is updated, will try to sync later
+        }
+      }
+
       // Combine parser result with store result
       const combinedResult = {
         ...parseResult,
@@ -305,7 +321,7 @@ export function HookupUploadDialog({
         updated: storeResult.updated,
         inactivated: storeResult.inactivated
       }
-      
+
       setState(prev => ({
         ...prev,
         result: combinedResult,

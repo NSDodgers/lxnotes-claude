@@ -156,7 +156,7 @@ export const useFixtureStore = create<FixtureState>()(
               } else {
                 // Insert new fixture
                 const newFixture: FixtureInfo = {
-                  id: `lw-${productionId}-${row.lwid}-${Date.now()}`,
+                  id: crypto.randomUUID(),
                   productionId,
                   lwid: row.lwid,
                   channel: row.channel,

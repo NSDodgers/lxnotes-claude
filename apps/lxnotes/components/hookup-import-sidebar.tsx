@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Upload, FileText, AlertCircle, CheckCircle, ChevronRight, AlertTriangle } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+import { Upload, FileText, AlertCircle, CheckCircle, ChevronRight, AlertTriangle, Download, ChevronDown, ChevronUp, Apple, Monitor } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,6 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { HookupParser } from '@/lib/services/hookup-parser'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { HookupHeaderMapping } from '@/components/hookup-header-mapping'
 import { HookupDataPreview } from '@/components/hookup-data-preview'
 import type {
@@ -47,6 +49,7 @@ interface UploadState {
   hasExistingData: boolean
   differencePercentage: number | null
   showDifferenceWarning: boolean
+  isSetupExpanded: boolean
 }
 
 const steps = [
@@ -63,6 +66,8 @@ export function HookupImportSidebar({
   onImportComplete
 }: HookupImportSidebarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const pathname = usePathname()
+  const isDemoMode = pathname.startsWith('/demo')
   const { uploadFixtures, isProcessing, getFixturesByProduction } = useFixtureStore()
 
   const [state, setState] = useState<UploadState>({
@@ -85,7 +90,8 @@ export function HookupImportSidebar({
     step: 'upload',
     hasExistingData: false,
     differencePercentage: null,
-    showDifferenceWarning: false
+    showDifferenceWarning: false,
+    isSetupExpanded: false
   })
 
   const resetState = () => {
@@ -113,7 +119,8 @@ export function HookupImportSidebar({
       step: 'upload',
       hasExistingData,
       differencePercentage: null,
-      showDifferenceWarning: false
+      showDifferenceWarning: false,
+      isSetupExpanded: false
     })
   }
 
@@ -347,8 +354,28 @@ export function HookupImportSidebar({
         }
       })
 
-      // Upload to store
+      // Upload to store (local state)
       const storeResult = uploadFixtures(productionId, validParsedRows, state.importOptions.deactivateMissing)
+
+      // Persist to Supabase if not in demo mode
+      if (!isDemoMode) {
+        try {
+          const storageAdapter = createSupabaseStorageAdapter(productionId)
+          const fixturesForProduction = getFixturesByProduction(productionId)
+          console.log('[HookupImportSidebar] Persisting', fixturesForProduction.length, 'fixtures to Supabase for production:', productionId)
+          const result = await storageAdapter.fixtures.upload(fixturesForProduction)
+          console.log('[HookupImportSidebar] Supabase upload result:', result)
+        } catch (supabaseError: unknown) {
+          // Extract error details - Supabase errors have specific properties
+          const errorDetails = supabaseError instanceof Error
+            ? { message: supabaseError.message, name: supabaseError.name }
+            : typeof supabaseError === 'object' && supabaseError !== null
+              ? JSON.stringify(supabaseError)
+              : String(supabaseError)
+          console.error('[HookupImportSidebar] Failed to persist fixtures to Supabase:', errorDetails)
+          // Continue anyway - local state is updated, will try to sync later
+        }
+      }
 
       // Combine parser result with store result
       const combinedResult = {
@@ -448,6 +475,79 @@ export function HookupImportSidebar({
               onChange={handleFileInputChange}
               className="hidden"
             />
+
+            {/* Lightwright Automated Action Section */}
+            <div className="border border-bg-hover rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setState(prev => ({ ...prev, isSetupExpanded: !prev.isSetupExpanded }))}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-bg-tertiary/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Download className="h-5 w-5 text-modules-work" />
+                  <div>
+                    <div className="font-medium text-text-primary">Lightwright Automated Action</div>
+                    <div className="text-sm text-text-secondary">Export your hookup with the correct format</div>
+                  </div>
+                </div>
+                {state.isSetupExpanded ? (
+                  <ChevronUp className="h-5 w-5 text-text-muted" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-text-muted" />
+                )}
+              </button>
+
+              {state.isSetupExpanded && (
+                <div className="px-4 pb-4 space-y-4 border-t border-bg-hover">
+                  <p className="text-sm text-text-secondary pt-4">
+                    Install this automated action in Lightwright to export your hookup data in the format LX Notes expects.
+                  </p>
+
+                  <a
+                    href="/lxnotes-with-position.lwa"
+                    download="lxnotes with position.lwa"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-modules-work hover:bg-modules-work/90 text-white rounded-md text-sm font-medium transition-colors"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download Automated Action
+                  </a>
+
+                  <div className="space-y-3 pt-2">
+                    <h4 className="text-sm font-medium text-text-primary">Installation Instructions</h4>
+
+                    <div className="flex items-start gap-3 p-3 bg-bg-tertiary rounded-lg">
+                      <Apple className="h-5 w-5 text-text-secondary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-text-primary">macOS</div>
+                        <div className="text-sm text-text-secondary mt-1">
+                          Place the downloaded file in:
+                        </div>
+                        <code className="block mt-1 text-xs bg-bg-secondary px-2 py-1 rounded text-modules-work break-all">
+                          /Users/Shared/Lightwright 6/Automated Actions
+                        </code>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 bg-bg-tertiary rounded-lg">
+                      <Monitor className="h-5 w-5 text-text-secondary mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="text-sm font-medium text-text-primary">Windows</div>
+                        <div className="text-sm text-text-secondary mt-1">
+                          Place the downloaded file in:
+                        </div>
+                        <code className="block mt-1 text-xs bg-bg-secondary px-2 py-1 rounded text-modules-work break-all">
+                          C:\Users\Public\Documents\Lightwright 6\Automated Actions
+                        </code>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-text-muted">
+                      After placing the file, restart Lightwright. The action will appear in the Automated Actions menu.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )
 

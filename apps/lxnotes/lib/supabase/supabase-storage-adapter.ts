@@ -290,7 +290,15 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
           .upsert(dbFixtures, { onConflict: 'production_id,lwid' })
           .select()
 
-        if (error) throw error
+        if (error) {
+          console.error('[SupabaseStorageAdapter] Fixture upload error:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+          })
+          throw new Error(`Supabase fixture upload failed: ${error.message} (code: ${error.code})`)
+        }
         return { success: true, count: data?.length || 0 }
       },
 

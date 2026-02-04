@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef, Re
 import { getProduction } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
 import { useScriptStore } from '@/lib/stores/script-store'
-import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { usePositionStore } from '@/lib/stores/position-store'
 import type { EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset } from '@/types'
 
@@ -108,7 +107,6 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
   const [isRestoring, setIsRestoring] = useState(false)
   const previousProductionIdRef = useRef<string | null>(null)
   const resetScriptStore = useScriptStore((state) => state.reset)
-  const clearFixtureData = useFixtureStore((state) => state.clearData)
   const clearPositionOrder = usePositionStore((state) => state.clearOrder)
 
   const fetchProduction = useCallback(async () => {
@@ -350,17 +348,20 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
 
   // Reset stores when switching to a different production
   // This ensures new/different productions don't inherit data from previous productions or demo mode
+  // NOTE: We don't clear fixture data here because FixturesProvider.syncFixtures() already handles
+  // per-production data replacement. Clearing here would cause a race condition where fixtures
+  // are cleared AFTER FixturesProvider has already synced them from Supabase.
   useEffect(() => {
     // Reset on first mount or when production ID changes
     // ProductionProvider is only used for non-demo productions, so always reset
     // Demo mode has its own initialization that populates the stores
     if (previousProductionIdRef.current !== productionId) {
       resetScriptStore()
-      clearFixtureData()
+      // Note: clearFixtureData() removed - FixturesProvider handles per-production sync
       clearPositionOrder(productionId)
     }
     previousProductionIdRef.current = productionId
-  }, [productionId, resetScriptStore, clearFixtureData, clearPositionOrder])
+  }, [productionId, resetScriptStore, clearPositionOrder])
 
   // Access Control Effect
   useEffect(() => {

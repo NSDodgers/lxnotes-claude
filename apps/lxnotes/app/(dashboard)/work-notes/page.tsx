@@ -82,6 +82,8 @@ export default function WorkNotesPage() {
   const storeData = useCurrentProductionStore()
   const pathname = usePathname()
   const isProductionMode = pathname.startsWith('/production/')
+  // Use actual production ID from context when in production mode, fallback to 'prod-1' for demo
+  const productionId = productionContext?.productionId ?? 'prod-1'
   // When in production mode (real Supabase), use placeholder during loading and when no logo
   // Only fall back to store data when NOT in production mode (demo/default)
   const name = productionContext?.production?.name ?? (isProductionMode ? '' : storeData.name)
@@ -117,8 +119,9 @@ export default function WorkNotesPage() {
   }, [])
 
   // Development helper - populate test data (ASYNC)
+  // Only used for local dev testing, NOT for real productions
   const loadTestData = useCallback(async () => {
-    if (fixturesLength === 0) {
+    if (fixturesLength === 0 && !isProductionMode) {
       // Dynamic import to avoid loading 4,682 lines on page load
       const { generateSampleFixtures } = await import('@/lib/test-data/sample-fixture-data')
 
@@ -135,19 +138,19 @@ export default function WorkNotesPage() {
         address: f.address,
         positionOrder: f.positionOrder
       }))
-      uploadFixtures('prod-1', parsedRows, false)
+      uploadFixtures(productionId, parsedRows, false)
     }
-  }, [fixturesLength, uploadFixtures])
+  }, [fixturesLength, uploadFixtures, isProductionMode, productionId])
 
-  // Auto-load mock data in development mode (DISABLED in demo mode)
+  // Auto-load mock data in development mode (DISABLED in demo mode and production mode)
   // In demo mode, fixture data is loaded by initializeDemoSession in lib/demo-data/loader.ts
-  // This prevents redundant loading and UI freezes
+  // In production mode, fixtures are loaded from Supabase by FixturesProvider
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && !isDemoMode() && fixturesLength === 0 && !getHasBeenDeleted()) {
-      // Only load test data in non-demo development mode
+    if (process.env.NODE_ENV === 'development' && !isDemoMode() && !isProductionMode && fixturesLength === 0 && !getHasBeenDeleted()) {
+      // Only load test data in non-demo, non-production development mode
       loadTestData()
     }
-  }, [fixturesLength, getHasBeenDeleted, loadTestData])
+  }, [fixturesLength, getHasBeenDeleted, loadTestData, isProductionMode])
 
   // Get custom types from store (only after hydration)
   const availableTypes = isHydrated ? customTypesStore.getTypes('work') : []
@@ -434,13 +437,13 @@ export default function WorkNotesPage() {
       <HookupImportSidebar
         isOpen={isLightwrightDialogOpen}
         onClose={() => setIsLightwrightDialogOpen(false)}
-        productionId="prod-1"
+        productionId={productionId}
       />
 
       <FixtureDataViewer
         isOpen={isLightwrightViewerOpen}
         onClose={() => setIsLightwrightViewerOpen(false)}
-        productionId="prod-1"
+        productionId={productionId}
       />
 
       <Sheet open={isPositionManagerOpen} onOpenChange={setIsPositionManagerOpen}>
