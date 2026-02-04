@@ -407,8 +407,14 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
 
   useEffect(() => {
     fetchProduction()
+  }, [fetchProduction])
 
-    // Subscribe to realtime updates
+  // Subscribe to realtime updates (only when authenticated)
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return
+    }
+
     const unsubscribe = subscribeToProductionChanges(productionId, {
       onProductionUpdate: (updatedProduction) => {
         setProduction({
@@ -438,7 +444,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     return () => {
       unsubscribe()
     }
-  }, [productionId, fetchProduction])
+  }, [productionId, isAuthenticated])
 
   // Render "Deleted" state for admins who are allowed to stay and restore
   if (!isLoading && production?.deletedAt && isAdmin) {
