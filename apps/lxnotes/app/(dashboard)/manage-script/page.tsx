@@ -782,7 +782,11 @@ export default function ManageScriptPage() {
 
   // Persist all script data to Supabase
   const persistToSupabase = useCallback(async () => {
-    if (isDemoMode) return
+    // Skip if demo mode OR if we don't have a real production ID
+    if (isDemoMode || !productionId || productionId === 'demo-production') {
+      console.log('[ManageScriptPage] Skipping Supabase persist:', { isDemoMode, productionId })
+      return
+    }
 
     try {
       const adapter = createSupabaseStorageAdapter(productionId)
