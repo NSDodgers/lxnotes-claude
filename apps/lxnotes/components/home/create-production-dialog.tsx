@@ -102,14 +102,13 @@ export function CreateProductionDialog({
     <>
       {/* Only show trigger button if not externally controlled */}
       {!isControlled && (
-        <Button
+        <button
           onClick={() => setInternalIsOpen(true)}
-          variant="secondary"
-          className="border-emerald-500/30 hover:border-emerald-500/50 hover:bg-emerald-500/10"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-bg-secondary hover:bg-bg-tertiary text-text-primary font-medium rounded-lg transition-all border border-border"
         >
           <Plus className="h-5 w-5" />
           New Production
-        </Button>
+        </button>
       )}
 
       {isOpen && (
