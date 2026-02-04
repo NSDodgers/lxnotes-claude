@@ -809,15 +809,17 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
       await adapter.script.setScenesSongs(allScenesSongs)
       console.log('[ScriptManager] Scenes/Songs persisted successfully')
     } catch (error: unknown) {
-      // Supabase errors have message, details, hint, code properties
-      const supabaseError = error as { message?: string; details?: string; hint?: string; code?: string }
-      console.error('[ScriptManager] Failed to persist script data to Supabase:', {
-        message: supabaseError.message,
-        details: supabaseError.details,
-        hint: supabaseError.hint,
-        code: supabaseError.code,
-        raw: error
-      })
+      // Try multiple ways to get error info
+      console.error('[ScriptManager] Failed to persist script data to Supabase:')
+      console.error('  Type:', typeof error)
+      console.error('  Constructor:', error?.constructor?.name)
+      console.error('  String:', String(error))
+      console.error('  JSON:', JSON.stringify(error, Object.getOwnPropertyNames(error as object)))
+      if (error instanceof Error) {
+        console.error('  Error.message:', error.message)
+        console.error('  Error.stack:', error.stack)
+      }
+      console.dir(error, { depth: 5 })
     }
   }, [isDemoMode, productionId, getSortedPages, scenes, songs])
 
