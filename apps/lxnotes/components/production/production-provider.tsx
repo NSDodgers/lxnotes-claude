@@ -5,6 +5,7 @@ import { getProduction, createSupabaseStorageAdapter } from '@/lib/supabase/supa
 import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { usePositionStore } from '@/lib/stores/position-store'
+import { useAuthContext } from '@/components/auth/auth-provider'
 import type { EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset } from '@/types'
 
 export interface Production {
@@ -100,6 +101,7 @@ interface ProductionProviderProps {
 
 export function ProductionProvider({ productionId, children }: ProductionProviderProps) {
   const router = useRouter()
+  const { isAuthenticated } = useAuthContext()
   const [production, setProduction] = useState<Production | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -367,6 +369,12 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
   // Fetch script data from Supabase and sync to local store
   // This runs after resetScriptStore clears the store on production change
   useEffect(() => {
+    // Skip if not authenticated (avoids 401 errors)
+    if (!isAuthenticated) {
+      console.log('[ProductionProvider] Skipping script data fetch: User not authenticated')
+      return
+    }
+
     const fetchScriptData = async () => {
       try {
         const adapter = createSupabaseStorageAdapter(productionId)
@@ -384,7 +392,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
 
     fetchScriptData()
-  }, [productionId, setScriptData])
+  }, [productionId, isAuthenticated, setScriptData])
 
   // Access Control Effect
   useEffect(() => {
