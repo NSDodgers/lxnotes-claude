@@ -77,7 +77,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
   addPage: (pageData) => {
     const newPage: ScriptPage = {
       ...pageData,
-      id: `page-${Date.now()}`,
+      id: crypto.randomUUID(),
       createdAt: new Date(),
       updatedAt: new Date(),
     }
@@ -115,7 +115,7 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
   addSceneSong: (itemData) => {
     const newItem: SceneSong = {
       ...itemData,
-      id: `${itemData.type}-${Date.now()}`,
+      id: crypto.randomUUID(),
       createdAt: new Date(),
       updatedAt: new Date(),
     }

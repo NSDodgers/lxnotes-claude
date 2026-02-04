@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react'
-import { getProduction } from '@/lib/supabase/supabase-storage-adapter'
+import { getProduction, createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { usePositionStore } from '@/lib/stores/position-store'
@@ -107,6 +107,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
   const [isRestoring, setIsRestoring] = useState(false)
   const previousProductionIdRef = useRef<string | null>(null)
   const resetScriptStore = useScriptStore((state) => state.reset)
+  const setScriptData = useScriptStore((state) => state.setScriptData)
   const clearPositionOrder = usePositionStore((state) => state.clearOrder)
 
   const fetchProduction = useCallback(async () => {
@@ -362,6 +363,28 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
     previousProductionIdRef.current = productionId
   }, [productionId, resetScriptStore, clearPositionOrder])
+
+  // Fetch script data from Supabase and sync to local store
+  // This runs after resetScriptStore clears the store on production change
+  useEffect(() => {
+    const fetchScriptData = async () => {
+      try {
+        const adapter = createSupabaseStorageAdapter(productionId)
+        const [pages, scenesSongs] = await Promise.all([
+          adapter.script.getPages(),
+          adapter.script.getScenesSongs(),
+        ])
+
+        const scenes = scenesSongs.filter(s => s.type === 'scene')
+        const songs = scenesSongs.filter(s => s.type === 'song')
+        setScriptData(pages, scenes, songs)
+      } catch (error) {
+        console.error('[ProductionProvider] Failed to fetch script data from Supabase:', error)
+      }
+    }
+
+    fetchScriptData()
+  }, [productionId, setScriptData])
 
   // Access Control Effect
   useEffect(() => {

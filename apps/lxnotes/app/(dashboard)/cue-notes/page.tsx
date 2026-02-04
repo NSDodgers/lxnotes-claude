@@ -2066,6 +2066,7 @@ export default function CueNotesPage() {
       <ScriptManager
         isOpen={isScriptManagerOpen}
         onClose={() => setIsScriptManagerOpen(false)}
+        productionId={productionContext?.productionId ?? 'demo-production'}
       />
     </>
   )

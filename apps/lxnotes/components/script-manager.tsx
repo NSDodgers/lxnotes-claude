@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useScriptStore } from '@/lib/stores/script-store'
+import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, Edit3, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ScriptPage, SceneSong } from '@/types'
@@ -17,6 +19,7 @@ import {
 interface ScriptManagerProps {
   isOpen: boolean
   onClose: () => void
+  productionId: string
 }
 
 interface AddPageDialogProps {
@@ -335,9 +338,12 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
 
 interface ScriptItemProps {
   page: ScriptPage
+  productionId: string
+  isDemoMode: boolean
+  onPersist: () => Promise<void>
 }
 
-function ScriptItem({ page }: ScriptItemProps) {
+function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemProps) {
   const {
     getPageScenes,
     getPageSongs,
@@ -387,7 +393,7 @@ function ScriptItem({ page }: ScriptItemProps) {
     return cueA - cueB
   })
 
-  const handlePageNumberChange = (value: string) => {
+  const handlePageNumberChange = async (value: string) => {
     updatePage(page.id, { pageNumber: value })
 
     // Check page order after update
@@ -395,9 +401,12 @@ function ScriptItem({ page }: ScriptItemProps) {
       const orderValidation = validatePageOrder(page.id)
       setOrderValidation(orderValidation.valid ? null : orderValidation)
     }, 0)
+
+    // Persist to Supabase
+    await onPersist()
   }
 
-  const handleCueNumberChange = (value: string) => {
+  const handleCueNumberChange = async (value: string) => {
     const cueValidation = validateCueNumber(value, page.id)
     setCueValidation(cueValidation.valid ? null : cueValidation)
 
@@ -408,22 +417,31 @@ function ScriptItem({ page }: ScriptItemProps) {
       const orderValidation = validatePageOrder(page.id)
       setOrderValidation(orderValidation.valid ? null : orderValidation)
     }, 0)
+
+    // Persist to Supabase
+    await onPersist()
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     deletePage(page.id)
     setShowConfirmDelete(false)
+
+    // Persist to Supabase
+    await onPersist()
   }
 
-  const handleAddSceneSong = (itemData: { name: string; type: 'scene' | 'song'; firstCueNumber?: string; continuesFromId?: string }) => {
+  const handleAddSceneSong = async (itemData: { name: string; type: 'scene' | 'song'; firstCueNumber?: string; continuesFromId?: string }) => {
     addSceneSong({
       ...itemData,
-      productionId: 'prod-1',
+      productionId,
       moduleType: 'cue',
       scriptPageId: page.id,
       orderIndex: 0, // Will be sorted automatically
     })
     setShowAddDialog(null)
+
+    // Persist to Supabase
+    await onPersist()
   }
 
   return (
@@ -520,6 +538,7 @@ function ScriptItem({ page }: ScriptItemProps) {
                       key={item.id}
                       item={item}
                       isLastItem={index === allItems.length - 1}
+                      onPersist={onPersist}
                     />
                   ))}
                 </div>
@@ -575,9 +594,10 @@ function ScriptItem({ page }: ScriptItemProps) {
 interface SceneSongItemProps {
   item: SceneSong
   isLastItem?: boolean
+  onPersist: () => Promise<void>
 }
 
-function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
+function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemProps) {
   const { updateSceneSong, deleteSceneSong, validateCueNumber, validateSceneSongCueNumber, getSortedPages, getContinuationChain, getNextPage, createContinuation, updateContinuationChain } = useScriptStore()
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
@@ -610,29 +630,41 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
     }
   }, [allPages, item.firstCueNumber, item.scriptPageId, item.id, validateSceneSongCueNumber])
 
-  const handleNameChange = (value: string) => {
+  const handleNameChange = async (value: string) => {
     // Use updateContinuationChain to sync name changes across all continuations
     updateContinuationChain(item.id, { name: value })
+
+    // Persist to Supabase
+    await onPersist()
   }
 
-  const handleCueNumberChange = (value: string) => {
+  const handleCueNumberChange = async (value: string) => {
     // Use the new scene/song specific validation instead of general cue validation
     const validation = validateSceneSongCueNumber(value, item.scriptPageId, item.id)
     setCueValidation(validation.valid ? null : validation)
     updateSceneSong(item.id, { firstCueNumber: value || undefined })
+
+    // Persist to Supabase
+    await onPersist()
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     deleteSceneSong(item.id)
     setShowConfirmDelete(false)
+
+    // Persist to Supabase
+    await onPersist()
   }
 
-  const handleContinueToNext = () => {
+  const handleContinueToNext = async () => {
     if (!nextPage) return
 
     try {
       // Use the next page's first cue number as default
       createContinuation(item.id, nextPage.id, nextPage.firstCueNumber)
+
+      // Persist to Supabase
+      await onPersist()
     } catch (error) {
       console.error('Failed to create continuation:', error)
     }
@@ -751,17 +783,40 @@ function SceneSongItem({ item, isLastItem = false }: SceneSongItemProps) {
   )
 }
 
-export function ScriptManager({ isOpen, onClose }: ScriptManagerProps) {
-  const { getSortedPages, addPage } = useScriptStore()
+export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerProps) {
+  const pathname = usePathname()
+  const isDemoMode = pathname.startsWith('/demo')
+  const { getSortedPages, addPage, scenes, songs } = useScriptStore()
   const [showAddDialog, setShowAddDialog] = useState(false)
 
   const pages = getSortedPages()
 
-  const handleAddPage = (pageData: { pageNumber: string; firstCueNumber?: string }) => {
+  // Persist all script data to Supabase
+  const persistToSupabase = useCallback(async () => {
+    if (isDemoMode) return
+
+    try {
+      const adapter = createSupabaseStorageAdapter(productionId)
+      const currentPages = getSortedPages()
+      const allScenesSongs = [...scenes, ...songs]
+
+      await Promise.all([
+        adapter.script.setPages(currentPages),
+        adapter.script.setScenesSongs(allScenesSongs),
+      ])
+    } catch (error) {
+      console.error('[ScriptManager] Failed to persist script data to Supabase:', error)
+    }
+  }, [isDemoMode, productionId, getSortedPages, scenes, songs])
+
+  const handleAddPage = async (pageData: { pageNumber: string; firstCueNumber?: string }) => {
     addPage({
-      productionId: 'prod-1', // TODO: Get from production store
+      productionId,
       ...pageData,
     })
+
+    // Persist to Supabase
+    await persistToSupabase()
   }
 
   return (
@@ -811,7 +866,13 @@ export function ScriptManager({ isOpen, onClose }: ScriptManagerProps) {
             ) : (
               <div className="space-y-4">
                 {pages.map(page => (
-                  <ScriptItem key={page.id} page={page} />
+                  <ScriptItem
+                    key={page.id}
+                    page={page}
+                    productionId={productionId}
+                    isDemoMode={isDemoMode}
+                    onPersist={persistToSupabase}
+                  />
                 ))}
               </div>
             )}

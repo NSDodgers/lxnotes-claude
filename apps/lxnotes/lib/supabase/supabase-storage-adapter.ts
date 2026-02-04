@@ -323,8 +323,11 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
         if (error) throw error
         return (data || []).map((row: DbScriptPage) => ({
           id: row.id,
+          productionId: row.production_id,
           pageNumber: row.page_number,
           firstCueNumber: row.first_cue_number ?? undefined,
+          createdAt: new Date(row.created_at!),
+          updatedAt: new Date(row.updated_at!),
         }))
       },
 
@@ -362,8 +365,18 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
         if (error) throw error
         return (data || []).map((row: DbSceneSong) => ({
           id: row.id,
+          productionId: row.production_id,
+          moduleType: row.module_type as 'cue' | 'work' | 'production' | 'actor',
+          actId: row.act_id ?? undefined,
+          scriptPageId: row.script_page_id ?? '',
           name: row.name,
           type: row.type as 'scene' | 'song',
+          firstCueNumber: row.first_cue_number ?? undefined,
+          orderIndex: row.order_index,
+          continuesFromId: row.continues_from_id ?? undefined,
+          continuesOnPageId: row.continues_on_page_id ?? undefined,
+          createdAt: new Date(row.created_at!),
+          updatedAt: new Date(row.updated_at!),
         }))
       },
 
@@ -379,10 +392,15 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
           const dbScenesSongs = scenesSongs.map((ss, index) => ({
             id: ss.id,
             production_id: productionId,
-            module_type: 'cue' as const,
+            module_type: ss.moduleType ?? 'cue',
+            act_id: ss.actId ?? null,
+            script_page_id: ss.scriptPageId ?? null,
             name: ss.name,
             type: ss.type,
-            order_index: index,
+            first_cue_number: ss.firstCueNumber ?? null,
+            order_index: ss.orderIndex ?? index,
+            continues_from_id: ss.continuesFromId ?? null,
+            continues_on_page_id: ss.continuesOnPageId ?? null,
           }))
 
           const { error } = await supabase

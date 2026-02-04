@@ -7,7 +7,7 @@
  * - Production Mode: Supabase (future implementation)
  */
 
-import type { Note, FixtureInfo, ModuleType } from '@/types'
+import type { Note, FixtureInfo, ModuleType, ScriptPage, SceneSong } from '@/types'
 
 export interface ProductionData {
   name: string
@@ -15,17 +15,8 @@ export interface ProductionData {
   logo: string
 }
 
-export interface ScriptPage {
-  id: string
-  pageNumber: string
-  firstCueNumber?: string
-}
-
-export interface SceneSong {
-  id: string
-  name: string
-  type: 'scene' | 'song'
-}
+// Re-export types from @/types for backwards compatibility
+export type { ScriptPage, SceneSong } from '@/types'
 
 export interface StorageAdapter {
   // Notes operations
