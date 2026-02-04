@@ -406,8 +406,11 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
   }, [isLoading, production, isAdmin, router])
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      return
+    }
     fetchProduction()
-  }, [fetchProduction])
+  }, [fetchProduction, isAuthenticated])
 
   // Subscribe to realtime updates (only when authenticated)
   useEffect(() => {
