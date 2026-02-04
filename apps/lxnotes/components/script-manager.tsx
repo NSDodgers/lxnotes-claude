@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { useAuthContext } from '@/components/auth/auth-provider'
-import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, Edit3, ArrowRight } from 'lucide-react'
+import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ScriptPage, SceneSong } from '@/types'
 import {
@@ -21,320 +21,6 @@ interface ScriptManagerProps {
   isOpen: boolean
   onClose: () => void
   productionId: string
-}
-
-interface AddPageDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onAdd: (pageData: { pageNumber: string; firstCueNumber?: string }) => void
-}
-
-interface AddSceneSongDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onAdd: (itemData: { name: string; type: 'scene' | 'song'; firstCueNumber?: string; continuesFromId?: string }) => void
-  pageId: string
-  type: 'scene' | 'song'
-  pageCueNumber?: string
-}
-
-function AddPageDialog({ isOpen, onClose, onAdd }: AddPageDialogProps) {
-  const [pageNumber, setPageNumber] = useState('')
-  const [firstCueNumber, setFirstCueNumber] = useState('')
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!pageNumber.trim()) return
-
-    onAdd({
-      pageNumber: pageNumber.trim(),
-      firstCueNumber: firstCueNumber.trim() || undefined,
-    })
-
-    setPageNumber('')
-    setFirstCueNumber('')
-    onClose()
-  }
-
-  if (!isOpen) return null
-
-  return (
-    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-      <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-text-primary mb-4">Add Script Page</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              Page Number
-            </label>
-            <input
-              type="text"
-              value={pageNumber}
-              onChange={(e) => setPageNumber(e.target.value)}
-              placeholder="e.g., 1, 23a, 59-60"
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              First Cue Number (optional)
-            </label>
-            <input
-              type="text"
-              value={firstCueNumber}
-              onChange={(e) => setFirstCueNumber(e.target.value)}
-              placeholder="e.g., 127"
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
-            />
-          </div>
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="cue"
-              className="flex-1"
-            >
-              Add Page
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
-
-function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumber }: AddSceneSongDialogProps) {
-  const {
-    getPreviousPageScenes,
-    getPreviousPageSongs,
-    getAvailableContinuations,
-    getContinuationStatus,
-    getSuggestedContinuation
-  } = useScriptStore()
-
-  const [name, setName] = useState('')
-  const [firstCueNumber, setFirstCueNumber] = useState('')
-  const [usePageCue, setUsePageCue] = useState(false)
-  const [isContinuation, setIsContinuation] = useState(false)
-  const [continuesFromId, setContinuesFromId] = useState('')
-
-  // Get continuation options
-  const previousScenes = getPreviousPageScenes(pageId)
-  const previousSongs = getPreviousPageSongs(pageId)
-  const previousItems = type === 'scene' ? previousScenes : previousSongs
-
-  // Get smart continuation data
-  const availableContinuations = getAvailableContinuations(pageId, type)
-  const suggestedContinuation = getSuggestedContinuation(pageId, type)
-
-  // Smart defaults: Auto-enable continuation mode and pre-select suggestion
-  useEffect(() => {
-    if (isOpen && suggestedContinuation && !isContinuation && !continuesFromId && !name) {
-      setIsContinuation(true)
-      setContinuesFromId(suggestedContinuation.id)
-      setName(suggestedContinuation.name)
-    }
-  }, [isOpen, suggestedContinuation, isContinuation, continuesFromId, name])
-
-  // Reset form when dialog opens/closes
-  useEffect(() => {
-    if (!isOpen) {
-      setName('')
-      setFirstCueNumber('')
-      setUsePageCue(false)
-      setIsContinuation(false)
-      setContinuesFromId('')
-    }
-  }, [isOpen])
-
-  // Handle continuation selection
-  const handleContinuationChange = (selectedId: string) => {
-    setContinuesFromId(selectedId)
-    const selectedItem = previousItems.find(item => item.id === selectedId)
-    if (selectedItem) {
-      setName(selectedItem.name)
-    }
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim()) return
-
-    const cueNumber = usePageCue ? pageCueNumber : firstCueNumber.trim()
-
-    onAdd({
-      name: name.trim(),
-      type,
-      firstCueNumber: cueNumber || undefined,
-      continuesFromId: isContinuation ? continuesFromId || undefined : undefined,
-    })
-
-    setName('')
-    setFirstCueNumber('')
-    setUsePageCue(false)
-    setIsContinuation(false)
-    setContinuesFromId('')
-    onClose()
-  }
-
-  if (!isOpen) return null
-
-  return (
-    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-      <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-text-primary mb-4">
-          Add {type === 'scene' ? 'Scene' : 'Song'}
-        </h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              {type === 'scene' ? 'Scene' : 'Song'} Name
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={type === 'scene' ? 'e.g., Act 1, Scene 1' : 'e.g., Opening Number'}
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
-              required
-              disabled={isContinuation}
-            />
-          </div>
-
-          {/* Continuation Controls */}
-          {previousItems.length > 0 && (
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="isContinuation"
-                    checked={isContinuation}
-                    onChange={(e) => {
-                      setIsContinuation(e.target.checked)
-                      if (!e.target.checked) {
-                        setContinuesFromId('')
-                        setName('')
-                      }
-                    }}
-                    className="rounded"
-                  />
-                  <label htmlFor="isContinuation" className="text-sm text-text-secondary">
-                    Continue from previous page
-                  </label>
-                </div>
-
-                {/* Smart suggestion indicator */}
-                {availableContinuations.length > 0 && !isContinuation && (
-                  <div className="text-xs text-modules-cue pl-6">
-                    💡 {availableContinuations.length} {type}(s) from previous page can be continued
-                    {suggestedContinuation && (
-                      <span className="font-medium"> • Suggested: &quot;{suggestedContinuation.name}&quot;</span>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {isContinuation && (
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
-                    Select {type} to continue
-                  </label>
-                  <select
-                    value={continuesFromId}
-                    onChange={(e) => handleContinuationChange(e.target.value)}
-                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
-                    required={isContinuation}
-                  >
-                    <option value="">Select {type}...</option>
-                    {previousItems.map(item => {
-                      const status = getContinuationStatus(item.id, pageId)
-                      const statusIcon = status === 'available' ? '→' : status === 'already_here' ? '↺' : '✓'
-                      const statusText = status === 'available' ? 'Available' : status === 'already_here' ? 'Already here' : 'Continues elsewhere'
-
-                      return (
-                        <option
-                          key={item.id}
-                          value={item.id}
-                          disabled={status === 'already_here'}
-                        >
-                          {statusIcon} {item.name} {status !== 'available' ? `(${statusText})` : ''}
-                        </option>
-                      )
-                    })}
-                  </select>
-
-                  {/* Status Legend */}
-                  <div className="mt-2 text-xs text-text-muted space-y-1">
-                    <div>→ Available to continue • ✓ Already continues elsewhere • ↺ Already on this page</div>
-                    {availableContinuations.length === 0 && (
-                      <div className="text-yellow-600">No new continuations available from previous page</div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {pageCueNumber && (
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="usePageCue"
-                checked={usePageCue}
-                onChange={(e) => setUsePageCue(e.target.checked)}
-                className="rounded"
-              />
-              <label htmlFor="usePageCue" className="text-sm text-text-secondary">
-                Use page cue number ({pageCueNumber})
-              </label>
-            </div>
-          )}
-
-          {!usePageCue && (
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
-                First Cue Number (optional)
-              </label>
-              <input
-                type="text"
-                value={firstCueNumber}
-                onChange={(e) => setFirstCueNumber(e.target.value)}
-                placeholder="e.g., 127"
-                className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
-              />
-            </div>
-          )}
-
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="cue"
-              className="flex-1"
-            >
-              Add {type === 'scene' ? 'Scene' : 'Song'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
 }
 
 interface ScriptItemProps {
@@ -352,13 +38,25 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
     deletePage,
     addSceneSong,
     validateCueNumber,
-    validatePageOrder
+    validatePageOrder,
+    getPreviousPageScenes,
+    getPreviousPageSongs,
+    getContinuationStatus,
+    getSuggestedContinuation
   } = useScriptStore()
 
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
-  const [showAddDialog, setShowAddDialog] = useState<{ type: 'scene' | 'song' } | null>(null)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
   const [orderValidation, setOrderValidation] = useState<{ valid: boolean; message?: string } | null>(null)
+
+  // Inline form state for Add Scene/Song
+  const [addingType, setAddingType] = useState<'scene' | 'song' | null>(null)
+  const [newName, setNewName] = useState('')
+  const [newFirstCueNumber, setNewFirstCueNumber] = useState('')
+  const [usePageCue, setUsePageCue] = useState(false)
+  const [isContinuation, setIsContinuation] = useState(false)
+  const [continuesFromId, setContinuesFromId] = useState('')
+  const nameInputRef = useRef<HTMLInputElement>(null)
 
   // Check validation on mount and when page changes
   useEffect(() => {
@@ -431,18 +129,77 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
     await onPersist()
   }
 
-  const handleAddSceneSong = async (itemData: { name: string; type: 'scene' | 'song'; firstCueNumber?: string; continuesFromId?: string }) => {
+  // Get continuation options for inline form
+  const previousScenes = getPreviousPageScenes(page.id)
+  const previousSongs = getPreviousPageSongs(page.id)
+  const previousItems = addingType === 'scene' ? previousScenes : previousSongs
+
+  // Inline form handlers
+  const openAddForm = (type: 'scene' | 'song') => {
+    setAddingType(type)
+    setNewName('')
+    setNewFirstCueNumber('')
+    setUsePageCue(false)
+    setIsContinuation(false)
+    setContinuesFromId('')
+
+    // Apply smart defaults for continuation
+    const suggested = getSuggestedContinuation(page.id, type)
+    if (suggested) {
+      setIsContinuation(true)
+      setContinuesFromId(suggested.id)
+      setNewName(suggested.name)
+    }
+
+    setTimeout(() => nameInputRef.current?.focus(), 0)
+  }
+
+  const handleCancelAdd = () => {
+    setAddingType(null)
+    setNewName('')
+    setNewFirstCueNumber('')
+    setUsePageCue(false)
+    setIsContinuation(false)
+    setContinuesFromId('')
+  }
+
+  const handleInlineFormKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleInlineAdd()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      handleCancelAdd()
+    }
+  }
+
+  const handleInlineAdd = async () => {
+    if (!addingType || !newName.trim()) return
+
+    const cueNumber = usePageCue ? page.firstCueNumber : newFirstCueNumber.trim()
+
     addSceneSong({
-      ...itemData,
+      name: newName.trim(),
+      type: addingType,
+      firstCueNumber: cueNumber || undefined,
+      continuesFromId: isContinuation ? continuesFromId || undefined : undefined,
       productionId,
       moduleType: 'cue',
       scriptPageId: page.id,
-      orderIndex: 0, // Will be sorted automatically
+      orderIndex: 0,
     })
-    setShowAddDialog(null)
 
-    // Persist to Supabase
+    handleCancelAdd()
     await onPersist()
+  }
+
+  const handleContinuationChange = (selectedId: string) => {
+    setContinuesFromId(selectedId)
+    const items = addingType === 'scene' ? previousScenes : previousSongs
+    const selectedItem = items.find(item => item.id === selectedId)
+    if (selectedItem) {
+      setNewName(selectedItem.name)
+    }
   }
 
   return (
@@ -498,7 +255,8 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => setShowAddDialog({ type: 'scene' })}
+              onClick={() => openAddForm('scene')}
+              disabled={addingType !== null}
             >
               <Theater className="h-4 w-4 mr-1" />
               Add Scene
@@ -506,7 +264,8 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
             <Button
               size="sm"
               variant="secondary"
-              onClick={() => setShowAddDialog({ type: 'song' })}
+              onClick={() => openAddForm('song')}
+              disabled={addingType !== null}
             >
               <Music className="h-4 w-4 mr-1" />
               Add Song
@@ -520,6 +279,118 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
             </Button>
           </div>
         </div>
+
+        {/* Inline Add Scene/Song Form */}
+        {addingType && (
+          <div className="p-4 border-b border-bg-tertiary bg-bg-tertiary/50">
+            <div className="space-y-3">
+              {/* Row 1: Name + Cue */}
+              <div className="flex items-start gap-3">
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    {addingType === 'scene' ? 'Scene' : 'Song'} Name <span className="text-modules-cue">*</span>
+                  </label>
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    onKeyDown={handleInlineFormKeyDown}
+                    placeholder={addingType === 'scene' ? 'e.g., Act 1, Scene 1' : 'e.g., Opening Number'}
+                    disabled={isContinuation}
+                    className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue disabled:opacity-50"
+                  />
+                </div>
+                {!usePageCue && (
+                  <div className="w-24">
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      First Cue
+                    </label>
+                    <input
+                      type="text"
+                      value={newFirstCueNumber}
+                      onChange={(e) => setNewFirstCueNumber(e.target.value)}
+                      onKeyDown={handleInlineFormKeyDown}
+                      placeholder="e.g., 127"
+                      className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Row 2: Options (continuation + use page cue) */}
+              <div className="flex items-center gap-4 text-sm">
+                {previousItems.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={`continuation-${page.id}`}
+                      checked={isContinuation}
+                      onChange={(e) => {
+                        setIsContinuation(e.target.checked)
+                        if (!e.target.checked) {
+                          setContinuesFromId('')
+                          setNewName('')
+                        }
+                      }}
+                      className="rounded"
+                    />
+                    <label htmlFor={`continuation-${page.id}`} className="text-text-secondary">
+                      Continue from previous
+                    </label>
+                    {isContinuation && (
+                      <select
+                        value={continuesFromId}
+                        onChange={(e) => handleContinuationChange(e.target.value)}
+                        className="h-7 rounded bg-bg-secondary border border-bg-hover px-2 text-xs text-text-primary focus:outline-none focus:border-modules-cue"
+                      >
+                        <option value="">Select...</option>
+                        {previousItems.map(item => {
+                          const status = getContinuationStatus(item.id, page.id)
+                          return (
+                            <option key={item.id} value={item.id} disabled={status === 'already_here'}>
+                              {item.name}
+                            </option>
+                          )
+                        })}
+                      </select>
+                    )}
+                  </div>
+                )}
+                {page.firstCueNumber && (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={`usePageCue-${page.id}`}
+                      checked={usePageCue}
+                      onChange={(e) => setUsePageCue(e.target.checked)}
+                      className="rounded"
+                    />
+                    <label htmlFor={`usePageCue-${page.id}`} className="text-text-secondary">
+                      Use page cue ({page.firstCueNumber})
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              {/* Row 3: Actions */}
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-text-muted">
+                  <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Enter</kbd> to add, <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Esc</kbd> to cancel
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="secondary" onClick={handleCancelAdd}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" variant="cue" onClick={handleInlineAdd} disabled={!newName.trim()}>
+                    <Plus className="h-4 w-4" />
+                    Add {addingType === 'scene' ? 'Scene' : 'Song'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Page Content */}
         {allItems.length > 0 && (
@@ -577,17 +448,6 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
         </div>
       )}
 
-      {/* Add Scene/Song Dialog */}
-      {showAddDialog && (
-        <AddSceneSongDialog
-          isOpen={true}
-          onClose={() => setShowAddDialog(null)}
-          onAdd={handleAddSceneSong}
-          pageId={page.id}
-          type={showAddDialog.type}
-          pageCueNumber={page.firstCueNumber}
-        />
-      )}
     </>
   )
 }
@@ -789,7 +649,12 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
   const isDemoMode = pathname.startsWith('/demo')
   const { isAuthenticated } = useAuthContext()
   const { getSortedPages, addPage, scenes, songs, setScriptData } = useScriptStore()
-  const [showAddDialog, setShowAddDialog] = useState(false)
+
+  // Inline form state
+  const [isAddingPage, setIsAddingPage] = useState(false)
+  const [newPageNumber, setNewPageNumber] = useState('')
+  const [newFirstCueNumber, setNewFirstCueNumber] = useState('')
+  const pageNumberInputRef = useRef<HTMLInputElement>(null)
 
   const pages = getSortedPages()
 
@@ -860,14 +725,41 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
     }
   }, [isDemoMode, productionId, isAuthenticated, getSortedPages, scenes, songs])
 
-  const handleAddPage = async (pageData: { pageNumber: string; firstCueNumber?: string }) => {
+  // Inline form handlers
+  const handleInlineFormKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleInlineAddPage()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      handleCancelAddPage()
+    }
+  }
+
+  const handleInlineAddPage = async () => {
+    if (!newPageNumber.trim()) return
+
     addPage({
       productionId,
-      ...pageData,
+      pageNumber: newPageNumber.trim(),
+      firstCueNumber: newFirstCueNumber.trim() || undefined,
     })
 
-    // Persist to Supabase
+    setNewPageNumber('')
+    setNewFirstCueNumber('')
+    setIsAddingPage(false)
     await persistToSupabase()
+  }
+
+  const handleCancelAddPage = () => {
+    setNewPageNumber('')
+    setNewFirstCueNumber('')
+    setIsAddingPage(false)
+  }
+
+  const openAddPageForm = () => {
+    setIsAddingPage(true)
+    setTimeout(() => pageNumberInputRef.current?.focus(), 0)
   }
 
   return (
@@ -892,11 +784,62 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
                 Organize your script with hierarchical pages, scenes, and songs
               </p>
             </div>
-            <Button onClick={() => setShowAddDialog(true)} variant="cue">
+            <Button
+              onClick={openAddPageForm}
+              variant="cue"
+              disabled={isAddingPage}
+            >
               <Plus className="h-5 w-5" />
               Add Page
             </Button>
           </div>
+
+          {/* Inline Add Page Form */}
+          {isAddingPage && (
+            <div className="mb-4 p-3 rounded-lg bg-bg-tertiary border border-modules-cue/30">
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Page Number <span className="text-modules-cue">*</span>
+                  </label>
+                  <input
+                    ref={pageNumberInputRef}
+                    type="text"
+                    value={newPageNumber}
+                    onChange={(e) => setNewPageNumber(e.target.value)}
+                    onKeyDown={handleInlineFormKeyDown}
+                    placeholder="e.g., 1, 23a, 59-60"
+                    className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    First Cue (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={newFirstCueNumber}
+                    onChange={(e) => setNewFirstCueNumber(e.target.value)}
+                    onKeyDown={handleInlineFormKeyDown}
+                    placeholder="e.g., 127"
+                    className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                  />
+                </div>
+                <div className="flex items-center gap-2 pt-5">
+                  <Button size="sm" variant="cue" onClick={handleInlineAddPage} disabled={!newPageNumber.trim()}>
+                    <Plus className="h-4 w-4" />
+                    Add
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={handleCancelAddPage}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-text-muted">
+                Press <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Enter</kbd> to add, <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Esc</kbd> to cancel
+              </div>
+            </div>
+          )}
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto">
@@ -906,9 +849,10 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
                 <p className="text-text-secondary">No script pages configured</p>
                 <p className="text-text-muted text-sm mt-1">Add your first page to get started</p>
                 <Button
-                  onClick={() => setShowAddDialog(true)}
+                  onClick={openAddPageForm}
                   variant="cue"
                   className="mt-4"
+                  disabled={isAddingPage}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add First Page
@@ -929,12 +873,6 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
             )}
           </div>
         </div>
-
-        <AddPageDialog
-          isOpen={showAddDialog}
-          onClose={() => setShowAddDialog(false)}
-          onAdd={handleAddPage}
-        />
       </SheetContent>
     </Sheet>
   )
