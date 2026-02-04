@@ -10,6 +10,7 @@ import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { FixtureSelector } from '@/components/fixture-selector'
 import { useProductionOptional } from '@/components/production/production-provider'
+import { useAuthContext } from '@/components/auth/auth-provider'
 import {
   Dialog,
   DialogContent,
@@ -78,6 +79,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   // Use optional hook to avoid throwing during static generation or demo mode
   const productionContext = useProductionOptional()
   const productionId = productionContext?.productionId ?? 'demo'
+  const { user } = useAuthContext()
   const { lookupCue } = useCueLookup()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
@@ -142,6 +144,9 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     e.preventDefault()
     if (!formData.description.trim()) return
 
+    // Get display name for createdBy field
+    const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
+
     const noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
       productionId,
       moduleType,
@@ -150,6 +155,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       priority: formData.priority,
       status: 'todo',
       type: formData.type,
+      createdBy: displayName,
       cueNumber: formData.cueNumbers || undefined,
       // Note: scriptPageId is for referencing actual script_pages (UUID), not for display
       // The cue number display is stored in cueNumber field
