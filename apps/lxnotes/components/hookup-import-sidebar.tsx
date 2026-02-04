@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Upload, FileText, AlertCircle, CheckCircle, ChevronRight, AlertTriangle, Download, ChevronDown, ChevronUp, Apple, Monitor } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { useAuthContext } from '@/components/auth/auth-provider'
 import {
   Sheet,
   SheetContent,
@@ -68,6 +69,7 @@ export function HookupImportSidebar({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
+  const { isAuthenticated } = useAuthContext()
   const { uploadFixtures, isProcessing, getFixturesByProduction } = useFixtureStore()
 
   const [state, setState] = useState<UploadState>({
@@ -357,23 +359,15 @@ export function HookupImportSidebar({
       // Upload to store (local state)
       const storeResult = uploadFixtures(productionId, validParsedRows, state.importOptions.deactivateMissing)
 
-      // Persist to Supabase if not in demo mode
-      if (!isDemoMode) {
+      // Persist to Supabase if not in demo mode and authenticated
+      if (!isDemoMode && isAuthenticated) {
         try {
           const storageAdapter = createSupabaseStorageAdapter(productionId)
           const fixturesForProduction = getFixturesByProduction(productionId)
-          console.log('[HookupImportSidebar] Persisting', fixturesForProduction.length, 'fixtures to Supabase for production:', productionId)
-          const result = await storageAdapter.fixtures.upload(fixturesForProduction)
-          console.log('[HookupImportSidebar] Supabase upload result:', result)
+          await storageAdapter.fixtures.upload(fixturesForProduction)
         } catch (supabaseError: unknown) {
-          // Extract error details - Supabase errors have specific properties
-          const errorDetails = supabaseError instanceof Error
-            ? { message: supabaseError.message, name: supabaseError.name }
-            : typeof supabaseError === 'object' && supabaseError !== null
-              ? JSON.stringify(supabaseError)
-              : String(supabaseError)
-          console.error('[HookupImportSidebar] Failed to persist fixtures to Supabase:', errorDetails)
-          // Continue anyway - local state is updated, will try to sync later
+          const errorMessage = supabaseError instanceof Error ? supabaseError.message : String(supabaseError)
+          console.error('[HookupImportSidebar] Failed to persist fixtures to Supabase:', errorMessage)
         }
       }
 

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Upload, FileText, AlertCircle, CheckCircle, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { useAuthContext } from '@/components/auth/auth-provider'
 import {
   Dialog,
   DialogContent,
@@ -55,6 +56,7 @@ export function HookupUploadDialog({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
+  const { isAuthenticated } = useAuthContext()
   const { uploadFixtures, isProcessing, getFixturesByProduction } = useFixtureStore()
   
   const [state, setState] = useState<UploadState>({
@@ -302,8 +304,8 @@ export function HookupUploadDialog({
       // Upload to store (local state)
       const storeResult = uploadFixtures(productionId, validParsedRows, state.importOptions.deactivateMissing)
 
-      // Persist to Supabase if not in demo mode
-      if (!isDemoMode) {
+      // Persist to Supabase if not in demo mode and authenticated
+      if (!isDemoMode && isAuthenticated) {
         try {
           const storageAdapter = createSupabaseStorageAdapter(productionId)
           const fixturesForProduction = getFixturesByProduction(productionId)

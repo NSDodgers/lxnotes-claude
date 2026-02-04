@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
+import { useAuthContext } from '@/components/auth/auth-provider'
 import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, Edit3, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ScriptPage, SceneSong } from '@/types'
@@ -786,6 +787,7 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
 export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerProps) {
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
+  const { isAuthenticated } = useAuthContext()
   const { getSortedPages, addPage, scenes, songs } = useScriptStore()
   const [showAddDialog, setShowAddDialog] = useState(false)
 
@@ -796,6 +798,12 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
     // Skip if demo mode OR if we don't have a real production ID
     if (isDemoMode || !productionId || productionId === 'demo-production') {
       console.log('[ScriptManager] Skipping Supabase persist:', { isDemoMode, productionId })
+      return
+    }
+
+    // Skip if not authenticated (avoids 401 errors)
+    if (!isAuthenticated) {
+      console.log('[ScriptManager] Skipping Supabase persist: User not authenticated')
       return
     }
 
@@ -825,7 +833,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
       }
       console.dir(error, { depth: 5 })
     }
-  }, [isDemoMode, productionId, getSortedPages, scenes, songs])
+  }, [isDemoMode, productionId, isAuthenticated, getSortedPages, scenes, songs])
 
   const handleAddPage = async (pageData: { pageNumber: string; firstCueNumber?: string }) => {
     addPage({
