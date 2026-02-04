@@ -15,6 +15,7 @@ import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToNoteChanges } from '@/lib/supabase/realtime'
 import { useUndoStore } from '@/lib/stores/undo-store'
+import { useOperationQueueStore, type QueuedOperation, markNoteAsSynced, wasRecentlySynced } from '@/lib/stores/operation-queue-store'
 import {
   createCreateCommand,
   createUpdateCommand,
@@ -90,10 +91,14 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   const pathname = usePathname()
   const mockNotesStore = useMockNotesStore()
   const undoStore = useUndoStore()
+  const operationQueue = useOperationQueueStore()
 
   // Ref to hold undoLastAction for use in toast callbacks
   // (needed because undoLastAction is defined after deleteNote)
   const undoLastActionRef = useRef<(() => Promise<void>) | null>(null)
+
+  // Ref to hold adapter for queue processing callback
+  const adapterRef = useRef<ReturnType<typeof createSupabaseStorageAdapter> | null>(null)
 
   // Guard to prevent concurrent undo/redo operations (avoids race conditions from rapid key presses)
   const isUndoRedoInProgress = useRef(false)
@@ -130,6 +135,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     if (resolvedProductionId && !isDemoMode) {
       const storageAdapter = createSupabaseStorageAdapter(resolvedProductionId)
       setAdapter(storageAdapter)
+      adapterRef.current = storageAdapter
+
+      // Set production ID for operation queue (clears queue if changed)
+      operationQueue.setProductionId(resolvedProductionId)
 
       // Load initial notes
       const loadNotes = async () => {
@@ -165,16 +174,32 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       setConnectionStatus('connecting')
       const unsubscribe = subscribeToNoteChanges(resolvedProductionId, {
         onStatusChange: (status) => {
-          if (status === 'SUBSCRIBED') setConnectionStatus('connected')
-          else if (status === 'CLOSED') setConnectionStatus('disconnected')
-          else if (status === 'CHANNEL_ERROR') setConnectionStatus('error')
-          else if (status === 'TIMED_OUT') setConnectionStatus('error')
+          if (status === 'SUBSCRIBED') {
+            setConnectionStatus('connected')
+            // Update operation queue and trigger processing
+            operationQueue.setOnline(true)
+          } else if (status === 'CLOSED') {
+            setConnectionStatus('disconnected')
+            operationQueue.setOnline(false)
+          } else if (status === 'CHANNEL_ERROR') {
+            setConnectionStatus('error')
+            operationQueue.setOnline(false)
+          } else if (status === 'TIMED_OUT') {
+            setConnectionStatus('error')
+            operationQueue.setOnline(false)
+          }
         },
         onNoteInsert: (newNote) => {
           if (isDev) console.log('[NotesContext] onNoteInsert raw payload:', newNote)
           const moduleType = newNote.module_type as ModuleType
           if (isDev) console.log('[NotesContext] Module type:', moduleType)
           const note = convertDbNoteToNote(newNote)
+
+          // Skip if this note was just synced from our queue (prevents duplicates)
+          if (wasRecentlySynced(note.id)) {
+            if (isDev) console.log('[NotesContext] Note was recently synced, skipping realtime insert')
+            return
+          }
 
           setSupabaseNotes(prev => {
             if (isDev) console.log('[NotesContext] Current count for', moduleType, ':', prev[moduleType]?.length)
@@ -242,6 +267,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         unsubscribe()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- operationQueue methods are stable Zustand references
   }, [resolvedProductionId, isDemoMode])
 
   // Get notes based on mode
@@ -261,22 +287,60 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       return newNote
     }
 
+    // Create optimistic note with temp ID
+    const tempId = crypto.randomUUID()
+    const now = new Date()
+    const optimisticNote: Note = {
+      ...noteData,
+      id: tempId,
+      createdAt: now,
+      updatedAt: now,
+    } as Note
+
+    // Always apply optimistic update immediately
+    setSupabaseNotes(prev => ({
+      ...prev,
+      [noteData.moduleType]: [optimisticNote, ...prev[noteData.moduleType]],
+    }))
+
+    // If offline, queue for later
+    if (!operationQueue.isOnline) {
+      operationQueue.enqueue({
+        type: 'create',
+        noteId: tempId,
+        moduleType: noteData.moduleType,
+        productionId: resolvedProductionId!,
+        payload: { data: noteData },
+      })
+      return optimisticNote
+    }
+
+    // Online: execute immediately
     try {
       const newNote = await adapter.notes.create(noteData)
-      // Optimistically update local state (realtime should catch this too, but this makes it faster)
+      // Mark as recently synced BEFORE updating state to prevent realtime duplication
+      markNoteAsSynced(newNote.id)
+      // Replace temp note with real note
       setSupabaseNotes(prev => ({
         ...prev,
-        [noteData.moduleType]: [newNote, ...prev[noteData.moduleType]],
+        [noteData.moduleType]: prev[noteData.moduleType].map(n =>
+          n.id === tempId ? newNote : n
+        ),
       }))
       // Push to undo stack
       undoStore.push(createCreateCommand(newNote))
       return newNote
     } catch (err) {
       console.error('Failed to create note:', err)
+      // Revert optimistic update
+      setSupabaseNotes(prev => ({
+        ...prev,
+        [noteData.moduleType]: prev[noteData.moduleType].filter(n => n.id !== tempId),
+      }))
       toast.error('Failed to create note')
       throw err
     }
-  }, [isDemoMode, adapter, mockNotesStore, undoStore])
+  }, [isDemoMode, adapter, mockNotesStore, undoStore, operationQueue, resolvedProductionId])
 
   // Update note based on mode
   const updateNote = useCallback(async (id: string, updates: Partial<Note>): Promise<void> => {
@@ -296,10 +360,15 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       return
     }
 
-    // Find the note before update for undo
+    // Find the note before update for undo and rollback
     const previousNote = Object.values(supabaseNotes)
       .flat()
       .find(n => n.id === id)
+
+    if (!previousNote) {
+      console.error('Cannot update note: note not found', id)
+      return
+    }
 
     // Optimistic update
     const previousNotes = { ...supabaseNotes }
@@ -314,14 +383,28 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       return updatedNotes
     })
 
+    // If offline, queue for later
+    if (!operationQueue.isOnline) {
+      operationQueue.enqueue({
+        type: 'update',
+        noteId: id,
+        moduleType: previousNote.moduleType,
+        productionId: resolvedProductionId!,
+        payload: {
+          data: updates,
+          previousState: previousNote,
+        },
+      })
+      return
+    }
+
+    // Online: execute immediately
     try {
       await adapter.notes.update(id, updates)
 
       // Push to undo stack after successful update
-      if (previousNote) {
-        const updatedNote = { ...previousNote, ...updates, updatedAt }
-        undoStore.push(createUpdateCommand(previousNote, updatedNote))
-      }
+      const updatedNote = { ...previousNote, ...updates, updatedAt }
+      undoStore.push(createUpdateCommand(previousNote, updatedNote))
     } catch (err) {
       console.error('Failed to update note:', err)
       toast.error('Failed to save changes')
@@ -329,7 +412,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       setSupabaseNotes(previousNotes)
       throw err
     }
-  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes, undoStore])
+  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes, undoStore, operationQueue, resolvedProductionId])
 
   // Delete note based on mode
   const deleteNote = useCallback(async (id: string): Promise<void> => {
@@ -353,10 +436,15 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       return
     }
 
-    // Find the note before delete for undo
+    // Find the note before delete for undo and rollback
     const noteToDelete = Object.values(supabaseNotes)
       .flat()
       .find(n => n.id === id)
+
+    if (!noteToDelete) {
+      console.error('Cannot delete note: note not found', id)
+      return
+    }
 
     // Optimistic update
     const previousNotes = { ...supabaseNotes }
@@ -368,19 +456,40 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       return updatedNotes
     })
 
+    // If offline, queue for later
+    if (!operationQueue.isOnline) {
+      operationQueue.enqueue({
+        type: 'delete',
+        noteId: id,
+        moduleType: noteToDelete.moduleType,
+        productionId: resolvedProductionId!,
+        payload: {
+          data: {},
+          fullNote: noteToDelete,
+        },
+      })
+      // Show toast immediately (will be confirmed when synced or reverted if failed)
+      toast('Note deleted', {
+        action: {
+          label: 'Undo',
+          onClick: () => undoLastActionRef.current?.(),
+        },
+      })
+      return
+    }
+
+    // Online: execute immediately
     try {
       await adapter.notes.delete(id)
 
       // Push to undo stack after successful delete
-      if (noteToDelete) {
-        undoStore.push(createDeleteCommand(noteToDelete))
-        toast('Note deleted', {
-          action: {
-            label: 'Undo',
-            onClick: () => undoLastActionRef.current?.(),
-          },
-        })
-      }
+      undoStore.push(createDeleteCommand(noteToDelete))
+      toast('Note deleted', {
+        action: {
+          label: 'Undo',
+          onClick: () => undoLastActionRef.current?.(),
+        },
+      })
     } catch (err) {
       console.error('Failed to delete note:', err)
       toast.error('Failed to delete note')
@@ -388,7 +497,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       setSupabaseNotes(previousNotes)
       throw err
     }
-  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes, undoStore])
+  }, [isDemoMode, adapter, mockNotesStore, supabaseNotes, undoStore, operationQueue, resolvedProductionId])
 
   // Set notes (for bulk operations like demo initialization)
   const setNotes = useCallback((moduleType: ModuleType, notes: Note[]) => {
@@ -499,6 +608,98 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   useEffect(() => {
     undoStore.setProductionId(resolvedProductionId ?? null)
   }, [resolvedProductionId, undoStore])
+
+  // Queue executor - executes a queued operation against the server
+  const executeQueuedOperation = useCallback(async (op: QueuedOperation): Promise<Note | void> => {
+    const currentAdapter = adapterRef.current
+    if (!currentAdapter) {
+      throw new Error('No adapter available')
+    }
+
+    switch (op.type) {
+      case 'create': {
+        const newNote = await currentAdapter.notes.create(op.payload.data as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
+        // Mark as recently synced BEFORE updating state to prevent realtime duplication
+        markNoteAsSynced(newNote.id)
+        // Replace temp ID with real ID in state
+        setSupabaseNotes(prev => ({
+          ...prev,
+          [op.moduleType]: prev[op.moduleType].map(n =>
+            n.id === op.noteId ? newNote : n
+          ),
+        }))
+        // Push to undo stack
+        undoStore.push(createCreateCommand(newNote))
+        return newNote
+      }
+      case 'update': {
+        await currentAdapter.notes.update(op.noteId, op.payload.data)
+        // Push to undo stack
+        if (op.payload.previousState) {
+          const updatedNote = { ...op.payload.previousState, ...op.payload.data, updatedAt: new Date() }
+          undoStore.push(createUpdateCommand(op.payload.previousState, updatedNote))
+        }
+        return
+      }
+      case 'delete': {
+        await currentAdapter.notes.delete(op.noteId)
+        // Push to undo stack
+        if (op.payload.fullNote) {
+          undoStore.push(createDeleteCommand(op.payload.fullNote))
+          toast('Note deleted', {
+            action: {
+              label: 'Undo',
+              onClick: () => undoLastActionRef.current?.(),
+            },
+          })
+        }
+        return
+      }
+    }
+  }, [undoStore])
+
+  // Queue failure handler - rollback optimistic updates
+  const handleQueuedOperationFailure = useCallback((op: QueuedOperation) => {
+    switch (op.type) {
+      case 'create':
+        // Remove the optimistic note from UI
+        setSupabaseNotes(prev => ({
+          ...prev,
+          [op.moduleType]: prev[op.moduleType].filter(n => n.id !== op.noteId),
+        }))
+        toast.error('Failed to create note. Please try again.')
+        break
+      case 'update':
+        // Restore previous state
+        if (op.payload.previousState) {
+          setSupabaseNotes(prev => ({
+            ...prev,
+            [op.moduleType]: prev[op.moduleType].map(n =>
+              n.id === op.noteId ? op.payload.previousState! : n
+            ),
+          }))
+        }
+        toast.error('Failed to save changes. Your edits have been reverted.')
+        break
+      case 'delete':
+        // Restore the deleted note
+        if (op.payload.fullNote) {
+          setSupabaseNotes(prev => ({
+            ...prev,
+            [op.moduleType]: [op.payload.fullNote!, ...prev[op.moduleType]],
+          }))
+        }
+        toast.error('Failed to delete note. The note has been restored.')
+        break
+    }
+  }, [])
+
+  // Process queue when coming online
+  useEffect(() => {
+    if (operationQueue.isOnline && operationQueue.queue.length > 0 && !operationQueue.isSyncing) {
+      operationQueue.processQueue(executeQueuedOperation, handleQueuedOperationFailure)
+    }
+  }, [operationQueue.isOnline, operationQueue.queue.length, operationQueue.isSyncing, executeQueuedOperation, handleQueuedOperationFailure, operationQueue])
 
   // Redo last undone action (uses peek + commit pattern for safe error handling)
   const redoLastAction = useCallback(async (): Promise<void> => {

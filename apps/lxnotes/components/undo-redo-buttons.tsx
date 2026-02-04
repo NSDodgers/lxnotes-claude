@@ -3,16 +3,20 @@
 import { Undo2, Redo2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useNotes } from '@/lib/contexts/notes-context'
+import { SyncStatusIndicator } from '@/components/sync-status-indicator'
 
 /**
  * Undo/Redo buttons for note operations.
  * Shows disabled state when no actions are available to undo/redo.
+ * Includes sync status indicator for offline queue state.
  */
 export function UndoRedoButtons() {
   const { undoLastAction, redoLastAction, canUndo, canRedo } = useNotes()
 
   return (
     <div className="flex items-center gap-1">
+      <SyncStatusIndicator />
+
       <Button
         variant="ghost"
         size="icon"
