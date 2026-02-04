@@ -118,80 +118,39 @@ export async function getPendingInvitationsForEmail(email: string): Promise<Prod
   }))
 }
 
+/** Result type for accept_invitation RPC */
+interface AcceptInvitationResult {
+  success: boolean
+  error?: string
+  production_id?: string
+  role?: string
+}
+
 /**
  * Accept an invitation (server-side)
  *
- * SECURITY: This function verifies that the accepting user's email matches
- * the invitation's email to prevent privilege escalation attacks.
+ * Uses atomic database function to ensure member addition and invitation
+ * status update happen together or both fail.
+ *
+ * SECURITY: The database function verifies that the accepting user's email
+ * matches the invitation's email to prevent privilege escalation attacks.
  */
 export async function acceptInvitation(invitationId: string, userId: string): Promise<void> {
   const supabase = await createClient()
 
-  // Get the invitation
-  const { data: invitation, error: fetchError } = await supabase
-    .from('production_invitations')
-    .select('*')
-    .eq('id', invitationId)
-    .eq('status', 'pending')
-    .single()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.rpc as any)('accept_invitation', {
+    p_invitation_id: invitationId,
+    p_user_id: userId,
+  }) as { data: AcceptInvitationResult | null; error: Error | null }
 
-  if (fetchError || !invitation) {
-    throw new Error('Invitation not found or already processed')
+  if (error) {
+    console.error('Error calling accept_invitation:', error)
+    throw new Error('Failed to accept invitation')
   }
 
-  // SECURITY: Verify the accepting user's email matches the invitation
-  const { data: currentUser, error: userError } = await supabase
-    .from('users')
-    .select('email')
-    .eq('id', userId)
-    .single()
-
-  if (userError || !currentUser) {
-    throw new Error('User not found')
-  }
-
-  if (currentUser.email?.toLowerCase() !== invitation.email.toLowerCase()) {
-    throw new Error('This invitation is not for your email address')
-  }
-
-  // Check if expired
-  if (invitation.expires_at && new Date(invitation.expires_at) < new Date()) {
-    await supabase
-      .from('production_invitations')
-      .update({ status: 'expired' })
-      .eq('id', invitationId)
-    throw new Error('Invitation has expired')
-  }
-
-  // Add user as production member
-  const { error: memberError } = await supabase
-    .from('production_members')
-    .insert({
-      production_id: invitation.production_id,
-      user_id: userId,
-      role: invitation.role,
-    })
-
-  if (memberError) {
-    // If already a member, just update the invitation status
-    if (memberError.code !== '23505') {
-      console.error('Error adding member:', memberError)
-      throw memberError
-    }
-  }
-
-  // Update invitation status
-  const { error: updateError } = await supabase
-    .from('production_invitations')
-    .update({
-      status: 'accepted',
-      accepted_at: new Date().toISOString(),
-    })
-    .eq('id', invitationId)
-
-  if (updateError) {
-    console.error('Error updating invitation:', updateError)
-    throw updateError
+  if (!data?.success) {
+    throw new Error(data?.error || 'Failed to accept invitation')
   }
 }
 
@@ -246,14 +205,25 @@ export async function resendInvitation(invitationId: string): Promise<Production
   )
 }
 
+/** Result type for accept_pending_invitations_for_user RPC */
+interface AcceptPendingResult {
+  success: boolean
+  error?: string
+  accepted_count: number
+  accepted?: Array<{ invitation_id: string; production_id: string }>
+}
+
 /**
  * Accept all pending invitations for a user email (server-side)
- * Uses admin client to bypass RLS since the user might not be a member yet
+ *
+ * Uses atomic database function to ensure all acceptances happen in a single
+ * transaction. Uses admin client to bypass RLS since the user might not be
+ * a member yet.
  */
 export async function acceptPendingInvitations(email: string, userId: string): Promise<void> {
   try {
-    // We need admin client because we are searching for invitations by email (which might be restricted)
-    // and inserting into production_members (which usually requires being an admin of the production)
+    // We need admin client because the RPC function uses SECURITY DEFINER
+    // but we want to ensure it runs with elevated privileges
     const { createAdminClient } = await import('@/lib/supabase/admin')
     let adminClient
 
@@ -264,56 +234,18 @@ export async function acceptPendingInvitations(email: string, userId: string): P
       return
     }
 
-    // Check for pending invitations for this user's email
-    const { data: invitations, error: invitationsError } = await adminClient
-      .from('production_invitations')
-      .select('id, production_id, role')
-      .eq('email', email.toLowerCase())
-      .eq('status', 'pending')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (adminClient.rpc as any)('accept_pending_invitations_for_user', {
+      p_user_id: userId,
+    }) as { data: AcceptPendingResult | null; error: Error | null }
 
-    if (invitationsError) {
-      console.error('Error fetching pending invitations:', invitationsError)
+    if (error) {
+      console.error('Error calling accept_pending_invitations_for_user:', error)
       return
     }
 
-    if (!invitations || invitations.length === 0) {
-      return
-    }
-
-    console.log(`Found ${invitations.length} pending invitations for ${email}`)
-
-    for (const invitation of invitations) {
-      // Add user as production member
-      const { error: memberError } = await adminClient
-        .from('production_members')
-        .insert({
-          production_id: invitation.production_id,
-          user_id: userId,
-          role: invitation.role,
-        })
-
-      if (memberError) {
-        // If unique constraint violation, user is already a member, so we can proceed to mark as accepted
-        if (memberError.code !== '23505') {
-          console.error(`Error adding member for invitation ${invitation.id}:`, memberError)
-          continue
-        }
-      }
-
-      // Mark invitation as accepted
-      const { error: updateError } = await adminClient
-        .from('production_invitations')
-        .update({
-          status: 'accepted',
-          accepted_at: new Date().toISOString(),
-        })
-        .eq('id', invitation.id)
-
-      if (updateError) {
-        console.error(`Error updating invitation ${invitation.id} status:`, updateError)
-      } else {
-        console.log(`Successfully accepted invitation ${invitation.id} for production ${invitation.production_id}`)
-      }
+    if (data?.accepted_count && data.accepted_count > 0) {
+      console.log(`Successfully accepted ${data.accepted_count} pending invitation(s) for ${email}`)
     }
   } catch (error) {
     console.error('Error processing pending invitations:', error)
