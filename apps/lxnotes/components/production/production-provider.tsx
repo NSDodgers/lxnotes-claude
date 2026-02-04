@@ -377,18 +377,11 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
 
     const fetchScriptData = async () => {
       try {
-        console.log('[ProductionProvider] Fetching script data for production:', productionId)
         const adapter = createSupabaseStorageAdapter(productionId)
         const [pages, scenesSongs] = await Promise.all([
           adapter.script.getPages(),
           adapter.script.getScenesSongs(),
         ])
-
-        console.log('[ProductionProvider] Script data fetched:', {
-          pagesCount: pages.length,
-          scenesSongsCount: scenesSongs.length,
-          pages: pages.map(p => ({ id: p.id, pageNumber: p.pageNumber }))
-        })
 
         const scenes = scenesSongs.filter(s => s.type === 'scene')
         const songs = scenesSongs.filter(s => s.type === 'song')

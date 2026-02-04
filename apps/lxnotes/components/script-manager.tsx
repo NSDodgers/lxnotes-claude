@@ -788,10 +788,35 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
   const { isAuthenticated } = useAuthContext()
-  const { getSortedPages, addPage, scenes, songs } = useScriptStore()
+  const { getSortedPages, addPage, scenes, songs, setScriptData } = useScriptStore()
   const [showAddDialog, setShowAddDialog] = useState(false)
 
   const pages = getSortedPages()
+
+  // Fetch fresh script data from Supabase when sidebar opens
+  useEffect(() => {
+    if (!isOpen || isDemoMode || !isAuthenticated || !productionId || productionId === 'demo-production') {
+      return
+    }
+
+    const fetchScriptData = async () => {
+      try {
+        const adapter = createSupabaseStorageAdapter(productionId)
+        const [pages, scenesSongs] = await Promise.all([
+          adapter.script.getPages(),
+          adapter.script.getScenesSongs(),
+        ])
+
+        const fetchedScenes = scenesSongs.filter(s => s.type === 'scene')
+        const fetchedSongs = scenesSongs.filter(s => s.type === 'song')
+        setScriptData(pages, fetchedScenes, fetchedSongs)
+      } catch (error) {
+        console.error('[ScriptManager] Failed to fetch script data:', error)
+      }
+    }
+
+    fetchScriptData()
+  }, [isOpen, isDemoMode, isAuthenticated, productionId, setScriptData])
 
   // Persist all script data to Supabase
   const persistToSupabase = useCallback(async () => {
