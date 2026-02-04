@@ -20,11 +20,17 @@ function getBaseUrl(): string {
 
 /**
  * Sign in with Google OAuth (client-side)
+ * @param next - Optional URL to redirect to after successful authentication
  */
-export async function signInWithGoogle() {
+export async function signInWithGoogle(next?: string) {
   const supabase = createClient()
   const baseUrl = getBaseUrl()
-  const redirectTo = `${baseUrl}/auth/callback`
+
+  // Build callback URL, appending next parameter if provided
+  let redirectTo = `${baseUrl}/auth/callback`
+  if (next) {
+    redirectTo = `${redirectTo}?next=${encodeURIComponent(next)}`
+  }
 
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -36,9 +42,6 @@ export async function signInWithGoogle() {
       },
     },
   })
-
-  // Debug logging
-  console.log('Sign in with Google, redirectTo:', redirectTo)
 
   if (error) {
     console.error('Error signing in with Google:', error)
