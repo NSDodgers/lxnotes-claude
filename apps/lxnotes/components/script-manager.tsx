@@ -367,7 +367,7 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
                       className="rounded"
                     />
                     <label htmlFor={`usePageCue-${page.id}`} className="text-text-secondary">
-                      Use page cue ({page.firstCueNumber})
+                      Same as page ({page.firstCueNumber})
                     </label>
                   </div>
                 )}
@@ -463,6 +463,15 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
 
+  // Get the page this item belongs to
+  const pages = getSortedPages()
+  const page = pages.find(p => p.id === item.scriptPageId)
+
+  // Check if this item uses the page's cue number
+  const usesPageCue = !!(page?.firstCueNumber &&
+    item.firstCueNumber &&
+    item.firstCueNumber === page.firstCueNumber)
+
   // Get continuation info
   const continuationChain = getContinuationChain(item.id)
   const isContinuation = !!item.continuesFromId
@@ -470,7 +479,12 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
 
   // Get next page info
   const nextPage = getNextPage(item.scriptPageId)
-  const canContinue = nextPage && !isContinuation && isLastItem // Only show on last item, and only for originals
+
+  // Allow continuing if this is the LAST item in its chain (enables multi-page continuation)
+  // Chain always includes the item itself, so last item = chain[chain.length-1]
+  const isEndOfChain = continuationChain.length > 0 &&
+    continuationChain[continuationChain.length - 1].id === item.id
+  const canContinue = nextPage && isEndOfChain && isLastItem
 
   // Validate on mount and when item changes
   useEffect(() => {
@@ -554,8 +568,11 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
             title={isContinuation ? "Continued from previous page" : "Click to edit name"}
           />
           {isOriginal && continuationChain.length > 1 && (
-            <span className="text-xs text-modules-production font-mono" title={`Continues for ${continuationChain.length} pages`}>
-              → ({continuationChain.length})
+            <span
+              className="text-xs text-modules-cue/70 font-medium"
+              title={`This ${item.type} spans ${continuationChain.length} pages`}
+            >
+              ({continuationChain.length} pages)
             </span>
           )}
         </div>
@@ -564,16 +581,28 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
         <div className="flex items-center gap-compact-2">
           <span className="text-xs text-text-secondary">Cue:</span>
           <div className="flex items-center gap-compact-1">
+            {usesPageCue && (
+              <span
+                className="text-xs text-modules-cue font-mono"
+                title="Same as page first cue"
+              >
+                =
+              </span>
+            )}
             <input
               type="text"
               value={item.firstCueNumber || ''}
               onChange={(e) => handleCueNumberChange(e.target.value)}
               placeholder="None"
               className={cn(
-                "h-compact-7 bg-bg-tertiary border rounded px-compact-2 text-sm text-text-primary focus:outline-none w-16 cursor-text",
-                cueValidation ? "border-yellow-500 focus:border-yellow-500" : "border-bg-hover focus:border-modules-cue"
+                "h-compact-7 border rounded px-compact-2 text-sm text-text-primary focus:outline-none w-16 cursor-text",
+                cueValidation
+                  ? "border-yellow-500 focus:border-yellow-500 bg-bg-tertiary"
+                  : usesPageCue
+                    ? "bg-modules-cue/10 border-modules-cue/30 focus:border-modules-cue"
+                    : "bg-bg-tertiary border-bg-hover focus:border-modules-cue"
               )}
-              title="Click to edit cue number"
+              title={usesPageCue ? "Same as page first cue" : "Click to edit cue number"}
             />
             {cueValidation && (
               <div
@@ -595,11 +624,11 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
               size="sm"
               variant="outline"
               onClick={handleContinueToNext}
-              className="h-7 px-2 border-modules-cue text-modules-cue hover:bg-modules-cue hover:text-white"
-              title={`Continue to page ${nextPage?.pageNumber}`}
+              className="h-7 px-3 border-modules-cue/50 text-modules-cue hover:bg-modules-cue hover:text-white hover:border-modules-cue"
+              title={`Continue "${item.name}" to page ${nextPage?.pageNumber}`}
             >
               <ArrowRight className="h-3 w-3 mr-1" />
-              <span className="text-xs font-medium">Continue</span>
+              <span className="text-xs font-medium">Page {nextPage?.pageNumber}</span>
             </Button>
           )}
           <Button
