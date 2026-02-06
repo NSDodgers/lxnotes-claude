@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { Mail, Send, Loader2 } from 'lucide-react'
-import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
+import { useProductionEmailPresets } from '@/lib/hooks/use-production-email-presets'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useCurrentProductionStore } from '@/lib/stores/production-store'
@@ -45,7 +45,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 }
 
 export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSidebarProps) {
-  const { getPresetsByModule: getEmailPresetsByModule, resolvePlaceholders } = useEmailMessagePresetsStore()
+  const { presets: moduleEmailPresets, resolvePlaceholders } = useProductionEmailPresets(moduleType)
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const localProductionStore = useCurrentProductionStore()
@@ -79,7 +79,6 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const [includeNotesInBody, setIncludeNotesInBody] = useState(true)
   const [attachPdf, setAttachPdf] = useState(false)
 
-  const moduleEmailPresets = getEmailPresetsByModule(moduleType)
   const notes = getNotes(moduleType)
   const moduleName = moduleDisplayNames[moduleType]
 

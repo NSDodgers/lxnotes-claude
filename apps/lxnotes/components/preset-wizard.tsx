@@ -138,7 +138,7 @@ export function PresetWizard({
       orientation: 'portrait',
       includeCheckboxes: true,
       recipients: '',
-      subject: `{{PRODUCTION_TITLE}} - ${moduleDisplayNames[moduleType]} for {{CURRENT_DATE}}`,
+      subject: `{{PRODUCTION_TITLE}} - {{MODULE_NAME}} for {{CURRENT_DATE}}`,
       message: '',
       includeNotesInBody: true,
       attachPdf: true,

@@ -60,17 +60,19 @@ export function ConfirmSendPanel({
   const [overrides, setOverrides] = useState<EmailOverrides>({})
   const [isSavingPreset, setIsSavingPreset] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  // Local copy of preset that gets updated after save, so we don't rely on stale parent prop
+  const [localPreset, setLocalPreset] = useState(preset)
 
-  const isEmail = variant === 'email' && preset.type === 'email_message'
-  const emailPreset = isEmail ? (preset as EmailMessagePreset) : null
+  const isEmail = variant === 'email' && localPreset.type === 'email_message'
+  const emailPreset = isEmail ? (localPreset as EmailMessagePreset) : null
 
   // Resolve linked presets
   const filterPresetId = emailPreset
     ? emailPreset.config.filterAndSortPresetId
-    : (preset as PrintPreset).config.filterSortPresetId
+    : (localPreset as PrintPreset).config.filterSortPresetId
   const pageStylePresetId = emailPreset
     ? emailPreset.config.pageStylePresetId
-    : (preset as PrintPreset).config.pageStylePresetId
+    : (localPreset as PrintPreset).config.pageStylePresetId
 
   const filterPreset = filterPresetId ? getFilterPreset(filterPresetId) : null
   const pageStylePreset = pageStylePresetId
@@ -132,7 +134,8 @@ export function ConfirmSendPanel({
       await updateEmailPreset(updatedPreset)
       setSaveSuccess(true)
 
-      // Clear overrides since they're now saved to the preset
+      // Update local copy so display stays correct, then clear overrides
+      setLocalPreset(updatedPreset)
       setOverrides({})
     } catch (err) {
       console.error('Error saving preset:', err)
@@ -160,7 +163,7 @@ export function ConfirmSendPanel({
         >
           <ArrowLeft className="h-4 w-4 text-text-secondary" />
         </button>
-        <h3 className="font-medium text-text-primary truncate">{preset.name}</h3>
+        <h3 className="font-medium text-text-primary truncate">{localPreset.name}</h3>
       </div>
 
       {/* Content */}
