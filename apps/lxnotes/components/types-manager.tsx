@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { InlineEditor } from '@/components/inline-editor'
 import { ColorPicker } from '@/components/color-picker'
-import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
+import { useProductionCustomTypes } from '@/lib/hooks/use-production-custom-types'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { Plus, Trash2 } from 'lucide-react'
 import type { ModuleType } from '@/types'
 
@@ -16,6 +17,8 @@ interface TypesManagerProps {
 }
 
 export function TypesManager({ moduleType, className }: TypesManagerProps) {
+  const productionContext = useProductionOptional()
+  const productionId = productionContext?.productionId ?? 'demo'
   const {
     getSystemDefaults,
     getTypes,
@@ -25,11 +28,19 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
     overrideSystemDefault,
     resetSystemOverride,
     systemOverrides
-  } = useCustomTypesStore()
+  } = useProductionCustomTypes(moduleType)
 
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newTypeLabel, setNewTypeLabel] = useState('')
   const [newTypeColor, setNewTypeColor] = useState('#6B7280')
+  const nameInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (isAddingNew && nameInputRef.current) {
+      nameInputRef.current.focus()
+      nameInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }, [isAddingNew])
 
   const systemDefaults = getSystemDefaults(moduleType)
   const allTypes = getTypes(moduleType)
@@ -59,31 +70,31 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
   }
 
   const handleSystemTypeUpdate = (systemId: string, updates: { label?: string; color?: string }) => {
-    overrideSystemDefault(moduleType, systemId, updates)
+    overrideSystemDefault(systemId, updates)
   }
 
   const handleSystemTypeReset = (systemId: string) => {
-    resetSystemOverride(moduleType, systemId)
+    resetSystemOverride(systemId)
   }
 
   const handleSystemTypeToggleHidden = (systemId: string) => {
     const currentlyHidden = isSystemTypeHidden(systemId)
-    overrideSystemDefault(moduleType, systemId, { isHidden: !currentlyHidden })
+    overrideSystemDefault(systemId, { isHidden: !currentlyHidden })
   }
 
   const handleCustomTypeUpdate = (typeId: string, updates: { label?: string; color?: string }) => {
-    updateCustomType(moduleType, typeId, updates)
+    updateCustomType(typeId, updates)
   }
 
   const handleCustomTypeDelete = (typeId: string) => {
-    deleteCustomType(moduleType, typeId)
+    deleteCustomType(typeId)
   }
 
   const handleAddNewType = () => {
     if (newTypeLabel.trim()) {
       const value = newTypeLabel.toLowerCase().replace(/\s+/g, '_')
-      addCustomType(moduleType, {
-        productionId: 'prod-1', // TODO: Replace with actual production ID
+      addCustomType({
+        productionId,
         moduleType,
         value,
         label: newTypeLabel.trim(),
@@ -186,6 +197,7 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
                     data-testid="type-color"
                   />
                   <Input
+                    ref={nameInputRef}
                     value={newTypeLabel}
                     onChange={(e) => setNewTypeLabel(e.target.value)}
                     placeholder="Enter type name..."

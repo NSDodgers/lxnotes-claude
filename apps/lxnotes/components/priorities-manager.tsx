@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { InlineEditor } from '@/components/inline-editor'
 import { ColorPicker } from '@/components/color-picker'
-import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { useProductionCustomPriorities } from '@/lib/hooks/use-production-custom-priorities'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 import type { ModuleType } from '@/types'
 
@@ -16,6 +17,8 @@ interface PrioritiesManagerProps {
 }
 
 export function PrioritiesManager({ moduleType, className }: PrioritiesManagerProps) {
+  const productionContext = useProductionOptional()
+  const productionId = productionContext?.productionId ?? 'demo'
   const {
     getSystemDefaults,
     getPriorities,
@@ -25,12 +28,20 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
     overrideSystemDefault,
     resetSystemOverride,
     systemOverrides
-  } = useCustomPrioritiesStore()
+  } = useProductionCustomPriorities(moduleType)
 
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [newPriorityLabel, setNewPriorityLabel] = useState('')
   const [newPriorityColor, setNewPriorityColor] = useState('#D97706')
   const [newPrioritySortOrder, setNewPrioritySortOrder] = useState('')
+  const nameInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (isAddingNew && nameInputRef.current) {
+      nameInputRef.current.focus()
+      nameInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }, [isAddingNew])
 
   const systemDefaults = getSystemDefaults(moduleType)
   const allPriorities = getPriorities(moduleType)
@@ -74,24 +85,24 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
   }
 
   const handleSystemPriorityUpdate = (systemId: string, updates: { label?: string; color?: string }) => {
-    overrideSystemDefault(moduleType, systemId, updates)
+    overrideSystemDefault(systemId, updates)
   }
 
   const handleSystemPriorityReset = (systemId: string) => {
-    resetSystemOverride(moduleType, systemId)
+    resetSystemOverride(systemId)
   }
 
   const handleSystemPriorityToggleHidden = (systemId: string) => {
     const currentlyHidden = isSystemPriorityHidden(systemId)
-    overrideSystemDefault(moduleType, systemId, { isHidden: !currentlyHidden })
+    overrideSystemDefault(systemId, { isHidden: !currentlyHidden })
   }
 
   const handleCustomPriorityUpdate = (priorityId: string, updates: { label?: string; color?: string }) => {
-    updateCustomPriority(moduleType, priorityId, updates)
+    updateCustomPriority(priorityId, updates)
   }
 
   const handleCustomPriorityDelete = (priorityId: string) => {
-    deleteCustomPriority(moduleType, priorityId)
+    deleteCustomPriority(priorityId)
   }
 
   const handleAddNewPriority = () => {
@@ -99,8 +110,8 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
       const sortOrder = newPrioritySortOrder ? parseFloat(newPrioritySortOrder) : allPriorities.length + 1
       const value = newPriorityLabel.toLowerCase().replace(/\s+/g, '_')
 
-      addCustomPriority(moduleType, {
-        productionId: 'prod-1', // TODO: Replace with actual production ID
+      addCustomPriority({
+        productionId,
         moduleType,
         value,
         label: newPriorityLabel.trim(),
@@ -137,10 +148,10 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
     if (!currentPriority.isSystem) {
       // Moving custom priority - swap sort orders
       const newSortOrder = targetPriority.sortOrder
-      updateCustomPriority(moduleType, priorityId, { sortOrder: newSortOrder })
+      updateCustomPriority(priorityId, { sortOrder: newSortOrder })
 
       if (!targetPriority.isSystem) {
-        updateCustomPriority(moduleType, targetPriority.id, { sortOrder: currentPriority.sortOrder })
+        updateCustomPriority(targetPriority.id, { sortOrder: currentPriority.sortOrder })
       }
     }
   }
@@ -272,6 +283,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
                     data-testid="priority-color"
                   />
                   <Input
+                    ref={nameInputRef}
                     value={newPriorityLabel}
                     onChange={(e) => setNewPriorityLabel(e.target.value)}
                     placeholder="Enter priority name..."

@@ -584,6 +584,8 @@ export async function getProduction(id: string) {
     filterSortPresets: ((data as Record<string, unknown>).filter_sort_presets ?? []) as import('@/types').FilterSortPreset[],
     pageStylePresets: ((data as Record<string, unknown>).page_style_presets ?? []) as import('@/types').PageStylePreset[],
     printPresets: ((data as Record<string, unknown>).print_presets ?? []) as import('@/types').PrintPreset[],
+    customTypesConfig: ((data as Record<string, unknown>).custom_types_config ?? { customTypes: { cue: [], work: [], production: [], actor: [] }, systemOverrides: [] }) as import('@/types').CustomTypesConfig,
+    customPrioritiesConfig: ((data as Record<string, unknown>).custom_priorities_config ?? { customPriorities: { cue: [], work: [], production: [], actor: [] }, systemOverrides: [] }) as import('@/types').CustomPrioritiesConfig,
     createdAt: new Date(data.created_at!),
     updatedAt: new Date(data.updated_at!),
     deletedAt: data.deleted_at ? new Date(data.deleted_at) : undefined,

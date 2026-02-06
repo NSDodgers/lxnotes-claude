@@ -1,30 +1,34 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { CustomPriority, ModuleType, SystemOverride } from '@/types'
+import type { CustomPriority, CustomPrioritiesConfig, ModuleType, SystemOverride } from '@/types'
 
 interface CustomPrioritiesState {
   customPriorities: Record<ModuleType, CustomPriority[]>
   systemOverrides: SystemOverride[]
-  
+
   // System defaults per documentation
   getSystemDefaults: (moduleType: ModuleType) => CustomPriority[]
-  
+
   // Get merged priorities (system + custom + overrides)
   getPriorities: (moduleType: ModuleType) => CustomPriority[]
-  
+
   // CRUD operations
   addCustomPriority: (moduleType: ModuleType, priority: Omit<CustomPriority, 'id' | 'createdAt' | 'updatedAt'>) => void
   updateCustomPriority: (moduleType: ModuleType, id: string, updates: Partial<CustomPriority>) => void
   deleteCustomPriority: (moduleType: ModuleType, id: string) => void
-  
+
   // System override operations
   overrideSystemDefault: (moduleType: ModuleType, systemId: string, overrideData: SystemOverride['overrideData']) => void
   resetSystemOverride: (moduleType: ModuleType, systemId: string) => void
-  
+
   // Reordering with decimal support
   reorderPriorities: (moduleType: ModuleType, orderedIds: string[]) => void
   insertPriorityBetween: (moduleType: ModuleType, priority: Omit<CustomPriority, 'id' | 'createdAt' | 'updatedAt'>, beforeId: string, afterId: string) => void
+
+  // Production sync
+  loadFromProduction: (config: CustomPrioritiesConfig) => void
+  getConfig: () => CustomPrioritiesConfig
 }
 
 // System defaults per documentation
@@ -205,12 +209,12 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
         const allPriorities = get().getPriorities(moduleType)
         const beforePriority = allPriorities.find(p => p.id === beforeId)
         const afterPriority = allPriorities.find(p => p.id === afterId)
-        
+
         if (!beforePriority || !afterPriority) return
-        
+
         // Calculate decimal sort order between the two priorities
         const newSortOrder = (beforePriority.sortOrder + afterPriority.sortOrder) / 2
-        
+
         const timestamp = new Date()
         const newPriority: CustomPriority = {
           ...priorityData,
@@ -219,13 +223,28 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
           createdAt: timestamp,
           updatedAt: timestamp,
         }
-        
+
         set(state => ({
           customPriorities: {
             ...state.customPriorities,
             [moduleType]: [...(state.customPriorities[moduleType] || []), newPriority]
           }
         }))
+      },
+
+      loadFromProduction: (config: CustomPrioritiesConfig) => {
+        set({
+          customPriorities: config.customPriorities ?? { cue: [], work: [], production: [], actor: [] },
+          systemOverrides: config.systemOverrides ?? [],
+        })
+      },
+
+      getConfig: (): CustomPrioritiesConfig => {
+        const state = get()
+        return {
+          customPriorities: state.customPriorities,
+          systemOverrides: state.systemOverrides,
+        }
       },
     }),
     {

@@ -60,6 +60,17 @@ export interface ProductionSettings {
   updatedAt: Date
 }
 
+// JSONB config blobs stored on productions table
+export interface CustomTypesConfig {
+  customTypes: Record<ModuleType, CustomType[]>
+  systemOverrides: SystemOverride[]
+}
+
+export interface CustomPrioritiesConfig {
+  customPriorities: Record<ModuleType, CustomPriority[]>
+  systemOverrides: SystemOverride[]
+}
+
 export interface Production {
   id: string
   name: string

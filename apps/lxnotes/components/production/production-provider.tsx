@@ -7,7 +7,9 @@ import { useScriptStore } from '@/lib/stores/script-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { usePositionStore } from '@/lib/stores/position-store'
 import { useAuthContext } from '@/components/auth/auth-provider'
-import type { EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset } from '@/types'
+import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
+import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import type { EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset, CustomTypesConfig, CustomPrioritiesConfig } from '@/types'
 
 export interface Production {
   id: string
@@ -22,6 +24,8 @@ export interface Production {
   filterSortPresets: FilterSortPreset[]
   pageStylePresets: PageStylePreset[]
   printPresets: PrintPreset[]
+  customTypesConfig: CustomTypesConfig
+  customPrioritiesConfig: CustomPrioritiesConfig
   createdAt: Date
   updatedAt: Date
   deletedAt?: Date
@@ -32,25 +36,6 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { AlertTriangle, RotateCcw, Loader2 } from 'lucide-react'
-
-export interface Production {
-  id: string
-  name: string
-  abbreviation: string
-  logo?: string
-  description?: string
-  startDate?: Date
-  endDate?: Date
-  isDemo: boolean
-  emailPresets: EmailMessagePreset[]
-  filterSortPresets: FilterSortPreset[]
-  pageStylePresets: PageStylePreset[]
-  printPresets: PrintPreset[]
-  createdAt: Date
-  updatedAt: Date
-  deletedAt?: Date
-  deletedBy?: string
-}
 
 interface ProductionContextType {
   production: Production | null
@@ -67,6 +52,8 @@ interface ProductionContextType {
   deletePageStylePreset: (presetId: string) => Promise<void>
   updatePrintPreset: (preset: PrintPreset) => Promise<void>
   deletePrintPreset: (presetId: string) => Promise<void>
+  updateCustomTypesConfig: (config: CustomTypesConfig) => Promise<void>
+  updateCustomPrioritiesConfig: (config: CustomPrioritiesConfig) => Promise<void>
 }
 
 const ProductionContext = createContext<ProductionContextType | null>(null)
@@ -351,6 +338,52 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
   }, [productionId])
 
+  const updateCustomTypesConfig = useCallback(async (config: CustomTypesConfig) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}/custom-types-config`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      })
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}))
+        throw new Error(`Failed to update custom types config: ${response.status} ${errorBody.error || ''}`)
+      }
+
+      const { customTypesConfig } = await response.json()
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, customTypesConfig } : null)
+    } catch (err) {
+      console.error('Error updating custom types config:', err)
+      throw err
+    }
+  }, [productionId])
+
+  const updateCustomPrioritiesConfig = useCallback(async (config: CustomPrioritiesConfig) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}/custom-priorities-config`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config),
+      })
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}))
+        throw new Error(`Failed to update custom priorities config: ${response.status} ${errorBody.error || ''}`)
+      }
+
+      const { customPrioritiesConfig } = await response.json()
+
+      // Update local state
+      setProduction(prev => prev ? { ...prev, customPrioritiesConfig } : null)
+    } catch (err) {
+      console.error('Error updating custom priorities config:', err)
+      throw err
+    }
+  }, [productionId])
+
   // Reset stores when switching to a different production
   // This ensures new/different productions don't inherit data from previous productions or demo mode
   // NOTE: We don't clear fixture data here because syncFixtures() already handles
@@ -412,6 +445,18 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     fetchFixtureData()
   }, [productionId, isAuthenticated, syncFixtures])
 
+  // Sync custom types and priorities config from production into Zustand stores
+  useEffect(() => {
+    if (!production) return
+
+    if (production.customTypesConfig) {
+      useCustomTypesStore.getState().loadFromProduction(production.customTypesConfig)
+    }
+    if (production.customPrioritiesConfig) {
+      useCustomPrioritiesStore.getState().loadFromProduction(production.customPrioritiesConfig)
+    }
+  }, [production])
+
   // Access Control Effect
   useEffect(() => {
     if (!isLoading && production?.deletedAt) {
@@ -451,6 +496,8 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
           filterSortPresets: ((updatedProduction as Record<string, unknown>).filter_sort_presets as FilterSortPreset[]) ?? [],
           pageStylePresets: ((updatedProduction as Record<string, unknown>).page_style_presets as PageStylePreset[]) ?? [],
           printPresets: ((updatedProduction as Record<string, unknown>).print_presets as PrintPreset[]) ?? [],
+          customTypesConfig: ((updatedProduction as Record<string, unknown>).custom_types_config as CustomTypesConfig) ?? { customTypes: { cue: [], work: [], production: [], actor: [] }, systemOverrides: [] },
+          customPrioritiesConfig: ((updatedProduction as Record<string, unknown>).custom_priorities_config as CustomPrioritiesConfig) ?? { customPriorities: { cue: [], work: [], production: [], actor: [] }, systemOverrides: [] },
           createdAt: new Date(updatedProduction.created_at!),
           updatedAt: new Date(updatedProduction.updated_at!),
           deletedAt: updatedProduction.deleted_at ? new Date(updatedProduction.deleted_at) : undefined,
@@ -536,6 +583,8 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
         deletePageStylePreset,
         updatePrintPreset,
         deletePrintPreset,
+        updateCustomTypesConfig,
+        updateCustomPrioritiesConfig,
       }}
     >
       {children}

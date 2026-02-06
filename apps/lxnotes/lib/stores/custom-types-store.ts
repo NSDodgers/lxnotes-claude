@@ -1,29 +1,33 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { CustomType, ModuleType, SystemOverride } from '@/types'
+import type { CustomType, CustomTypesConfig, ModuleType, SystemOverride } from '@/types'
 
 interface CustomTypesState {
   customTypes: Record<ModuleType, CustomType[]>
   systemOverrides: SystemOverride[]
-  
+
   // System defaults per documentation
   getSystemDefaults: (moduleType: ModuleType) => CustomType[]
-  
+
   // Get merged types (system + custom + overrides)
   getTypes: (moduleType: ModuleType) => CustomType[]
-  
+
   // CRUD operations
   addCustomType: (moduleType: ModuleType, type: Omit<CustomType, 'id' | 'createdAt' | 'updatedAt'>) => void
   updateCustomType: (moduleType: ModuleType, id: string, updates: Partial<CustomType>) => void
   deleteCustomType: (moduleType: ModuleType, id: string) => void
-  
+
   // System override operations
   overrideSystemDefault: (moduleType: ModuleType, systemId: string, overrideData: SystemOverride['overrideData']) => void
   resetSystemOverride: (moduleType: ModuleType, systemId: string) => void
-  
+
   // Reordering
   reorderTypes: (moduleType: ModuleType, orderedIds: string[]) => void
+
+  // Production sync
+  loadFromProduction: (config: CustomTypesConfig) => void
+  getConfig: () => CustomTypesConfig
 }
 
 // System defaults per documentation
@@ -212,6 +216,21 @@ export const useCustomTypesStore = create<CustomTypesState>()(
             })
           }
         }))
+      },
+
+      loadFromProduction: (config: CustomTypesConfig) => {
+        set({
+          customTypes: config.customTypes ?? { cue: [], work: [], production: [], actor: [] },
+          systemOverrides: config.systemOverrides ?? [],
+        })
+      },
+
+      getConfig: (): CustomTypesConfig => {
+        const state = get()
+        return {
+          customTypes: state.customTypes,
+          systemOverrides: state.systemOverrides,
+        }
       },
     }),
     {
