@@ -144,7 +144,7 @@ export default function WorkNotesPage() {
 
   // Auto-load mock data in development mode (DISABLED in demo mode and production mode)
   // In demo mode, fixture data is loaded by initializeDemoSession in lib/demo-data/loader.ts
-  // In production mode, fixtures are loaded from Supabase by FixturesProvider
+  // In production mode, fixtures are loaded from Supabase by ProductionProvider
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && !isDemoMode() && !isProductionMode && fixturesLength === 0 && !getHasBeenDeleted()) {
       // Only load test data in non-demo, non-production development mode

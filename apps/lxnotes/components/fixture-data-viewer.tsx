@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { Search, Database, Download, Calendar, Trash2, AlertTriangle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -42,8 +43,10 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table'
+import { useAuthContext } from '@/components/auth/auth-provider'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { usePositionStore } from '@/lib/stores/position-store'
+import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import type { FixtureInfo } from '@/types'
 import { createFixtureColumns } from '@/components/notes-table/columns/fixture-columns'
 
@@ -58,12 +61,36 @@ export function FixtureDataViewer({
   onClose,
   productionId
 }: FixtureDataViewerProps) {
+  const pathname = usePathname()
+  const isDemoMode = pathname.startsWith('/demo')
+  const { isAuthenticated } = useAuthContext()
+
   // Use selectors to prevent subscribing to entire store (avoids infinite re-render loop)
   const getFixturesByProduction = useFixtureStore((state) => state.getFixturesByProduction)
+  const syncFixtures = useFixtureStore((state) => state.syncFixtures)
   const clearData = useFixtureStore((state) => state.clearData)
   const clearOrder = usePositionStore((state) => state.clearOrder)
   const [searchTerm, setSearchTerm] = useState('')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
+  // Fetch fresh fixture data from Supabase when sidebar opens
+  useEffect(() => {
+    if (!isOpen || isDemoMode || !isAuthenticated || !productionId || productionId === 'demo-production') {
+      return
+    }
+
+    const fetchFixtureData = async () => {
+      try {
+        const adapter = createSupabaseStorageAdapter(productionId)
+        const fixtures = await adapter.fixtures.getAll()
+        syncFixtures(productionId, fixtures)
+      } catch (error) {
+        console.error('[FixtureDataViewer] Failed to fetch fixture data:', error)
+      }
+    }
+
+    fetchFixtureData()
+  }, [isOpen, isDemoMode, isAuthenticated, productionId, syncFixtures])
 
   // Only fetch and compute data when the Sheet is actually open
   // This prevents expensive operations and infinite render loops when closed

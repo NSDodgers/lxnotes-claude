@@ -9,7 +9,6 @@ import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { NotesProvider } from '@/lib/contexts/notes-context'
-import { FixturesProvider } from '@/lib/contexts/fixtures-context'
 import { AuthProvider } from '@/components/auth/auth-provider'
 import { KeyboardShortcutsProvider } from '@/lib/hooks/use-keyboard-shortcuts'
 
@@ -39,22 +38,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <NotesProvider>
-          <FixturesProvider>
-            <KeyboardShortcutsProvider>
-              {children}
-              <Toaster
-                position="bottom-right"
-                theme="dark"
-                toastOptions={{
-                  style: {
-                    background: 'hsl(var(--background))',
-                    border: '1px solid hsl(var(--border))',
-                    color: 'hsl(var(--foreground))',
-                  },
-                }}
-              />
-            </KeyboardShortcutsProvider>
-          </FixturesProvider>
+          <KeyboardShortcutsProvider>
+            {children}
+            <Toaster
+              position="bottom-right"
+              theme="dark"
+              toastOptions={{
+                style: {
+                  background: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  color: 'hsl(var(--foreground))',
+                },
+              }}
+            />
+          </KeyboardShortcutsProvider>
         </NotesProvider>
       </QueryClientProvider>
     </AuthProvider>

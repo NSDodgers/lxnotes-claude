@@ -96,6 +96,27 @@ export function HookupImportSidebar({
     isSetupExpanded: false
   })
 
+  const syncFixtures = useFixtureStore((state) => state.syncFixtures)
+
+  // Fetch fresh fixture data from Supabase when sidebar opens
+  useEffect(() => {
+    if (!isOpen || isDemoMode || !isAuthenticated || !productionId || productionId === 'demo-production') {
+      return
+    }
+
+    const fetchFixtureData = async () => {
+      try {
+        const storageAdapter = createSupabaseStorageAdapter(productionId)
+        const fixtures = await storageAdapter.fixtures.getAll()
+        syncFixtures(productionId, fixtures)
+      } catch (error) {
+        console.error('[HookupImportSidebar] Failed to fetch fixture data:', error)
+      }
+    }
+
+    fetchFixtureData()
+  }, [isOpen, isDemoMode, isAuthenticated, productionId, syncFixtures])
+
   const resetState = () => {
     // Check for existing data when resetting
     const existingFixtures = getFixturesByProduction(productionId)

@@ -12,7 +12,6 @@ import { createClient } from './client'
 import type { Database } from './database.types'
 
 type DbNote = Database['public']['Tables']['notes']['Row']
-type DbFixture = Database['public']['Tables']['fixtures']['Row']
 type DbProduction = Database['public']['Tables']['productions']['Row']
 
 /**
@@ -101,9 +100,6 @@ export interface RealtimeCallbacks {
   onNoteInsert?: (note: DbNote) => void
   onNoteUpdate?: (note: DbNote) => void
   onNoteDelete?: (oldNote: DbNote) => void
-  onFixtureInsert?: (fixture: DbFixture) => void
-  onFixtureUpdate?: (fixture: DbFixture) => void
-  onFixtureDelete?: (oldFixture: DbFixture) => void
   onProductionUpdate?: (production: DbProduction) => void
   onError?: (error: Error) => void
   onStatusChange?: (status: string) => void
@@ -160,55 +156,6 @@ export function subscribeToNoteChanges(
 }
 
 /**
- * Subscribe to real-time changes for fixtures
- * Includes automatic retry with exponential backoff on connection failures
- */
-export function subscribeToFixtureChanges(
-  productionId: string,
-  callbacks: Pick<RealtimeCallbacks, 'onFixtureInsert' | 'onFixtureUpdate' | 'onFixtureDelete' | 'onError'>
-): () => void {
-  // SECURITY: Validate productionId is a valid UUID
-  if (!productionId || !isValidUUID(productionId)) {
-    if (isDev) console.warn(`[Realtime] Invalid productionId for fixtures subscription: ${productionId}`)
-    return () => { }
-  }
-
-  const supabase = createClient()
-  const channelName = `production-${productionId}-fixtures`
-
-  return createSubscriptionWithRetry(
-    channelName,
-    () => {
-      return supabase.channel(channelName).on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'fixtures',
-          filter: `production_id=eq.${productionId}`
-        },
-        (payload) => {
-          if (isDev) console.log(`[Realtime] Fixture event: ${payload.eventType}`, payload)
-
-          switch (payload.eventType) {
-            case 'INSERT':
-              if (callbacks.onFixtureInsert) callbacks.onFixtureInsert(payload.new as DbFixture)
-              break
-            case 'UPDATE':
-              if (callbacks.onFixtureUpdate) callbacks.onFixtureUpdate(payload.new as DbFixture)
-              break
-            case 'DELETE':
-              if (callbacks.onFixtureDelete) callbacks.onFixtureDelete(payload.old as DbFixture)
-              break
-          }
-        }
-      )
-    },
-    callbacks.onError
-  )
-}
-
-/**
  * Subscribe to real-time changes for production metadata
  * Includes automatic retry with exponential backoff on connection failures
  */
@@ -258,12 +205,10 @@ export function subscribeToProduction(
   if (isDev) console.warn('[Realtime] subscribeToProduction is deprecated. Using granular subscriptions.')
 
   const unsubNotes = subscribeToNoteChanges(productionId, callbacks)
-  const unsubFixtures = subscribeToFixtureChanges(productionId, callbacks)
   const unsubProd = subscribeToProductionChanges(productionId, callbacks)
 
   return () => {
     unsubNotes()
-    unsubFixtures()
     unsubProd()
   }
 }
