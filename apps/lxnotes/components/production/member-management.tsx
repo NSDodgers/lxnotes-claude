@@ -31,6 +31,7 @@ export function MemberManagement() {
   const [error, setError] = useState<string | null>(null)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [showInviteDialog, setShowInviteDialog] = useState(false)
+  const [failedAvatars, setFailedAvatars] = useState<Set<string>>(new Set())
 
   // Determine if current user is an admin for this production
   const isAdmin = isSuperAdmin || members.some(m => m.userId === user?.id && m.role === 'admin')
@@ -172,18 +173,19 @@ export function MemberManagement() {
               className="flex items-center justify-between p-4 bg-bg-secondary rounded-lg border border-bg-tertiary"
             >
               <div className="flex items-center gap-3">
-                {member.user?.avatarUrl ? (
+                {member.user?.avatarUrl && !failedAvatars.has(member.id) ? (
                   <Image
                     src={member.user.avatarUrl}
-                    alt={member.user.fullName || member.user.email}
+                    alt=""
                     width={40}
                     height={40}
-                    className="rounded-full object-cover"
+                    className="h-10 w-10 shrink-0 rounded-full object-cover"
                     unoptimized
+                    onError={() => setFailedAvatars(prev => new Set(prev).add(member.id))}
                   />
                 ) : (
-                  <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
-                    {(member.user?.fullName || member.user?.email || '?').charAt(0).toUpperCase()}
+                  <div className="h-10 w-10 shrink-0 rounded-full bg-bg-tertiary flex items-center justify-center">
+                    <User className="h-5 w-5 text-text-muted" />
                   </div>
                 )}
                 <div>
