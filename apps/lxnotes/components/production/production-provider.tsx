@@ -4,9 +4,9 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef, Re
 import { getProduction, createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
 import { useScriptStore } from '@/lib/stores/script-store'
-import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { usePositionStore } from '@/lib/stores/position-store'
 import { useAuthContext } from '@/components/auth/auth-provider'
+import { FixturesProvider } from '@/lib/contexts/fixtures-context'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import type { EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset, CustomTypesConfig, CustomPrioritiesConfig } from '@/types'
@@ -98,7 +98,6 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
   const previousProductionIdRef = useRef<string | null>(null)
   const resetScriptStore = useScriptStore((state) => state.reset)
   const setScriptData = useScriptStore((state) => state.setScriptData)
-  const syncFixtures = useFixtureStore((state) => state.syncFixtures)
   const clearPositionOrder = usePositionStore((state) => state.clearOrder)
 
   const fetchProduction = useCallback(async () => {
@@ -428,23 +427,6 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     fetchScriptData()
   }, [productionId, isAuthenticated, setScriptData])
 
-  // Fetch fixture data from Supabase and sync to local store
-  useEffect(() => {
-    if (!isAuthenticated) return
-
-    const fetchFixtureData = async () => {
-      try {
-        const adapter = createSupabaseStorageAdapter(productionId)
-        const fixtures = await adapter.fixtures.getAll()
-        syncFixtures(productionId, fixtures)
-      } catch (error) {
-        console.error('[ProductionProvider] Failed to fetch fixture data:', error)
-      }
-    }
-
-    fetchFixtureData()
-  }, [productionId, isAuthenticated, syncFixtures])
-
   // Sync custom types and priorities config from production into Zustand stores
   useEffect(() => {
     if (!production) return
@@ -587,7 +569,9 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
         updateCustomPrioritiesConfig,
       }}
     >
-      {children}
+      <FixturesProvider productionId={productionId}>
+        {children}
+      </FixturesProvider>
     </ProductionContext.Provider>
   )
 }
