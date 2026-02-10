@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       app_settings: {
@@ -551,6 +526,7 @@ export type Database = {
       production_invitations: {
         Row: {
           accepted_at: string | null
+          accepted_by: string | null
           created_at: string | null
           email: string
           expires_at: string | null
@@ -563,6 +539,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string | null
           email: string
           expires_at?: string | null
@@ -575,6 +552,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string | null
           email?: string
           expires_at?: string | null
@@ -587,6 +565,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "production_invitations_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "production_invitations_invited_by_fkey"
             columns: ["invited_by"]
             isOneToOne: false
@@ -596,6 +581,51 @@ export type Database = {
           {
             foreignKeyName: "production_invitations_production_id_fkey"
             columns: ["production_id"]
+            isOneToOne: false
+            referencedRelation: "productions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_links: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          source_app_id: string
+          source_production_id: string
+          target_app_id: string
+          target_production_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          source_app_id: string
+          source_production_id: string
+          target_app_id: string
+          target_production_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          source_app_id?: string
+          source_production_id?: string
+          target_app_id?: string
+          target_production_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_links_source_production_id_fkey"
+            columns: ["source_production_id"]
+            isOneToOne: false
+            referencedRelation: "productions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_links_target_production_id_fkey"
+            columns: ["target_production_id"]
             isOneToOne: false
             referencedRelation: "productions"
             referencedColumns: ["id"]
@@ -658,42 +688,63 @@ export type Database = {
         Row: {
           abbreviation: string
           created_at: string | null
+          custom_priorities_config: Json | null
+          custom_types_config: Json | null
           deleted_at: string | null
           deleted_by: string | null
           description: string | null
+          email_presets: Json | null
           end_date: string | null
+          filter_sort_presets: Json | null
           id: string
           is_demo: boolean | null
           logo: string | null
           name: string
+          page_style_presets: Json | null
+          print_presets: Json | null
+          short_code: string | null
           start_date: string | null
           updated_at: string | null
         }
         Insert: {
           abbreviation: string
           created_at?: string | null
+          custom_priorities_config?: Json | null
+          custom_types_config?: Json | null
           deleted_at?: string | null
           deleted_by?: string | null
           description?: string | null
+          email_presets?: Json | null
           end_date?: string | null
+          filter_sort_presets?: Json | null
           id?: string
           is_demo?: boolean | null
           logo?: string | null
           name: string
+          page_style_presets?: Json | null
+          print_presets?: Json | null
+          short_code?: string | null
           start_date?: string | null
           updated_at?: string | null
         }
         Update: {
           abbreviation?: string
           created_at?: string | null
+          custom_priorities_config?: Json | null
+          custom_types_config?: Json | null
           deleted_at?: string | null
           deleted_by?: string | null
           description?: string | null
+          email_presets?: Json | null
           end_date?: string | null
+          filter_sort_presets?: Json | null
           id?: string
           is_demo?: boolean | null
           logo?: string | null
           name?: string
+          page_style_presets?: Json | null
+          print_presets?: Json | null
+          short_code?: string | null
           start_date?: string | null
           updated_at?: string | null
         }
@@ -865,10 +916,40 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invitation: {
+        Args: { p_invitation_id: string; p_user_id: string }
+        Returns: Json
+      }
+      accept_invitation_by_token: {
+        Args: { p_token: string; p_user_id: string }
+        Returns: Json
+      }
+      accept_pending_invitations_for_user: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+      cleanup_deleted_notes: { Args: never; Returns: undefined }
       cleanup_deleted_productions: { Args: never; Returns: undefined }
+      delete_jsonb_preset: {
+        Args: {
+          p_column_name: string
+          p_preset_id: string
+          p_production_id: string
+        }
+        Returns: Json
+      }
       get_department_production_id: {
         Args: { check_department_id: string }
         Returns: string
+      }
+      get_invitation_by_token: { Args: { p_token: string }; Returns: Json }
+      get_linked_production: {
+        Args: { p_production_id: string; p_target_app_id: string }
+        Returns: string
+      }
+      get_user_production_count: {
+        Args: { check_user_id: string }
+        Returns: number
       }
       has_production_access: {
         Args: { check_production_id: string; check_user_id: string }
@@ -882,11 +963,24 @@ export type Database = {
         Args: { check_department_id: string; check_user_id: string }
         Returns: boolean
       }
+      is_email_verified: { Args: { check_user_id: string }; Returns: boolean }
       is_production_admin: {
         Args: { check_production_id: string; check_user_id: string }
         Returns: boolean
       }
       is_super_admin: { Args: { check_user_id: string }; Returns: boolean }
+      replace_scenes_songs: {
+        Args: { p_production_id: string; p_scenes_songs: Json }
+        Returns: undefined
+      }
+      replace_script_pages: {
+        Args: { p_pages: Json; p_production_id: string }
+        Returns: undefined
+      }
+      upsert_jsonb_preset: {
+        Args: { p_column_name: string; p_preset: Json; p_production_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
@@ -1015,9 +1109,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

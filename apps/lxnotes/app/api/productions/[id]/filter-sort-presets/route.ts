@@ -98,53 +98,19 @@ export async function PUT(
       )
     }
 
-    // Get current presets
-    const { data: production, error: fetchError } = await supabase
-      .from('productions')
-      .select('filter_sort_presets')
-      .eq('id', id)
-      .is('deleted_at', null)
-      .single()
-
-    if (fetchError || !production) {
-      return NextResponse.json(
-        { error: 'Production not found' },
-        { status: 404 }
-      )
+    // Atomic upsert via RPC (prevents read-modify-write race conditions)
+    const presetWithTimestamps = {
+      ...preset,
+      productionId: id,
+      updatedAt: new Date(),
+      createdAt: preset.createdAt || new Date(),
     }
 
-    const currentPresets: FilterSortPreset[] = production.filter_sort_presets || []
-
-    // Update existing preset or add new one
-    const existingIndex = currentPresets.findIndex(p => p.id === preset.id)
-    let updatedPresets: FilterSortPreset[]
-
-    if (existingIndex >= 0) {
-      // Update existing preset
-      updatedPresets = [...currentPresets]
-      updatedPresets[existingIndex] = {
-        ...preset,
-        updatedAt: new Date(),
-      }
-    } else {
-      // Add new preset
-      updatedPresets = [
-        ...currentPresets,
-        {
-          ...preset,
-          productionId: id,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ]
-    }
-
-    // Update the production
-    const { error: updateError } = await supabase
-      .from('productions')
-      .update({ filter_sort_presets: updatedPresets })
-      .eq('id', id)
-      .is('deleted_at', null)
+    const { data: updatedPresets, error: updateError } = await supabase.rpc('upsert_jsonb_preset', {
+      p_production_id: id,
+      p_column_name: 'filter_sort_presets',
+      p_preset: presetWithTimestamps,
+    })
 
     if (updateError) {
       console.error('Error updating filter/sort presets:', updateError)
@@ -155,7 +121,7 @@ export async function PUT(
     }
 
     return NextResponse.json({
-      filterSortPresets: updatedPresets,
+      filterSortPresets: updatedPresets || [],
     })
   } catch (error) {
     console.error('Error updating filter/sort preset:', error)

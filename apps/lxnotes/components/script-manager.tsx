@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { useAuthContext } from '@/components/auth/auth-provider'
-import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, ArrowRight } from 'lucide-react'
+import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, ArrowRight, Upload } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ScriptPage, SceneSong } from '@/types'
 import {
@@ -16,6 +16,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet'
+import { ScriptImportWizard } from '@/components/script-import-wizard'
 
 interface ScriptManagerProps {
   isOpen: boolean
@@ -85,11 +86,11 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
   const scenes = getPageScenes(page.id)
   const songs = getPageSongs(page.id)
 
-  // Combine and sort all scenes and songs by cue number
+  // Combine and sort all scenes and songs by cue number, with orderIndex as tiebreaker
   const allItems = [...scenes, ...songs].sort((a, b) => {
     const cueA = a.firstCueNumber ? parseInt(a.firstCueNumber.match(/^(\d+)/)?.[1] || '0') : 0
     const cueB = b.firstCueNumber ? parseInt(b.firstCueNumber.match(/^(\d+)/)?.[1] || '0') : 0
-    return cueA - cueB
+    return cueA - cueB || a.orderIndex - b.orderIndex
   })
 
   const handlePageNumberChange = async (value: string) => {
@@ -394,27 +395,16 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
 
         {/* Page Content */}
         {allItems.length > 0 && (
-          <div className="p-4">
-            <div className="space-y-3">
-              {/* Combined Scenes and Songs Section */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium text-text-secondary flex items-center gap-2">
-                  <Theater className="h-4 w-4 text-modules-work" />
-                  Scenes ({scenes.length})
-                  <Music className="h-4 w-4 text-modules-production ml-4" />
-                  Songs ({songs.length})
-                </h4>
-                <div className="space-y-2 pl-6">
-                  {allItems.map((item, index) => (
-                    <SceneSongItem
-                      key={item.id}
-                      item={item}
-                      isLastItem={index === allItems.length - 1}
-                      onPersist={onPersist}
-                    />
-                  ))}
-                </div>
-              </div>
+          <div className="px-3 pb-3 pt-2">
+            <div className="border-l-2 border-bg-hover/50 pl-4 space-y-1.5">
+              {allItems.map((item, index) => (
+                <SceneSongItem
+                  key={item.id}
+                  item={item}
+                  isLastItem={index === allItems.length - 1}
+                  onPersist={onPersist}
+                />
+              ))}
             </div>
           </div>
         )}
@@ -547,11 +537,25 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
 
   return (
     <>
-      <div className="flex items-center gap-compact-3 py-compact-2 px-compact-3 rounded bg-bg-tertiary/50 border border-bg-hover/30">
+      <div className={cn(
+        "flex items-center gap-compact-3 py-compact-2 px-compact-3 rounded border",
+        isContinuation
+          ? "bg-bg-tertiary/30 border-bg-hover/20"
+          : item.type === 'scene'
+            ? "bg-modules-work/10 border-modules-work/25"
+            : "bg-modules-production/10 border-modules-production/25"
+      )}>
+        {/* Type icon */}
+        {item.type === 'scene' ? (
+          <Theater className={cn("h-3.5 w-3.5 flex-shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-work")} />
+        ) : (
+          <Music className={cn("h-3.5 w-3.5 flex-shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-production")} />
+        )}
+
         {/* Name with continuation indicators */}
         <div className="flex items-center gap-compact-2 flex-1">
           {isContinuation && (
-            <span className="text-xs text-modules-production font-mono" title="Continued from previous page">
+            <span className="text-xs text-text-tertiary font-mono" title="Continued from previous page">
               ←
             </span>
           )}
@@ -560,10 +564,10 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
             value={item.name}
             onChange={(e) => handleNameChange(e.target.value)}
             className={cn(
-              "h-compact-7 border rounded px-compact-2 text-sm text-text-primary focus:outline-none focus:border-modules-cue flex-1 cursor-text",
+              "h-compact-7 border rounded px-compact-2 text-sm focus:outline-none focus:border-modules-cue flex-1 cursor-text",
               isContinuation
-                ? "bg-modules-production/10 border-modules-production/30"
-                : "bg-bg-tertiary border-bg-hover"
+                ? "bg-bg-tertiary/50 border-bg-hover/30 text-text-secondary"
+                : "bg-bg-tertiary border-bg-hover text-text-primary"
             )}
             title={isContinuation ? "Continued from previous page" : "Click to edit name"}
           />
@@ -679,6 +683,9 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
   const { isAuthenticated } = useAuthContext()
   const { getSortedPages, addPage, scenes, songs, setScriptData } = useScriptStore()
 
+  // Import wizard state
+  const [isImportOpen, setIsImportOpen] = useState(false)
+
   // Inline form state
   const [isAddingPage, setIsAddingPage] = useState(false)
   const [newPageNumber, setNewPageNumber] = useState('')
@@ -754,6 +761,24 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
     }
   }, [isDemoMode, productionId, isAuthenticated, getSortedPages, scenes, songs])
 
+  // Import completion handler — persists directly with imported data to avoid stale closure
+  const handleImportComplete = useCallback(async (importedPages: ScriptPage[], importedScenes: SceneSong[], importedSongs: SceneSong[]) => {
+    setScriptData(importedPages, importedScenes, importedSongs)
+
+    if (isDemoMode || !productionId || productionId === 'demo-production' || !isAuthenticated) {
+      return
+    }
+
+    try {
+      const adapter = createSupabaseStorageAdapter(productionId)
+      const allScenesSongs = [...importedScenes, ...importedSongs]
+      await adapter.script.setPages(importedPages)
+      await adapter.script.setScenesSongs(allScenesSongs)
+    } catch (error) {
+      console.error('[ScriptManager] Failed to persist imported script data:', error)
+    }
+  }, [setScriptData, isDemoMode, productionId, isAuthenticated])
+
   // Inline form handlers
   const handleInlineFormKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -804,104 +829,122 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
           </SheetDescription>
         </SheetHeader>
 
-        <div className="flex flex-col flex-1 min-h-0">
-          {/* Header with Add Button */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-text-primary">Script Structure</h2>
-              <p className="text-sm text-text-secondary mt-1">
-                Organize your script with hierarchical pages, scenes, and songs
-              </p>
-            </div>
-            <Button
-              onClick={openAddPageForm}
-              variant="cue"
-              disabled={isAddingPage}
-            >
-              <Plus className="h-5 w-5" />
-              Add Page
-            </Button>
-          </div>
-
-          {/* Inline Add Page Form */}
-          {isAddingPage && (
-            <div className="mb-4 p-3 rounded-lg bg-bg-tertiary border border-modules-cue/30">
-              <div className="flex items-center gap-3">
-                <div className="flex-1">
-                  <label className="block text-xs font-medium text-text-secondary mb-1">
-                    Page Number <span className="text-modules-cue">*</span>
-                  </label>
-                  <input
-                    ref={pageNumberInputRef}
-                    type="text"
-                    value={newPageNumber}
-                    onChange={(e) => setNewPageNumber(e.target.value)}
-                    onKeyDown={handleInlineFormKeyDown}
-                    placeholder="e.g., 1, 23a, 59-60"
-                    className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-xs font-medium text-text-secondary mb-1">
-                    First Cue (optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={newFirstCueNumber}
-                    onChange={(e) => setNewFirstCueNumber(e.target.value)}
-                    onKeyDown={handleInlineFormKeyDown}
-                    placeholder="e.g., 127"
-                    className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
-                  />
-                </div>
-                <div className="flex items-center gap-2 pt-5">
-                  <Button size="sm" variant="cue" onClick={handleInlineAddPage} disabled={!newPageNumber.trim()}>
-                    <Plus className="h-4 w-4" />
-                    Add
-                  </Button>
-                  <Button size="sm" variant="secondary" onClick={handleCancelAddPage}>
-                    Cancel
-                  </Button>
-                </div>
+        {isImportOpen ? (
+          <ScriptImportWizard
+            productionId={productionId}
+            hasExistingData={pages.length > 0}
+            onImportComplete={handleImportComplete}
+            onCancel={() => setIsImportOpen(false)}
+          />
+        ) : (
+          <div className="flex flex-col flex-1 min-h-0">
+            {/* Header with Add Button */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-lg font-semibold text-text-primary">Script Structure</h2>
+                <p className="text-sm text-text-secondary mt-1">
+                  Organize your script with hierarchical pages, scenes, and songs
+                </p>
               </div>
-              <div className="mt-2 text-xs text-text-muted">
-                Press <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Enter</kbd> to add, <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Esc</kbd> to cancel
-              </div>
-            </div>
-          )}
-
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto pb-4">
-            {pages.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="h-12 w-12 text-text-muted mx-auto mb-4" />
-                <p className="text-text-secondary">No script pages configured</p>
-                <p className="text-text-muted text-sm mt-1">Add your first page to get started</p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsImportOpen(true)}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import CSV
+                </Button>
                 <Button
                   onClick={openAddPageForm}
                   variant="cue"
-                  className="mt-4"
                   disabled={isAddingPage}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add First Page
+                  <Plus className="h-5 w-5" />
+                  Add Page
                 </Button>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {pages.map(page => (
-                  <ScriptItem
-                    key={page.id}
-                    page={page}
-                    productionId={productionId}
-                    isDemoMode={isDemoMode}
-                    onPersist={persistToSupabase}
-                  />
-                ))}
+            </div>
+
+            {/* Inline Add Page Form */}
+            {isAddingPage && (
+              <div className="mb-4 p-3 rounded-lg bg-bg-tertiary border border-modules-cue/30">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Page Number <span className="text-modules-cue">*</span>
+                    </label>
+                    <input
+                      ref={pageNumberInputRef}
+                      type="text"
+                      value={newPageNumber}
+                      onChange={(e) => setNewPageNumber(e.target.value)}
+                      onKeyDown={handleInlineFormKeyDown}
+                      placeholder="e.g., 1, 23a, 59-60"
+                      className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      First Cue (optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={newFirstCueNumber}
+                      onChange={(e) => setNewFirstCueNumber(e.target.value)}
+                      onKeyDown={handleInlineFormKeyDown}
+                      placeholder="e.g., 127"
+                      className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 pt-5">
+                    <Button size="sm" variant="cue" onClick={handleInlineAddPage} disabled={!newPageNumber.trim()}>
+                      <Plus className="h-4 w-4" />
+                      Add
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={handleCancelAddPage}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-2 text-xs text-text-muted">
+                  Press <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Enter</kbd> to add, <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Esc</kbd> to cancel
+                </div>
               </div>
             )}
+
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto pb-4">
+              {pages.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="h-12 w-12 text-text-muted mx-auto mb-4" />
+                  <p className="text-text-secondary">No script pages configured</p>
+                  <p className="text-text-muted text-sm mt-1">Add your first page to get started</p>
+                  <Button
+                    onClick={openAddPageForm}
+                    variant="cue"
+                    className="mt-4"
+                    disabled={isAddingPage}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add First Page
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {pages.map(page => (
+                    <ScriptItem
+                      key={page.id}
+                      page={page}
+                      productionId={productionId}
+                      isDemoMode={isDemoMode}
+                      onPersist={persistToSupabase}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </SheetContent>
     </Sheet>
   )

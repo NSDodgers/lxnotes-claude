@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isProductionMember } from '@/lib/services/production-members'
-import type { PrintPreset } from '@/types'
 
 // Type helper for Supabase client with new columns
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,40 +33,12 @@ export async function DELETE(
       )
     }
 
-    // Get current presets
-    const { data: production, error: fetchError } = await supabase
-      .from('productions')
-      .select('print_presets')
-      .eq('id', id)
-      .is('deleted_at', null)
-      .single()
-
-    if (fetchError || !production) {
-      return NextResponse.json(
-        { error: 'Production not found' },
-        { status: 404 }
-      )
-    }
-
-    const currentPresets: PrintPreset[] = production.print_presets || []
-
-    // Filter out the preset to delete
-    const updatedPresets = currentPresets.filter(p => p.id !== presetId)
-
-    // If nothing was removed, preset wasn't found
-    if (updatedPresets.length === currentPresets.length) {
-      return NextResponse.json(
-        { error: 'Preset not found' },
-        { status: 404 }
-      )
-    }
-
-    // Update the production
-    const { error: updateError } = await supabase
-      .from('productions')
-      .update({ print_presets: updatedPresets })
-      .eq('id', id)
-      .is('deleted_at', null)
+    // Atomic delete via RPC (prevents read-modify-write race conditions)
+    const { data: updatedPresets, error: updateError } = await supabase.rpc('delete_jsonb_preset', {
+      p_production_id: id,
+      p_column_name: 'print_presets',
+      p_preset_id: presetId,
+    })
 
     if (updateError) {
       console.error('Error deleting print preset:', updateError)
@@ -78,7 +49,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({
-      printPresets: updatedPresets,
+      printPresets: updatedPresets || [],
     })
   } catch (error) {
     console.error('Error deleting print preset:', error)

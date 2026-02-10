@@ -117,6 +117,9 @@ function fixtureToDbFixture(fixture: FixtureInfo): Database['public']['Tables'][
   }
 }
 
+// Columns needed for production list views (excludes large JSONB preset columns)
+const PRODUCTION_LIST_COLUMNS = 'id, name, abbreviation, logo, description, start_date, end_date, is_demo, created_at, updated_at, deleted_at, deleted_by' as const
+
 export function createSupabaseStorageAdapter(productionId: string): StorageAdapter {
   const supabase = createClient()
 
@@ -332,29 +335,19 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
       },
 
       async setPages(pages: ScriptPage[]): Promise<void> {
-        // Delete existing pages
-        const { error: deleteError } = await supabase
-          .from('script_pages')
-          .delete()
-          .eq('production_id', productionId)
+        // Atomic replace via RPC (delete + insert in single transaction)
+        const pagesJson = pages.map(p => ({
+          id: p.id,
+          page_number: p.pageNumber,
+          first_cue_number: p.firstCueNumber ?? null,
+        }))
 
-        if (deleteError) throw deleteError
+        const { error } = await supabase.rpc('replace_script_pages', {
+          p_production_id: productionId,
+          p_pages: pagesJson,
+        })
 
-        // Insert new pages
-        if (pages.length > 0) {
-          const dbPages = pages.map(p => ({
-            id: p.id,
-            production_id: productionId,
-            page_number: p.pageNumber,
-            first_cue_number: p.firstCueNumber ?? null,
-          }))
-
-          const { error } = await supabase
-            .from('script_pages')
-            .insert(dbPages)
-
-          if (error) throw error
-        }
+        if (error) throw error
       },
 
       async getScenesSongs(): Promise<SceneSong[]> {
@@ -383,36 +376,26 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
       },
 
       async setScenesSongs(scenesSongs: SceneSong[]): Promise<void> {
-        // Delete existing scenes/songs
-        const { error: deleteError } = await supabase
-          .from('scenes_songs')
-          .delete()
-          .eq('production_id', productionId)
+        // Atomic replace via RPC (delete + insert in single transaction)
+        const scenesJson = scenesSongs.map((ss, index) => ({
+          id: ss.id,
+          module_type: ss.moduleType ?? 'cue',
+          act_id: ss.actId ?? null,
+          script_page_id: ss.scriptPageId ?? null,
+          name: ss.name,
+          type: ss.type,
+          first_cue_number: ss.firstCueNumber ?? null,
+          order_index: ss.orderIndex ?? index,
+          continues_from_id: ss.continuesFromId ?? null,
+          continues_on_page_id: ss.continuesOnPageId ?? null,
+        }))
 
-        if (deleteError) throw deleteError
+        const { error } = await supabase.rpc('replace_scenes_songs', {
+          p_production_id: productionId,
+          p_scenes_songs: scenesJson,
+        })
 
-        // Insert new scenes/songs
-        if (scenesSongs.length > 0) {
-          const dbScenesSongs = scenesSongs.map((ss, index) => ({
-            id: ss.id,
-            production_id: productionId,
-            module_type: ss.moduleType ?? 'cue',
-            act_id: ss.actId ?? null,
-            script_page_id: ss.scriptPageId ?? null,
-            name: ss.name,
-            type: ss.type,
-            first_cue_number: ss.firstCueNumber ?? null,
-            order_index: ss.orderIndex ?? index,
-            continues_from_id: ss.continuesFromId ?? null,
-            continues_on_page_id: ss.continuesOnPageId ?? null,
-          }))
-
-          const { error } = await supabase
-            .from('scenes_songs')
-            .insert(dbScenesSongs)
-
-          if (error) throw error
-        }
+        if (error) throw error
       },
     },
 
@@ -481,25 +464,14 @@ export async function getAllProductions() {
 
   const { data, error } = await supabase
     .from('productions')
-    .select('*')
+    .select(PRODUCTION_LIST_COLUMNS)
     .eq('is_demo', false)
     .is('deleted_at', null)
     .order('updated_at', { ascending: false })
 
   if (error) throw error
 
-  return (data || []).map((row: DbProduction) => ({
-    id: row.id,
-    name: row.name,
-    abbreviation: row.abbreviation,
-    logo: row.logo ?? undefined,
-    description: row.description ?? undefined,
-    startDate: row.start_date ? new Date(row.start_date) : undefined,
-    endDate: row.end_date ? new Date(row.end_date) : undefined,
-    isDemo: row.is_demo ?? false,
-    createdAt: new Date(row.created_at!),
-    updatedAt: new Date(row.updated_at!),
-  }))
+  return (data || []).map(mapProductionRow)
 }
 
 // Export a function to create a new production
@@ -594,7 +566,9 @@ export async function getProduction(id: string) {
 }
 
 // Helper to map production row to Production type
-function mapProductionRow(row: DbProduction) {
+// Accepts full row or list-view subset (without JSONB preset columns)
+type ProductionListRow = Pick<DbProduction, 'id' | 'name' | 'abbreviation' | 'logo' | 'description' | 'start_date' | 'end_date' | 'is_demo' | 'created_at' | 'updated_at' | 'deleted_at' | 'deleted_by'>
+function mapProductionRow(row: ProductionListRow) {
   return {
     id: row.id,
     name: row.name,
@@ -689,7 +663,7 @@ export async function getAllProductionsForAdmin() {
 
   const { data, error } = await supabase
     .from('productions')
-    .select('*')
+    .select(PRODUCTION_LIST_COLUMNS)
     .eq('is_demo', false)
     .order('updated_at', { ascending: false })
 
@@ -703,7 +677,7 @@ export async function getDeletedProductions() {
 
   const { data, error } = await supabase
     .from('productions')
-    .select('*')
+    .select(PRODUCTION_LIST_COLUMNS)
     .eq('is_demo', false)
     .not('deleted_at', 'is', null)
     .order('deleted_at', { ascending: false })
@@ -718,7 +692,7 @@ export async function getActiveProductions() {
 
   const { data, error } = await supabase
     .from('productions')
-    .select('*')
+    .select(PRODUCTION_LIST_COLUMNS)
     .eq('is_demo', false)
     .is('deleted_at', null)
     .order('updated_at', { ascending: false })

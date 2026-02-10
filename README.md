@@ -126,7 +126,7 @@ The application is running with:
 2. **Authentication** - Add user login (currently bypassed)
 3. **Real-time Updates** - Enable collaborative features
 4. **PDF Export** - Implement with React PDF
-5. **Email Integration** - Connect MailerSend
+5. **Email Integration** - Connect Resend
 6. **Stripe Payments** - Add production billing
 7. **Preset System** - Build template management
 8. **Mobile Optimization** - Enhance tablet/phone experience
