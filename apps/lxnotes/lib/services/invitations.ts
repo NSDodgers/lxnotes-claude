@@ -43,7 +43,6 @@ export async function createInvitation(
     .single()
 
   if (error) {
-    console.error('Error creating invitation:', error)
     throw error
   }
 
@@ -71,7 +70,6 @@ export async function getPendingInvitations(productionId: string): Promise<Produ
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching invitations:', error)
     throw error
   }
 
@@ -110,7 +108,6 @@ export async function getPendingInvitationsForEmail(email: string): Promise<Prod
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching invitations for email:', error)
     throw error
   }
 
@@ -155,7 +152,6 @@ export async function acceptInvitation(invitationId: string, userId: string): Pr
   }) as { data: AcceptInvitationResult | null; error: Error | null }
 
   if (error) {
-    console.error('Error calling accept_invitation:', error)
     throw new Error('Failed to accept invitation')
   }
 
@@ -177,7 +173,6 @@ export async function cancelInvitation(invitationId: string): Promise<void> {
     .eq('status', 'pending')
 
   if (error) {
-    console.error('Error cancelling invitation:', error)
     throw error
   }
 }
@@ -250,15 +245,10 @@ export async function acceptPendingInvitations(email: string, userId: string): P
     }) as { data: AcceptPendingResult | null; error: Error | null }
 
     if (error) {
-      console.error('Error calling accept_pending_invitations_for_user:', error)
       return
     }
-
-    if (data?.accepted_count && data.accepted_count > 0) {
-      console.log(`Successfully accepted ${data.accepted_count} pending invitation(s) for ${email}`)
-    }
-  } catch (error) {
-    console.error('Error processing pending invitations:', error)
+  } catch {
+    // Non-critical: invitation auto-acceptance is best-effort
   }
 }
 
@@ -298,13 +288,11 @@ export async function getInvitationByToken(token: string): Promise<GetInvitation
     }) as { data: GetInvitationByTokenResult | null; error: Error | null }
 
     if (error) {
-      console.error('Error calling get_invitation_by_token:', error)
       return null
     }
 
     return data
-  } catch (error) {
-    console.error('Error in getInvitationByToken:', error)
+  } catch {
     return null
   }
 }
@@ -353,13 +341,11 @@ export async function acceptInvitationByToken(
     }) as { data: AcceptInvitationByTokenResult | null; error: Error | null }
 
     if (error) {
-      console.error('Error calling accept_invitation_by_token:', error)
       return { success: false, error: 'invalid_token' }
     }
 
     return data ?? { success: false, error: 'invalid_token' }
-  } catch (error) {
-    console.error('Error in acceptInvitationByToken:', error)
+  } catch {
     return { success: false, error: 'invalid_token' }
   }
 }
@@ -395,18 +381,11 @@ export async function cleanupExpiredInvitations(): Promise<number> {
       .select('id')
 
     if (error) {
-      console.error('Error cleaning up expired invitations:', error)
       return 0
     }
 
-    const count = data?.length ?? 0
-    if (count > 0) {
-      console.log(`Marked ${count} expired invitation(s) as expired`)
-    }
-
-    return count
-  } catch (error) {
-    console.error('Error in cleanupExpiredInvitations:', error)
+    return data?.length ?? 0
+  } catch {
     return 0
   }
 }

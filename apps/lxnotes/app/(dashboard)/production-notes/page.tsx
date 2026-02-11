@@ -6,20 +6,10 @@ import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
 import { useState, useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
-import { Plus, Search, FileText, Users, Mail, Printer, RotateCcw } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Plus, Search, FileText, Mail, Printer, RotateCcw } from 'lucide-react'
 import type { Note, NoteStatus } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
@@ -972,7 +962,6 @@ const mockProductionNotes: Note[] = [
 
 export default function ProductionNotesPage() {
   const notesContext = useNotes()
-  const mockNotesStore = useMockNotesStore()
   // Determine effective notes based on mode
   const isDemo = isDemoMode()
   const notes = isDemo

@@ -23,7 +23,7 @@ interface PageStylePresetsState {
 // System default page style presets
 const getSystemDefaults = (): PageStylePreset[] => {
   const baseDate = new Date()
-  const productionId = 'prod-1' // TODO: Replace with actual production ID
+  const productionId = 'system' // System defaults; production-scoped presets loaded via store hydration
   
   return [
     {

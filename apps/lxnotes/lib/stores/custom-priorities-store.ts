@@ -34,7 +34,7 @@ interface CustomPrioritiesState {
 // System defaults per documentation
 const getSystemDefaults = (moduleType: ModuleType): CustomPriority[] => {
   const baseDate = new Date()
-  const productionId = 'prod-1' // TODO: Replace with actual production ID
+  const productionId = 'system' // System defaults; production-scoped data loaded via loadFromProduction()
   
   switch (moduleType) {
     case 'cue':
@@ -160,7 +160,7 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
           const timestamp = new Date()
           const newOverride: SystemOverride = {
             id: `override-pri-${systemId}-${Math.random().toString(36).substr(2, 9)}`,
-            productionId: 'prod-1', // TODO: Replace with actual production ID
+            productionId: 'system',
             moduleType,
             systemId,
             type: 'priority',

@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import type { ModuleType, EmailMessagePreset } from '@/types'
+import type { ModuleType, EmailMessagePreset, PrintPreset } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { PlaceholderData } from '@/lib/utils/placeholders'
@@ -103,7 +103,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
     }
   }, [notes, productionName, moduleName, userFullName, userFirstName, userLastName])
 
-  const handleSelectPreset = (preset: EmailMessagePreset | any) => {
+  const handleSelectPreset = (preset: EmailMessagePreset | PrintPreset) => {
     setSelectedPreset(preset as EmailMessagePreset)
     setView('confirm')
   }

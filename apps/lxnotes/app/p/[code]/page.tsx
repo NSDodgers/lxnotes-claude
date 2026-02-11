@@ -57,7 +57,7 @@ export default async function JoinProductionPage({
                 <div className="space-y-2">
                     <h1 className="text-2xl font-bold">Join Production</h1>
                     <p className="text-text-secondary">
-                        You've been invited to join
+                        You&apos;ve been invited to join
                     </p>
                     <div className="py-4">
                         <div className="text-xl font-semibold text-primary">

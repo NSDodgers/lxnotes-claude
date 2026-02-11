@@ -653,7 +653,7 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
       // Persist to Supabase
       await onPersist()
     } catch (error) {
-      console.error('Failed to create continuation:', error)
+      // Continuation creation failed - error is non-critical
     }
   }
 
@@ -784,7 +784,7 @@ export default function ManageScriptPage() {
   const persistToSupabase = useCallback(async () => {
     // Skip if demo mode OR if we don't have a real production ID
     if (isDemoMode || !productionId || productionId === 'demo-production') {
-      console.log('[ManageScriptPage] Skipping Supabase persist:', { isDemoMode, productionId })
+      // Skip persist in demo mode or without real production ID
       return
     }
 
@@ -799,7 +799,7 @@ export default function ManageScriptPage() {
       ])
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
-      console.error('[ManageScriptPage] Failed to persist script data to Supabase:', errorMessage, error)
+      // Persist failure is non-blocking; data is still in local store
     }
   }, [isDemoMode, productionId, getSortedPages, scenes, songs])
 
