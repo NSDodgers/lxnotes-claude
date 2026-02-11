@@ -5,6 +5,10 @@
     {
       "path": "/api/cron/cleanup-productions",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-snapshots",
+      "schedule": "0 1 * * *"
     }
   ]
 }

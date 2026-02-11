@@ -1,6 +1,6 @@
 'use client'
 
-import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users, X, UserPlus, ChevronDown, ChevronUp } from 'lucide-react'
+import { Settings, Palette, Lightbulb, Wrench, Users, X, UserPlus, ChevronDown, ChevronUp, HardDrive } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { TypesManager } from '@/components/types-manager'
@@ -11,6 +11,7 @@ import { EmailMessagePresetsManager } from '@/components/email-message-presets-m
 import { PrintPresetsManager } from '@/components/print-presets-manager'
 import { MemberManagement } from '@/components/production/member-management'
 import { ProductionLinkingSection } from '@/components/production/production-linking-section'
+import { BackupSection } from '@/components/settings/backup-section'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useAuthContext } from '@/components/auth/auth-provider'
 import Image from 'next/image'
@@ -56,9 +57,10 @@ export default function SettingsPage() {
     }
   }, [])
 
-  // Determine if Members tab should be shown
+  // Determine if Members/Backup tabs should be shown
   // Only show in production mode (not demo or default)
   const showMembersTab = productionContext !== null
+  const showBackupTab = productionContext !== null
 
   // Sync store with production context when it changes
   // This ensures the settings form shows the correct production data
@@ -118,6 +120,7 @@ export default function SettingsPage() {
           { id: 'production-notes', label: 'Production Notes', icon: Users },
           { id: 'presets', label: 'Presets', icon: Palette },
           ...(showMembersTab ? [{ id: 'members', label: 'Team Members', icon: UserPlus }] : []),
+          ...(showBackupTab ? [{ id: 'backup', label: 'Backup', icon: HardDrive }] : []),
         ].map((tab) => (
           <button
             key={tab.id}
@@ -294,6 +297,8 @@ export default function SettingsPage() {
             <MemberManagement />
           </div>
         )}
+
+        {activeTab === 'backup' && showBackupTab && <BackupSection />}
 
       </div>
 

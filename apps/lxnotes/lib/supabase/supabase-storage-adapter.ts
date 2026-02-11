@@ -16,6 +16,9 @@ type DbScriptPage = Database['public']['Tables']['script_pages']['Row']
 type DbSceneSong = Database['public']['Tables']['scenes_songs']['Row']
 type DbProduction = Database['public']['Tables']['productions']['Row']
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SupabaseAny = any
+
 // Convert database row to Note type
 function dbNoteToNote(row: DbNote): Note {
   return {
@@ -285,6 +288,20 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
       },
 
       async upload(fixtures: FixtureInfo[]): Promise<{ success: boolean; count: number }> {
+        // Auto-snapshot before fixture import — blocks import if snapshot fails
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { error: snapshotError } = await (supabase as SupabaseAny).rpc('create_production_snapshot', {
+            p_production_id: productionId,
+            p_trigger_reason: 'before_fixture_import',
+            p_created_by: user.id,
+          })
+          if (snapshotError) {
+            console.error('Pre-fixture-import snapshot failed:', snapshotError)
+            throw new Error('Cannot import fixtures: failed to create safety snapshot. Please try again.')
+          }
+        }
+
         const dbFixtures = fixtures.map(f => fixtureToDbFixture({ ...f, productionId }))
 
         // Upsert based on production_id + lwid
@@ -335,6 +352,20 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
       },
 
       async setPages(pages: ScriptPage[]): Promise<void> {
+        // Auto-snapshot before script replacement — blocks replace if snapshot fails
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { error: snapshotError } = await (supabase as SupabaseAny).rpc('create_production_snapshot', {
+            p_production_id: productionId,
+            p_trigger_reason: 'before_script_replace',
+            p_created_by: user.id,
+          })
+          if (snapshotError) {
+            console.error('Pre-script-replace snapshot failed:', snapshotError)
+            throw new Error('Cannot replace script pages: failed to create safety snapshot. Please try again.')
+          }
+        }
+
         // Atomic replace via RPC (delete + insert in single transaction)
         const pagesJson = pages.map(p => ({
           id: p.id,
