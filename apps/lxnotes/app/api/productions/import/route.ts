@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     if (importError) {
       console.error('Error cloning production from snapshot:', importError)
       return NextResponse.json(
-        { error: 'Failed to clone production from snapshot' },
+        { error: `Failed to clone production from snapshot: ${importError.message}` },
         { status: 500 }
       )
     }
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error cloning production from snapshot:', error)
     return NextResponse.json(
-      { error: 'Failed to clone production from snapshot' },
+      { error: `Failed to clone production from snapshot: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     )
   }
