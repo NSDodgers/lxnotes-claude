@@ -32,6 +32,7 @@ export function PolicyFooter({ layout = 'horizontal', className }: PolicyFooterP
     { name: 'Privacy', href: `${baseUrl}/privacy` },
     { name: 'Terms of Service', href: `${baseUrl}/terms` },
     { name: 'App Policy', href: `${baseUrl}/app-policy` },
+    { name: 'Cookie Policy', href: `${baseUrl}/cookie` },
     { name: 'Cookie Settings', type: 'cookie-trigger' as const },
   ]
 

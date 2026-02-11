@@ -46,7 +46,8 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'", // Tailwind requires unsafe-inline
               "img-src 'self' data: blob: https: https://*.googleusercontent.com", // Allow Google profile images
               "font-src 'self' data:",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.resend.com https://gettermscmp.com https://gettermscdn.com",
+              "frame-src 'self' https://gettermscdn.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
