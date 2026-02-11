@@ -1,12 +1,15 @@
 -- ============================================
--- FIX: Clone mode duplicate production_members insert
+-- FIX: Clone mode - two issues
 -- ============================================
--- The on_production_created trigger (from 20260201000000) automatically adds
--- auth.uid() as admin when a production is created. The import function's clone
--- mode then tries to insert the same (production_id, user_id) pair, violating
--- the UNIQUE(production_id, user_id) constraint on production_members.
+-- 1. The on_production_created trigger (from 20260201000000) automatically adds
+--    auth.uid() as admin when a production is created. The import function's clone
+--    mode then tries to insert the same (production_id, user_id) pair, violating
+--    the UNIQUE(production_id, user_id) constraint on production_members.
+--    Fix: Use ON CONFLICT DO NOTHING for the member insert in clone mode.
 --
--- Fix: Use ON CONFLICT DO NOTHING for the member insert in clone mode.
+-- 2. The set_production_short_code trigger calls gen_random_bytes() from pgcrypto
+--    (extensions schema). With search_path = public, the function can't be found.
+--    Fix: Add extensions to the search_path.
 
 CREATE OR REPLACE FUNCTION import_production_snapshot(
   p_production_id UUID DEFAULT NULL,
@@ -17,7 +20,7 @@ CREATE OR REPLACE FUNCTION import_production_snapshot(
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
   v_target_id UUID;
