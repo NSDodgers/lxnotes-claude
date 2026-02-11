@@ -251,6 +251,18 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         },
         onNoteDelete: (deletedNote) => {
           const moduleType = deletedNote.module_type as ModuleType
+          // DELETE events may lack module_type when REPLICA IDENTITY is not FULL
+          // (e.g. during snapshot restore which hard-deletes notes)
+          if (!moduleType || !['cue', 'work', 'production', 'actor'].includes(moduleType)) {
+            setSupabaseNotes(prev => {
+              const updated = { ...prev }
+              for (const mt of Object.keys(updated) as ModuleType[]) {
+                updated[mt] = updated[mt].filter(note => note.id !== deletedNote.id)
+              }
+              return updated
+            })
+            return
+          }
           setSupabaseNotes(prev => ({
             ...prev,
             [moduleType]: prev[moduleType].filter(note => note.id !== deletedNote.id),
