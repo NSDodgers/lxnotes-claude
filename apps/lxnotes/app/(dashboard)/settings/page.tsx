@@ -1,7 +1,7 @@
 'use client'
 
 import { Settings, Upload, Download, FileText, Palette, Lightbulb, Wrench, Users, X, UserPlus, ChevronDown, ChevronUp } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { TypesManager } from '@/components/types-manager'
 import { PrioritiesManager } from '@/components/priorities-manager'
@@ -28,6 +28,33 @@ export default function SettingsPage() {
   // Get production context (null if not in production mode)
   const productionContext = useProductionOptional()
   const { isSuperAdmin } = useAuthContext()
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Debounced persist to DB (for text inputs)
+  const persistToDb = useCallback((info: { name?: string; abbreviation?: string; logo?: string }) => {
+    if (!productionContext) return
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+    debounceTimerRef.current = setTimeout(() => {
+      productionContext.updateProductionInfo(info).catch((err) => {
+        console.error('Failed to persist production info:', err)
+      })
+    }, 500)
+  }, [productionContext])
+
+  // Immediate persist to DB (for logo upload/clear)
+  const persistToDbImmediate = useCallback((info: { name?: string; abbreviation?: string; logo?: string }) => {
+    if (!productionContext) return
+    productionContext.updateProductionInfo(info).catch((err) => {
+      console.error('Failed to persist production info:', err)
+    })
+  }, [productionContext])
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+    }
+  }, [])
 
   // Determine if Members tab should be shown
   // Only show in production mode (not demo or default)
@@ -56,6 +83,7 @@ export default function SettingsPage() {
         if (typeof result === 'string') {
           setLogoPreview(result)
           updateProduction({ logo: result })
+          persistToDbImmediate({ logo: result })
         }
       }
       reader.readAsDataURL(file)
@@ -65,6 +93,7 @@ export default function SettingsPage() {
   const handleClearLogo = () => {
     clearLogo()
     setLogoPreview(DEFAULT_PRODUCTION_LOGO)
+    persistToDbImmediate({ logo: '' })
   }
 
   return (
@@ -120,7 +149,10 @@ export default function SettingsPage() {
                   <input
                     type="text"
                     value={name}
-                    onChange={(e) => updateProduction({ name: e.target.value })}
+                    onChange={(e) => {
+                      updateProduction({ name: e.target.value })
+                      persistToDb({ name: e.target.value })
+                    }}
                     className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
                   />
                 </div>
@@ -132,7 +164,10 @@ export default function SettingsPage() {
                   <input
                     type="text"
                     value={abbreviation}
-                    onChange={(e) => updateProduction({ abbreviation: e.target.value })}
+                    onChange={(e) => {
+                      updateProduction({ abbreviation: e.target.value })
+                      persistToDb({ abbreviation: e.target.value })
+                    }}
                     className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
                   />
                 </div>

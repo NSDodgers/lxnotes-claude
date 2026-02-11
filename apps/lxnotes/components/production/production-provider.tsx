@@ -54,6 +54,7 @@ interface ProductionContextType {
   deletePrintPreset: (presetId: string) => Promise<void>
   updateCustomTypesConfig: (config: CustomTypesConfig) => Promise<void>
   updateCustomPrioritiesConfig: (config: CustomPrioritiesConfig) => Promise<void>
+  updateProductionInfo: (info: { name?: string; abbreviation?: string; logo?: string }) => Promise<void>
 }
 
 const ProductionContext = createContext<ProductionContextType | null>(null)
@@ -383,6 +384,33 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
   }, [productionId])
 
+  const updateProductionInfo = useCallback(async (info: { name?: string; abbreviation?: string; logo?: string }) => {
+    try {
+      const response = await fetch(`/api/productions/${productionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(info),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update production info')
+      }
+
+      const data = await response.json()
+
+      // Update local state with response
+      setProduction(prev => prev ? {
+        ...prev,
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.abbreviation !== undefined && { abbreviation: data.abbreviation }),
+        ...(data.logo !== undefined ? { logo: data.logo } : info.logo === '' ? { logo: undefined } : {}),
+      } : null)
+    } catch (err) {
+      console.error('Error updating production info:', err)
+      throw err
+    }
+  }, [productionId])
+
   // Reset stores when switching to a different production
   // This ensures new/different productions don't inherit data from previous productions or demo mode
   // NOTE: We don't clear fixture data here because syncFixtures() already handles
@@ -567,6 +595,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
         deletePrintPreset,
         updateCustomTypesConfig,
         updateCustomPrioritiesConfig,
+        updateProductionInfo,
       }}
     >
       <FixturesProvider productionId={productionId}>
