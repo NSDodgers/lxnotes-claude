@@ -50,7 +50,7 @@ export function DeletedProductionCard({ production, onRestore }: DeletedProducti
     <div className="p-4 bg-bg-secondary rounded-lg border border-border opacity-75">
       <div className="flex items-center gap-4">
         {/* Logo */}
-        <div className="flex-shrink-0 w-12 h-12 bg-bg-tertiary rounded-lg overflow-hidden flex items-center justify-center text-xl grayscale">
+        <div className="shrink-0 w-12 h-12 bg-bg-tertiary rounded-lg overflow-hidden flex items-center justify-center text-xl grayscale">
           {(() => {
             const displayLogo = production.logo || DEFAULT_PRODUCTION_LOGO
             return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
@@ -81,7 +81,7 @@ export function DeletedProductionCard({ production, onRestore }: DeletedProducti
         </div>
 
         {/* Deletion info */}
-        <div className="flex-shrink-0 text-right">
+        <div className="shrink-0 text-right">
           <p className="text-xs text-text-muted">
             Deleted {deletedDaysAgo === 0 ? 'today' : `${deletedDaysAgo}d ago`}
           </p>
@@ -91,7 +91,7 @@ export function DeletedProductionCard({ production, onRestore }: DeletedProducti
         </div>
 
         {/* Restore button */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <button
             onClick={handleRestore}
             disabled={isRestoring}

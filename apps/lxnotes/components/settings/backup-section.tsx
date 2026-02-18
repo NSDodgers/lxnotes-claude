@@ -332,7 +332,7 @@ function ImportSection({
           {mode === 'restore' && !preRestoreSnapshot && (
             <div className="space-y-3">
               <div className="rounded-lg bg-red-900/20 border border-red-500/30 p-4 flex gap-3">
-                <AlertTriangle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
                 <div className="text-sm text-red-300">
                   <p className="font-medium">This will replace all data in &ldquo;{productionName}&rdquo;</p>
                   <p className="mt-1 text-red-300/80">
@@ -869,8 +869,8 @@ function SnapshotHistorySection({
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       {isExpanded
-                        ? <ChevronDown className="h-3.5 w-3.5 text-text-muted flex-shrink-0" />
-                        : <ChevronRight className="h-3.5 w-3.5 text-text-muted flex-shrink-0" />
+                        ? <ChevronDown className="h-3.5 w-3.5 text-text-muted shrink-0" />
+                        : <ChevronRight className="h-3.5 w-3.5 text-text-muted shrink-0" />
                       }
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
@@ -894,7 +894,7 @@ function SnapshotHistorySection({
 
                     {/* Inline actions for collapsed rows */}
                     {!isExpanded && (
-                      <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                         {isProcessingThis ? (
                           <Loader2 className="h-4 w-4 animate-spin text-text-secondary" />
                         ) : (

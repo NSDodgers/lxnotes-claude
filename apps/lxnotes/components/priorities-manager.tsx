@@ -279,7 +279,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
                   <ColorPicker
                     value={newPriorityColor}
                     onChange={setNewPriorityColor}
-                    className="flex-shrink-0"
+                    className="shrink-0"
                     data-testid="priority-color"
                   />
                   <Input
@@ -303,7 +303,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
                     size="sm"
                     onClick={handleAddNewPriority}
                     disabled={!newPriorityLabel.trim()}
-                    className="flex-shrink-0"
+                    className="shrink-0"
                     data-testid="save-button"
                   >
                     <Plus className="h-4 w-4" />
@@ -312,7 +312,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
                     size="sm"
                     variant="ghost"
                     onClick={handleCancelAddNew}
-                    className="flex-shrink-0"
+                    className="shrink-0"
                   >
                     Cancel
                   </Button>

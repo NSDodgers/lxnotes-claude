@@ -165,7 +165,7 @@ function RadioOption({
       data-testid={`wizard-radio-${id}`}
     >
       <div className={cn(
-        'mt-0.5 h-4 w-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center',
+        'mt-0.5 h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center',
         selected ? 'border-primary' : 'border-text-secondary'
       )}>
         {selected && <div className="h-2 w-2 rounded-full bg-primary" />}

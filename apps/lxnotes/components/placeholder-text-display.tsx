@@ -14,7 +14,7 @@ interface PlaceholderTextDisplayProps {
 
 // Get category icon
 const getCategoryIcon = (category: PlaceholderDefinition['category']) => {
-  const iconProps = { className: "h-3 w-3 flex-shrink-0" }
+  const iconProps = { className: "h-3 w-3 shrink-0" }
   switch (category) {
     case 'production':
       return <Settings {...iconProps} />

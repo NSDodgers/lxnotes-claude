@@ -15,5 +15,8 @@
   },
   "devDependencies": {
     "turbo": "^2.8.5"
+  },
+  "dependencies": {
+    "tailwindcss": "^4.1.18"
   }
 }

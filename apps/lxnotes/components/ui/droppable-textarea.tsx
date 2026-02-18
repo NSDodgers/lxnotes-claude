@@ -475,7 +475,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
             'w-full px-3 py-2 bg-bg-tertiary border border-bg-hover rounded-lg',
             'text-text-primary placeholder:text-text-muted',
             'focus:outline-none focus:border-modules-production transition-colors',
-            'cursor-text select-text whitespace-pre-wrap break-words overflow-auto resize-none',
+            'cursor-text select-text whitespace-pre-wrap wrap-break-word overflow-auto resize-none',
             isDragOver && 'border-modules-production bg-modules-production/5',
             disabled && 'opacity-50 cursor-not-allowed bg-bg-secondary',
             className

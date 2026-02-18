@@ -431,7 +431,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={cn(
-            'w-full min-h-[2.5rem] px-3 py-2 bg-bg-tertiary border border-bg-hover rounded-lg',
+            'w-full min-h-10 px-3 py-2 bg-bg-tertiary border border-bg-hover rounded-lg',
             'text-text-primary placeholder:text-text-muted',
             'focus:outline-none focus:border-modules-production transition-colors',
             'cursor-text select-text whitespace-nowrap overflow-x-auto',

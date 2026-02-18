@@ -66,7 +66,7 @@ export function DeleteProductionDialog({
                 Are you sure you want to move <strong className="text-text-primary">{production.name}</strong> to trash?
               </p>
               <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
-                <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5 shrink-0" />
                 <div className="text-sm text-yellow-200">
                   <p className="font-medium">30-day retention period</p>
                   <p className="mt-1 text-yellow-200/80">

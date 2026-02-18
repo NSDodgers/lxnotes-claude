@@ -531,7 +531,7 @@ export function HookupImportSidebar({
                     <h4 className="text-sm font-medium text-text-primary">Installation Instructions</h4>
 
                     <div className="flex items-start gap-3 p-3 bg-bg-tertiary rounded-lg">
-                      <Apple className="h-5 w-5 text-text-secondary mt-0.5 flex-shrink-0" />
+                      <Apple className="h-5 w-5 text-text-secondary mt-0.5 shrink-0" />
                       <div>
                         <div className="text-sm font-medium text-text-primary">macOS</div>
                         <div className="text-sm text-text-secondary mt-1">
@@ -544,7 +544,7 @@ export function HookupImportSidebar({
                     </div>
 
                     <div className="flex items-start gap-3 p-3 bg-bg-tertiary rounded-lg">
-                      <Monitor className="h-5 w-5 text-text-secondary mt-0.5 flex-shrink-0" />
+                      <Monitor className="h-5 w-5 text-text-secondary mt-0.5 shrink-0" />
                       <div>
                         <div className="text-sm font-medium text-text-primary">Windows</div>
                         <div className="text-sm text-text-secondary mt-1">

@@ -77,7 +77,7 @@ export function UserMenu({ collapsed = false, dropdownDirection = 'up' }: UserMe
           collapsed && 'justify-center'
         )}
       >
-        <div className="h-8 w-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center text-primary-foreground text-sm font-medium overflow-hidden">
+        <div className="h-8 w-8 rounded-full bg-primary shrink-0 flex items-center justify-center text-primary-foreground text-sm font-medium overflow-hidden">
           {avatarUrl ? (
             <Image
               src={avatarUrl}
@@ -96,7 +96,7 @@ export function UserMenu({ collapsed = false, dropdownDirection = 'up' }: UserMe
             <p className="text-text-primary flex items-center gap-1">
               <span className="truncate">{displayName}</span>
               {isSuperAdmin && (
-                <span title="Super Admin" className="flex-shrink-0">
+                <span title="Super Admin" className="shrink-0">
                   <Shield className="h-3 w-3 text-yellow-500" />
                 </span>
               )}

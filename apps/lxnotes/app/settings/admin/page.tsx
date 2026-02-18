@@ -202,7 +202,7 @@ export default function AdminDashboardPage() {
         {/* Trash Info Banner */}
         {activeTab === 'trash' && deletedProductions.length > 0 && (
           <div className="mb-6 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+            <AlertTriangle className="h-5 w-5 text-yellow-500 shrink-0" />
             <p className="text-sm text-yellow-200">
               Items in trash will be permanently deleted after 30 days.
               Restore them to prevent permanent deletion.

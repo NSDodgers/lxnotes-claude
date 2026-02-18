@@ -35,7 +35,7 @@ const getCategoryColors = (category: PlaceholderDefinition['category']) => {
   switch (category) {
     case 'production':
       return {
-        bg: 'bg-gradient-to-r from-purple-500 to-purple-600',
+        bg: 'bg-linear-to-r from-purple-500 to-purple-600',
         hoverBg: 'hover:from-purple-600 hover:to-purple-700',
         border: 'border-purple-300 dark:border-purple-500',
         text: 'text-white',
@@ -44,7 +44,7 @@ const getCategoryColors = (category: PlaceholderDefinition['category']) => {
       }
     case 'user':
       return {
-        bg: 'bg-gradient-to-r from-blue-500 to-blue-600',
+        bg: 'bg-linear-to-r from-blue-500 to-blue-600',
         hoverBg: 'hover:from-blue-600 hover:to-blue-700',
         border: 'border-blue-300 dark:border-blue-500',
         text: 'text-white',
@@ -53,7 +53,7 @@ const getCategoryColors = (category: PlaceholderDefinition['category']) => {
       }
     case 'date':
       return {
-        bg: 'bg-gradient-to-r from-green-500 to-green-600',
+        bg: 'bg-linear-to-r from-green-500 to-green-600',
         hoverBg: 'hover:from-green-600 hover:to-green-700',
         border: 'border-green-300 dark:border-green-500',
         text: 'text-white',
@@ -62,7 +62,7 @@ const getCategoryColors = (category: PlaceholderDefinition['category']) => {
       }
     case 'notes':
       return {
-        bg: 'bg-gradient-to-r from-orange-500 to-orange-600',
+        bg: 'bg-linear-to-r from-orange-500 to-orange-600',
         hoverBg: 'hover:from-orange-600 hover:to-orange-700',
         border: 'border-orange-300 dark:border-orange-500',
         text: 'text-white',
@@ -71,7 +71,7 @@ const getCategoryColors = (category: PlaceholderDefinition['category']) => {
       }
     default:
       return {
-        bg: 'bg-gradient-to-r from-gray-500 to-gray-600',
+        bg: 'bg-linear-to-r from-gray-500 to-gray-600',
         hoverBg: 'hover:from-gray-600 hover:to-gray-700',
         border: 'border-gray-300 dark:border-gray-500',
         text: 'text-white',

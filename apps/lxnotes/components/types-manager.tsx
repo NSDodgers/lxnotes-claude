@@ -193,7 +193,7 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
                   <ColorPicker
                     value={newTypeColor}
                     onChange={setNewTypeColor}
-                    className="flex-shrink-0"
+                    className="shrink-0"
                     data-testid="type-color"
                   />
                   <Input
@@ -217,7 +217,7 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
                     size="sm"
                     onClick={handleAddNewType}
                     disabled={!newTypeLabel.trim()}
-                    className="flex-shrink-0"
+                    className="shrink-0"
                     data-testid="save-button"
                   >
                     <Plus className="h-4 w-4" />
@@ -226,7 +226,7 @@ export function TypesManager({ moduleType, className }: TypesManagerProps) {
                     size="sm"
                     variant="ghost"
                     onClick={handleCancelAddNew}
-                    className="flex-shrink-0"
+                    className="shrink-0"
                   >
                     Cancel
                   </Button>

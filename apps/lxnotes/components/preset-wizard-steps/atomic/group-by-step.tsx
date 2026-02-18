@@ -29,7 +29,7 @@ export function GroupByStep({ value, onChange }: GroupByStepProps) {
           data-testid="wizard-group-off"
         >
           <div className={cn(
-            'mt-0.5 h-4 w-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center',
+            'mt-0.5 h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center',
             !value ? 'border-primary' : 'border-text-secondary'
           )}>
             {!value && <div className="h-2 w-2 rounded-full bg-primary" />}
@@ -54,7 +54,7 @@ export function GroupByStep({ value, onChange }: GroupByStepProps) {
           data-testid="wizard-group-on"
         >
           <div className={cn(
-            'mt-0.5 h-4 w-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center',
+            'mt-0.5 h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center',
             value ? 'border-primary' : 'border-text-secondary'
           )}>
             {value && <div className="h-2 w-2 rounded-full bg-primary" />}

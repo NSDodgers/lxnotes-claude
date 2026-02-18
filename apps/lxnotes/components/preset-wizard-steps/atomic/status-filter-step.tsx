@@ -40,7 +40,7 @@ export function StatusFilterStep({ value, onChange }: StatusFilterStepProps) {
             data-testid={`wizard-status-${option.value ?? 'all'}`}
           >
             <div className={cn(
-              'mt-0.5 h-4 w-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center',
+              'mt-0.5 h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center',
               value === option.value ? 'border-primary' : 'border-text-secondary'
             )}>
               {value === option.value && (

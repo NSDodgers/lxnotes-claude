@@ -316,7 +316,7 @@ export function ScriptImportWizard({
 
       {state.error && (
         <div className="flex items-center gap-2 text-destructive text-sm">
-          <AlertCircle className="h-4 w-4 flex-shrink-0" />
+          <AlertCircle className="h-4 w-4 shrink-0" />
           {state.error}
         </div>
       )}
@@ -423,7 +423,7 @@ export function ScriptImportWizard({
 
               return (
                 <div key={value} className="flex items-center gap-3 py-2 border-b border-bg-hover/50 last:border-0">
-                  <div className="w-36 flex-shrink-0">
+                  <div className="w-36 shrink-0">
                     <span className="text-sm text-text-primary">
                       {label}
                       {required && <span className="text-modules-cue ml-1">*</span>}
@@ -440,7 +440,7 @@ export function ScriptImportWizard({
                     ))}
                   </select>
                   {samples.length > 0 && (
-                    <div className="w-40 flex-shrink-0 text-xs text-text-muted truncate" title={samples.join(', ')}>
+                    <div className="w-40 shrink-0 text-xs text-text-muted truncate" title={samples.join(', ')}>
                       {samples.join(', ')}
                     </div>
                   )}
@@ -452,7 +452,7 @@ export function ScriptImportWizard({
 
         {state.error && (
           <div className="flex items-center gap-2 text-destructive text-sm">
-            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <AlertCircle className="h-4 w-4 shrink-0" />
             {state.error}
           </div>
         )}
@@ -533,7 +533,7 @@ export function ScriptImportWizard({
               return (
                 <div key={page.id} className="space-y-0.5">
                   <div className="flex items-center gap-2 text-sm">
-                    <FileText className="h-3.5 w-3.5 text-modules-cue flex-shrink-0" />
+                    <FileText className="h-3.5 w-3.5 text-modules-cue shrink-0" />
                     <span className="font-medium text-text-primary">Page {page.pageNumber}</span>
                     {page.firstCueNumber && (
                       <span className="text-xs text-text-muted">(cue {page.firstCueNumber})</span>
@@ -546,9 +546,9 @@ export function ScriptImportWizard({
                     return (
                       <div key={item.id} className="flex items-center gap-2 text-xs pl-6">
                         {item.continuesFromId && (
-                          <ArrowRight className={cn('h-3 w-3 flex-shrink-0', iconColor)} />
+                          <ArrowRight className={cn('h-3 w-3 shrink-0', iconColor)} />
                         )}
-                        <Icon className={cn('h-3 w-3 flex-shrink-0', iconColor)} />
+                        <Icon className={cn('h-3 w-3 shrink-0', iconColor)} />
                         <span className={cn(
                           'text-text-secondary',
                           item.continuesFromId && 'italic'

@@ -69,7 +69,7 @@ export function PlaceholderChips({ placeholders, onInsert, className }: Placehol
                 key={category}
                 onClick={() => setSelectedCategory(category)}
                 className={cn(
-                  'px-3 py-1 text-xs font-medium rounded-full border transition-colors flex-shrink-0',
+                  'px-3 py-1 text-xs font-medium rounded-full border transition-colors shrink-0',
                   selectedCategory === category
                     ? 'bg-modules-production text-white border-modules-production'
                     : 'bg-bg-tertiary text-text-secondary border-bg-hover hover:bg-bg-hover'

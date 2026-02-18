@@ -725,7 +725,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
       case 'note':
         return (
           <div
-            className="font-medium whitespace-pre-wrap break-words"
+            className="font-medium whitespace-pre-wrap wrap-break-word"
             data-testid="note-description-cell"
           >
             {note.description}
@@ -734,14 +734,14 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
 
       case 'workSceneryNeeds':
         return (
-          <span className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
+          <span className="text-sm text-muted-foreground whitespace-pre-wrap wrap-break-word">
             {note.sceneryNeeds || '-'}
           </span>
         )
 
       case 'cueLocation':
         return (
-          <span className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
+          <span className="text-sm text-muted-foreground whitespace-pre-wrap wrap-break-word">
             {buildCueLocationDisplay(note)}
           </span>
         )

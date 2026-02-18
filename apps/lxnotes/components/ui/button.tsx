@@ -33,9 +33,9 @@ const buttonVariants = cva(
         priority_medium: "bg-priority-medium text-white shadow-lg shadow-priority-medium/30 hover:shadow-priority-medium/50 hover:bg-priority-medium/90 priority-medium",
         priority_low: "bg-priority-low text-white shadow-lg shadow-priority-low/30 hover:shadow-priority-low/50 hover:bg-priority-low/90 priority-low",
         // Theatrical lighting variants
-        spotlight: "bg-gradient-to-br from-yellow-400 to-amber-500 text-black shadow-lg shadow-yellow-500/30 hover:shadow-yellow-500/50 font-medium",
-        moonlight: "bg-gradient-to-br from-blue-400 to-indigo-500 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 font-medium",
-        stage: "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 font-medium",
+        spotlight: "bg-linear-to-br from-yellow-400 to-amber-500 text-black shadow-lg shadow-yellow-500/30 hover:shadow-yellow-500/50 font-medium",
+        moonlight: "bg-linear-to-br from-blue-400 to-indigo-500 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 font-medium",
+        stage: "bg-linear-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 font-medium",
       },
       size: {
         default: "h-compact-8 px-compact-3 py-compact-2",

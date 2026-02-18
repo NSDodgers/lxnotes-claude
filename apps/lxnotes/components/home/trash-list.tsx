@@ -42,7 +42,7 @@ export function TrashList({ initialDeletedProductions, onRestoreComplete }: Tras
     <div className="space-y-4">
       {/* Info banner */}
       <div className="flex items-start gap-2 p-3 rounded-lg bg-bg-tertiary border border-border">
-        <Info className="h-4 w-4 text-text-muted mt-0.5 flex-shrink-0" />
+        <Info className="h-4 w-4 text-text-muted mt-0.5 shrink-0" />
         <p className="text-sm text-text-muted">
           Items in trash will be permanently deleted after 30 days.
         </p>

@@ -37,7 +37,7 @@ export function PresetDialog({
         className
       )}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-bg-tertiary flex-shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-bg-tertiary shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
             {description && (
@@ -82,7 +82,7 @@ interface PresetDialogActionsProps {
 export function PresetDialogActions({ children, className }: PresetDialogActionsProps) {
   return (
     <div className={cn(
-      'flex items-center justify-end gap-3 p-6 border-t border-bg-tertiary bg-bg-primary flex-shrink-0',
+      'flex items-center justify-end gap-3 p-6 border-t border-bg-tertiary bg-bg-primary shrink-0',
       className
     )}>
       {children}

@@ -81,7 +81,7 @@ export function PriorityFilterStep({ value, onChange, moduleType }: PriorityFilt
               />
               <div className="flex items-center gap-2">
                 <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  className="w-3 h-3 rounded-full shrink-0"
                   style={{ backgroundColor: priority.color }}
                 />
                 <span className="text-sm text-text-primary">{priority.label}</span>

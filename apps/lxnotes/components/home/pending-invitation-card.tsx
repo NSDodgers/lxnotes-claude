@@ -30,7 +30,7 @@ export function PendingInvitationCard({ invitation }: PendingInvitationCardProps
     >
       <div className="flex items-center gap-4">
         {/* Icon */}
-        <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+        <div className="shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
           <Mail className="w-6 h-6 text-primary" />
         </div>
 
@@ -47,7 +47,7 @@ export function PendingInvitationCard({ invitation }: PendingInvitationCardProps
         </div>
 
         {/* Accept indicator */}
-        <div className="flex-shrink-0 flex items-center gap-2 text-primary group-hover:text-primary/80 transition-colors">
+        <div className="shrink-0 flex items-center gap-2 text-primary group-hover:text-primary/80 transition-colors">
           <span className="text-sm font-medium hidden sm:inline">Accept</span>
           <UserPlus className="w-5 h-5" />
         </div>

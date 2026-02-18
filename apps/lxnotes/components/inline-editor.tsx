@@ -79,7 +79,7 @@ export function InlineEditor({
         <ColorPicker
           value={editColor}
           onChange={setEditColor}
-          className="flex-shrink-0"
+          className="shrink-0"
         />
         <Input
           ref={inputRef}
@@ -93,7 +93,7 @@ export function InlineEditor({
           size="sm"
           onClick={handleSave}
           disabled={!editLabel.trim()}
-          className="flex-shrink-0"
+          className="shrink-0"
         >
           <Check className="h-4 w-4" />
         </Button>
@@ -101,7 +101,7 @@ export function InlineEditor({
           size="sm"
           variant="ghost"
           onClick={handleCancel}
-          className="flex-shrink-0"
+          className="shrink-0"
         >
           <X className="h-4 w-4" />
         </Button>
@@ -116,7 +116,7 @@ export function InlineEditor({
       className
     )}>
       <div 
-        className="w-6 h-6 rounded border flex-shrink-0"
+        className="w-6 h-6 rounded border shrink-0"
         style={{ backgroundColor: color }}
       />
       <div className="flex-1 min-w-0">

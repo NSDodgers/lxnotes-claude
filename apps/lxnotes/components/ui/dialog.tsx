@@ -59,7 +59,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left p-compact-4 pb-compact-3 flex-shrink-0",
+      "flex flex-col space-y-1.5 text-center sm:text-left p-compact-4 pb-compact-3 shrink-0",
       className
     )}
     {...props}
@@ -87,7 +87,7 @@ const DialogStickyFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex-shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-compact-4 pt-compact-3",
+      "shrink-0 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 p-compact-4 pt-compact-3",
       className
     )}
     {...props}

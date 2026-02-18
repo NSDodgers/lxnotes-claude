@@ -669,9 +669,9 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
           <div className="flex items-start gap-3">
             {/* Type icon */}
             {item.type === 'scene' ? (
-              <Theater className="h-3.5 w-3.5 flex-shrink-0 mt-2 text-modules-work" />
+              <Theater className="h-3.5 w-3.5 shrink-0 mt-2 text-modules-work" />
             ) : (
-              <Music className="h-3.5 w-3.5 flex-shrink-0 mt-2 text-modules-production" />
+              <Music className="h-3.5 w-3.5 shrink-0 mt-2 text-modules-production" />
             )}
 
             {/* Name input */}
@@ -746,9 +746,9 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
         >
           {/* Type icon */}
           {item.type === 'scene' ? (
-            <Theater className={cn("h-3.5 w-3.5 flex-shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-work")} />
+            <Theater className={cn("h-3.5 w-3.5 shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-work")} />
           ) : (
-            <Music className={cn("h-3.5 w-3.5 flex-shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-production")} />
+            <Music className={cn("h-3.5 w-3.5 shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-production")} />
           )}
 
           {/* Name with continuation indicators */}
@@ -1022,7 +1022,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent side="right" className="w-full sm:max-w-4xl max-w-none flex flex-col">
-        <SheetHeader className="pb-6 flex-shrink-0">
+        <SheetHeader className="pb-6 shrink-0">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-modules-cue" />
             <SheetTitle>Script Setup</SheetTitle>

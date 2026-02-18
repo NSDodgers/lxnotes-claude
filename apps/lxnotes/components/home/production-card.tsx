@@ -28,7 +28,7 @@ export function ProductionCard({ production, isAdmin, onDelete }: ProductionCard
     >
       <div className="flex items-center gap-4">
         {/* Logo */}
-        <div className="flex-shrink-0 w-12 h-12 bg-bg-tertiary rounded-lg overflow-hidden flex items-center justify-center text-xl">
+        <div className="shrink-0 w-12 h-12 bg-bg-tertiary rounded-lg overflow-hidden flex items-center justify-center text-xl">
           {(() => {
             const displayLogo = production.logo || DEFAULT_PRODUCTION_LOGO
             return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
@@ -62,19 +62,19 @@ export function ProductionCard({ production, isAdmin, onDelete }: ProductionCard
         </div>
 
         {/* Time */}
-        <div className="flex-shrink-0 text-right">
+        <div className="shrink-0 text-right">
           <span className="text-xs text-text-muted">{timeAgo}</span>
         </div>
 
         {/* Admin Menu (shows before arrow) */}
         {isAdmin && onDelete && (
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <ProductionCardMenu onDelete={onDelete} />
           </div>
         )}
 
         {/* Arrow */}
-        <div className="flex-shrink-0 text-text-muted group-hover:text-emerald-400 transition-colors">
+        <div className="shrink-0 text-text-muted group-hover:text-emerald-400 transition-colors">
           <svg
             className="w-5 h-5"
             fill="none"

@@ -286,7 +286,7 @@ export function FilterSortPresetDialog({
                     />
                     <span className="flex items-center gap-1">
                       <div
-                        className="w-3 h-3 rounded-full flex-shrink-0"
+                        className="w-3 h-3 rounded-full shrink-0"
                         style={{ backgroundColor: type.color }}
                       />
                       {type.label}
@@ -330,7 +330,7 @@ export function FilterSortPresetDialog({
                     />
                     <span className="flex items-center gap-1">
                       <div
-                        className="w-3 h-3 rounded-full flex-shrink-0"
+                        className="w-3 h-3 rounded-full shrink-0"
                         style={{ backgroundColor: priority.color }}
                       />
                       {priority.label}
