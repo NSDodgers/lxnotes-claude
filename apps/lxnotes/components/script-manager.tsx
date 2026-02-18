@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { useAuthContext } from '@/components/auth/auth-provider'
-import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, ArrowRight, Upload } from 'lucide-react'
+import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, ArrowRight, Upload, Pencil, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ScriptPage, SceneSong } from '@/types'
 import {
@@ -49,6 +49,12 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
   const [orderValidation, setOrderValidation] = useState<{ valid: boolean; message?: string } | null>(null)
+
+  // Edit mode state for page header
+  const [isEditingPage, setIsEditingPage] = useState(false)
+  const [editPageNumber, setEditPageNumber] = useState(page.pageNumber)
+  const [editFirstCue, setEditFirstCue] = useState(page.firstCueNumber || '')
+  const editPageNumberRef = useRef<HTMLInputElement>(null)
 
   // Inline form state for Add Scene/Song
   const [addingType, setAddingType] = useState<'scene' | 'song' | null>(null)
@@ -93,33 +99,53 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
     return cueA - cueB || a.orderIndex - b.orderIndex
   })
 
-  const handlePageNumberChange = async (value: string) => {
-    updatePage(page.id, { pageNumber: value })
+  // Page edit handlers
+  const openPageEdit = () => {
+    setEditPageNumber(page.pageNumber)
+    setEditFirstCue(page.firstCueNumber || '')
+    setIsEditingPage(true)
+    setTimeout(() => editPageNumberRef.current?.focus(), 0)
+  }
 
-    // Check page order after update
+  const handleSavePage = async () => {
+    if (!editPageNumber.trim()) return
+
+    updatePage(page.id, {
+      pageNumber: editPageNumber.trim(),
+      firstCueNumber: editFirstCue.trim() || undefined,
+    })
+
+    // Validate after update
+    if (editFirstCue.trim()) {
+      const cueVal = validateCueNumber(editFirstCue.trim(), page.id)
+      setCueValidation(cueVal.valid ? null : cueVal)
+    } else {
+      setCueValidation(null)
+    }
+
     setTimeout(() => {
-      const orderValidation = validatePageOrder(page.id)
-      setOrderValidation(orderValidation.valid ? null : orderValidation)
+      const orderVal = validatePageOrder(page.id)
+      setOrderValidation(orderVal.valid ? null : orderVal)
     }, 0)
 
-    // Persist to Supabase
+    setIsEditingPage(false)
     await onPersist()
   }
 
-  const handleCueNumberChange = async (value: string) => {
-    const cueValidation = validateCueNumber(value, page.id)
-    setCueValidation(cueValidation.valid ? null : cueValidation)
+  const handleCancelPageEdit = () => {
+    setEditPageNumber(page.pageNumber)
+    setEditFirstCue(page.firstCueNumber || '')
+    setIsEditingPage(false)
+  }
 
-    updatePage(page.id, { firstCueNumber: value || undefined })
-
-    // Check page order after update
-    setTimeout(() => {
-      const orderValidation = validatePageOrder(page.id)
-      setOrderValidation(orderValidation.valid ? null : orderValidation)
-    }, 0)
-
-    // Persist to Supabase
-    await onPersist()
+  const handlePageEditKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSavePage()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      handleCancelPageEdit()
+    }
   }
 
   const handleDelete = async () => {
@@ -209,47 +235,110 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
       <div className="rounded-lg bg-bg-secondary border border-bg-tertiary shadow-sm">
         {/* Page Header */}
         <div className="flex items-center justify-between p-4 border-b border-bg-tertiary bg-bg-secondary/50">
-          <div className="flex items-center gap-compact-3">
-            <div className="flex items-center gap-compact-2">
-              <FileText className="h-5 w-5 text-modules-cue" />
-              <span className="text-sm font-semibold text-text-primary">Page</span>
-              <input
-                type="text"
-                value={page.pageNumber}
-                onChange={(e) => handlePageNumberChange(e.target.value)}
-                className="h-compact-7 bg-bg-tertiary border border-bg-hover rounded px-compact-3 text-sm font-semibold text-text-primary focus:outline-none focus:border-modules-cue min-w-[80px] cursor-text"
-                title="Click to edit page number"
-              />
-            </div>
+          {isEditingPage ? (
+            /* Edit Mode */
+            <div className="flex items-center gap-compact-3 flex-1">
+              <div className="flex items-center gap-compact-2">
+                <FileText className="h-5 w-5 text-modules-cue" />
+                <span className="text-sm font-semibold text-text-primary">Page</span>
+                <input
+                  ref={editPageNumberRef}
+                  type="text"
+                  value={editPageNumber}
+                  onChange={(e) => setEditPageNumber(e.target.value)}
+                  onKeyDown={handlePageEditKeyDown}
+                  className="h-compact-7 bg-bg-tertiary border border-modules-cue rounded px-compact-3 text-sm font-semibold text-text-primary focus:outline-none focus:border-modules-cue min-w-[80px]"
+                  placeholder="Page #"
+                />
+              </div>
 
-            {/* First Cue */}
-            <div className="flex items-center gap-compact-2">
-              <span className="text-sm text-text-secondary">First Cue:</span>
-              <div className="flex items-center gap-compact-1">
+              <div className="flex items-center gap-compact-2">
+                <span className="text-sm text-text-secondary">First Cue:</span>
                 <input
                   type="text"
-                  value={page.firstCueNumber || ''}
-                  onChange={(e) => handleCueNumberChange(e.target.value)}
+                  value={editFirstCue}
+                  onChange={(e) => setEditFirstCue(e.target.value)}
+                  onKeyDown={handlePageEditKeyDown}
                   placeholder="None"
-                  className={cn(
-                    "h-compact-7 bg-bg-tertiary border rounded px-compact-2 text-sm text-text-primary focus:outline-none w-20 cursor-text",
-                    (cueValidation || orderValidation) ? "border-yellow-500 focus:border-yellow-500" : "border-bg-hover focus:border-modules-cue"
-                  )}
-                  title="Click to edit first cue number"
+                  className="h-compact-7 bg-bg-tertiary border border-modules-cue rounded px-compact-2 text-sm text-text-primary focus:outline-none focus:border-modules-cue w-20"
                 />
-                {(cueValidation || orderValidation) && (
-                  <div
-                    className="cursor-help"
-                    title={cueValidation?.message || orderValidation?.message}
-                  >
-                    <AlertTriangle
-                      className="h-4 w-4 text-yellow-500"
-                    />
-                  </div>
-                )}
+              </div>
+
+              <div className="flex items-center gap-compact-1">
+                <Button
+                  size="sm"
+                  variant="cue"
+                  onClick={handleSavePage}
+                  disabled={!editPageNumber.trim()}
+                  className="h-7 px-2"
+                >
+                  <Check className="h-3.5 w-3.5 mr-1" />
+                  Save
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleCancelPageEdit}
+                  className="h-7 px-2"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
               </div>
             </div>
-          </div>
+          ) : (
+            /* Display Mode */
+            <div
+              className="flex items-center gap-compact-3 cursor-pointer group"
+              onDoubleClick={openPageEdit}
+              title="Double-click to edit"
+            >
+              <div className="flex items-center gap-compact-2">
+                <FileText className="h-5 w-5 text-modules-cue" />
+                <span className="text-sm font-semibold text-text-primary">Page</span>
+                <span className="text-sm font-semibold text-text-primary px-compact-3 py-compact-1 rounded bg-bg-tertiary border border-bg-hover group-hover:border-modules-cue/50 transition-colors">
+                  {page.pageNumber}
+                </span>
+              </div>
+
+              {/* First Cue */}
+              <div className="flex items-center gap-compact-2">
+                <span className="text-sm text-text-secondary">First Cue:</span>
+                <div className="flex items-center gap-compact-1">
+                  <span className={cn(
+                    "text-sm px-compact-2 py-compact-1 rounded border transition-colors",
+                    page.firstCueNumber
+                      ? "text-text-primary bg-bg-tertiary border-bg-hover group-hover:border-modules-cue/50"
+                      : "text-text-muted bg-bg-tertiary border-bg-hover"
+                  )}>
+                    {page.firstCueNumber || 'None'}
+                  </span>
+                  {(cueValidation || orderValidation) && (
+                    <div
+                      className="cursor-help"
+                      title={cueValidation?.message || orderValidation?.message}
+                    >
+                      <AlertTriangle
+                        className="h-4 w-4 text-yellow-500"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  openPageEdit()
+                }}
+                className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Edit page"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex items-center gap-compact-2">
@@ -453,6 +542,12 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
 
+  // Edit mode state
+  const [isEditing, setIsEditing] = useState(false)
+  const [editName, setEditName] = useState(item.name)
+  const [editCueNumber, setEditCueNumber] = useState(item.firstCueNumber || '')
+  const editNameRef = useRef<HTMLInputElement>(null)
+
   // Get the page this item belongs to
   const pages = getSortedPages()
   const page = pages.find(p => p.id === item.scriptPageId)
@@ -495,22 +590,48 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
     }
   }, [allPages, item.firstCueNumber, item.scriptPageId, item.id, validateSceneSongCueNumber])
 
-  const handleNameChange = async (value: string) => {
-    // Use updateContinuationChain to sync name changes across all continuations
-    updateContinuationChain(item.id, { name: value })
+  // Edit mode handlers
+  const openEdit = () => {
+    setEditName(item.name)
+    setEditCueNumber(item.firstCueNumber || '')
+    setIsEditing(true)
+    setTimeout(() => editNameRef.current?.focus(), 0)
+  }
 
-    // Persist to Supabase
+  const handleSave = async () => {
+    if (!editName.trim()) return
+
+    // Update name (syncs across continuation chain)
+    if (editName.trim() !== item.name) {
+      updateContinuationChain(item.id, { name: editName.trim() })
+    }
+
+    // Update cue number
+    const newCue = editCueNumber.trim() || undefined
+    if (newCue !== item.firstCueNumber) {
+      const validation = validateSceneSongCueNumber(editCueNumber.trim(), item.scriptPageId, item.id)
+      setCueValidation(validation.valid ? null : validation)
+      updateSceneSong(item.id, { firstCueNumber: newCue })
+    }
+
+    setIsEditing(false)
     await onPersist()
   }
 
-  const handleCueNumberChange = async (value: string) => {
-    // Use the new scene/song specific validation instead of general cue validation
-    const validation = validateSceneSongCueNumber(value, item.scriptPageId, item.id)
-    setCueValidation(validation.valid ? null : validation)
-    updateSceneSong(item.id, { firstCueNumber: value || undefined })
+  const handleCancelEdit = () => {
+    setEditName(item.name)
+    setEditCueNumber(item.firstCueNumber || '')
+    setIsEditing(false)
+  }
 
-    // Persist to Supabase
-    await onPersist()
+  const handleEditKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSave()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      handleCancelEdit()
+    }
   }
 
   const handleDelete = async () => {
@@ -537,114 +658,196 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
 
   return (
     <>
-      <div className={cn(
-        "flex items-center gap-compact-3 py-compact-2 px-compact-3 rounded border",
-        isContinuation
-          ? "bg-bg-tertiary/30 border-bg-hover/20"
-          : item.type === 'scene'
+      {isEditing ? (
+        /* Edit Mode - inline form */
+        <div className={cn(
+          "rounded border p-3",
+          item.type === 'scene'
             ? "bg-modules-work/10 border-modules-work/25"
             : "bg-modules-production/10 border-modules-production/25"
-      )}>
-        {/* Type icon */}
-        {item.type === 'scene' ? (
-          <Theater className={cn("h-3.5 w-3.5 flex-shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-work")} />
-        ) : (
-          <Music className={cn("h-3.5 w-3.5 flex-shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-production")} />
-        )}
+        )}>
+          <div className="flex items-start gap-3">
+            {/* Type icon */}
+            {item.type === 'scene' ? (
+              <Theater className="h-3.5 w-3.5 flex-shrink-0 mt-2 text-modules-work" />
+            ) : (
+              <Music className="h-3.5 w-3.5 flex-shrink-0 mt-2 text-modules-production" />
+            )}
 
-        {/* Name with continuation indicators */}
-        <div className="flex items-center gap-compact-2 flex-1">
-          {isContinuation && (
-            <span className="text-xs text-text-tertiary font-mono" title="Continued from previous page">
-              ←
-            </span>
-          )}
-          <input
-            type="text"
-            value={item.name}
-            onChange={(e) => handleNameChange(e.target.value)}
-            className={cn(
-              "h-compact-7 border rounded px-compact-2 text-sm focus:outline-none focus:border-modules-cue flex-1 cursor-text",
-              isContinuation
-                ? "bg-bg-tertiary/50 border-bg-hover/30 text-text-secondary"
-                : "bg-bg-tertiary border-bg-hover text-text-primary"
-            )}
-            title={isContinuation ? "Continued from previous page" : "Click to edit name"}
-          />
-          {isOriginal && continuationChain.length > 1 && (
-            <span
-              className="text-xs text-modules-cue/70 font-medium"
-              title={`This ${item.type} spans ${continuationChain.length} pages`}
-            >
-              ({continuationChain.length} pages)
-            </span>
-          )}
-        </div>
+            {/* Name input */}
+            <div className="flex-1">
+              <label className="block text-xs font-medium text-text-secondary mb-1">
+                {item.type === 'scene' ? 'Scene' : 'Song'} Name
+              </label>
+              <input
+                ref={editNameRef}
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onKeyDown={handleEditKeyDown}
+                className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+              />
+            </div>
 
-        {/* First Cue */}
-        <div className="flex items-center gap-compact-2">
-          <span className="text-xs text-text-secondary">Cue:</span>
-          <div className="flex items-center gap-compact-1">
-            {usesPageCue && (
-              <span
-                className="text-xs text-modules-cue font-mono"
-                title="Same as page first cue"
+            {/* Cue input */}
+            <div className="w-24">
+              <label className="block text-xs font-medium text-text-secondary mb-1">
+                First Cue
+              </label>
+              <input
+                type="text"
+                value={editCueNumber}
+                onChange={(e) => setEditCueNumber(e.target.value)}
+                onKeyDown={handleEditKeyDown}
+                placeholder="None"
+                className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+              />
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-compact-1 pt-5">
+              <Button
+                size="sm"
+                variant="cue"
+                onClick={handleSave}
+                disabled={!editName.trim()}
+                className="h-7 px-2"
               >
-                =
-              </span>
-            )}
-            <input
-              type="text"
-              value={item.firstCueNumber || ''}
-              onChange={(e) => handleCueNumberChange(e.target.value)}
-              placeholder="None"
-              className={cn(
-                "h-compact-7 border rounded px-compact-2 text-sm text-text-primary focus:outline-none w-16 cursor-text",
-                cueValidation
-                  ? "border-yellow-500 focus:border-yellow-500 bg-bg-tertiary"
-                  : usesPageCue
-                    ? "bg-modules-cue/10 border-modules-cue/30 focus:border-modules-cue"
-                    : "bg-bg-tertiary border-bg-hover focus:border-modules-cue"
-              )}
-              title={usesPageCue ? "Same as page first cue" : "Click to edit cue number"}
-            />
-            {cueValidation && (
-              <div
-                className="cursor-help"
-                title={cueValidation.message}
+                <Check className="h-3.5 w-3.5 mr-1" />
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleCancelEdit}
+                className="h-7 px-2"
               >
-                <AlertTriangle
-                  className="h-3 w-3 text-yellow-500"
-                />
-              </div>
-            )}
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+          <div className="mt-2 text-xs text-text-muted pl-6">
+            <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Enter</kbd> to save, <kbd className="px-1 py-0.5 rounded bg-bg-secondary">Esc</kbd> to cancel
           </div>
         </div>
+      ) : (
+        /* Display Mode */
+        <div
+          className={cn(
+            "flex items-center gap-compact-3 py-compact-2 px-compact-3 rounded border cursor-pointer group",
+            isContinuation
+              ? "bg-bg-tertiary/30 border-bg-hover/20"
+              : item.type === 'scene'
+                ? "bg-modules-work/10 border-modules-work/25"
+                : "bg-modules-production/10 border-modules-production/25"
+          )}
+          onDoubleClick={openEdit}
+          title="Double-click to edit"
+        >
+          {/* Type icon */}
+          {item.type === 'scene' ? (
+            <Theater className={cn("h-3.5 w-3.5 flex-shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-work")} />
+          ) : (
+            <Music className={cn("h-3.5 w-3.5 flex-shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-production")} />
+          )}
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-compact-2">
-          {canContinue && (
+          {/* Name with continuation indicators */}
+          <div className="flex items-center gap-compact-2 flex-1">
+            {isContinuation && (
+              <span className="text-xs text-text-tertiary font-mono" title="Continued from previous page">
+                ←
+              </span>
+            )}
+            <span className={cn(
+              "text-sm",
+              isContinuation ? "text-text-secondary" : "text-text-primary"
+            )}>
+              {item.name}
+            </span>
+            {isOriginal && continuationChain.length > 1 && (
+              <span
+                className="text-xs text-modules-cue/70 font-medium"
+                title={`This ${item.type} spans ${continuationChain.length} pages`}
+              >
+                ({continuationChain.length} pages)
+              </span>
+            )}
+          </div>
+
+          {/* First Cue */}
+          <div className="flex items-center gap-compact-2">
+            <span className="text-xs text-text-secondary">Cue:</span>
+            <div className="flex items-center gap-compact-1">
+              {usesPageCue && (
+                <span
+                  className="text-xs text-modules-cue font-mono"
+                  title="Same as page first cue"
+                >
+                  =
+                </span>
+              )}
+              <span className={cn(
+                "text-sm",
+                item.firstCueNumber ? "text-text-primary" : "text-text-muted"
+              )}>
+                {item.firstCueNumber || 'None'}
+              </span>
+              {cueValidation && (
+                <div
+                  className="cursor-help"
+                  title={cueValidation.message}
+                >
+                  <AlertTriangle
+                    className="h-3 w-3 text-yellow-500"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-compact-2">
             <Button
               size="sm"
-              variant="outline"
-              onClick={handleContinueToNext}
-              className="h-7 px-3 border-modules-cue/50 text-modules-cue hover:bg-modules-cue hover:text-white hover:border-modules-cue"
-              title={`Continue "${item.name}" to page ${nextPage?.pageNumber}`}
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation()
+                openEdit()
+              }}
+              className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              title="Edit"
             >
-              <ArrowRight className="h-3 w-3 mr-1" />
-              <span className="text-xs font-medium">Page {nextPage?.pageNumber}</span>
+              <Pencil className="h-3 w-3" />
             </Button>
-          )}
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setShowConfirmDelete(true)}
-            className="h-7 w-7 p-0"
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
+            {canContinue && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleContinueToNext()
+                }}
+                className="h-7 px-3 border-modules-cue/50 text-modules-cue hover:bg-modules-cue hover:text-white hover:border-modules-cue"
+                title={`Continue "${item.name}" to page ${nextPage?.pageNumber}`}
+              >
+                <ArrowRight className="h-3 w-3 mr-1" />
+                <span className="text-xs font-medium">Page {nextPage?.pageNumber}</span>
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowConfirmDelete(true)
+              }}
+              className="h-7 w-7 p-0"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Delete Confirmation */}
       {showConfirmDelete && (
