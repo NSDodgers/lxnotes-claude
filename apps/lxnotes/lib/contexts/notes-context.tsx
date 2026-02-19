@@ -192,6 +192,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         onNoteInsert: (newNote) => {
           if (isDev) console.log('[NotesContext] onNoteInsert raw payload:', newNote)
           const moduleType = newNote.module_type as ModuleType
+          if (!moduleType || !['cue', 'work', 'production', 'actor'].includes(moduleType)) {
+            if (isDev) console.warn('[NotesContext] Invalid module_type on insert, ignoring:', moduleType)
+            return
+          }
           if (isDev) console.log('[NotesContext] Module type:', moduleType)
           const note = convertDbNoteToNote(newNote)
 
@@ -217,6 +221,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         },
         onNoteUpdate: (updatedNote) => {
           const moduleType = updatedNote.module_type as ModuleType
+          if (!moduleType || !['cue', 'work', 'production', 'actor'].includes(moduleType)) {
+            if (isDev) console.warn('[NotesContext] Invalid module_type on update, ignoring:', moduleType)
+            return
+          }
           const note = convertDbNoteToNote(updatedNote)
 
           // Handle soft delete: if deleted_at is set, remove from UI

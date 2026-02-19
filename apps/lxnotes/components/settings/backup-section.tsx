@@ -25,6 +25,7 @@ import { useProductionOptional } from '@/components/production/production-provid
 import { useAuthContext } from '@/components/auth/auth-provider'
 import { downloadFile, generateExportFilename } from '@/lib/utils/download'
 import { cn } from '@/lib/utils'
+import { MAX_SNAPSHOT_SIZE } from '@/lib/constants/snapshot'
 import type { ProductionSnapshot, ProductionSnapshotCounts, SnapshotListItem, SnapshotTriggerReason, SnapshotDiff, DiffSection } from '@/types/snapshot'
 
 // ─── Export Section ───────────────────────────────────────────────────────────
@@ -141,6 +142,11 @@ function ImportSection({
     const file = e.target.files?.[0]
     if (!file) return
 
+    if (file.size > MAX_SNAPSHOT_SIZE) {
+      toast.error('Snapshot file is too large. Maximum size is 50 MB.')
+      return
+    }
+
     try {
       const text = await file.text()
       const parsed = JSON.parse(text)
@@ -183,7 +189,7 @@ function ImportSection({
       onRestoreComplete()
     } catch (error) {
       console.error('Restore error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to restore snapshot')
+      toast.error('Failed to restore snapshot. Please try again.')
     } finally {
       setIsProcessing(false)
     }
@@ -218,7 +224,7 @@ function ImportSection({
       toast.success('Production cloned successfully')
     } catch (error) {
       console.error('Clone error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to clone production')
+      toast.error('Failed to clone production. Please try again.')
     } finally {
       setIsProcessing(false)
     }

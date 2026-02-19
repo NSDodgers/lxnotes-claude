@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isProductionMember, isProductionAdmin } from '@/lib/services/production-members'
+import { MAX_SNAPSHOT_SIZE } from '@/lib/constants/snapshot'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SupabaseAny = any
@@ -82,6 +83,15 @@ export async function POST(
       return NextResponse.json(
         { error: 'Only production admins can restore snapshots' },
         { status: 403 }
+      )
+    }
+
+    // Check Content-Length before reading body
+    const contentLength = parseInt(request.headers.get('content-length') || '0', 10)
+    if (contentLength > MAX_SNAPSHOT_SIZE) {
+      return NextResponse.json(
+        { error: 'Request body too large' },
+        { status: 413 }
       )
     }
 

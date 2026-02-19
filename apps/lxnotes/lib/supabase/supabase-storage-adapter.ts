@@ -317,7 +317,7 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
             details: error.details,
             hint: error.hint,
           })
-          throw new Error(`Supabase fixture upload failed: ${error.message} (code: ${error.code})`)
+          throw new Error('Failed to upload fixtures. Please try again.')
         }
         return { success: true, count: data?.length || 0 }
       },

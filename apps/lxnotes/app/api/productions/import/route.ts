@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { MAX_SNAPSHOT_SIZE } from '@/lib/constants/snapshot'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SupabaseAny = any
@@ -16,6 +17,15 @@ export async function POST(request: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check Content-Length before reading body
+    const contentLength = parseInt(request.headers.get('content-length') || '0', 10)
+    if (contentLength > MAX_SNAPSHOT_SIZE) {
+      return NextResponse.json(
+        { error: 'Request body too large' },
+        { status: 413 }
+      )
     }
 
     const body = await request.json()
@@ -42,7 +52,7 @@ export async function POST(request: Request) {
     if (importError) {
       console.error('Error cloning production from snapshot:', importError)
       return NextResponse.json(
-        { error: `Failed to clone production from snapshot: ${importError.message}` },
+        { error: 'Failed to clone production from snapshot' },
         { status: 500 }
       )
     }
@@ -51,7 +61,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error cloning production from snapshot:', error)
     return NextResponse.json(
-      { error: `Failed to clone production from snapshot: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { error: 'Failed to clone production from snapshot' },
       { status: 500 }
     )
   }

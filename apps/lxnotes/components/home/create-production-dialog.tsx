@@ -6,6 +6,7 @@ import { createProduction } from '@/lib/supabase/supabase-storage-adapter'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, X, Loader2, Upload } from 'lucide-react'
+import { MAX_SNAPSHOT_SIZE } from '@/lib/constants/snapshot'
 import type { ProductionSnapshot } from '@/types/snapshot'
 
 interface CreateProductionDialogProps {
@@ -164,6 +165,11 @@ export function CreateProductionDialog({
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    if (file.size > MAX_SNAPSHOT_SIZE) {
+      setError('Snapshot file is too large. Maximum size is 50 MB.')
+      return
+    }
 
     try {
       const text = await file.text()
