@@ -155,7 +155,16 @@ export function FixtureSelector({
           <div className="text-xs space-y-1">
             {parsedExpression.channels.length > 0 && (
               <div className="text-muted-foreground">
-                Found channels: {parsedExpression.channels.join(', ')}
+                {availableFixtures.length > 0 ? (() => {
+                  const matchedChannels = availableFixtures
+                    .map(f => f.channel)
+                    .sort((a, b) => a - b)
+                  const formatted = ChannelExpressionParser.format(matchedChannels)
+                  const display = formatted.length > 100
+                    ? `${formatted.slice(0, 100)}... (${matchedChannels.length} channels)`
+                    : formatted
+                  return `Found channels: ${display}`
+                })() : 'No matching fixtures'}
               </div>
             )}
             {parsedExpression.invalid.length > 0 && (

@@ -440,11 +440,15 @@ export class ChannelExpressionParser {
           const end = parseInt(parts[1], 10)
           
           if (!isNaN(start) && !isNaN(end) && start <= end) {
-            result.ranges.push({ start, end })
-            // Add individual channels to the channels array too
-            for (let i = start; i <= end; i++) {
-              if (!result.channels.includes(i)) {
-                result.channels.push(i)
+            if (end - start + 1 > 10000) {
+              result.invalid.push(`${token} (range too large, max 10,000)`)
+            } else {
+              result.ranges.push({ start, end })
+              // Add individual channels to the channels array too
+              for (let i = start; i <= end; i++) {
+                if (!result.channels.includes(i)) {
+                  result.channels.push(i)
+                }
               }
             }
           } else {
