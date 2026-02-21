@@ -162,7 +162,7 @@ export function PlaceholderChip({
           colors.bg,
           colors.hoverBg,
           colors.text,
-          'shadow-sm hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:-translate-y-0.5',
+          'shadow-xs hover:shadow-lg hover:shadow-black/20 hover:scale-105 hover:-translate-y-0.5',
           'hover:border-white/30 border border-transparent',
           isDragging && 'opacity-50 scale-95 rotate-2',
           className
@@ -184,7 +184,7 @@ export function PlaceholderChip({
           'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium cursor-default select-none transition-all duration-300 transform-gpu',
           colors.bg,
           colors.text,
-          'shadow-sm mx-0.5 animate-in fade-in-0 zoom-in-95',
+          'shadow-xs mx-0.5 animate-in fade-in-0 zoom-in-95',
           'hover:scale-105 hover:shadow-md',
           isHovered && onRemove && 'bg-destructive hover:bg-destructive/90',
           className

@@ -221,7 +221,7 @@ export function CreateProductionDialog({
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50 backdrop-blur-xs"
             onClick={handleClose}
           />
 
@@ -247,7 +247,7 @@ export function CreateProductionDialog({
                 onClick={() => handleModeChange('blank')}
                 className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                   mode === 'blank'
-                    ? 'bg-bg-secondary text-text-primary shadow-sm'
+                    ? 'bg-bg-secondary text-text-primary shadow-xs'
                     : 'text-text-muted hover:text-text-secondary'
                 }`}
               >
@@ -258,7 +258,7 @@ export function CreateProductionDialog({
                 onClick={() => handleModeChange('snapshot')}
                 className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors inline-flex items-center justify-center gap-1.5 ${
                   mode === 'snapshot'
-                    ? 'bg-bg-secondary text-text-primary shadow-sm'
+                    ? 'bg-bg-secondary text-text-primary shadow-xs'
                     : 'text-text-muted hover:text-text-secondary'
                 }`}
               >

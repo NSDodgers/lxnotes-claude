@@ -156,7 +156,7 @@ export default function SettingsPage() {
                       updateProduction({ name: e.target.value })
                       persistToDb({ name: e.target.value })
                     }}
-                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
+                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-production"
                   />
                 </div>
 
@@ -171,7 +171,7 @@ export default function SettingsPage() {
                       updateProduction({ abbreviation: e.target.value })
                       persistToDb({ abbreviation: e.target.value })
                     }}
-                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production"
+                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-production"
                   />
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default function SettingsPage() {
                           type="file"
                           accept="image/*"
                           onChange={handleLogoUpload}
-                          className="flex-1 rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-production file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-modules-production file:text-white file:text-sm hover:file:bg-modules-production/90"
+                          className="flex-1 rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-production file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-modules-production file:text-white file:text-sm hover:file:bg-modules-production/90"
                         />
                         {logoPreview && logoPreview !== DEFAULT_PRODUCTION_LOGO && (
                           <button

@@ -232,7 +232,7 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
   return (
     <>
       {/* Page Card */}
-      <div className="rounded-lg bg-bg-secondary border border-bg-tertiary shadow-sm">
+      <div className="rounded-lg bg-bg-secondary border border-bg-tertiary shadow-xs">
         {/* Page Header */}
         <div className="flex items-center justify-between p-4 border-b border-bg-tertiary bg-bg-secondary/50">
           {isEditingPage ? (
@@ -247,7 +247,7 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
                   value={editPageNumber}
                   onChange={(e) => setEditPageNumber(e.target.value)}
                   onKeyDown={handlePageEditKeyDown}
-                  className="h-compact-7 bg-bg-tertiary border border-modules-cue rounded px-compact-3 text-sm font-semibold text-text-primary focus:outline-none focus:border-modules-cue min-w-[80px]"
+                  className="h-compact-7 bg-bg-tertiary border border-modules-cue rounded px-compact-3 text-sm font-semibold text-text-primary focus:outline-hidden focus:border-modules-cue min-w-[80px]"
                   placeholder="Page #"
                 />
               </div>
@@ -260,7 +260,7 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
                   onChange={(e) => setEditFirstCue(e.target.value)}
                   onKeyDown={handlePageEditKeyDown}
                   placeholder="None"
-                  className="h-compact-7 bg-bg-tertiary border border-modules-cue rounded px-compact-2 text-sm text-text-primary focus:outline-none focus:border-modules-cue w-20"
+                  className="h-compact-7 bg-bg-tertiary border border-modules-cue rounded px-compact-2 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue w-20"
                 />
               </div>
 
@@ -388,7 +388,7 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
                     onKeyDown={handleInlineFormKeyDown}
                     placeholder={addingType === 'scene' ? 'e.g., Act 1, Scene 1' : 'e.g., Opening Number'}
                     disabled={isContinuation}
-                    className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue disabled:opacity-50"
+                    className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue disabled:opacity-50"
                   />
                 </div>
                 {!usePageCue && (
@@ -402,7 +402,7 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
                       onChange={(e) => setNewFirstCueNumber(e.target.value)}
                       onKeyDown={handleInlineFormKeyDown}
                       placeholder="e.g., 127"
-                      className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                      className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue"
                     />
                   </div>
                 )}
@@ -432,7 +432,7 @@ function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemPro
                       <select
                         value={continuesFromId}
                         onChange={(e) => handleContinuationChange(e.target.value)}
-                        className="h-7 rounded bg-bg-secondary border border-bg-hover px-2 text-xs text-text-primary focus:outline-none focus:border-modules-cue"
+                        className="h-7 rounded bg-bg-secondary border border-bg-hover px-2 text-xs text-text-primary focus:outline-hidden focus:border-modules-cue"
                       >
                         <option value="">Select...</option>
                         {previousItems.map(item => {
@@ -685,7 +685,7 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 onKeyDown={handleEditKeyDown}
-                className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue"
               />
             </div>
 
@@ -700,7 +700,7 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
                 onChange={(e) => setEditCueNumber(e.target.value)}
                 onKeyDown={handleEditKeyDown}
                 placeholder="None"
-                className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue"
               />
             </div>
 
@@ -1083,7 +1083,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
                       onChange={(e) => setNewPageNumber(e.target.value)}
                       onKeyDown={handleInlineFormKeyDown}
                       placeholder="e.g., 1, 23a, 59-60"
-                      className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                      className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue"
                     />
                   </div>
                   <div className="flex-1">
@@ -1096,7 +1096,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
                       onChange={(e) => setNewFirstCueNumber(e.target.value)}
                       onKeyDown={handleInlineFormKeyDown}
                       placeholder="e.g., 127"
-                      className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                      className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-5">

@@ -142,7 +142,7 @@ export function PlaceholderChipPanel({
               placeholder="Search placeholders..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-9 py-2 bg-bg-tertiary border border-bg-hover rounded-lg text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-modules-production transition-colors"
+              className="w-full pl-9 pr-9 py-2 bg-bg-tertiary border border-bg-hover rounded-lg text-sm text-text-primary placeholder:text-text-muted focus:outline-hidden focus:border-modules-production transition-colors"
             />
             {searchQuery && (
               <button

@@ -474,7 +474,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
           className={cn(
             'w-full px-3 py-2 bg-bg-tertiary border border-bg-hover rounded-lg',
             'text-text-primary placeholder:text-text-muted',
-            'focus:outline-none focus:border-modules-production transition-colors',
+            'focus:outline-hidden focus:border-modules-production transition-colors',
             'cursor-text select-text whitespace-pre-wrap wrap-break-word overflow-auto resize-none',
             isDragOver && 'border-modules-production bg-modules-production/5',
             disabled && 'opacity-50 cursor-not-allowed bg-bg-secondary',
@@ -490,7 +490,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
         {/* Drop zone overlay */}
         {isDragOver && (
           <div className="absolute inset-0 border-2 border-dashed border-modules-production rounded-lg pointer-events-none bg-modules-production/5 flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-200">
-            <div className="bg-bg-secondary/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border border-modules-production/20">
+            <div className="bg-bg-secondary/95 backdrop-blur-xs rounded-lg px-4 py-3 shadow-lg border border-modules-production/20">
               <div className="flex items-center gap-2 text-sm font-medium text-modules-production">
                 <div className="w-2 h-2 bg-modules-production rounded-full animate-bounce"></div>
                 Drop placeholder here

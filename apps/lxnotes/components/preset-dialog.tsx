@@ -129,7 +129,7 @@ export const PresetFormInput = React.forwardRef<HTMLInputElement, PresetFormInpu
         ref={ref}
         className={cn(
           'w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary',
-          'placeholder:text-text-muted focus:outline-none focus:border-modules-production',
+          'placeholder:text-text-muted focus:outline-hidden focus:border-modules-production',
           className
         )}
         {...props}
@@ -148,7 +148,7 @@ export const PresetFormTextarea = React.forwardRef<HTMLTextAreaElement, PresetFo
         ref={ref}
         className={cn(
           'w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary',
-          'placeholder:text-text-muted focus:outline-none focus:border-modules-production resize-vertical',
+          'placeholder:text-text-muted focus:outline-hidden focus:border-modules-production resize-vertical',
           className
         )}
         {...props}
@@ -167,7 +167,7 @@ export function PresetFormSelect({ className, children, ...props }: PresetFormSe
     <select
       className={cn(
         'w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary',
-        'focus:outline-none focus:border-modules-production',
+        'focus:outline-hidden focus:border-modules-production',
         className
       )}
       {...props}

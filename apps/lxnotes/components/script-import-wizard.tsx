@@ -302,7 +302,7 @@ export function ScriptImportWizard({
             value={state.pastedText}
             onChange={(e) => setState(prev => ({ ...prev, pastedText: e.target.value, error: null }))}
             placeholder={"Page Number\tScene\tScene continues\tScene First Cue\tSong\tSong continues\tSong First Cue\n1\tAct 1, Scene 1\tFalse\t1\t\t\t\n2\tAct 1, Scene 1\tTrue\t\tOpening Number\tFalse\t10"}
-            className="w-full h-48 rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-sm text-text-primary font-mono focus:outline-none focus:border-modules-cue resize-none"
+            className="w-full h-48 rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-sm text-text-primary font-mono focus:outline-hidden focus:border-modules-cue resize-none"
           />
           <Button
             variant="cue"
@@ -432,7 +432,7 @@ export function ScriptImportWizard({
                   <select
                     value={currentMapping}
                     onChange={(e) => handleMappingChange(value, e.target.value)}
-                    className="h-8 flex-1 rounded bg-bg-tertiary border border-bg-hover px-2 text-sm text-text-primary focus:outline-none focus:border-modules-cue"
+                    className="h-8 flex-1 rounded bg-bg-tertiary border border-bg-hover px-2 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue"
                   >
                     <option value="">-- Not mapped --</option>
                     {state.headers.map(header => (

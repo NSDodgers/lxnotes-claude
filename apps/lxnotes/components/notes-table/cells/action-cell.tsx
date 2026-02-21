@@ -24,7 +24,7 @@ export function ActionCell({ note, onStatusUpdate }: ActionCellProps) {
         className={cn(
           "h-7 w-7",
           note.status === 'complete'
-            ? "bg-status-complete/20 border-status-complete text-status-complete shadow-sm"
+            ? "bg-status-complete/20 border-status-complete text-status-complete shadow-xs"
             : "opacity-60 hover:opacity-100"
         )}
       >
@@ -41,7 +41,7 @@ export function ActionCell({ note, onStatusUpdate }: ActionCellProps) {
         className={cn(
           "h-7 w-7",
           note.status === 'cancelled'
-            ? "bg-status-cancelled/20 border-status-cancelled text-status-cancelled shadow-sm"
+            ? "bg-status-cancelled/20 border-status-cancelled text-status-cancelled shadow-xs"
             : "opacity-60 hover:opacity-100"
         )}
       >

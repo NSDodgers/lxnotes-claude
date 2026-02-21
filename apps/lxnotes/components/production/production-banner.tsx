@@ -8,7 +8,7 @@ export function ProductionBanner() {
 
   if (isLoading) {
     return (
-      <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-emerald-900/90 backdrop-blur-sm border-b border-emerald-700/50 flex items-center justify-center">
+      <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-emerald-900/90 backdrop-blur-xs border-b border-emerald-700/50 flex items-center justify-center">
         <span className="text-emerald-200 text-sm">Loading production...</span>
       </div>
     )
@@ -19,7 +19,7 @@ export function ProductionBanner() {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-emerald-900/90 backdrop-blur-sm border-b border-emerald-700/50 flex items-center justify-between px-4">
+    <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-emerald-900/90 backdrop-blur-xs border-b border-emerald-700/50 flex items-center justify-between px-4">
       <div className="flex items-center gap-3">
         <span className="text-emerald-200 text-sm font-medium">
           {production.name}

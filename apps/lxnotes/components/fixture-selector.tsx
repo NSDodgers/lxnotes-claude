@@ -109,7 +109,7 @@ export function FixtureSelector({
   const renderFixtureRow = (fixture: FixtureInfo) => (
     <div
       key={fixture.id}
-      className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-sm"
+      className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-xs"
     >
       <Checkbox
         id={fixture.id}

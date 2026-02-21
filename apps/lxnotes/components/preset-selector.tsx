@@ -66,7 +66,7 @@ export function PresetSelector({
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'w-full flex items-center justify-between px-3 py-2 text-left bg-bg-tertiary border border-bg-hover rounded-lg transition-colors',
-          'focus:outline-none focus:border-modules-production',
+          'focus:outline-hidden focus:border-modules-production',
           disabled && 'opacity-50 cursor-not-allowed',
           !disabled && 'hover:bg-bg-hover'
         )}

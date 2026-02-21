@@ -72,7 +72,7 @@ export function ColorPicker({ value, onChange, className }: ColorPickerProps) {
           aria-label={`Color: ${value}`}
         >
           <div 
-            className="w-full h-full rounded-sm border border-black/10"
+            className="w-full h-full rounded-xs border border-black/10"
             style={{ backgroundColor: value }}
           />
         </Button>
@@ -90,7 +90,7 @@ export function ColorPicker({ value, onChange, className }: ColorPickerProps) {
                 key={color}
                 onClick={() => handlePresetClick(color)}
                 className={cn(
-                  'w-8 h-8 rounded-sm border-2 hover:scale-110 transition-transform',
+                  'w-8 h-8 rounded-xs border-2 hover:scale-110 transition-transform',
                   value === color ? 'border-text-primary' : 'border-border'
                 )}
                 style={{ backgroundColor: color }}

@@ -799,7 +799,7 @@ function SnapshotHistorySection({
                 value={checkpointNote}
                 onChange={(e) => setCheckpointNote(e.target.value)}
                 placeholder="Optional note..."
-                className="flex-1 rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-modules-production"
+                className="flex-1 rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-sm text-text-primary focus:outline-hidden focus:border-modules-production"
                 data-testid="checkpoint-note-input"
               />
             )}

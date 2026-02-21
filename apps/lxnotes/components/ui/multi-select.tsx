@@ -207,7 +207,7 @@ export function MultiSelect({
                 />
                 {option.color && (
                   <div 
-                    className="w-3 h-3 rounded-sm shrink-0" 
+                    className="w-3 h-3 rounded-xs shrink-0" 
                     style={{ backgroundColor: option.color }} 
                   />
                 )}

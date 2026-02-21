@@ -59,7 +59,7 @@ function AddPageDialog({ isOpen, onClose, onAdd }: AddPageDialogProps) {
               value={pageNumber}
               onChange={(e) => setPageNumber(e.target.value)}
               placeholder="e.g., 1, 23a, 59-60"
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-cue"
               required
             />
           </div>
@@ -72,7 +72,7 @@ function AddPageDialog({ isOpen, onClose, onAdd }: AddPageDialogProps) {
               value={firstCueNumber}
               onChange={(e) => setFirstCueNumber(e.target.value)}
               placeholder="e.g., 127"
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-cue"
             />
           </div>
           <div className="flex gap-3 pt-4">
@@ -190,7 +190,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={type === 'scene' ? 'e.g., Act 1, Scene 1' : 'e.g., Opening Number'}
-              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+              className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-cue"
               required
               disabled={isContinuation}
             />
@@ -238,7 +238,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
                   <select
                     value={continuesFromId}
                     onChange={(e) => handleContinuationChange(e.target.value)}
-                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+                    className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-cue"
                     required={isContinuation}
                   >
                     <option value="">Select {type}...</option>
@@ -296,7 +296,7 @@ function AddSceneSongDialog({ isOpen, onClose, onAdd, pageId, type, pageCueNumbe
                 value={firstCueNumber}
                 onChange={(e) => setFirstCueNumber(e.target.value)}
                 placeholder="e.g., 127"
-                className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-none focus:border-modules-cue"
+                className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-cue"
               />
             </div>
           )}
@@ -434,7 +434,7 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   return (
     <>
       {/* Page Card */}
-      <div className="rounded-lg bg-bg-secondary border border-bg-tertiary shadow-sm">
+      <div className="rounded-lg bg-bg-secondary border border-bg-tertiary shadow-xs">
         {/* Page Header */}
         <div className="flex items-center justify-between p-4 border-b border-bg-tertiary bg-bg-secondary/50">
           <div className="flex items-center gap-4">
@@ -445,7 +445,7 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
                 type="text"
                 value={page.pageNumber}
                 onChange={(e) => handlePageNumberChange(e.target.value)}
-                className="bg-bg-tertiary border border-bg-hover rounded px-3 py-1 text-lg font-bold text-text-primary focus:outline-none focus:border-modules-cue min-w-[80px] cursor-text"
+                className="bg-bg-tertiary border border-bg-hover rounded px-3 py-1 text-lg font-bold text-text-primary focus:outline-hidden focus:border-modules-cue min-w-[80px] cursor-text"
                 title="Click to edit page number"
               />
             </div>
@@ -460,7 +460,7 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
                   onChange={(e) => handleCueNumberChange(e.target.value)}
                   placeholder="None"
                   className={cn(
-                    "bg-bg-tertiary border rounded px-2 py-1 text-sm text-text-primary focus:outline-none w-20 cursor-text",
+                    "bg-bg-tertiary border rounded px-2 py-1 text-sm text-text-primary focus:outline-hidden w-20 cursor-text",
                     (cueValidation || orderValidation) ? "border-yellow-500 focus:border-yellow-500" : "border-bg-hover focus:border-modules-cue"
                   )}
                   title="Click to edit first cue number"
@@ -672,7 +672,7 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
             value={item.name}
             onChange={(e) => handleNameChange(e.target.value)}
             className={cn(
-              "border rounded px-2 py-1 text-sm text-text-primary focus:outline-none focus:border-modules-cue flex-1 cursor-text",
+              "border rounded px-2 py-1 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue flex-1 cursor-text",
               isContinuation
                 ? "bg-modules-production/10 border-modules-production/30"
                 : "bg-bg-tertiary border-bg-hover"
@@ -696,7 +696,7 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
               onChange={(e) => handleCueNumberChange(e.target.value)}
               placeholder="None"
               className={cn(
-                "bg-bg-tertiary border rounded px-2 py-1 text-sm text-text-primary focus:outline-none w-16 cursor-text",
+                "bg-bg-tertiary border rounded px-2 py-1 text-sm text-text-primary focus:outline-hidden w-16 cursor-text",
                 cueValidation ? "border-yellow-500 focus:border-yellow-500" : "border-bg-hover focus:border-modules-cue"
               )}
               title="Click to edit cue number"

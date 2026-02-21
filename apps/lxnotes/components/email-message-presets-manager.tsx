@@ -353,7 +353,7 @@ export function EmailMessagePresetsManager() {
                     // Clear filter preset when module changes since it's module-specific
                     form.setValue('filterAndSortPresetId', null)
                   }}
-                  className="w-full px-3 py-2 bg-bg-tertiary border border-bg-hover rounded-lg text-text-primary focus:outline-none focus:ring-2 focus:ring-modules-production"
+                  className="w-full px-3 py-2 bg-bg-tertiary border border-bg-hover rounded-lg text-text-primary focus:outline-hidden focus:ring-2 focus:ring-modules-production"
                 >
                   {moduleOptions.map((mod) => (
                     <option key={mod} value={mod}>{moduleDisplayNames[mod]}</option>
