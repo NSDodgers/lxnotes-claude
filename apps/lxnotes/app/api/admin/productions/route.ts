@@ -21,10 +21,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Get all productions (including deleted) using server-side client
+    // Get all productions with members using server-side client
     const { data, error } = await supabase
       .from('productions')
-      .select('*')
+      .select(`
+        *,
+        production_members (
+          role,
+          created_at,
+          user:users ( email )
+        )
+      `)
       .eq('is_demo', false)
       .order('updated_at', { ascending: false })
 
@@ -34,19 +41,37 @@ export async function GET() {
     }
 
     // Map to frontend format
-    const productions = (data || []).map(row => ({
-      id: row.id,
-      name: row.name,
-      abbreviation: row.abbreviation,
-      logo: row.logo ?? undefined,
-      description: row.description ?? undefined,
-      startDate: row.start_date ? new Date(row.start_date) : undefined,
-      endDate: row.end_date ? new Date(row.end_date) : undefined,
-      createdAt: new Date(row.created_at!),
-      updatedAt: new Date(row.updated_at!),
-      deletedAt: row.deleted_at ? new Date(row.deleted_at) : undefined,
-      deletedBy: row.deleted_by ?? undefined,
-    }))
+    const productions = (data || []).map(row => {
+      const members = (row.production_members as Array<{
+        role: string
+        created_at: string
+        user: { email: string } | null
+      }>) || []
+
+      // Creator = first admin member by created_at
+      const creator = members
+        .filter(m => m.role === 'admin' && m.user?.email)
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+        [0]
+
+      return {
+        id: row.id,
+        name: row.name,
+        abbreviation: row.abbreviation,
+        logo: row.logo ?? undefined,
+        description: row.description ?? undefined,
+        startDate: row.start_date ? new Date(row.start_date) : undefined,
+        endDate: row.end_date ? new Date(row.end_date) : undefined,
+        createdAt: new Date(row.created_at!),
+        updatedAt: new Date(row.updated_at!),
+        deletedAt: row.deleted_at ? new Date(row.deleted_at) : undefined,
+        deletedBy: row.deleted_by ?? undefined,
+        createdByEmail: creator?.user?.email ?? null,
+        members: members
+          .filter(m => m.user?.email)
+          .map(m => ({ email: m.user!.email, role: m.role })),
+      }
+    })
 
     return NextResponse.json(productions)
   } catch (error) {

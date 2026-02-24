@@ -90,7 +90,7 @@ interface ProductionProviderProps {
 
 export function ProductionProvider({ productionId, children }: ProductionProviderProps) {
   const router = useRouter()
-  const { isAuthenticated } = useAuthContext()
+  const { isAuthenticated, isSuperAdmin } = useAuthContext()
   const [production, setProduction] = useState<Production | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -132,9 +132,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
             .eq('user_id', user.id)
             .single()
 
-          // Determine if admin (either explicit role OR super admin email check if we had it client-side)
-          // Currently relying on role 'admin'
-          setIsAdmin(member?.role === 'admin')
+          setIsAdmin(member?.role === 'admin' || isSuperAdmin)
         }
       } else {
         setError(new Error('Production not found'))
@@ -144,7 +142,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     } finally {
       setIsLoading(false)
     }
-  }, [productionId])
+  }, [productionId, isSuperAdmin])
 
   const restoreProduction = async () => {
     if (!production) return

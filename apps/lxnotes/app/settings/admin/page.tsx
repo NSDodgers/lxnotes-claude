@@ -22,11 +22,16 @@ import { DeleteProductionDialog } from '@/components/admin/delete-production-dia
 import { PermanentDeleteDialog } from '@/components/admin/permanent-delete-dialog'
 import type { Production } from '@/types'
 
+interface AdminProduction extends Production {
+  createdByEmail: string | null
+  members: Array<{ email: string; role: string }>
+}
+
 type TabType = 'active' | 'trash'
 
 export default function AdminDashboardPage() {
   const { user, isSuperAdmin, isLoading: authLoading } = useAuthContext()
-  const [productions, setProductions] = useState<Production[]>([])
+  const [productions, setProductions] = useState<AdminProduction[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabType>('active')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -48,7 +53,9 @@ export default function AdminDashboardPage() {
           deletedAt: p.deletedAt ? new Date(p.deletedAt as string) : undefined,
           startDate: p.startDate ? new Date(p.startDate as string) : undefined,
           endDate: p.endDate ? new Date(p.endDate as string) : undefined,
-        }))
+          createdByEmail: p.createdByEmail ?? null,
+          members: p.members ?? [],
+        })) as AdminProduction[]
         setProductions(parsed)
       }
     } catch (error) {
@@ -143,7 +150,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      <div className="max-w-6xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -217,6 +224,8 @@ export default function AdminDashboardPage() {
               <tr className="border-b border-border bg-bg-tertiary/50">
                 <th className="text-left px-4 py-3 text-sm font-medium text-text-secondary">Name</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-text-secondary">Abbreviation</th>
+                <th className="text-left px-4 py-3 text-sm font-medium text-text-secondary">Created By</th>
+                <th className="text-left px-4 py-3 text-sm font-medium text-text-secondary">Members</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-text-secondary">
                   {activeTab === 'active' ? 'Created' : 'Deleted'}
                 </th>
@@ -246,7 +255,12 @@ export default function AdminDashboardPage() {
                         </div>
                       )}
                       <div>
-                        <p className="text-text-primary font-medium">{production.name}</p>
+                        <Link
+                          href={`/production/${production.id}/cue-notes`}
+                          className="text-text-primary font-medium hover:text-modules-production hover:underline transition-colors"
+                        >
+                          {production.name}
+                        </Link>
                         {production.description && (
                           <p className="text-text-muted text-sm truncate max-w-xs">{production.description}</p>
                         )}
@@ -254,6 +268,25 @@ export default function AdminDashboardPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-text-secondary">{production.abbreviation}</td>
+                  <td className="px-4 py-3 text-text-secondary text-sm">
+                    {production.createdByEmail ?? <span className="text-text-muted italic">unknown</span>}
+                  </td>
+                  <td className="px-4 py-3">
+                    {production.members.length > 0 ? (
+                      <div className="flex flex-col gap-0.5">
+                        {production.members.map((m) => (
+                          <span key={m.email} className="text-sm text-text-secondary">
+                            {m.email}
+                            {m.role === 'admin' && (
+                              <span className="ml-1 text-xs text-yellow-500">(admin)</span>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-text-muted text-sm italic">none</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-text-secondary text-sm">
                     {activeTab === 'active'
                       ? production.createdAt.toLocaleDateString()
@@ -315,7 +348,7 @@ export default function AdminDashboardPage() {
               ))}
               {(activeTab === 'active' ? activeProductions : deletedProductions).length === 0 && (
                 <tr>
-                  <td colSpan={activeTab === 'trash' ? 5 : 4} className="px-4 py-12 text-center text-text-muted">
+                  <td colSpan={activeTab === 'trash' ? 7 : 6} className="px-4 py-12 text-center text-text-muted">
                     {activeTab === 'active'
                       ? 'No productions yet. Create one to get started.'
                       : 'Trash is empty.'}

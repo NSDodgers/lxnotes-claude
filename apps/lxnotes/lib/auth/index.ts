@@ -119,25 +119,7 @@ export async function getUserProductions(userId: string): Promise<Production[]> 
   try {
     const supabase = await createClient()
 
-    // Check if super admin - they see all
-    const { data: userData } = await supabase
-      .from('users')
-      .select('email')
-      .eq('id', userId)
-      .single()
-
-    if (userData?.email === SUPER_ADMIN_EMAIL) {
-      const { data: allProductions } = await supabase
-        .from('productions')
-        .select('*')
-        .eq('is_demo', false)
-        .is('deleted_at', null)
-        .order('updated_at', { ascending: false })
-
-      return (allProductions ?? []).map(mapProduction)
-    }
-
-    // For regular users, get productions they're members of
+    // Get productions the user is a member of (superadmins use admin dashboard for full list)
     const { data: memberships } = await supabase
       .from('production_members')
       .select('production_id')
