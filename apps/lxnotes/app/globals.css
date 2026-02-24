@@ -224,6 +224,20 @@
   min-width: 44px;
 }
 
+@utility tablet-row {
+  /* Tablet mode table row with touch-friendly height */
+  min-height: 56px;
+}
+
+@utility tablet-action-btn {
+  /* Tablet mode action button */
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @utility p-compact-1 {
   /* Compact spacing utilities for 90% appearance */
   padding: var(--space-compact-1);

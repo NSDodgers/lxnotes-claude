@@ -156,6 +156,7 @@ export function Sidebar() {
                 collapsed && 'mx-auto'
               )}
               title={collapsed ? 'Toggle Tablet Mode' : undefined}
+              data-testid="tablet-mode-toggle"
             >
               <span
                 className={cn(
