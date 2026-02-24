@@ -130,9 +130,6 @@ export default function CueNotesPage() {
         moduleType: 'cue',
         id: '_tablet',
         name: '_tablet',
-        isSystem: true,
-        isHidden: false,
-        sortOrder: 0,
         config: {
           statusFilter: null,
           typeFilters: [],
@@ -141,7 +138,7 @@ export default function CueNotesPage() {
           sortOrder: tabletSortDirection,
           groupByType: false,
         },
-      }, priorities)
+      } as FilterSortPreset, priorities)
     }
 
     return filtered

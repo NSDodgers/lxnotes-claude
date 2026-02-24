@@ -1080,9 +1080,6 @@ export default function ProductionNotesPage() {
         moduleType: 'production',
         id: '_tablet',
         name: '_tablet',
-        isSystem: true,
-        isHidden: false,
-        sortOrder: 0,
         config: {
           statusFilter: null,
           typeFilters: [],
@@ -1091,7 +1088,7 @@ export default function ProductionNotesPage() {
           sortOrder: tabletSortDirection,
           groupByType: false,
         },
-      }, priorities)
+      } as FilterSortPreset, priorities)
     }
 
     return filtered
