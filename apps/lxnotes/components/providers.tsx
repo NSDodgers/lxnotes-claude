@@ -11,6 +11,7 @@ import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { NotesProvider } from '@/lib/contexts/notes-context'
 import { AuthProvider } from '@/components/auth/auth-provider'
 import { KeyboardShortcutsProvider } from '@/lib/hooks/use-keyboard-shortcuts'
+import { BugReportButton } from '@/components/bug-report/bug-report-button'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -40,6 +41,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <NotesProvider>
           <KeyboardShortcutsProvider>
             {children}
+            <BugReportButton />
             <Toaster
               position="bottom-right"
               theme="dark"
