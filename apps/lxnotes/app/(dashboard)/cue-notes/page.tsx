@@ -138,7 +138,7 @@ export default function CueNotesPage() {
           sortOrder: tabletSortDirection,
           groupByType: false,
         },
-      } as FilterSortPreset, priorities)
+      } as any, priorities)
     }
 
     return filtered

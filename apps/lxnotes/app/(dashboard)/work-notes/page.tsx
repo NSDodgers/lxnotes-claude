@@ -211,7 +211,7 @@ export default function WorkNotesPage() {
           sortOrder: tabletSortDirection,
           groupByType: false,
         },
-      } as FilterSortPreset, priorities)
+      } as any, priorities)
     }
 
     return filtered
