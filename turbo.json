@@ -11,7 +11,7 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "env": ["SUPABASE_SERVICE_ROLE_KEY", "CRON_SECRET"]
+      "env": ["SUPABASE_SERVICE_ROLE_KEY", "CRON_SECRET", "RESEND_API_KEY", "DISCORD_BUG_REPORT_WEBHOOK_URL"]
     },
     "dev": {
       "cache": false,
