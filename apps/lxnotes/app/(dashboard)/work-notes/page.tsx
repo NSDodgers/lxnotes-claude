@@ -1,6 +1,8 @@
 'use client'
 
 import { WorkNotesTable } from '@/components/notes-table/work-notes-table'
+import { TabletNotesTable } from '@/components/notes-table/tablet-notes-table'
+import { createTabletWorkColumns } from '@/components/notes-table/columns/tablet-work-columns'
 import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
@@ -14,7 +16,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { Plus, Search, Wrench, Upload, Mail, Printer, Database, ArrowUpDown, RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -40,6 +42,10 @@ import { useNotes } from '@/lib/contexts/notes-context'
 // Lazy loaded via dynamic import to avoid loading 4,682 lines on page load
 // import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 import { isDemoMode } from '@/lib/demo-data'
+import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
+import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { sortNotes } from '@/lib/utils/filter-sort-notes'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import Image from 'next/image'
 
@@ -92,6 +98,15 @@ export default function WorkNotesPage() {
     ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
     : storeData.logo
   const customTypesStore = useCustomTypesStore()
+  const { isTabletMode } = useTabletModeStore()
+  const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
+  const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
+  const setOnAddNote = useNotesFilterStore((s) => s.setOnAddNote)
+  const tabletFilterTypes = useNotesFilterStore((s) => s.filterTypes)
+  const tabletFilterPriorities = useNotesFilterStore((s) => s.filterPriorities)
+  const tabletSortField = useNotesFilterStore((s) => s.sortField)
+  const tabletSortDirection = useNotesFilterStore((s) => s.sortDirection)
+  const customPrioritiesStore = useCustomPrioritiesStore()
   // Use selector to only subscribe to fixtures.length instead of entire array
   // This prevents massive re-renders when fixtures are uploaded
   const fixturesLength = useFixtureStore((state) => state.fixtures.length)
@@ -160,13 +175,50 @@ export default function WorkNotesPage() {
     color: type.color
   }))
 
-  const filteredNotes = notes.filter(note => {
-    const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      note.description?.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = note.status === filterStatus
-    const matchesType = filterTypes.length === 0 || filterTypes.includes(note.type || '')
-    return matchesSearch && matchesStatus && matchesType
-  })
+  // In tablet mode, use shared filter store; in desktop, use local state
+  const effectiveSearchTerm = isTabletMode ? tabletSearchTerm : searchTerm
+  const effectiveFilterStatus = isTabletMode ? tabletFilterStatus : filterStatus
+
+  const effectiveFilterTypes = isTabletMode ? tabletFilterTypes : filterTypes
+
+  const filteredNotes = useMemo(() => {
+    const filtered = notes.filter(note => {
+      const matchesSearch = note.title.toLowerCase().includes(effectiveSearchTerm.toLowerCase()) ||
+        note.description?.toLowerCase().includes(effectiveSearchTerm.toLowerCase())
+      const matchesStatus = note.status === effectiveFilterStatus
+      const matchesType = effectiveFilterTypes.length > 0
+        ? effectiveFilterTypes.includes(note.type || '')
+        : true
+      const matchesPriority = isTabletMode && tabletFilterPriorities.length > 0
+        ? tabletFilterPriorities.includes(note.priority)
+        : true
+      return matchesSearch && matchesStatus && matchesType && matchesPriority
+    })
+
+    if (isTabletMode) {
+      const activeSortField = tabletSortField ?? 'priority'
+      const priorities = isHydrated ? customPrioritiesStore.getPriorities('work') : []
+      return sortNotes(filtered, {
+        type: 'filter_sort',
+        moduleType: 'work',
+        id: '_tablet',
+        name: '_tablet',
+        isSystem: true,
+        isHidden: false,
+        sortOrder: 0,
+        config: {
+          statusFilter: null,
+          typeFilters: [],
+          priorityFilters: [],
+          sortBy: activeSortField,
+          sortOrder: tabletSortDirection,
+          groupByType: false,
+        },
+      }, priorities)
+    }
+
+    return filtered
+  }, [notes, effectiveSearchTerm, effectiveFilterStatus, effectiveFilterTypes, isTabletMode, tabletFilterPriorities, tabletSortField, tabletSortDirection, isHydrated, customPrioritiesStore])
 
   const openQuickAdd = (typeValue: string) => {
     setDialogDefaultType(typeValue)
@@ -183,6 +235,26 @@ export default function WorkNotesPage() {
     setDialogDefaultType(note.type || 'Work')
     setIsDialogOpen(true)
   }
+
+  // Register add-note callback for tablet top bar
+  const tabletAddNote = useCallback(() => {
+    setEditingNote(null)
+    setDialogDefaultType('work')
+    setIsDialogOpen(true)
+  }, [])
+
+  useEffect(() => {
+    if (isTabletMode) {
+      setOnAddNote(tabletAddNote)
+      return () => setOnAddNote(null)
+    }
+  }, [isTabletMode, tabletAddNote, setOnAddNote])
+
+  const tabletColumns = useMemo(
+    () => createTabletWorkColumns({ onStatusUpdate: updateNoteStatus }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isTabletMode]
+  )
 
   const handleDialogAdd = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>, lightwrightFixtureIds?: string[]) => {
     if (editingNote) {
@@ -203,6 +275,32 @@ export default function WorkNotesPage() {
       }
     }
     setEditingNote(null)
+  }
+
+  // Tablet mode rendering
+  if (isTabletMode) {
+    return (
+      <>
+        <div className="h-full">
+          <TabletNotesTable
+            notes={filteredNotes}
+            columns={tabletColumns}
+            onEdit={handleEditNote}
+            emptyIcon={Wrench}
+            emptyMessage="No work notes found"
+          />
+        </div>
+
+        <AddNoteDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onAdd={handleDialogAdd}
+          moduleType="work"
+          defaultType={dialogDefaultType}
+          editingNote={editingNote}
+        />
+      </>
+    )
   }
 
   return (

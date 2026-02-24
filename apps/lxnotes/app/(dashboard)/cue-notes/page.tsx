@@ -5,10 +5,12 @@
 'use client'
 
 import { CueNotesTable } from '@/components/notes-table/cue-notes-table'
+import { TabletNotesTable } from '@/components/notes-table/tablet-notes-table'
+import { createTabletCueColumns } from '@/components/notes-table/columns/tablet-cue-columns'
 import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { Plus, Search, Lightbulb, FileText, Mail, Printer, RotateCcw } from 'lucide-react'
 import type { Note, NoteStatus } from '@/types'
@@ -20,6 +22,10 @@ import { useProductionOptional } from '@/components/production/production-provid
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
+import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
+import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { sortNotes } from '@/lib/utils/filter-sort-notes'
 import { ScriptManager } from '@/components/script-manager'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import { isDemoMode } from '@/lib/demo-data'
@@ -60,6 +66,15 @@ export default function CueNotesPage() {
     ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
     : storeData.logo
   const customTypesStore = useCustomTypesStore()
+  const { isTabletMode } = useTabletModeStore()
+  const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
+  const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
+  const setOnAddNote = useNotesFilterStore((s) => s.setOnAddNote)
+  const tabletFilterTypes = useNotesFilterStore((s) => s.filterTypes)
+  const tabletFilterPriorities = useNotesFilterStore((s) => s.filterPriorities)
+  const tabletSortField = useNotesFilterStore((s) => s.sortField)
+  const tabletSortDirection = useNotesFilterStore((s) => s.sortDirection)
+  const customPrioritiesStore = useCustomPrioritiesStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
@@ -84,16 +99,53 @@ export default function CueNotesPage() {
     label: type.label,
     color: type.color
   }))
-  const filteredNotes = notes.filter(note => {
-    const searchLower = searchTerm.toLowerCase()
-    const matchesSearch = note.title.toLowerCase().includes(searchLower) ||
-      note.description?.toLowerCase().includes(searchLower) ||
-      note.scriptPageId?.toLowerCase().includes(searchLower) ||
-      note.sceneSongId?.toLowerCase().includes(searchLower)
-    const matchesStatus = note.status === filterStatus
-    const matchesType = filterTypes.length === 0 || filterTypes.includes(note.type || '')
-    return matchesSearch && matchesStatus && matchesType
-  })
+  // In tablet mode, use shared filter store; in desktop, use local state
+  const effectiveSearchTerm = isTabletMode ? tabletSearchTerm : searchTerm
+  const effectiveFilterStatus = isTabletMode ? tabletFilterStatus : filterStatus
+
+  const effectiveFilterTypes = isTabletMode ? tabletFilterTypes : filterTypes
+
+  const filteredNotes = useMemo(() => {
+    const filtered = notes.filter(note => {
+      const searchLower = effectiveSearchTerm.toLowerCase()
+      const matchesSearch = note.title.toLowerCase().includes(searchLower) ||
+        note.description?.toLowerCase().includes(searchLower) ||
+        note.scriptPageId?.toLowerCase().includes(searchLower) ||
+        note.sceneSongId?.toLowerCase().includes(searchLower)
+      const matchesStatus = note.status === effectiveFilterStatus
+      const matchesType = effectiveFilterTypes.length > 0
+        ? effectiveFilterTypes.includes(note.type || '')
+        : true
+      const matchesPriority = isTabletMode && tabletFilterPriorities.length > 0
+        ? tabletFilterPriorities.includes(note.priority)
+        : true
+      return matchesSearch && matchesStatus && matchesType && matchesPriority
+    })
+
+    if (isTabletMode) {
+      const activeSortField = tabletSortField ?? 'cue_number'
+      const priorities = isHydrated ? customPrioritiesStore.getPriorities('cue') : []
+      return sortNotes(filtered, {
+        type: 'filter_sort',
+        moduleType: 'cue',
+        id: '_tablet',
+        name: '_tablet',
+        isSystem: true,
+        isHidden: false,
+        sortOrder: 0,
+        config: {
+          statusFilter: null,
+          typeFilters: [],
+          priorityFilters: [],
+          sortBy: activeSortField,
+          sortOrder: tabletSortDirection,
+          groupByType: false,
+        },
+      }, priorities)
+    }
+
+    return filtered
+  }, [notes, effectiveSearchTerm, effectiveFilterStatus, effectiveFilterTypes, isTabletMode, tabletFilterPriorities, tabletSortField, tabletSortDirection, isHydrated, customPrioritiesStore])
 
   const handleAddNote = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingNote) {
@@ -121,6 +173,51 @@ export default function CueNotesPage() {
     await notesContext.updateNote(noteId, { status })
   }
 
+  // Register add-note callback for tablet top bar
+  const tabletAddNote = useCallback(() => {
+    setEditingNote(null)
+    setDialogDefaultType('Cue')
+    setIsDialogOpen(true)
+  }, [])
+
+  useEffect(() => {
+    if (isTabletMode) {
+      setOnAddNote(tabletAddNote)
+      return () => setOnAddNote(null)
+    }
+  }, [isTabletMode, tabletAddNote, setOnAddNote])
+
+  const tabletColumns = useMemo(
+    () => createTabletCueColumns({ onStatusUpdate: updateNoteStatus }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isTabletMode]
+  )
+
+  // Tablet mode rendering
+  if (isTabletMode) {
+    return (
+      <>
+        <div className="h-full">
+          <TabletNotesTable
+            notes={filteredNotes}
+            columns={tabletColumns}
+            onEdit={handleEditNote}
+            emptyIcon={Lightbulb}
+            emptyMessage="No cue notes found"
+          />
+        </div>
+
+        <AddNoteDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onAdd={handleAddNote}
+          moduleType="cue"
+          defaultType={dialogDefaultType}
+          editingNote={editingNote}
+        />
+      </>
+    )
+  }
 
   return (
     <>
