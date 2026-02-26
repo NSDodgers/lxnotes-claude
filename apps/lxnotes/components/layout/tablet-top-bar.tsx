@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { Menu, Search, Plus, Lightbulb, Wrench, FileText, X } from 'lucide-react'
+import { Menu, Search, Plus, Lightbulb, Wrench, FileText, X, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -33,7 +33,7 @@ const statusFilters: { value: NoteStatus; label: string }[] = [
 export function TabletTopBar() {
   const pathname = usePathname()
   const moduleInfo = getModuleInfo(pathname)
-  const { toggleTabletSidebar } = useTabletModeStore()
+  const { toggleTabletSidebar, toggleTabletMode } = useTabletModeStore()
   const { filterStatus, searchTerm, onAddNote, setFilterStatus, setSearchTerm, clearAllFilters } = useNotesFilterStore()
   const [searchExpanded, setSearchExpanded] = useState(false)
 
@@ -134,6 +134,16 @@ export function TabletTopBar() {
           <Plus className="h-4 w-4" />
         </Button>
       )}
+
+      {/* Exit tablet mode */}
+      <button
+        onClick={toggleTabletMode}
+        className="flex items-center gap-1.5 rounded-full px-3 h-8 text-xs text-text-secondary bg-bg-tertiary/50 hover:bg-bg-tertiary border border-bg-tertiary transition-colors touch-target"
+        data-testid="tablet-mode-exit-topbar"
+      >
+        <Monitor className="h-4 w-4" />
+        <span>Exit</span>
+      </button>
     </div>
   )
 }
