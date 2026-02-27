@@ -884,7 +884,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
   const { isAuthenticated } = useAuthContext()
-  const { getSortedPages, addPage, scenes, songs, setScriptData } = useScriptStore()
+  const { getSortedPages, addPage, setScriptData } = useScriptStore()
 
   // Import wizard state
   const [isImportOpen, setIsImportOpen] = useState(false)
@@ -939,7 +939,9 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
     try {
       const adapter = createSupabaseStorageAdapter(productionId)
       const currentPages = getSortedPages()
-      const allScenesSongs = [...scenes, ...songs]
+      // Read fresh from store to avoid stale closure (same pattern as handleImportComplete)
+      const { scenes: currentScenes, songs: currentSongs } = useScriptStore.getState()
+      const allScenesSongs = [...currentScenes, ...currentSongs]
 
       console.log('[ScriptManager] Persisting to Supabase:', { productionId, pagesCount: currentPages.length, scenesSongsCount: allScenesSongs.length })
 
@@ -962,7 +964,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
       }
       console.dir(error, { depth: 5 })
     }
-  }, [isDemoMode, productionId, isAuthenticated, getSortedPages, scenes, songs])
+  }, [isDemoMode, productionId, isAuthenticated, getSortedPages])
 
   // Import completion handler — persists directly with imported data to avoid stale closure
   const handleImportComplete = useCallback(async (importedPages: ScriptPage[], importedScenes: SceneSong[], importedSongs: SceneSong[]) => {
