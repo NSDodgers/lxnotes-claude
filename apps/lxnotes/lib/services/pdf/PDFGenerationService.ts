@@ -1,6 +1,6 @@
 import React from 'react'
 import { pdf } from '@react-pdf/renderer'
-import type { Note, ModuleType, FilterSortPreset, CustomPriority } from '@/types'
+import type { ModuleType } from '@/types'
 import type { PDFGenerationRequest, PDFGenerationResult, PDFStrategy } from './types'
 import { CueNotesPDFStrategy } from './strategies/CueNotesPDFStrategy'
 import { WorkNotesPDFStrategy } from './strategies/WorkNotesPDFStrategy'

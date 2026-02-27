@@ -1,4 +1,4 @@
-import type { Note, ModuleType, FilterSortPreset, CustomPriority } from '@/types'
+import type { Note, FilterSortPreset, CustomPriority } from '@/types'
 import { ALL_TYPES_SENTINEL } from './generate-dynamic-presets'
 
 /**

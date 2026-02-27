@@ -10,7 +10,7 @@ import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 /**
  * Custom sort function for priority specific to production notes
  */
-const prioritySortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
+const prioritySortFn: SortingFn<Note> = (rowA, rowB) => {
   const { getPriorities } = useCustomPrioritiesStore.getState()
   const priorities = getPriorities('production')
 

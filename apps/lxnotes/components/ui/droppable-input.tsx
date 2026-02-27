@@ -399,7 +399,7 @@ export const DroppableInput = forwardRef<HTMLDivElement, DroppableInputProps>(
       // Allow normal text editing
     }, [])
 
-    const handleClick = useCallback((e: React.MouseEvent) => {
+    const handleClick = useCallback(() => {
       // Focus the contentEditable div
       if (contentRef.current && !disabled) {
         contentRef.current.focus()

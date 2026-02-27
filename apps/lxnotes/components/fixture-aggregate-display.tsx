@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertTriangle, Info } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { FixtureAggregate } from '@/types'
@@ -35,7 +35,7 @@ export function FixtureAggregateDisplay({
     </div>
   )
 
-  const renderArray = (items: string[], title: string) => {
+  const renderArray = (items: string[]) => {
     if (items.length === 0) {
       return <span className={cn('text-muted-foreground', className)}>—</span>
     }
@@ -153,11 +153,11 @@ export function FixtureAggregateDisplay({
     case 'channels':
       return renderChannels()
     case 'positions':
-      return renderArray(aggregate.positions, 'Positions')
+      return renderArray(aggregate.positions)
     case 'fixtureTypes':
-      return renderArray(aggregate.fixtureTypes, 'Fixture Types')
+      return renderArray(aggregate.fixtureTypes)
     case 'purposes':
-      return renderArray(aggregate.purposes, 'Purposes')
+      return renderArray(aggregate.purposes)
     case 'universeAddresses':
       return renderUniverseAddresses()
     default:
@@ -179,10 +179,6 @@ export function FixtureSummaryDisplay({
   if (!aggregate) {
     return <span className={cn('text-muted-foreground text-sm', className)}>No fixtures linked</span>
   }
-
-  const hasMultipleTypes = aggregate.fixtureTypes.length > 1
-  const hasMultiplePurposes = aggregate.purposes.length > 1
-  const hasMultiplePositions = aggregate.positions.length > 1
 
   // Determine what to show in summary
   const summaryParts: string[] = []

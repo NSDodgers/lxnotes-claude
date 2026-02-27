@@ -51,7 +51,7 @@ function extractLowestChannelNumber(channelExpression: string): number {
 /**
  * Custom sort function for priority that uses the sortOrder from custom priorities store
  */
-export const prioritySortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
+export const prioritySortFn: SortingFn<Note> = (rowA, rowB) => {
   const { getPriorities } = useCustomPrioritiesStore.getState()
   const priorities = getPriorities('work')
 
@@ -68,7 +68,7 @@ export const prioritySortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
  * Custom sort function for positions that uses the ordered positions from store
  * Positions are sorted according to their order in the position store
  */
-export const positionSortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
+export const positionSortFn: SortingFn<Note> = (rowA, rowB) => {
   const { getOrderedPositions } = usePositionStore.getState()
 
   // Get production ID from the first note (assuming all notes are from the same production)
@@ -97,7 +97,7 @@ export const positionSortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
  * Custom sort function for channels that extracts the lowest channel number
  * from the fixture aggregate data
  */
-export const channelsSortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
+export const channelsSortFn: SortingFn<Note> = (rowA, rowB) => {
   const { getAggregate } = useFixtureStore.getState()
 
   const aggregateA = getAggregate(rowA.original.id)
@@ -112,7 +112,7 @@ export const channelsSortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
 /**
  * Date sorting function (works with Date objects or ISO strings)
  */
-export const dateSortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
+export const dateSortFn: SortingFn<Note> = (rowA, rowB) => {
   const dateA = rowA.original.createdAt
   const dateB = rowB.original.createdAt
 

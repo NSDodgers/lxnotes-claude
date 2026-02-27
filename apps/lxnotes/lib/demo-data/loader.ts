@@ -6,7 +6,7 @@
  */
 
 import { SessionStorageAdapter } from '@/lib/storage/session-storage'
-import { createSafeStorage } from '@/lib/storage/safe-storage'
+
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useDemoProductionStore } from '@/lib/stores/production-store'
@@ -80,8 +80,8 @@ export async function initializeDemoSession(): Promise<void> {
     const { workNotes, cueNotes, productionNotes } = generateDemoNotes()
 
     // Helper to strip id/timestamps for createMany
-    const toPayload = (note: Note) => {
-      const { id, createdAt, updatedAt, ...rest } = note
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const toPayload = ({ id, createdAt, updatedAt, ...rest }: Note) => {
       return rest
     }
 

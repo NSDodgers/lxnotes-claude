@@ -55,11 +55,6 @@ export function HookupHeaderMapping({
     onMappingChange(newMapping)
   }
 
-  const isRequiredFieldMapped = (fieldKey: string) => {
-    const field = REQUIRED_FIELDS.find(f => f.key === fieldKey)
-    return !field?.required || !!headerMapping[fieldKey]
-  }
-
   const getFieldValidation = (fieldKey: string) => {
     const field = REQUIRED_FIELDS.find(f => f.key === fieldKey)
     const isMapped = !!headerMapping[fieldKey]

@@ -183,7 +183,7 @@ export function PrioritiesManager({ moduleType, className }: PrioritiesManagerPr
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-text-secondary">System Defaults</h4>
           <div className="space-y-1">
-            {systemDefaults.map((systemPriority, index) => (
+            {systemDefaults.map((systemPriority) => (
               <div key={systemPriority.id} className="flex items-center gap-2">
                 <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-text-secondary bg-bg-tertiary rounded">
                   {systemPriority.sortOrder}

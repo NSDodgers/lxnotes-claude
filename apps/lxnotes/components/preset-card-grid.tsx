@@ -22,8 +22,6 @@ interface PresetCardGridProps {
 
 export function PresetCardGrid({
   presets,
-  moduleType,
-  notes,
   variant,
   onSelectPreset,
   onCreateNew,

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { Plus, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,12 +19,10 @@ import {
   PresetDialogActions,
   PresetFormField,
   PresetFormInput,
-  PresetFormTextarea,
   PresetFormToggle
 } from './preset-dialog'
 import { emailMessageFormSchema, type EmailMessageFormData } from '@/lib/validation/preset-schemas'
 import type { EmailMessagePreset, ModuleType } from '@/types'
-import { cn } from '@/lib/utils'
 import { useAuthContext } from '@/components/auth/auth-provider'
 
 // Module display names for UI

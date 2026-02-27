@@ -19,19 +19,9 @@ import {
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { Plus, Search, Wrench, Upload, Mail, Printer, Database, ArrowUpDown, RotateCcw } from 'lucide-react'
-import { cn } from '@/lib/utils'
 import type { Note, NoteStatus, FilterSortPreset } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
@@ -51,7 +41,6 @@ import Image from 'next/image'
 
 export default function WorkNotesPage() {
   const notesContext = useNotes()
-  const mockNotesStore = useMockNotesStore()
   // Determine effective notes based on mode
   const isDemo = isDemoMode()
   const notes = isDemo
@@ -72,7 +61,6 @@ export default function WorkNotesPage() {
     }
   }, [isDemo])
 
-  const [isInitialized, setIsInitialized] = useState(false)
   const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
 
   // Initialize mock data only in non-demo mode and non-production mode
@@ -80,7 +68,6 @@ export default function WorkNotesPage() {
     if (!isDemoMode() && typeof window !== 'undefined' && !window.location.pathname.startsWith('/production/')) {
       initializeWithMockData()
     }
-    setIsInitialized(true)
   }, [initializeWithMockData])
 
   // Get production data from context (Supabase) if available, otherwise fall back to store
@@ -116,7 +103,6 @@ export default function WorkNotesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
   const [filterTypes, setFilterTypes] = useState<string[]>([])
-  const [showImport, setShowImport] = useState(false)
   const [isLightwrightDialogOpen, setIsLightwrightDialogOpen] = useState(false)
   const [isLightwrightViewerOpen, setIsLightwrightViewerOpen] = useState(false)
   const [isPositionManagerOpen, setIsPositionManagerOpen] = useState(false)

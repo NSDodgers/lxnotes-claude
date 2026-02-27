@@ -30,8 +30,6 @@ export function PresetSelector({
   disabled = false,
   className,
   enableQuickCreate = false,
-  presetType,
-  moduleType,
   onQuickCreate,
   onEdit,
   canEdit

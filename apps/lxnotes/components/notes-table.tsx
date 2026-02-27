@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react'
-import { Check, X, Clock, ArrowUpDown } from 'lucide-react'
+import { Check, X, ArrowUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Note, NoteStatus, ModuleType } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -433,28 +433,12 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
     return channels.length > 0 ? Math.min(...channels) : 0
   }
 
-  const getStatusIcon = (status: NoteStatus) => {
-    switch (status) {
-      case 'complete': return <Check className="h-4 w-4" />
-      case 'cancelled': return <X className="h-4 w-4" />
-      default: return <Clock className="h-4 w-4" />
-    }
-  }
-
   const getPriority = (priorityValue: string) => {
     return availablePriorities.find(p => p.value === priorityValue)
   }
   
   const getType = (typeValue: string) => {
     return availableTypes.find(t => t.value === typeValue)
-  }
-
-  const getModuleColor = (moduleType: ModuleType) => {
-    switch (moduleType) {
-      case 'cue': return 'modules-cue'
-      case 'work': return 'modules-work'
-      case 'production': return 'modules-production'
-    }
   }
 
   const buildCueLocationDisplay = (note: Note): string => {
@@ -913,7 +897,7 @@ function ResizableHeaderCell({
     if (pointerIdRef.current !== null && handleRef.current) {
       try {
         handleRef.current.releasePointerCapture(pointerIdRef.current)
-      } catch (error) {
+      } catch {
         // Safari may throw if pointer capture not set; ignore
       }
     }

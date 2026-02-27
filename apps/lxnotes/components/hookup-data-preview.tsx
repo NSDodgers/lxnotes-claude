@@ -13,11 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import type { 
-  HookupCSVRow, 
-  ParsedHookupRow, 
-  ValidationResult, 
-  RowError 
+import type {
+  HookupCSVRow,
+  ValidationResult,
 } from '@/types'
 
 interface HookupDataPreviewProps {
@@ -54,7 +52,7 @@ export function HookupDataPreview({
   }
   
   // Filter to show only valid records in the main table
-  const validRecords = allDisplayData.filter((row, index) => {
+  const validRecords = allDisplayData.filter((row) => {
     const channelStr = getCellValue(row, 'channel')
     const lwid = getCellValue(row, 'lwid')
     // Only show records that have both LWID and Channel
@@ -123,7 +121,6 @@ export function HookupDataPreview({
   // Calculate import summary
   const validFixturesCount = validRecords.length
   const totalSkippedCount = validation.infrastructureRows + selectedRowsToSkip.length
-  const hasErrors = validation.errors.length > 0
   const hasUnresolvedErrors = validation.errors.some(error => 
     error.canSkip && !selectedRowsToSkip.includes(error.row)
   )
@@ -416,7 +413,7 @@ export function HookupDataPreview({
       {/* Records to be Skipped Section */}
       {(() => {
         // Get records that will be automatically skipped
-        const skippedRecords = allDisplayData.filter((row, index) => {
+        const skippedRecords = allDisplayData.filter((row) => {
           const channelStr = getCellValue(row, 'channel')
           const lwid = getCellValue(row, 'lwid')
           return (!channelStr || channelStr === '—') || (!lwid || lwid === '—')

@@ -4,10 +4,7 @@ import type {
   ParsedHookupRow,
   HookupUploadResult,
   ParsedChannelExpression,
-  ChannelRange,
   ValidationResult,
-  RowError,
-  RowErrorType,
   ImportOptions
 } from '@/types'
 
@@ -117,8 +114,7 @@ export class HookupParser {
         // Process chunk synchronously, then yield control
         chunk.forEach((row, chunkIndex) => {
           const index = i + chunkIndex
-          const rowNumber = index + 1
-          
+
           try {
             // Extract fields
             const lwid = this.getFieldValue(row, headerMapping, 'lwid')
@@ -193,7 +189,7 @@ export class HookupParser {
             // Add to parsed samples if in first 5 rows
             if (index < 5) {
               if (!hasError && lwid && !isNaN(channel)) {
-                result.parsedSamples.push(this.parseRow(row, headerMapping, rowNumber))
+                result.parsedSamples.push(this.parseRow(row, headerMapping))
               } else {
                 result.parsedSamples.push(null) // Error row
               }
@@ -283,7 +279,7 @@ export class HookupParser {
           return
         }
         
-        const parsedRow = this.parseRow(row, headerMapping, rowNumber)
+        const parsedRow = this.parseRow(row, headerMapping)
         if (parsedRow) {
           parsedRows.push(parsedRow)
           result.inserted++
@@ -310,8 +306,7 @@ export class HookupParser {
    */
   private static parseRow(
     row: HookupCSVRow,
-    headerMapping: Record<string, string>,
-    rowNumber: number
+    headerMapping: Record<string, string>
   ): ParsedHookupRow | null {
     // Extract fields
     const lwid = this.getFieldValue(row, headerMapping, 'lwid')

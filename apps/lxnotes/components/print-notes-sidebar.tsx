@@ -7,8 +7,6 @@ import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { usePrintPresetsStore } from '@/lib/stores/print-presets-store'
 import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
-import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
 import { PresetCardGrid } from './preset-card-grid'
 import { ConfirmSendPanel } from './confirm-send-panel'
 import { PresetWizard } from './preset-wizard'
@@ -59,7 +57,6 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
   const activeProduction = productionContext?.production
   const productionName = activeProduction ? activeProduction.name : localProductionStore.name
   const productionLogo = activeProduction ? activeProduction.logo : localProductionStore.logo
-  const { getPriorities } = useCustomPrioritiesStore()
   const mockNotesStore = useMockNotesStore()
 
   // Get user's name from auth metadata

@@ -1,6 +1,5 @@
 import React from 'react'
 import { View, Text, Image, StyleSheet } from '@react-pdf/renderer'
-import { commonStyles } from './styles'
 import { LX_NOTES_LOGO_BASE64 } from '@/lib/constants/pdf-assets'
 
 interface PDFFooterProps {

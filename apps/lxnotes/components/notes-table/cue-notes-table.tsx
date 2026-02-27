@@ -6,7 +6,6 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   flexRender,
-  SortingState,
 } from '@tanstack/react-table'
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import {

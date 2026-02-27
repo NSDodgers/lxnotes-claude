@@ -225,6 +225,7 @@ interface ProductionListCallbacks {
   onError?: (error: Error) => void
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function subscribeToProductionsList(_callbacks: ProductionListCallbacks): () => void {
   if (isDev) console.warn('subscribeToProductionsList is deprecated/disabled. Use manual refresh.')
   return () => { }

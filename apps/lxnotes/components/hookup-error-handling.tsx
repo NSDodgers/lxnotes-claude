@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertTriangle, CheckSquare, Square, Settings } from 'lucide-react'
+import { AlertTriangle, CheckSquare, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -98,13 +98,6 @@ export function LightwrightErrorHandling({
     onOptionsChange({
       ...importOptions,
       selectedRowsToSkip: updatedSkipList
-    })
-  }
-
-  const handleOptionChange = (option: keyof ImportOptions, value: boolean) => {
-    onOptionsChange({
-      ...importOptions,
-      [option]: value
     })
   }
 

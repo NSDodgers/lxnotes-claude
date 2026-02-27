@@ -19,8 +19,6 @@ import { cn } from '@/lib/utils'
 import type { Note, ModuleType } from '@/types'
 import { CheckSquare, Square, XSquare } from 'lucide-react'
 import {
-  formatCueNumber,
-  formatSceneSongId,
   formatChannels,
   formatPositionUnit,
   formatDepartment,
@@ -41,16 +39,6 @@ const columnHelper = createColumnHelper<Note>()
  */
 export function NotesPreviewTable({ notes, moduleType, showCheckboxes }: NotesPreviewTableProps) {
   const { lookupCue } = useCueLookup()
-
-  // Get module color for priority badges
-  const moduleColor = useMemo(() => {
-    switch (moduleType) {
-      case 'cue': return 'purple'
-      case 'work': return 'blue'
-      case 'production': return 'cyan'
-      default: return 'gray'
-    }
-  }, [moduleType])
 
   // Build cue location display (matches main table logic)
   const buildCueLocationDisplay = useCallback((note: Note): string => {

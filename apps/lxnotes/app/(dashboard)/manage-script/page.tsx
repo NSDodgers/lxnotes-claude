@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
-import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, Edit3, ArrowRight } from 'lucide-react'
+import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ScriptPage, SceneSong } from '@/types'
 
@@ -585,7 +585,7 @@ interface SceneSongItemProps {
 }
 
 function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemProps) {
-  const { updateSceneSong, deleteSceneSong, validateCueNumber, validateSceneSongCueNumber, getSortedPages, getContinuationChain, getNextPage, createContinuation, updateContinuationChain } = useScriptStore()
+  const { updateSceneSong, deleteSceneSong, validateSceneSongCueNumber, getSortedPages, getContinuationChain, getNextPage, createContinuation, updateContinuationChain } = useScriptStore()
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
 
@@ -652,7 +652,7 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
 
       // Persist to Supabase
       await onPersist()
-    } catch (error) {
+    } catch {
       // Continuation creation failed - error is non-critical
     }
   }
@@ -797,8 +797,7 @@ export default function ManageScriptPage() {
         adapter.script.setPages(currentPages),
         adapter.script.setScenesSongs(allScenesSongs),
       ])
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
+    } catch {
       // Persist failure is non-blocking; data is still in local store
     }
   }, [isDemoMode, productionId, getSortedPages, scenes, songs])

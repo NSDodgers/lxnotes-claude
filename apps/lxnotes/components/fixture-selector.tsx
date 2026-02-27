@@ -1,12 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
 import { ChannelExpressionParser } from '@/lib/services/hookup-parser'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import type { FixtureInfo, ParsedChannelExpression } from '@/types'
@@ -29,7 +27,7 @@ export function FixtureSelector({
   onChannelExpressionChange,
   className
 }: FixtureSelectorProps) {
-  const { getFixturesByChannels, getFixturesByProduction } = useFixtureStore()
+  const { getFixturesByChannels } = useFixtureStore()
   const [searchExpression, setSearchExpression] = useState(channelExpression)
   const [parsedExpression, setParsedExpression] = useState<ParsedChannelExpression | null>(null)
   const [availableFixtures, setAvailableFixtures] = useState<FixtureInfo[]>([])

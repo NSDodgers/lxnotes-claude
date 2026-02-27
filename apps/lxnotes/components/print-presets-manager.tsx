@@ -14,7 +14,7 @@ import {
   PresetFormField,
   PresetFormInput,
 } from './preset-dialog'
-import type { PrintPreset, ModuleType, FilterSortPreset, PageStylePreset } from '@/types'
+import type { PrintPreset, ModuleType } from '@/types'
 import { cn } from '@/lib/utils'
 
 const moduleDisplayNames: Record<ModuleType, string> = {

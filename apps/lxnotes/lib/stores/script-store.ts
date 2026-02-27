@@ -297,7 +297,8 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
     return { valid: true }
   },
 
-  validateSceneSongCueNumber: (cueNumber, pageId, itemId) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  validateSceneSongCueNumber: (cueNumber, pageId, _itemId) => {
     const { pages } = get()
     const cueNum = parseCueNumber(cueNumber)
 

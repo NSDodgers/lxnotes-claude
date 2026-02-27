@@ -305,7 +305,6 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
         return
       }
 
-      const range = selection.getRangeAt(0)
       const cursorPos = getCursorPosition()
       const newValue = value.slice(0, cursorPos) + text + value.slice(cursorPos)
       updateValue(newValue)
@@ -440,7 +439,7 @@ export const DroppableTextarea = forwardRef<HTMLDivElement, DroppableTextareaPro
       // Allow normal text editing
     }, [insertAtCursor])
 
-    const handleClick = useCallback((e: React.MouseEvent) => {
+    const handleClick = useCallback(() => {
       // Focus the contentEditable div
       if (contentRef.current && !disabled) {
         contentRef.current.focus()

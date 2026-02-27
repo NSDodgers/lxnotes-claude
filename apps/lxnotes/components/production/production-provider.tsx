@@ -116,7 +116,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
 
         if (user) {
           // Check if super admin
-          const { data: userData } = await supabase
+          await supabase
             .from('users')
             .select('email')
             .eq('id', user.id)

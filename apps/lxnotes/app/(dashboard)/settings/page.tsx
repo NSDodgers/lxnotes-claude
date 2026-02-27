@@ -28,7 +28,7 @@ export default function SettingsPage() {
 
   // Get production context (null if not in production mode)
   const productionContext = useProductionOptional()
-  const { isSuperAdmin } = useAuthContext()
+  useAuthContext()
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Debounced persist to DB (for text inputs)

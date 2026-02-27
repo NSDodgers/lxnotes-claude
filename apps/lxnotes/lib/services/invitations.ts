@@ -234,13 +234,13 @@ export async function acceptPendingInvitations(email: string, userId: string): P
 
     try {
       adminClient = createAdminClient()
-    } catch (e) {
+    } catch {
       console.warn('Skipping invitation check: Supabase Admin client could not be created (missing service key?)')
       return
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (adminClient.rpc as any)('accept_pending_invitations_for_user', {
+    const { error } = await (adminClient.rpc as any)('accept_pending_invitations_for_user', {
       p_user_id: userId,
     }) as { data: AcceptPendingResult | null; error: Error | null }
 
@@ -365,7 +365,7 @@ export async function cleanupExpiredInvitations(): Promise<number> {
 
     try {
       adminClient = createAdminClient()
-    } catch (e) {
+    } catch {
       console.warn('Skipping invitation cleanup: Supabase Admin client could not be created')
       return 0
     }

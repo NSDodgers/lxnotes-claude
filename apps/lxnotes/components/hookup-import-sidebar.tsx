@@ -13,7 +13,6 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet'
-import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { HookupParser } from '@/lib/services/hookup-parser'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
@@ -70,7 +69,7 @@ export function HookupImportSidebar({
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
   const { isAuthenticated } = useAuthContext()
-  const { uploadFixtures, isProcessing, getFixturesByProduction } = useFixtureStore()
+  const { uploadFixtures, getFixturesByProduction } = useFixtureStore()
 
   const [state, setState] = useState<UploadState>({
     isDragOver: false,
@@ -291,7 +290,6 @@ export function HookupImportSidebar({
         if (newLwids.size > 0) {
           // Calculate how many LWIDs are different
           const intersectionSize = new Set([...existingLwids].filter(lwid => newLwids.has(lwid))).size
-          const unionSize = new Set([...existingLwids, ...newLwids]).size
           const totalLwids = Math.max(existingLwids.size, newLwids.size)
 
           // Calculate percentage of difference

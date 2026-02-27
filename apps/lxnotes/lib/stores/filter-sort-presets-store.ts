@@ -133,7 +133,8 @@ export const useFilterSortPresetsStore = create<FilterSortPresetsState>()(
       ),
       skipHydration: true,
       // Migrate old presets: filter out system presets (they're now computed)
-      migrate: (persistedState: unknown, version: number) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      migrate: (persistedState: unknown, _version: number) => {
         const state = persistedState as { presets?: FilterSortPreset[] }
         if (state?.presets) {
           // Remove system presets from stored data (they'll be computed dynamically)

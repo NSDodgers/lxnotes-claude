@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
-import { Upload, FileText, AlertCircle, CheckCircle, X } from 'lucide-react'
+import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useAuthContext } from '@/components/auth/auth-provider'
@@ -14,7 +14,6 @@ import {
   DialogScrollableContent,
   DialogStickyFooter,
 } from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
 import { HookupParser } from '@/lib/services/hookup-parser'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
@@ -57,7 +56,7 @@ export function HookupUploadDialog({
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
   const { isAuthenticated } = useAuthContext()
-  const { uploadFixtures, isProcessing, getFixturesByProduction } = useFixtureStore()
+  const { uploadFixtures, getFixturesByProduction } = useFixtureStore()
   
   const [state, setState] = useState<UploadState>({
     isDragOver: false,

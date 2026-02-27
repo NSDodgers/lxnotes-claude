@@ -48,7 +48,6 @@ const warnOnce = (storageName: string, storageType: StorageType, error: unknown)
     return
   }
   warnedStorages.add(key)
-  // eslint-disable-next-line no-console
   console.warn(`[storage] Falling back to in-memory storage for "${storageName}" (${storageType}Storage)`, error)
 }
 

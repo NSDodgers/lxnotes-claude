@@ -25,7 +25,6 @@ import {
 } from '@dnd-kit/sortable'
 import {
   useSortable,
-  SortableContext as SortableContextType,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -79,7 +78,7 @@ function SortableItem({ id, position, index }: SortableItemProps) {
 
 export function PositionManager() {
   const { name: productionName } = useCurrentProductionStore()
-  const { getOrderedPositions, updateOrder, clearOrder, orders } = usePositionStore()
+  const { getOrderedPositions, updateOrder, orders } = usePositionStore()
   const { getUniquePositions, lastPositionUpdate } = useFixtureStore()
 
   // Use a hardcoded production ID for demo - in real app this would come from context
@@ -174,11 +173,6 @@ export function PositionManager() {
       setOrderedPositions(csvOrdered)
       updateOrder(productionId, csvOrdered, 'csv')
     }
-  }
-
-  const handleClearOrder = () => {
-    clearOrder(productionId)
-    setOrderedPositions([])
   }
 
   const exportOrder = () => {

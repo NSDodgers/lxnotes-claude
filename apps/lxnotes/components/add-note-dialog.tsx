@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { cn } from '@/lib/utils'
 import type { Note, ModuleType } from '@/types'
 import { Button } from '@/components/ui/button'
 import { useCueLookup } from '@/lib/services/cue-lookup'
@@ -83,7 +82,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   const { lookupCue } = useCueLookup()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
-  const { linkFixturesToWorkNote, getLinkedFixtures } = useFixtureStore()
+  const { getLinkedFixtures } = useFixtureStore()
 
   const [formData, setFormData] = useState({
     title: '',
@@ -187,14 +186,6 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   // Get custom types and priorities from stores
   const availableTypes = getTypes(moduleType)
   const availablePriorities = getPriorities(moduleType)
-
-  const getModuleColor = () => {
-    switch (moduleType) {
-      case 'cue': return 'modules-cue'
-      case 'work': return 'modules-work'
-      case 'production': return 'modules-production'
-    }
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

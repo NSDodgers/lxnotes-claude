@@ -197,7 +197,7 @@ export function generateSystemPrintPresets(
   const baseDate = new Date()
   const productionId = 'prod-1'
 
-  return filterPresets.map((filterPreset, index) => {
+  return filterPresets.map((filterPreset) => {
     // Extract suffix from filter preset ID for deterministic print preset ID
     const idSuffix = filterPreset.id.replace(`sys-filter-${moduleType}-`, '')
 

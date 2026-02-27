@@ -5,7 +5,7 @@ import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 /**
  * Custom sort function for priority that uses the sortOrder from custom priorities store
  */
-export const prioritySortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
+export const prioritySortFn: SortingFn<Note> = (rowA, rowB) => {
   const { getPriorities } = useCustomPrioritiesStore.getState()
   const priorities = getPriorities('cue')
 
@@ -21,7 +21,7 @@ export const prioritySortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
 /**
  * Custom sort function for cue numbers (numeric sorting)
  */
-export const cueNumberSortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
+export const cueNumberSortFn: SortingFn<Note> = (rowA, rowB) => {
   const cueA = rowA.original.cueNumber
   const cueB = rowB.original.cueNumber
 
@@ -42,7 +42,7 @@ export const cueNumberSortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
 /**
  * Date sorting function (works with Date objects or ISO strings)
  */
-export const dateSortFn: SortingFn<Note> = (rowA, rowB, columnId) => {
+export const dateSortFn: SortingFn<Note> = (rowA, rowB) => {
   const dateA = rowA.original.createdAt
   const dateB = rowB.original.createdAt
 

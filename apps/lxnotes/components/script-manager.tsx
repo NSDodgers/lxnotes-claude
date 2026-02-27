@@ -31,7 +31,7 @@ interface ScriptItemProps {
   onPersist: () => Promise<void>
 }
 
-function ScriptItem({ page, productionId, isDemoMode, onPersist }: ScriptItemProps) {
+function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   const {
     getPageScenes,
     getPageSongs,
@@ -538,7 +538,7 @@ interface SceneSongItemProps {
 }
 
 function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemProps) {
-  const { updateSceneSong, deleteSceneSong, validateCueNumber, validateSceneSongCueNumber, getSortedPages, getContinuationChain, getNextPage, createContinuation, updateContinuationChain } = useScriptStore()
+  const { updateSceneSong, deleteSceneSong, validateSceneSongCueNumber, getSortedPages, getContinuationChain, getNextPage, createContinuation, updateContinuationChain } = useScriptStore()
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
 

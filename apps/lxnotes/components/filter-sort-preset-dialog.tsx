@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 import { CheckSquare, Square } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -41,7 +41,7 @@ export function FilterSortPresetDialog({
   onProductionSave,
   productionId,
 }: FilterSortPresetDialogProps) {
-  const { addPreset, updatePreset, presets } = useFilterSortPresetsStore()
+  const { addPreset, updatePreset } = useFilterSortPresetsStore()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
 

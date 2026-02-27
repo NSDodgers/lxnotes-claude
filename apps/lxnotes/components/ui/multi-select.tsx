@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Check, ChevronDown, X, Search } from 'lucide-react'
+import { ChevronDown, X, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -78,10 +78,6 @@ export function MultiSelect({
   const isAllVisibleSelected = visibleOptions.length > 0 && visibleSelectedCount === visibleOptions.length
   const isIndeterminateVisible = visibleSelectedCount > 0 && visibleSelectedCount < visibleOptions.length
   
-  // Overall selection state for display
-  const isAllSelected = selected.length === options.length
-  const isIndeterminate = selected.length > 0 && selected.length < options.length
-
   const getDisplayText = () => {
     if (selected.length === 0) {
       return placeholder

@@ -82,12 +82,6 @@ export const useFixtureStore = create<FixtureState>()(
         // Recalculate all aggregates for this production
         // Find work notes that are linked to fixtures in this production
         const affectedWorkNotes = state.workNoteLinks
-          .filter(link => {
-            // Find if the linked fixture belongs to this production via the *id* prefix or by checking the *new* list?
-            // The link has fixtureInfoId. We should check if that ID exists in the new list OR existed in the old list for this prod.
-            // Simplified: check all links. If the linked fixture is in this production, update key.
-            return true
-          })
           .map(link => link.workNoteId) // Optimization: could be more specific but this is safe
 
         const uniqueWorkNotes = [...new Set(affectedWorkNotes)]
@@ -189,7 +183,7 @@ export const useFixtureStore = create<FixtureState>()(
 
           // Deactivate missing fixtures if requested
           if (deactivateMissing) {
-            existingFixtures.forEach((fixture, index) => {
+            existingFixtures.forEach((fixture) => {
               if (!processedLwids.has(fixture.lwid) && fixture.isActive) {
                 const globalIndex = updatedFixtures.findIndex(f => f.id === fixture.id)
                 if (globalIndex >= 0) {

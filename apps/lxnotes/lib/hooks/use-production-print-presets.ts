@@ -12,21 +12,7 @@ export function useProductionPrintPresets(moduleType: ModuleType) {
     const productionContext = useProductionOptional()
     const store = usePrintPresetsStore()
 
-    // Get system defaults for this module
-    const systemPresets = useMemo(() => {
-        return store.getSystemDefaults().filter(p => p.moduleType === moduleType)
-        // Also filter by what generateSystemPrintPresets returns for this module
-        // The store.getSystemDefaults returns ALL system presets. 
-        // check if we need more specific filtering. 
-        // Actually computeSystemPrintPresets in store does specific filtering.
-        // But store.getSystemDefaults() uses flatMap.
-        // Let's use the same logic as the store uses for getting system presets for a module.
-        // But the store doesn't expose `computeSystemPrintPresets`.
-        // It exposes `getPresetsByModule` which returns logic.
-        // We can filter `getSystemDefaults()` result.
-    }, [store, moduleType])
-
-    // Re-filter correctly: 
+    // Re-filter correctly:
     // Store's getSystemDefaults() returns ALL defaults.
     // We want defaults for THIS module.
     const moduleSystemPresets = useMemo(() => {

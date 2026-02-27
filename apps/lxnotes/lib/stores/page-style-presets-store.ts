@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { PageStylePreset, ModuleType } from '@/types'
+import type { PageStylePreset } from '@/types'
 
 interface PageStylePresetsState {
   presets: PageStylePreset[]
@@ -141,7 +141,8 @@ export const usePageStylePresetsStore = create<PageStylePresetsState>()(
         )
       ),
       skipHydration: true,
-      migrate: (persistedState: unknown, version: number) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      migrate: (persistedState: unknown, _version: number) => {
         const state = persistedState as { presets: PageStylePreset[] }
         const systemDefaults = getSystemDefaults()
         const systemDefaultIds = new Set(systemDefaults.map(p => p.id))

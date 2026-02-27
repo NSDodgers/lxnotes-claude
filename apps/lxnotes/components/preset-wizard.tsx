@@ -45,13 +45,6 @@ interface PresetWizardProps {
   onBack: () => void
 }
 
-const moduleDisplayNames: Record<ModuleType, string> = {
-  cue: 'Cue Notes',
-  work: 'Work Notes',
-  production: 'Production Notes',
-  actor: 'Actor Notes',
-}
-
 // Step definitions
 const PRINT_STEPS = [
   'Name',
@@ -112,8 +105,8 @@ export function PresetWizard({
   const [currentStep, setCurrentStep] = useState(0)
   const productionId = useSafeProductionId()
 
-  const { savePreset: saveFilterPreset, presets: filterPresets } = useProductionFilterSortPresets(moduleType)
-  const { savePreset: savePageStylePreset, presets: pageStylePresets } = useProductionPageStylePresets()
+  const { savePreset: saveFilterPreset } = useProductionFilterSortPresets(moduleType)
+  const { savePreset: savePageStylePreset } = useProductionPageStylePresets()
   const { savePreset: saveEmailPreset } = useProductionEmailPresets(moduleType)
   const { savePreset: savePrintPreset } = useProductionPrintPresets(moduleType)
 
