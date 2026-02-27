@@ -20,10 +20,11 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useInlineEditing } from '@/hooks/use-inline-editing'
 import type { EditableColumn } from '@/hooks/use-inline-editing'
 import { usePathname } from 'next/navigation'
-import { Plus, Search, Wrench, Upload, Mail, Printer, Database, ArrowUpDown, RotateCcw } from 'lucide-react'
+import { Plus, Search, Wrench, Upload, Mail, Printer, Database, ArrowUpDown, RotateCcw, ChevronDown } from 'lucide-react'
 import type { Note, NoteStatus, FilterSortPreset } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
@@ -115,6 +116,7 @@ export default function WorkNotesPage() {
   const [editingNote, setEditingNote] = useState<Note | null>(null)
   const [isEmailViewOpen, setIsEmailViewOpen] = useState(false)
   const [isPrintViewOpen, setIsPrintViewOpen] = useState(false)
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const resetColumnsRef = useRef<(() => void) | null>(null)
   const inlineEditing = useInlineEditing('work')
@@ -491,25 +493,59 @@ export default function WorkNotesPage() {
             </div>
           </div>
 
-          {/* Quick Add Bar */}
+          {/* Quick Add Bar — Desktop: inline buttons, Mobile: popover */}
           {filterStatus === 'todo' && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-muted-foreground text-sm">Quick Add:</span>
-              {availableTypes.map(type => (
-                <Button
-                  key={type.id}
-                  onClick={() => openQuickAdd(type.value)}
-                  size="xs"
-                  style={{
-                    backgroundColor: type.color,
-                    borderColor: type.color
-                  }}
-                  className="text-white hover:opacity-80 transition-opacity"
-                >
-                  <Plus className="h-3 w-3" />{type.label}
-                </Button>
-              ))}
-            </div>
+            <>
+              <div className="hidden sm:flex items-center gap-2 flex-wrap">
+                <span className="text-muted-foreground text-sm">Quick Add:</span>
+                {availableTypes.map(type => (
+                  <Button
+                    key={type.id}
+                    onClick={() => openQuickAdd(type.value)}
+                    size="xs"
+                    style={{
+                      backgroundColor: type.color,
+                      borderColor: type.color
+                    }}
+                    className="text-white hover:opacity-80 transition-opacity"
+                  >
+                    <Plus className="h-3 w-3" />{type.label}
+                  </Button>
+                ))}
+              </div>
+              <div className="flex sm:hidden">
+                <Popover open={isQuickAddOpen} onOpenChange={setIsQuickAddOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="secondary" size="sm">
+                      <Plus className="h-4 w-4" />
+                      Quick Add
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-auto max-w-[calc(100vw-2rem)]">
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableTypes.map(type => (
+                        <Button
+                          key={type.id}
+                          onClick={() => {
+                            openQuickAdd(type.value)
+                            setIsQuickAddOpen(false)
+                          }}
+                          size="xs"
+                          style={{
+                            backgroundColor: type.color,
+                            borderColor: type.color
+                          }}
+                          className="text-white hover:opacity-80 transition-opacity"
+                        >
+                          <Plus className="h-3 w-3" />{type.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </>
           )}
         </div>
 
