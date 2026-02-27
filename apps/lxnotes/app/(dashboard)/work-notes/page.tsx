@@ -336,7 +336,7 @@ export default function WorkNotesPage() {
         {/* Sticky Header Container */}
         <div className="flex-none space-y-6 pb-4">
           {/* Header */}
-          <div className="grid grid-cols-[auto_1fr_auto] items-center border-b border-bg-tertiary pb-6">
+          <div className="grid grid-cols-[auto_1fr_auto] items-start border-b border-bg-tertiary pb-6 min-w-0">
             {/* Left: Production Info */}
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
@@ -366,9 +366,9 @@ export default function WorkNotesPage() {
             </div>
 
             {/* Right: Action Buttons */}
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-end gap-2 min-w-0">
               {/* Row 1: View/Export Actions */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 flex-wrap justify-end">
                 <UndoRedoButtons />
                 <div className="h-6 w-px bg-border" />
                 <Button
@@ -401,7 +401,7 @@ export default function WorkNotesPage() {
                 </Button>
               </div>
               {/* Row 2: Modification Actions */}
-              <div className="flex gap-3">
+              <div className="flex gap-2 flex-wrap justify-end">
                 <Button
                   onClick={() => setIsLightwrightDialogOpen(true)}
                   variant="outline"

@@ -1219,7 +1219,7 @@ export default function ProductionNotesPage() {
         {/* Sticky Header Container */}
         <div className="flex-none space-y-6 pb-4">
           {/* Header */}
-          <div className="grid grid-cols-[auto_1fr_auto] items-center border-b border-bg-tertiary pb-6">
+          <div className="grid grid-cols-[auto_1fr_auto] items-start border-b border-bg-tertiary pb-6 min-w-0">
             {/* Left: Production Info */}
             <div className="flex items-center gap-4">
               <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
@@ -1249,7 +1249,7 @@ export default function ProductionNotesPage() {
             </div>
 
             {/* Right: Action Buttons */}
-            <div className="flex justify-end items-center gap-3">
+            <div className="flex justify-end items-center gap-2 flex-wrap min-w-0">
               <UndoRedoButtons />
               <div className="h-6 w-px bg-border" />
               <Button
