@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import type { ModuleType, PrintPreset, FilterSortPreset, PageStylePreset, Note } from '@/types'
+import type { ModuleType, PrintPreset, EmailMessagePreset, FilterSortPreset, PageStylePreset, Note } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { PlaceholderData } from '@/lib/utils/placeholders'
@@ -91,7 +91,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
 
   const [generatingPresetId, setGeneratingPresetId] = useState<string | null>(null)
 
-  const handleSelectPreset = async (preset: PrintPreset) => {
+  const handleSelectPreset = async (preset: PrintPreset | EmailMessagePreset) => {
     const printPreset = preset as PrintPreset
     setGeneratingPresetId(printPreset.id)
     setGenerateError(null)

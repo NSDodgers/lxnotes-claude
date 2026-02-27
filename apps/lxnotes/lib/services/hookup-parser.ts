@@ -114,6 +114,7 @@ export class HookupParser {
         // Process chunk synchronously, then yield control
         chunk.forEach((row, chunkIndex) => {
           const index = i + chunkIndex
+          const rowNumber = index + 1
 
           try {
             // Extract fields
