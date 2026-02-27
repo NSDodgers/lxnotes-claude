@@ -3,9 +3,13 @@ import { Note, NoteStatus } from '@/types'
 import { ActionCell } from '../cells/action-cell'
 import { PriorityCell } from '../cells/priority-cell'
 import { TypeCell } from '../cells/type-cell'
+import { EditableTextCell } from '../cells/editable-text-cell'
+import { EditableTypeCell } from '../cells/editable-type-cell'
+import { EditablePriorityCell } from '../cells/editable-priority-cell'
 import { dateSortFn } from '../sorting/cue-sort-functions'
 import { SortingFn } from '@tanstack/react-table'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
 /**
  * Custom sort function for priority specific to production notes
@@ -25,6 +29,11 @@ const prioritySortFn: SortingFn<Note> = (rowA, rowB) => {
 
 interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
+  inlineEditing?: InlineEditingState & {
+    onSave: (noteId: string, column: EditableColumn, value: string) => void
+    onAdvance: (column: EditableColumn) => void
+    onCancel: (noteId: string, isNewNote: boolean) => void
+  }
 }
 
 /**
@@ -44,7 +53,7 @@ function formatDate(date: Date): string {
 /**
  * Creates column definitions for the production notes table
  */
-export function createProductionColumns({ onStatusUpdate }: CreateColumnsOptions): ColumnDef<Note>[] {
+export function createProductionColumns({ onStatusUpdate, inlineEditing }: CreateColumnsOptions): ColumnDef<Note>[] {
   return [
     {
       id: 'actions',
@@ -59,7 +68,24 @@ export function createProductionColumns({ onStatusUpdate }: CreateColumnsOptions
     {
       accessorKey: 'priority',
       header: 'Priority',
-      cell: ({ row }) => <PriorityCell note={row.original} moduleType="production" />,
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'priority'
+          return (
+            <EditablePriorityCell
+              note={note}
+              moduleType="production"
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+            />
+          )
+        }
+        return <PriorityCell note={note} moduleType="production" />
+      },
       sortingFn: prioritySortFn,
       enableSorting: true,
       enableMultiSort: true,
@@ -70,7 +96,24 @@ export function createProductionColumns({ onStatusUpdate }: CreateColumnsOptions
     {
       accessorKey: 'type',
       header: 'Type',
-      cell: ({ row }) => <TypeCell note={row.original} moduleType="production" />,
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'type'
+          return (
+            <EditableTypeCell
+              note={note}
+              moduleType="production"
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+            />
+          )
+        }
+        return <TypeCell note={note} moduleType="production" />
+      },
       sortingFn: 'text',
       enableSorting: true,
       enableMultiSort: true,
@@ -81,9 +124,26 @@ export function createProductionColumns({ onStatusUpdate }: CreateColumnsOptions
     {
       accessorKey: 'title',
       header: 'Note',
-      cell: ({ getValue }) => (
-        <div className="font-medium max-w-md">{getValue() as string}</div>
-      ),
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'title'
+          return (
+            <EditableTextCell
+              note={note}
+              column="title"
+              value={note.title}
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+              placeholder="Type note..."
+            />
+          )
+        }
+        return <div className="font-medium max-w-md">{note.title}</div>
+      },
       enableSorting: false,
       enableResizing: true,
       size: 400,

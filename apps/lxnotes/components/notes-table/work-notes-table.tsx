@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useCallback } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -21,19 +21,30 @@ import type { Note, NoteStatus } from '@/types'
 import { createWorkColumns } from './columns/work-columns'
 import { ColumnResizeHandle } from './column-resize-handle'
 import { useColumnSizing } from '@/hooks/use-column-sizing'
+import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
+
+const EDITABLE_COLUMNS = new Set<string>(['title', 'type', 'priority'])
 
 interface WorkNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit?: (note: Note) => void
   onMountResetFn?: (resetFn: () => void) => void
+  onQuickAdd?: () => Promise<Note>
+  inlineEditing?: InlineEditingState & {
+    startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
+    stopEditing: () => void
+    onSave: (noteId: string, column: EditableColumn, value: string) => void
+    onAdvance: (column: EditableColumn) => void
+    onCancel: (noteId: string, isNewNote: boolean) => void
+  }
 }
 
-export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }: WorkNotesTableProps) {
+export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, inlineEditing }: WorkNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
-    () => createWorkColumns({ onStatusUpdate }),
-    [onStatusUpdate]
+    () => createWorkColumns({ onStatusUpdate, inlineEditing }),
+    [onStatusUpdate, inlineEditing]
   )
 
   // Column sizing state with localStorage persistence
@@ -68,6 +79,22 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }
     },
     onColumnSizingChange,
   })
+
+  const handleCellClick = useCallback((note: Note, columnId: string, e: React.MouseEvent) => {
+    if (inlineEditing && EDITABLE_COLUMNS.has(columnId)) {
+      e.stopPropagation()
+      inlineEditing.startEditing(note.id, columnId as EditableColumn)
+    } else if (onEdit) {
+      onEdit(note)
+    }
+  }, [inlineEditing, onEdit])
+
+  const handleQuickAddClick = useCallback(async () => {
+    if (onQuickAdd && inlineEditing) {
+      const newNote = await onQuickAdd()
+      inlineEditing.startEditing(newNote.id, 'title', true)
+    }
+  }, [onQuickAdd, inlineEditing])
 
   /**
    * Renders the sort indicator for a header
@@ -141,8 +168,10 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className={onEdit ? 'cursor-pointer' : ''}
-                  onClick={onEdit ? () => onEdit(row.original) : undefined}
+                  className={cn(
+                    (onEdit || inlineEditing) && 'cursor-pointer',
+                    inlineEditing?.editingNoteId === row.original.id && 'bg-muted/50'
+                  )}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
@@ -151,6 +180,7 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }
                         width: cell.column.getSize(),
                       }}
                       suppressHydrationWarning
+                      onClick={(e) => handleCellClick(row.original, cell.column.id, e)}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
@@ -169,6 +199,17 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn }
             )}
           </TableBody>
         </Table>
+        {onQuickAdd && (
+          <div
+            className="min-h-[200px] flex-1 cursor-pointer group"
+            onClick={handleQuickAddClick}
+            data-testid="work-quick-add-zone"
+          >
+            <div className="flex items-center justify-center h-full min-h-[200px] text-muted-foreground/0 group-hover:text-muted-foreground/50 transition-colors">
+              Click to add note...
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

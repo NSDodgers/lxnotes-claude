@@ -7,6 +7,8 @@ import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useInlineEditing } from '@/hooks/use-inline-editing'
+import type { EditableColumn } from '@/hooks/use-inline-editing'
 import { usePathname } from 'next/navigation'
 import { Plus, Search, FileText, Mail, Printer, RotateCcw } from 'lucide-react'
 import type { Note, NoteStatus, FilterSortPreset } from '@/types'
@@ -1040,6 +1042,7 @@ export default function ProductionNotesPage() {
   const [isPrintViewOpen, setIsPrintViewOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const resetColumnsRef = useRef<(() => void) | null>(null)
+  const inlineEditing = useInlineEditing('production')
 
   // Handle client-side hydration for stores with skipHydration: true
   useEffect(() => {
@@ -1106,6 +1109,44 @@ export default function ProductionNotesPage() {
   const updateNoteStatus = async (noteId: string, status: NoteStatus) => {
     await notesContext.updateNote(noteId, { status })
   }
+
+  const handleQuickAdd = useCallback(async () => {
+    const prodId = productionContext?.productionId ?? 'demo-production'
+    const note = await notesContext.addNote({
+      moduleType: 'production',
+      title: '',
+      status: 'todo',
+      priority: 'medium',
+      type: 'lighting',
+      productionId: prodId,
+    } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
+    return note
+  }, [notesContext, productionContext?.productionId])
+
+  const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
+    const updates: Partial<Note> = {}
+    if (column === 'title') updates.title = value
+    else if (column === 'type') updates.type = value
+    else if (column === 'priority') updates.priority = value
+    await notesContext.updateNote(noteId, updates)
+  }, [notesContext])
+
+  const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
+    if (isNewNote) {
+      const note = notesContext.getNotes('production').find(n => n.id === noteId)
+      if (note && !note.title.trim()) {
+        await notesContext.deleteNote(noteId)
+      }
+    }
+    inlineEditing.stopEditing()
+  }, [notesContext, inlineEditing])
+
+  const inlineEditingProps = useMemo(() => ({
+    ...inlineEditing,
+    onSave: handleInlineSave,
+    onAdvance: inlineEditing.moveToNextCell,
+    onCancel: handleInlineCancel,
+  }), [inlineEditing, handleInlineSave, handleInlineCancel])
 
   const handleEditNote = (note: Note) => {
     setEditingNote(note)
@@ -1342,6 +1383,8 @@ export default function ProductionNotesPage() {
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
             onEdit={handleEditNote}
+            onQuickAdd={handleQuickAdd}
+            inlineEditing={inlineEditingProps}
             onMountResetFn={(resetFn) => {
               resetColumnsRef.current = resetFn
             }}

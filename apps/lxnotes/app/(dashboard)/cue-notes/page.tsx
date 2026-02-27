@@ -11,6 +11,8 @@ import { AddNoteDialog } from '@/components/add-note-dialog'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useInlineEditing } from '@/hooks/use-inline-editing'
+import type { EditableColumn } from '@/hooks/use-inline-editing'
 import { usePathname } from 'next/navigation'
 import { Plus, Search, Lightbulb, FileText, Mail, Printer, RotateCcw } from 'lucide-react'
 import type { Note, NoteStatus, FilterSortPreset } from '@/types'
@@ -88,6 +90,7 @@ export default function CueNotesPage() {
   const [isScriptManagerOpen, setIsScriptManagerOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const resetColumnsRef = useRef<(() => void) | null>(null)
+  const inlineEditing = useInlineEditing('cue')
 
   // Handle client-side hydration for stores with skipHydration: true
   useEffect(() => {
@@ -171,6 +174,45 @@ export default function CueNotesPage() {
   const updateNoteStatus = async (noteId: string, status: NoteStatus) => {
     await notesContext.updateNote(noteId, { status })
   }
+
+  const handleQuickAdd = useCallback(async () => {
+    const productionId = productionContext?.productionId ?? 'demo-production'
+    const note = await notesContext.addNote({
+      moduleType: 'cue',
+      title: '',
+      status: 'todo',
+      priority: 'medium',
+      type: 'cue',
+      productionId,
+    } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
+    return note
+  }, [notesContext, productionContext?.productionId])
+
+  const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
+    const updates: Partial<Note> = {}
+    if (column === 'title') updates.title = value
+    else if (column === 'type') updates.type = value
+    else if (column === 'priority') updates.priority = value
+    else if (column === 'cueNumber') updates.cueNumber = value
+    await notesContext.updateNote(noteId, updates)
+  }, [notesContext])
+
+  const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
+    if (isNewNote) {
+      const note = notesContext.getNotes('cue').find(n => n.id === noteId)
+      if (note && !note.title.trim()) {
+        await notesContext.deleteNote(noteId)
+      }
+    }
+    inlineEditing.stopEditing()
+  }, [notesContext, inlineEditing])
+
+  const inlineEditingProps = useMemo(() => ({
+    ...inlineEditing,
+    onSave: handleInlineSave,
+    onAdvance: inlineEditing.moveToNextCell,
+    onCancel: handleInlineCancel,
+  }), [inlineEditing, handleInlineSave, handleInlineCancel])
 
   // Register add-note callback for tablet top bar
   const tabletAddNote = useCallback(() => {
@@ -391,6 +433,8 @@ export default function CueNotesPage() {
             onMountResetFn={(resetFn) => {
               resetColumnsRef.current = resetFn
             }}
+            onQuickAdd={handleQuickAdd}
+            inlineEditing={inlineEditingProps}
           />
 
           {filteredNotes.length === 0 && (

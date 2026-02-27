@@ -3,11 +3,20 @@ import { Note, NoteStatus } from '@/types'
 import { ActionCell } from '../cells/action-cell'
 import { PriorityCell } from '../cells/priority-cell'
 import { TypeCell } from '../cells/type-cell'
+import { EditableTextCell } from '../cells/editable-text-cell'
+import { EditableTypeCell } from '../cells/editable-type-cell'
+import { EditablePriorityCell } from '../cells/editable-priority-cell'
 import { FixtureAggregateCell } from '../cells/fixture-aggregate-cell'
 import { prioritySortFn, positionSortFn, channelsSortFn, dateSortFn } from '../sorting/work-sort-functions'
+import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
 interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
+  inlineEditing?: InlineEditingState & {
+    onSave: (noteId: string, column: EditableColumn, value: string) => void
+    onAdvance: (column: EditableColumn) => void
+    onCancel: (noteId: string, isNewNote: boolean) => void
+  }
 }
 
 /**
@@ -27,7 +36,7 @@ function formatDate(date: Date): string {
 /**
  * Creates column definitions for the work notes table
  */
-export function createWorkColumns({ onStatusUpdate }: CreateColumnsOptions): ColumnDef<Note>[] {
+export function createWorkColumns({ onStatusUpdate, inlineEditing }: CreateColumnsOptions): ColumnDef<Note>[] {
   return [
     {
       id: 'actions',
@@ -42,7 +51,24 @@ export function createWorkColumns({ onStatusUpdate }: CreateColumnsOptions): Col
     {
       accessorKey: 'priority',
       header: 'Priority',
-      cell: ({ row }) => <PriorityCell note={row.original} moduleType="work" />,
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'priority'
+          return (
+            <EditablePriorityCell
+              note={note}
+              moduleType="work"
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+            />
+          )
+        }
+        return <PriorityCell note={note} moduleType="work" />
+      },
       sortingFn: prioritySortFn,
       enableSorting: true,
       enableMultiSort: true,
@@ -53,7 +79,24 @@ export function createWorkColumns({ onStatusUpdate }: CreateColumnsOptions): Col
     {
       accessorKey: 'type',
       header: 'Type',
-      cell: ({ row }) => <TypeCell note={row.original} moduleType="work" />,
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'type'
+          return (
+            <EditableTypeCell
+              note={note}
+              moduleType="work"
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+            />
+          )
+        }
+        return <TypeCell note={note} moduleType="work" />
+      },
       sortingFn: 'text',
       enableSorting: true,
       enableMultiSort: true,
@@ -127,9 +170,26 @@ export function createWorkColumns({ onStatusUpdate }: CreateColumnsOptions): Col
     {
       accessorKey: 'title',
       header: 'Note',
-      cell: ({ getValue }) => (
-        <div className="font-medium max-w-md">{getValue() as string}</div>
-      ),
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'title'
+          return (
+            <EditableTextCell
+              note={note}
+              column="title"
+              value={note.title}
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+              placeholder="Type note..."
+            />
+          )
+        }
+        return <div className="font-medium max-w-md">{note.title}</div>
+      },
       enableSorting: false,
       enableResizing: true,
       size: 300,

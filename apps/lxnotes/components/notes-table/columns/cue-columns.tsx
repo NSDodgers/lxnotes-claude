@@ -3,11 +3,20 @@ import { Note, NoteStatus } from '@/types'
 import { ActionCell } from '../cells/action-cell'
 import { PriorityCell } from '../cells/priority-cell'
 import { TypeCell } from '../cells/type-cell'
+import { EditableTextCell } from '../cells/editable-text-cell'
+import { EditableTypeCell } from '../cells/editable-type-cell'
+import { EditablePriorityCell } from '../cells/editable-priority-cell'
 import { ScriptLookupCell } from '../cells/script-lookup-cell'
 import { prioritySortFn, cueNumberSortFn, dateSortFn } from '../sorting/cue-sort-functions'
+import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
 interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
+  inlineEditing?: InlineEditingState & {
+    onSave: (noteId: string, column: EditableColumn, value: string) => void
+    onAdvance: (column: EditableColumn) => void
+    onCancel: (noteId: string, isNewNote: boolean) => void
+  }
 }
 
 /**
@@ -27,7 +36,7 @@ function formatDate(date: Date): string {
 /**
  * Creates column definitions for the cue notes table
  */
-export function createCueColumns({ onStatusUpdate }: CreateColumnsOptions): ColumnDef<Note>[] {
+export function createCueColumns({ onStatusUpdate, inlineEditing }: CreateColumnsOptions): ColumnDef<Note>[] {
   return [
     {
       id: 'actions',
@@ -42,7 +51,24 @@ export function createCueColumns({ onStatusUpdate }: CreateColumnsOptions): Colu
     {
       accessorKey: 'priority',
       header: 'Priority',
-      cell: ({ row }) => <PriorityCell note={row.original} moduleType="cue" />,
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'priority'
+          return (
+            <EditablePriorityCell
+              note={note}
+              moduleType="cue"
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+            />
+          )
+        }
+        return <PriorityCell note={note} moduleType="cue" />
+      },
       sortingFn: prioritySortFn,
       enableSorting: true,
       enableMultiSort: true,
@@ -53,7 +79,24 @@ export function createCueColumns({ onStatusUpdate }: CreateColumnsOptions): Colu
     {
       accessorKey: 'type',
       header: 'Type',
-      cell: ({ row }) => <TypeCell note={row.original} moduleType="cue" />,
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'type'
+          return (
+            <EditableTypeCell
+              note={note}
+              moduleType="cue"
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+            />
+          )
+        }
+        return <TypeCell note={note} moduleType="cue" />
+      },
       sortingFn: 'text',
       enableSorting: true,
       enableMultiSort: true,
@@ -65,9 +108,25 @@ export function createCueColumns({ onStatusUpdate }: CreateColumnsOptions): Colu
       id: 'cueNumber',
       accessorFn: (row) => row.cueNumber,
       header: 'Cue #',
-      cell: ({ getValue }) => {
-        const value = getValue() as string | undefined
-        return <span className="text-sm">{value || '-'}</span>
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'cueNumber'
+          return (
+            <EditableTextCell
+              note={note}
+              column="cueNumber"
+              value={note.cueNumber || ''}
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+              placeholder="Cue #"
+            />
+          )
+        }
+        return <span className="text-sm">{note.cueNumber || '-'}</span>
       },
       sortingFn: cueNumberSortFn,
       enableSorting: true,
@@ -79,9 +138,26 @@ export function createCueColumns({ onStatusUpdate }: CreateColumnsOptions): Colu
     {
       accessorKey: 'title',
       header: 'Note',
-      cell: ({ getValue }) => (
-        <div className="font-medium max-w-md">{getValue() as string}</div>
-      ),
+      cell: ({ row }) => {
+        const note = row.original
+        if (inlineEditing) {
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'title'
+          return (
+            <EditableTextCell
+              note={note}
+              column="title"
+              value={note.title}
+              isEditing={isEditing}
+              onSave={inlineEditing.onSave}
+              onAdvance={inlineEditing.onAdvance}
+              onCancel={inlineEditing.onCancel}
+              isNewNote={inlineEditing.isNewNote}
+              placeholder="Type note..."
+            />
+          )
+        }
+        return <div className="font-medium max-w-md">{note.title}</div>
+      },
       enableSorting: false,
       enableResizing: true,
       size: 300,
