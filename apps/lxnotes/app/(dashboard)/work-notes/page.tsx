@@ -20,7 +20,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { Plus, Search, Wrench, Upload, Mail, Printer, Database, ArrowUpDown, RotateCcw } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { Note, NoteStatus } from '@/types'
+import type { Note, NoteStatus, FilterSortPreset } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -211,7 +211,7 @@ export default function WorkNotesPage() {
           sortOrder: tabletSortDirection,
           groupByType: false,
         },
-      } as any, priorities)
+      } as unknown as FilterSortPreset, priorities)
     }
 
     return filtered

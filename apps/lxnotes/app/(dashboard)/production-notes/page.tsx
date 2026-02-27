@@ -9,7 +9,7 @@ import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { Plus, Search, FileText, Mail, Printer, RotateCcw } from 'lucide-react'
-import type { Note, NoteStatus } from '@/types'
+import type { Note, NoteStatus, FilterSortPreset } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MultiSelect } from '@/components/ui/multi-select'
@@ -1088,7 +1088,7 @@ export default function ProductionNotesPage() {
           sortOrder: tabletSortDirection,
           groupByType: false,
         },
-      } as any, priorities)
+      } as unknown as FilterSortPreset, priorities)
     }
 
     return filtered

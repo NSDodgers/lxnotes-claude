@@ -94,7 +94,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
 
   const [generatingPresetId, setGeneratingPresetId] = useState<string | null>(null)
 
-  const handleSelectPreset = async (preset: PrintPreset | any) => {
+  const handleSelectPreset = async (preset: PrintPreset) => {
     const printPreset = preset as PrintPreset
     setGeneratingPresetId(printPreset.id)
     setGenerateError(null)

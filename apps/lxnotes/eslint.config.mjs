@@ -1,10 +1,19 @@
 import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 import nextTs from 'eslint-config-next/typescript'
+import security from 'eslint-plugin-security'
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    plugins: { security },
+    rules: {
+      ...security.configs.recommended.rules,
+      // Too noisy with dynamic object access patterns (Zustand stores, etc.)
+      'security/detect-object-injection': 'off',
+    },
+  },
   {
     // Downgrade React 19 strict rules to warnings for gradual migration
     rules: {

@@ -70,7 +70,7 @@ export function JoinProductionButton({
                 ) : (
                     <>
                         <UserPlus className="mr-2 h-4 w-4" />
-                        Join "{productionName}"
+                        Join &ldquo;{productionName}&rdquo;
                     </>
                 )}
             </Button>
