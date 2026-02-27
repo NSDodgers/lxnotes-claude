@@ -64,15 +64,16 @@ const getSystemDefaults = (moduleType: ModuleType): CustomType[] => {
         { id: 'sys-prod-8', productionId, moduleType, value: 'directing', label: 'Directing', color: '#1E5E8E', isSystem: true, isHidden: false, sortOrder: 8, createdAt: baseDate, updatedAt: baseDate },
         { id: 'sys-prod-9', productionId, moduleType, value: 'choreography', label: 'Choreography', color: '#7E1E53', isSystem: true, isHidden: false, sortOrder: 9, createdAt: baseDate, updatedAt: baseDate },
         { id: 'sys-prod-10', productionId, moduleType, value: 'production_management', label: 'Production Management', color: '#4D7C5A', isSystem: true, isHidden: false, sortOrder: 10, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-prod-11', productionId, moduleType, value: 'think', label: 'Think', color: '#0F766E', isSystem: true, isHidden: false, sortOrder: 11, createdAt: baseDate, updatedAt: baseDate },
       ]
     
     case 'work':
       return [
         { id: 'sys-work-1', productionId, moduleType, value: 'work', label: 'Work', color: '#4B5563', isSystem: true, isHidden: false, sortOrder: 1, createdAt: baseDate, updatedAt: baseDate },
         { id: 'sys-work-2', productionId, moduleType, value: 'focus', label: 'Focus', color: '#991B1B', isSystem: true, isHidden: false, sortOrder: 2, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-3', productionId, moduleType, value: 'paperwork', label: 'Paperwork', color: '#1E3A8A', isSystem: true, isHidden: false, sortOrder: 3, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-3', productionId, moduleType, value: 'paperwork', label: 'Paperwork', color: '#4D7C0F', isSystem: true, isHidden: false, sortOrder: 3, createdAt: baseDate, updatedAt: baseDate },
         { id: 'sys-work-4', productionId, moduleType, value: 'electrician', label: 'Electrician', color: '#047857', isSystem: true, isHidden: false, sortOrder: 4, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-5', productionId, moduleType, value: 'think', label: 'Think', color: '#92400E', isSystem: true, isHidden: false, sortOrder: 5, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-5', productionId, moduleType, value: 'think', label: 'Think', color: '#0F766E', isSystem: true, isHidden: false, sortOrder: 5, createdAt: baseDate, updatedAt: baseDate },
       ]
     
     default:
