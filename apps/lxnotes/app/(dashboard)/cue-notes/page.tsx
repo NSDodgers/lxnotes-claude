@@ -36,9 +36,11 @@ export default function CueNotesPage() {
   const notesContext = useNotes()
   // Determine effective notes based on mode
   const isDemo = isDemoMode()
-  const notes: Note[] = isDemo
-    ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.cue : []) // Fallback for initial render
-    : notesContext.getNotes('cue')
+  const notes: Note[] = useMemo(() => {
+    return isDemo
+      ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.cue : [])
+      : notesContext.getNotes('cue')
+  }, [isDemo, notesContext])
 
   // Mock store subscription for demo mode only
   const [, forceUpdate] = useState({})

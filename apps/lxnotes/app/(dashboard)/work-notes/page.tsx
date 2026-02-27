@@ -43,9 +43,11 @@ export default function WorkNotesPage() {
   const notesContext = useNotes()
   // Determine effective notes based on mode
   const isDemo = isDemoMode()
-  const notes = isDemo
-    ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.work : [])
-    : notesContext.getNotes('work')
+  const notes = useMemo(() => {
+    return isDemo
+      ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.work : [])
+      : notesContext.getNotes('work')
+  }, [isDemo, notesContext])
 
   // Mock store subscription for demo mode only
   const [, forceUpdate] = useState({})

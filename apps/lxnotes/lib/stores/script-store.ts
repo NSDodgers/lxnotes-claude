@@ -56,6 +56,7 @@ const parsePageNumber = (pageNumber: string): { base: number; suffix: string } =
 
 // Utility function to parse cue numbers for comparison
 const parseCueNumber = (cueNumber: string): number => {
+  // eslint-disable-next-line security/detect-unsafe-regex
   const match = cueNumber.match(/^(\d+(?:\.\d+)?)/)
   return match ? parseFloat(match[1]) : 0
 }

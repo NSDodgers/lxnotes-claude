@@ -27,8 +27,8 @@ export function FilterSortPresetsManager() {
   // Get filtered presets based on selected module
   const filteredPresets = useMemo(() => {
     if (selectedModule === 'all') return presets
-    return getPresetsByModule(selectedModule)
-  }, [presets, selectedModule, getPresetsByModule])
+    return presets.filter(p => p.moduleType === selectedModule)
+  }, [presets, selectedModule])
 
   const handleCreate = () => {
     setEditingPreset(null)

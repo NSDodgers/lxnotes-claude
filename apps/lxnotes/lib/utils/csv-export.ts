@@ -57,7 +57,9 @@ export function convertScriptToCSV(
 
     // Combine and sort by cue number
     const allItems = [...scenes, ...songs].sort((a, b) => {
+      // eslint-disable-next-line security/detect-unsafe-regex
       const cueA = a.firstCueNumber ? parseFloat(a.firstCueNumber.match(/^(\d+(?:\.\d+)?)/)?.[1] || '0') : 0
+      // eslint-disable-next-line security/detect-unsafe-regex
       const cueB = b.firstCueNumber ? parseFloat(b.firstCueNumber.match(/^(\d+(?:\.\d+)?)/)?.[1] || '0') : 0
       return cueA - cueB
     })

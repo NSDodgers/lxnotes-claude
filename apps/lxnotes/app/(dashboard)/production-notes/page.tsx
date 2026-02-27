@@ -970,9 +970,11 @@ export default function ProductionNotesPage() {
   const notesContext = useNotes()
   // Determine effective notes based on mode
   const isDemo = isDemoMode()
-  const notes = isDemo
-    ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.production : [])
-    : notesContext.getNotes('production')
+  const notes = useMemo(() => {
+    return isDemo
+      ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.production : [])
+      : notesContext.getNotes('production')
+  }, [isDemo, notesContext])
 
   const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
 
