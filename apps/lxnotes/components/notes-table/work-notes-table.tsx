@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table'
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { ArrowUpDown, ArrowUp, ArrowDown, Lock } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -20,7 +20,9 @@ import { cn } from '@/lib/utils'
 import type { Note, NoteStatus } from '@/types'
 import { createWorkColumns } from './columns/work-columns'
 import { ColumnResizeHandle } from './column-resize-handle'
+import { FreezeColumnMenu } from './freeze-column-menu'
 import { useColumnSizing } from '@/hooks/use-column-sizing'
+import { useColumnFreeze } from '@/hooks/use-column-freeze'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
 const EDITABLE_COLUMNS = new Set<string>(['title', 'type', 'priority'])
@@ -80,6 +82,9 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, 
     onColumnSizingChange,
   })
 
+  const { frozenCount, freeze, unfreeze, headerRowRef, getFrozenHeaderStyle, getFrozenCellStyle, isLastFrozen } =
+    useColumnFreeze('work')
+
   const handleCellClick = useCallback((note: Note, columnId: string, e: React.MouseEvent) => {
     if (inlineEditing && EDITABLE_COLUMNS.has(columnId)) {
       e.stopPropagation()
@@ -126,38 +131,50 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, 
         <Table data-testid="notes-table" role="table">
           <TableHeader className="sticky top-0 z-20 bg-bg-primary shadow-md border-b-2">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+              <TableRow key={headerGroup.id} ref={headerRowRef}>
+                {headerGroup.headers.map((header, headerIndex) => {
                   const canSort = header.column.getCanSort()
                   const isSorted = header.column.getIsSorted()
                   const sortIndex = header.column.getSortIndex()
+                  const frozenStyle = getFrozenHeaderStyle(headerIndex)
+                  const lastFrozen = isLastFrozen(headerIndex)
 
                   return (
-                    <TableHead
+                    <FreezeColumnMenu
                       key={header.id}
-                      className={cn(
-                        'bg-bg-primary',
-                        canSort && 'cursor-pointer hover:text-foreground transition-colors'
-                      )}
-                      onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                      style={{
-                        width: header.getSize(),
-                      }}
-                      suppressHydrationWarning
+                      columnIndex={headerIndex}
+                      isFrozen={headerIndex < frozenCount}
+                      onFreeze={freeze}
+                      onUnfreeze={unfreeze}
                     >
-                      {header.isPlaceholder ? null : (
-                        <div className="flex items-center gap-1">
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                          {canSort && renderSortIndicator(isSorted, sortIndex)}
-                          {header.column.getCanResize() && (
-                            <ColumnResizeHandle header={header} />
-                          )}
-                        </div>
-                      )}
-                    </TableHead>
+                      <TableHead
+                        className={cn(
+                          'bg-bg-primary',
+                          canSort && 'cursor-pointer hover:text-foreground transition-colors',
+                          lastFrozen && 'frozen-last-col border-r border-border'
+                        )}
+                        onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                        style={{
+                          width: header.getSize(),
+                          ...frozenStyle,
+                        }}
+                        suppressHydrationWarning
+                      >
+                        {header.isPlaceholder ? null : (
+                          <div className="flex items-center gap-1">
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                            {lastFrozen && <Lock className="h-3 w-3 opacity-40" />}
+                            {canSort && renderSortIndicator(isSorted, sortIndex)}
+                            {header.column.getCanResize() && (
+                              <ColumnResizeHandle header={header} />
+                            )}
+                          </div>
+                        )}
+                      </TableHead>
+                    </FreezeColumnMenu>
                   )
                 })}
               </TableRow>
@@ -173,18 +190,27 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, 
                     inlineEditing?.editingNoteId === row.original.id && 'bg-muted/50'
                   )}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      style={{
-                        width: cell.column.getSize(),
-                      }}
-                      suppressHydrationWarning
-                      onClick={(e) => handleCellClick(row.original, cell.column.id, e)}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell, cellIndex) => {
+                    const frozenStyle = getFrozenCellStyle(cellIndex)
+                    const lastFrozen = isLastFrozen(cellIndex)
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={cn(
+                          frozenStyle && 'bg-bg-primary',
+                          lastFrozen && 'frozen-last-col border-r border-border'
+                        )}
+                        style={{
+                          width: cell.column.getSize(),
+                          ...frozenStyle,
+                        }}
+                        suppressHydrationWarning
+                        onClick={(e) => handleCellClick(row.original, cell.column.id, e)}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               ))
             ) : (

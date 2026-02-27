@@ -7,6 +7,7 @@ const COLUMN_LAYOUT_VERSION = 1
 interface ColumnLayoutEntry {
   version: number
   widths: Record<string, number>
+  frozenCount: number
   timestamp: number
 }
 
@@ -20,6 +21,8 @@ interface ColumnLayoutState {
     columnId: string,
     width: number
   ) => void
+  getFrozenCount: (moduleType: ModuleType) => number
+  setFrozenCount: (moduleType: ModuleType, count: number) => void
   resetModuleLayout: (moduleType: ModuleType) => void
 }
 
@@ -45,6 +48,35 @@ export const useColumnLayoutStore = create<ColumnLayoutState>()(
               ...(existing?.widths ?? {}),
               [columnId]: width,
             },
+            frozenCount: existing?.frozenCount ?? 0,
+            timestamp: Date.now(),
+          }
+
+          return {
+            layouts: {
+              ...state.layouts,
+              [profileKey]: {
+                ...profileLayouts,
+                [moduleType]: updatedEntry,
+              },
+            },
+          }
+        })
+      },
+      getFrozenCount: (moduleType) => {
+        const state = get()
+        return state.layouts[state.profileKey]?.[moduleType]?.frozenCount ?? 0
+      },
+      setFrozenCount: (moduleType, count) => {
+        set((state) => {
+          const profileKey = state.profileKey
+          const profileLayouts = state.layouts[profileKey] ?? {}
+          const existing = profileLayouts[moduleType]
+
+          const updatedEntry: ColumnLayoutEntry = {
+            version: COLUMN_LAYOUT_VERSION,
+            widths: existing?.widths ?? {},
+            frozenCount: count,
             timestamp: Date.now(),
           }
 
