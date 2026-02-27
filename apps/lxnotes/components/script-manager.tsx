@@ -490,7 +490,6 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
                 <SceneSongItem
                   key={item.id}
                   item={item}
-                  isLastItem={index === allItems.length - 1}
                   onPersist={onPersist}
                 />
               ))}
@@ -533,11 +532,10 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
 
 interface SceneSongItemProps {
   item: SceneSong
-  isLastItem?: boolean
   onPersist: () => Promise<void>
 }
 
-function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemProps) {
+function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
   const { updateSceneSong, deleteSceneSong, validateSceneSongCueNumber, getSortedPages, getContinuationChain, getNextPage, createContinuation, updateContinuationChain } = useScriptStore()
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [cueValidation, setCueValidation] = useState<{ valid: boolean; message?: string } | null>(null)
@@ -569,7 +567,7 @@ function SceneSongItem({ item, isLastItem = false, onPersist }: SceneSongItemPro
   // Chain always includes the item itself, so last item = chain[chain.length-1]
   const isEndOfChain = continuationChain.length > 0 &&
     continuationChain[continuationChain.length - 1].id === item.id
-  const canContinue = nextPage && isEndOfChain && isLastItem
+  const canContinue = nextPage && isEndOfChain
 
   // Validate on mount and when item changes
   useEffect(() => {
