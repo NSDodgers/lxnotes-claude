@@ -36,7 +36,12 @@ export function useInlineEditing(moduleType: ModuleType): InlineEditing {
   const lastTypeRef = useRef<string | null>(null)
 
   const startEditing = useCallback((noteId: string, column: EditableColumn, isNew = false) => {
-    setState({ editingNoteId: noteId, editingColumn: column, isNewNote: isNew })
+    setState(prev => {
+      if (prev.editingNoteId === noteId && prev.editingColumn === column) {
+        return prev
+      }
+      return { editingNoteId: noteId, editingColumn: column, isNewNote: isNew }
+    })
   }, [])
 
   const stopEditing = useCallback(() => {

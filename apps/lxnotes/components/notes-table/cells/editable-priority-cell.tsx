@@ -28,9 +28,11 @@ export function EditablePriorityCell({
   const priorities = getPriorities(moduleType)
   const currentPriority = priorities.find(p => p.value === note.priority)
   const selectRef = useRef<HTMLSelectElement>(null)
+  const advancedRef = useRef(false)
 
   useEffect(() => {
     if (isEditing) {
+      advancedRef.current = false
       requestAnimationFrame(() => {
         selectRef.current?.focus()
       })
@@ -41,6 +43,7 @@ export function EditablePriorityCell({
     e.stopPropagation()
     const newValue = e.target.value
     onSave(note.id, 'priority', newValue)
+    advancedRef.current = true
     onAdvance('priority')
   }, [onSave, note.id, onAdvance])
 
@@ -48,10 +51,12 @@ export function EditablePriorityCell({
     if (e.key === 'Tab') {
       e.preventDefault()
       e.stopPropagation()
+      advancedRef.current = true
       onAdvance('priority')
     } else if (e.key === 'Escape') {
       e.preventDefault()
       e.stopPropagation()
+      advancedRef.current = true
       onCancel(note.id, isNewNote)
     }
   }, [onAdvance, onCancel, note.id, isNewNote])
@@ -73,7 +78,13 @@ export function EditablePriorityCell({
       value={note.priority}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
-      onBlur={() => onAdvance('priority')}
+      onBlur={() => {
+        if (advancedRef.current) {
+          advancedRef.current = false
+          return
+        }
+        onAdvance('priority')
+      }}
       className="w-full bg-background border border-border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
       onClick={(e) => e.stopPropagation()}
     >

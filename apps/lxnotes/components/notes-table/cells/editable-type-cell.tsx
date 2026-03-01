@@ -29,9 +29,11 @@ export function EditableTypeCell({
   const types = getTypes(moduleType)
   const currentType = types.find(t => t.value === (note.type || ''))
   const selectRef = useRef<HTMLSelectElement>(null)
+  const advancedRef = useRef(false)
 
   useEffect(() => {
     if (isEditing) {
+      advancedRef.current = false
       requestAnimationFrame(() => {
         selectRef.current?.focus()
       })
@@ -42,6 +44,7 @@ export function EditableTypeCell({
     e.stopPropagation()
     const newValue = e.target.value
     onSave(note.id, 'type', newValue)
+    advancedRef.current = true
     onAdvance('type')
   }, [onSave, note.id, onAdvance])
 
@@ -49,10 +52,12 @@ export function EditableTypeCell({
     if (e.key === 'Tab') {
       e.preventDefault()
       e.stopPropagation()
+      advancedRef.current = true
       onAdvance('type')
     } else if (e.key === 'Escape') {
       e.preventDefault()
       e.stopPropagation()
+      advancedRef.current = true
       onCancel(note.id, isNewNote)
     }
   }, [onAdvance, onCancel, note.id, isNewNote])
@@ -74,7 +79,13 @@ export function EditableTypeCell({
       value={note.type || ''}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
-      onBlur={() => onAdvance('type')}
+      onBlur={() => {
+        if (advancedRef.current) {
+          advancedRef.current = false
+          return
+        }
+        onAdvance('type')
+      }}
       className="w-full bg-background border border-border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
       onClick={(e) => e.stopPropagation()}
     >
