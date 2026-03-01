@@ -6,10 +6,10 @@ import type { ModuleType } from '@/types'
 export type EditableColumn = 'title' | 'type' | 'priority' | 'cueNumber'
 
 const EDITABLE_COLUMN_ORDER: Record<ModuleType, EditableColumn[]> = {
-  cue: ['title', 'type', 'priority', 'cueNumber'],
-  work: ['title', 'type', 'priority'],
-  production: ['title', 'type', 'priority'],
-  actor: ['title', 'type', 'priority'],
+  cue: ['title', 'priority', 'type', 'cueNumber'],
+  work: ['title', 'priority', 'type'],
+  production: ['title', 'priority', 'type'],
+  actor: ['title', 'priority', 'type'],
 }
 
 export interface InlineEditingState {
