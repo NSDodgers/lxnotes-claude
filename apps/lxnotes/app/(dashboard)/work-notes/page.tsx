@@ -226,7 +226,7 @@ export default function WorkNotesPage() {
       title: '',
       status: 'todo',
       priority: 'medium',
-      type: 'work',
+      type: inlineEditing.lastType ?? 'work',
       productionId,
     } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
     return note
@@ -235,10 +235,13 @@ export default function WorkNotesPage() {
   const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
     const updates: Partial<Note> = {}
     if (column === 'title') updates.title = value
-    else if (column === 'type') updates.type = value
+    else if (column === 'type') {
+      updates.type = value
+      inlineEditing.setLastType(value)
+    }
     else if (column === 'priority') updates.priority = value
     await notesContext.updateNote(noteId, updates)
-  }, [notesContext])
+  }, [notesContext, inlineEditing])
 
   const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
     if (isNewNote) {

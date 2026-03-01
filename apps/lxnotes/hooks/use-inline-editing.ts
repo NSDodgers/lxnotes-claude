@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import type { ModuleType } from '@/types'
 
 export type EditableColumn = 'title' | 'type' | 'priority' | 'cueNumber'
@@ -22,9 +22,10 @@ export interface InlineEditingActions {
   startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
   stopEditing: () => void
   moveToNextCell: (currentColumn: EditableColumn) => void
+  setLastType: (type: string) => void
 }
 
-export type InlineEditing = InlineEditingState & InlineEditingActions
+export type InlineEditing = InlineEditingState & InlineEditingActions & { lastType: string | null }
 
 export function useInlineEditing(moduleType: ModuleType): InlineEditing {
   const [state, setState] = useState<InlineEditingState>({
@@ -32,6 +33,7 @@ export function useInlineEditing(moduleType: ModuleType): InlineEditing {
     editingColumn: null,
     isNewNote: false,
   })
+  const lastTypeRef = useRef<string | null>(null)
 
   const startEditing = useCallback((noteId: string, column: EditableColumn, isNew = false) => {
     setState({ editingNoteId: noteId, editingColumn: column, isNewNote: isNew })
@@ -52,10 +54,16 @@ export function useInlineEditing(moduleType: ModuleType): InlineEditing {
     }
   }, [moduleType])
 
+  const setLastType = useCallback((type: string) => {
+    lastTypeRef.current = type
+  }, [])
+
   return {
     ...state,
+    lastType: lastTypeRef.current,
     startEditing,
     stopEditing,
     moveToNextCell,
+    setLastType,
   }
 }

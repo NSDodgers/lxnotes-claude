@@ -184,7 +184,7 @@ export default function CueNotesPage() {
       title: '',
       status: 'todo',
       priority: 'medium',
-      type: 'cue',
+      type: inlineEditing.lastType ?? 'cue',
       productionId,
     } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
     return note
@@ -193,11 +193,14 @@ export default function CueNotesPage() {
   const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
     const updates: Partial<Note> = {}
     if (column === 'title') updates.title = value
-    else if (column === 'type') updates.type = value
+    else if (column === 'type') {
+      updates.type = value
+      inlineEditing.setLastType(value)
+    }
     else if (column === 'priority') updates.priority = value
     else if (column === 'cueNumber') updates.cueNumber = value
     await notesContext.updateNote(noteId, updates)
-  }, [notesContext])
+  }, [notesContext, inlineEditing])
 
   const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
     if (isNewNote) {
