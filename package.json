@@ -15,7 +15,7 @@
     "audit:security": "npm audit --omit=dev --audit-level=high"
   },
   "devDependencies": {
-    "turbo": "^2.8.5"
+    "turbo": "^2.8.12"
   },
   "dependencies": {
     "tailwindcss": "^4.1.18"
