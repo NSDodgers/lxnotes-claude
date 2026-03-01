@@ -178,7 +178,7 @@ export function createCueColumns({ onStatusUpdate, inlineEditing }: CreateColumn
       header: 'Who Created',
       cell: ({ getValue }) => {
         const value = getValue() as string | undefined
-        return <span className="text-sm text-muted-foreground">{value || 'Nick Solyom'}</span>
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
       },
       enableSorting: false,
       enableResizing: true,

@@ -733,7 +733,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
       case 'createdBy':
         return (
           <span className="text-sm text-muted-foreground">
-            {note.createdBy || 'Nick Solyom'}
+            {note.createdBy || ''}
           </span>
         )
 

@@ -28,6 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { MultiSelect } from '@/components/ui/multi-select'
 import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
+import { useAuthContext } from '@/components/auth/auth-provider'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
@@ -77,6 +78,7 @@ export default function WorkNotesPage() {
 
   // Get production data from context (Supabase) if available, otherwise fall back to store
   const productionContext = useProductionOptional()
+  const { user } = useAuthContext()
   const storeData = useCurrentProductionStore()
   const pathname = usePathname()
   const isProductionMode = pathname.startsWith('/production/')
@@ -221,6 +223,7 @@ export default function WorkNotesPage() {
   }
 
   const handleQuickAdd = useCallback(async () => {
+    const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
     const note = await notesContext.addNote({
       moduleType: 'work',
       title: '',
@@ -228,9 +231,10 @@ export default function WorkNotesPage() {
       priority: 'medium',
       type: inlineEditing.lastType ?? 'work',
       productionId,
+      createdBy: displayName,
     } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
     return note
-  }, [notesContext, productionId])
+  }, [notesContext, productionId, user])
 
   const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
     const updates: Partial<Note> = {}
