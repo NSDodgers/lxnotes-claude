@@ -1,6 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { cn } from '@/lib/utils'
 import { TabletTopBar } from './tablet-top-bar'
 import { TabletOverlaySidebar } from './tablet-overlay-sidebar'
 import { TabletFilterChips } from './tablet-filter-chips'
@@ -16,9 +17,10 @@ function getModuleType(pathname: string): ModuleType | null {
 export function TabletLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const moduleType = getModuleType(pathname)
+  const isDemoMode = pathname.startsWith('/demo')
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-bg-primary" data-testid="tablet-mode-indicator">
+    <div className={cn("h-screen w-screen overflow-hidden flex flex-col bg-bg-primary", isDemoMode && "pt-[36px]")} data-testid="tablet-mode-indicator">
       <TabletTopBar />
       {moduleType && <TabletFilterChips moduleType={moduleType} />}
       <TabletOverlaySidebar />
