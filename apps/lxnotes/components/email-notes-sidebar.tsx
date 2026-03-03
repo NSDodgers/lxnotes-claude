@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { usePathname } from 'next/navigation'
 import { Mail, Send, Loader2 } from 'lucide-react'
 import { useProductionEmailPresets } from '@/lib/hooks/use-production-email-presets'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
@@ -62,6 +63,8 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const { getPriorities } = useCustomPrioritiesStore()
   const { aggregates: fixtureAggregates } = useFixtureStore()
   const { getNotes } = useNotes()
+  const pathname = usePathname()
+  const isDemo = pathname.startsWith('/demo')
 
   // Get user's name from auth metadata
   const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'
@@ -143,6 +146,12 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
     filterPresetId: string | null,
     pageStylePresetId: string | null,
   ) => {
+    if (isDemo) {
+      alert('In a live production, this email would be sent to your recipients.')
+      onClose()
+      return
+    }
+
     setIsSending(true)
     setSendError(null)
 
