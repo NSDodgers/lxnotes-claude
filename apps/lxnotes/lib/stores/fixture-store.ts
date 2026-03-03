@@ -331,10 +331,11 @@ export const useFixtureStore = create<FixtureState>()(
 
         // Generate channel expression
         const channels = linkedFixtures.map(f => f.channel).sort((a, b) => a - b)
-        const channelExpression = formatChannelsAsExpression(channels)
+        const channelExpression = formatNumbersAsExpression(channels)
 
         // Collect unique values
         const positions = [...new Set(linkedFixtures.map(f => f.position).filter(Boolean))]
+        const positionsWithUnits = buildPositionsWithUnits(linkedFixtures)
         const fixtureTypes = [...new Set(linkedFixtures.map(f => f.fixtureType).filter(Boolean))]
         const purposes = [...new Set(linkedFixtures.map(f => f.purpose).filter(Boolean))]
 
@@ -362,6 +363,7 @@ export const useFixtureStore = create<FixtureState>()(
           workNoteId,
           channels: channelExpression,
           positions,
+          positionsWithUnits,
           fixtureTypes,
           purposes,
           universeAddresses: uniqueUniverseAddresses,
@@ -423,9 +425,57 @@ export const useFixtureStore = create<FixtureState>()(
 )
 
 /**
- * Format channel numbers into expression string (e.g., "1-5, 21, 45")
+ * Build position strings with unit number ranges.
+ * e.g., "FOH TRUSS 1, U#: 1-3" or "FOH TRUSS 1, U#: —"
  */
-function formatChannelsAsExpression(channels: number[]): string {
+function buildPositionsWithUnits(fixtures: FixtureInfo[]): string[] {
+  // Group fixtures by position
+  const byPosition = new Map<string, string[]>()
+  for (const f of fixtures) {
+    if (!f.position) continue
+    if (!byPosition.has(f.position)) byPosition.set(f.position, [])
+    byPosition.get(f.position)!.push(f.unitNumber || '')
+  }
+
+  const result: string[] = []
+  for (const [position, units] of byPosition) {
+    const allBlank = units.every(u => u.trim() === '')
+    if (allBlank) {
+      result.push(`${position}, U#: —`)
+      continue
+    }
+
+    const numeric: number[] = []
+    const nonNumeric: string[] = []
+    for (const u of units) {
+      const trimmed = u.trim()
+      if (trimmed === '') continue
+      const num = Number(trimmed)
+      if (!isNaN(num) && Number.isInteger(num)) {
+        numeric.push(num)
+      } else {
+        nonNumeric.push(trimmed)
+      }
+    }
+
+    const parts: string[] = []
+    if (numeric.length > 0) {
+      parts.push(formatNumbersAsExpression([...new Set(numeric)].sort((a, b) => a - b)))
+    }
+    // Dedupe and sort non-numeric units
+    const uniqueNonNumeric = [...new Set(nonNumeric)].sort()
+    parts.push(...uniqueNonNumeric)
+
+    result.push(`${position}, U#: ${parts.join(', ')}`)
+  }
+
+  return result
+}
+
+/**
+ * Format numbers into expression string with range consolidation (e.g., "1-5, 21, 45")
+ */
+function formatNumbersAsExpression(channels: number[]): string {
   if (channels.length === 0) return ''
 
   const sorted = [...channels].sort((a, b) => a - b)

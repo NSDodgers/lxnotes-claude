@@ -1,4 +1,4 @@
-import type { Note, ModuleType, FilterSortPreset, PageStylePreset } from '@/types'
+import type { Note, ModuleType, FilterSortPreset, PageStylePreset, FixtureAggregate } from '@/types'
 
 export interface PDFGenerationRequest {
   moduleType: ModuleType
@@ -7,6 +7,7 @@ export interface PDFGenerationRequest {
   notes: Note[]
   productionName?: string
   productionLogo?: string
+  fixtureAggregates?: Record<string, FixtureAggregate>
 }
 
 export interface PDFGenerationResult {
@@ -42,8 +43,8 @@ export interface PDFConfiguration {
 }
 
 export interface PDFStrategy {
-  formatNotes(notes: Note[]): PDFFormattedNote[]
+  formatNotes(notes: Note[], fixtureAggregates?: Record<string, FixtureAggregate>): PDFFormattedNote[]
   getColumnHeaders(): string[]
   getModuleTitle(): string
-  formatModuleSpecificData(note: Note): Record<string, string | number | boolean | null | undefined>
+  formatModuleSpecificData(note: Note, fixtureAggregates?: Record<string, FixtureAggregate>): Record<string, string | number | boolean | null | undefined>
 }

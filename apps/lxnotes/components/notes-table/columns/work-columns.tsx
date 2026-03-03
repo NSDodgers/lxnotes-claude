@@ -127,7 +127,6 @@ export function createWorkColumns({ onStatusUpdate, inlineEditing }: CreateColum
         <FixtureAggregateCell
           noteId={row.original.id}
           field="fixtureTypes"
-          maxItems={2}
         />
       ),
       enableSorting: false,
@@ -142,7 +141,6 @@ export function createWorkColumns({ onStatusUpdate, inlineEditing }: CreateColum
         <FixtureAggregateCell
           noteId={row.original.id}
           field="purposes"
-          maxItems={2}
         />
       ),
       enableSorting: false,
@@ -157,7 +155,6 @@ export function createWorkColumns({ onStatusUpdate, inlineEditing }: CreateColum
         <FixtureAggregateCell
           noteId={row.original.id}
           field="positions"
-          maxItems={2}
         />
       ),
       sortingFn: positionSortFn,

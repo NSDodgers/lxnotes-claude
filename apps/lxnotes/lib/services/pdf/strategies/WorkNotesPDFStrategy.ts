@@ -1,8 +1,8 @@
-import type { Note } from '@/types'
+import type { Note, FixtureAggregate } from '@/types'
 import type { PDFStrategy, PDFFormattedNote } from '../types'
 
 export class WorkNotesPDFStrategy implements PDFStrategy {
-  formatNotes(notes: Note[]): PDFFormattedNote[] {
+  formatNotes(notes: Note[], fixtureAggregates?: Record<string, FixtureAggregate>): PDFFormattedNote[] {
     return notes.map(note => ({
       id: note.id,
       title: note.title,
@@ -15,7 +15,7 @@ export class WorkNotesPDFStrategy implements PDFStrategy {
       completedAt: note.completedAt,
       dueDate: note.dueDate,
       assignedTo: note.assignedTo,
-      moduleSpecificData: this.formatModuleSpecificData(note)
+      moduleSpecificData: this.formatModuleSpecificData(note, fixtureAggregates)
     }))
   }
 
@@ -35,10 +35,11 @@ export class WorkNotesPDFStrategy implements PDFStrategy {
     return 'Work Notes'
   }
 
-  formatModuleSpecificData(note: Note): Record<string, string | number | boolean | null | undefined> {
+  formatModuleSpecificData(note: Note, fixtureAggregates?: Record<string, FixtureAggregate>): Record<string, string | number | boolean | null | undefined> {
+    const aggregate = fixtureAggregates?.[note.id]
     return {
-      channels: note.channelNumbers || '-',
-      positionUnit: note.positionUnit || '-',
+      channels: aggregate?.channels || note.channelNumbers || '-',
+      positionUnit: (aggregate?.positions?.length ? aggregate.positions.join(', ') : null) || note.positionUnit || '-',
       lightwrightId: note.lightwrightItemId || '-',
       sceneryNeeds: note.sceneryNeeds || '-'
     }

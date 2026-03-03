@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import type { ModuleType, EmailMessagePreset, PrintPreset } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { PlaceholderData } from '@/lib/utils/placeholders'
 import { useAuthContext } from '@/components/auth/auth-provider'
@@ -59,6 +60,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const productionLogo = activeProduction ? activeProduction.logo : localProductionStore.logo
   const productionId = productionContext?.productionId
   const { getPriorities } = useCustomPrioritiesStore()
+  const { aggregates: fixtureAggregates } = useFixtureStore()
   const { getNotes } = useNotes()
 
   // Get user's name from auth metadata
@@ -174,6 +176,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
             notes,
             productionName,
             productionLogo,
+            ...(moduleType === 'work' && { fixtureAggregates }),
           })
 
           if (result.success && result.pdfBlob) {

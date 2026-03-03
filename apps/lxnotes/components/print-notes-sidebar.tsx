@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import type { ModuleType, PrintPreset, EmailMessagePreset, FilterSortPreset, PageStylePreset, Note } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { PlaceholderData } from '@/lib/utils/placeholders'
 import { useAuthContext } from '@/components/auth/auth-provider'
@@ -57,6 +58,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
   const activeProduction = productionContext?.production
   const productionName = activeProduction ? activeProduction.name : localProductionStore.name
   const productionLogo = activeProduction ? activeProduction.logo : localProductionStore.logo
+  const { aggregates: fixtureAggregates } = useFixtureStore()
   const mockNotesStore = useMockNotesStore()
 
   // Get user's name from auth metadata
@@ -131,6 +133,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
         notes,
         productionName,
         productionLogo,
+        ...(moduleType === 'work' && { fixtureAggregates }),
       })
 
       if (result.success && result.pdfBlob) {

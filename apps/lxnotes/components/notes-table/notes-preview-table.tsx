@@ -24,6 +24,7 @@ import {
   formatDepartment,
 } from '@/lib/utils/pdf-formatters'
 import { useCueLookup } from '@/lib/services/cue-lookup'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
 
 interface NotesPreviewTableProps {
   notes: Note[]
@@ -39,6 +40,7 @@ const columnHelper = createColumnHelper<Note>()
  */
 export function NotesPreviewTable({ notes, moduleType, showCheckboxes }: NotesPreviewTableProps) {
   const { lookupCue } = useCueLookup()
+  const { aggregates: fixtureAggregates } = useFixtureStore()
 
   // Build cue location display (matches main table logic)
   const buildCueLocationDisplay = useCallback((note: Note): string => {
@@ -176,29 +178,41 @@ export function NotesPreviewTable({ notes, moduleType, showCheckboxes }: NotesPr
     } else if (moduleType === 'work') {
       // Channels column
       cols.push(
-        columnHelper.accessor('channelNumbers', {
+        columnHelper.display({
           id: 'channelNumbers',
           size: 80,
           header: 'Channels',
-          cell: ({ getValue }) => (
-            <div className="text-sm text-muted-foreground">
-              {formatChannels(getValue())}
-            </div>
-          )
+          cell: ({ row }) => {
+            const note = row.original
+            const aggregate = fixtureAggregates[note.id]
+            const display = aggregate?.channels || note.channelNumbers
+            return (
+              <div className="text-sm text-muted-foreground">
+                {formatChannels(display)}
+              </div>
+            )
+          }
         })
       )
 
       // Position/Unit column
       cols.push(
-        columnHelper.accessor('positionUnit', {
+        columnHelper.display({
           id: 'positionUnit',
           size: 120,
           header: 'Position/Unit',
-          cell: ({ getValue }) => (
-            <div className="text-sm text-muted-foreground">
-              {formatPositionUnit(getValue())}
-            </div>
-          )
+          cell: ({ row }) => {
+            const note = row.original
+            const aggregate = fixtureAggregates[note.id]
+            const display = aggregate?.positions?.length
+              ? aggregate.positions.join(', ')
+              : note.positionUnit
+            return (
+              <div className="text-sm text-muted-foreground">
+                {formatPositionUnit(display)}
+              </div>
+            )
+          }
         })
       )
     }
@@ -248,7 +262,7 @@ export function NotesPreviewTable({ notes, moduleType, showCheckboxes }: NotesPr
     )
 
     return cols
-  }, [showCheckboxes, moduleType, buildCueLocationDisplay])
+  }, [showCheckboxes, moduleType, buildCueLocationDisplay, fixtureAggregates])
 
   // Create table instance
   const table = useReactTable({

@@ -6,7 +6,6 @@ import { FixtureAggregateDisplay } from '@/components/fixture-aggregate-display'
 interface FixtureAggregateCellProps {
   noteId: string
   field: 'channels' | 'fixtureTypes' | 'purposes' | 'positions'
-  maxItems?: number
 }
 
 /**
@@ -16,7 +15,6 @@ interface FixtureAggregateCellProps {
 export function FixtureAggregateCell({
   noteId,
   field,
-  maxItems
 }: FixtureAggregateCellProps) {
   const { getAggregate } = useFixtureStore()
   const aggregate = getAggregate(noteId)
@@ -26,7 +24,6 @@ export function FixtureAggregateCell({
       aggregate={aggregate}
       field={field}
       className="text-sm"
-      maxItems={maxItems}
     />
   )
 }

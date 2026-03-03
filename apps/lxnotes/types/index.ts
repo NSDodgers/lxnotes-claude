@@ -312,6 +312,7 @@ export interface FixtureAggregate {
   workNoteId: string
   channels: string // "1-5, 21, 45"
   positions: string[] // Unique positions
+  positionsWithUnits: string[] // Positions with unit number ranges
   fixtureTypes: string[] // Unique types
   purposes: string[] // Unique purposes
   universeAddresses: string[] // Formatted universe/address pairs

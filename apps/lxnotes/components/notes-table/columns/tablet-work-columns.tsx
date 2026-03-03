@@ -22,7 +22,7 @@ export function createTabletWorkColumns({ onStatusUpdate }: CreateColumnsOptions
       id: 'positions',
       header: 'Position',
       cell: ({ row }) => (
-        <FixtureAggregateCell noteId={row.original.id} field="positions" maxItems={1} />
+        <FixtureAggregateCell noteId={row.original.id} field="positions" />
       ),
       enableSorting: false,
       enableResizing: false,

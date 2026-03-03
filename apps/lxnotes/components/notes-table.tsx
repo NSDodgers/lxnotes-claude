@@ -679,7 +679,6 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
             aggregate={workAggregate ?? null}
             field="fixtureTypes"
             className="text-sm"
-            maxItems={2}
           />
         )
       }
@@ -690,7 +689,6 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
             aggregate={workAggregate ?? null}
             field="purposes"
             className="text-sm"
-            maxItems={2}
           />
         )
       }
@@ -701,7 +699,6 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
             aggregate={workAggregate ?? null}
             field="positions"
             className="text-sm"
-            maxItems={2}
           />
         )
       }

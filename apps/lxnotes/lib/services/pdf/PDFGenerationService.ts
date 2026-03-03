@@ -48,7 +48,7 @@ export class PDFGenerationService {
       const processedNotes = filterAndSortNotes(request.notes, request.filterPreset, customPriorities)
 
       // Format notes using strategy
-      const formattedNotes = strategy.formatNotes(processedNotes)
+      const formattedNotes = strategy.formatNotes(processedNotes, request.fixtureAggregates)
 
       // Prepare common props
       const commonProps = {

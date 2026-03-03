@@ -1,7 +1,6 @@
 'use client'
 
 import { AlertTriangle } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { FixtureAggregate } from '@/types'
 
@@ -9,14 +8,12 @@ interface FixtureAggregateDisplayProps {
   aggregate: FixtureAggregate | null
   field: 'channels' | 'positions' | 'fixtureTypes' | 'purposes' | 'universeAddresses'
   className?: string
-  maxItems?: number
 }
 
 export function FixtureAggregateDisplay({
   aggregate,
   field,
   className,
-  maxItems = 3
 }: FixtureAggregateDisplayProps) {
   if (!aggregate) {
     return <span className={cn('text-muted-foreground', className)}>—</span>
@@ -53,23 +50,13 @@ export function FixtureAggregateDisplay({
       )
     }
 
-    const displayItems = items.slice(0, maxItems)
-    const remainingCount = items.length - displayItems.length
-
     return (
-      <div className="flex items-center gap-1 flex-wrap">
-        {displayItems.map((item, index) => (
-          <Badge key={index} variant="secondary" className="text-xs">
-            {item}
-          </Badge>
-        ))}
-        
-        {remainingCount > 0 && (
-          <Badge variant="outline" className="text-xs text-muted-foreground">
-            +{remainingCount} more
-          </Badge>
-        )}
-        
+      <div className="flex items-center gap-2">
+        <ul className="flex flex-col gap-0.5 max-h-24 overflow-y-auto list-disc pl-3.5">
+          {items.map((item, index) => (
+            <li key={index} className={cn('text-sm', className)}>{item}</li>
+          ))}
+        </ul>
         {aggregate.hasInactive && (
           <div title="Some hookup items are inactive">
             <AlertTriangle className="h-3 w-3 text-orange-500" />
@@ -106,40 +93,28 @@ export function FixtureAggregateDisplay({
       const universe = universes[0]
       const addresses = grouped[universe]
       
-      if (addresses.length <= maxItems) {
-        return (
-          <div className="flex items-center gap-2">
-            <span className={cn('font-mono text-sm', className)}>
-              U{universe}: {addresses.join(', ')}
-            </span>
-            {aggregate.hasInactive && (
-              <div title="Some hookup items are inactive">
-            <AlertTriangle className="h-3 w-3 text-orange-500" />
-          </div>
-            )}
-          </div>
-        )
-      }
+      return (
+        <div className="flex items-center gap-2">
+          <span className={cn('font-mono text-sm', className)}>
+            U{universe}: {addresses.join(', ')}
+          </span>
+          {aggregate.hasInactive && (
+            <div title="Some hookup items are inactive">
+              <AlertTriangle className="h-3 w-3 text-orange-500" />
+            </div>
+          )}
+        </div>
+      )
     }
 
-    // Multiple universes or many addresses, show as badges
-    const allAddresses = aggregate.universeAddresses.slice(0, maxItems)
-    const remainingCount = aggregate.universeAddresses.length - allAddresses.length
-
+    // Multiple universes or many addresses, show as bulleted list
     return (
-      <div className="flex items-center gap-1 flex-wrap">
-        {allAddresses.map((addr, index) => (
-          <Badge key={index} variant="secondary" className="text-xs font-mono">
-            {addr}
-          </Badge>
-        ))}
-        
-        {remainingCount > 0 && (
-          <Badge variant="outline" className="text-xs text-muted-foreground">
-            +{remainingCount} more
-          </Badge>
-        )}
-        
+      <div className="flex items-center gap-2">
+        <ul className="flex flex-col gap-0.5 max-h-24 overflow-y-auto list-disc pl-3.5">
+          {aggregate.universeAddresses.map((addr, index) => (
+            <li key={index} className={cn('font-mono text-sm', className)}>{addr}</li>
+          ))}
+        </ul>
         {aggregate.hasInactive && (
           <div title="Some hookup items are inactive">
             <AlertTriangle className="h-3 w-3 text-orange-500" />
@@ -153,7 +128,7 @@ export function FixtureAggregateDisplay({
     case 'channels':
       return renderChannels()
     case 'positions':
-      return renderArray(aggregate.positions)
+      return renderArray(aggregate.positionsWithUnits)
     case 'fixtureTypes':
       return renderArray(aggregate.fixtureTypes)
     case 'purposes':
