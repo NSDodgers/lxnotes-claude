@@ -299,6 +299,15 @@ if (typeof window !== 'undefined') {
   window.addEventListener('offline', () => {
     useOperationQueueStore.getState().setOnline(false)
   })
+
+  // Re-check online status when tab becomes visible again
+  // (handles laptop sleep/wake and tab switching scenarios where
+  // the Supabase realtime channel disconnects but network is fine)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && navigator.onLine) {
+      useOperationQueueStore.getState().setOnline(true)
+    }
+  })
 }
 
 /**
