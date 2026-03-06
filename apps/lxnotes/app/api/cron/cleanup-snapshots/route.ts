@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { removeSnapshotsFromStorage } from '@/lib/supabase/snapshot-storage'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SupabaseAny = any
@@ -28,20 +29,37 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = await createClient() as SupabaseAny
+    const supabase = createAdminClient() as SupabaseAny
 
-    const { data: deletedCount, error } = await supabase.rpc('cleanup_old_snapshots')
+    const { data, error } = await supabase.rpc('cleanup_old_snapshots')
 
     if (error) {
       console.error('Error cleaning up snapshots:', error)
       return NextResponse.json({ error: 'Failed to clean up snapshots' }, { status: 500 })
     }
 
-    console.log(`Cleaned up ${deletedCount || 0} old snapshots`)
+    // Handle both old (integer) and new (JSONB) return formats
+    const isJsonb = typeof data === 'object' && data !== null
+    const deletedCount = isJsonb ? data.deleted_count : (data || 0)
+    const deletedPairs: { production_id: string; snapshot_id: string }[] =
+      isJsonb ? (data.deleted || []) : []
+
+    console.log(`Cleaned up ${deletedCount} old snapshots`)
+
+    // Remove corresponding files from storage (best-effort)
+    let storageFilesRemoved = 0
+    if (deletedPairs.length > 0) {
+      const paths = deletedPairs.map(
+        (p) => `${p.production_id}/${p.snapshot_id}.json`
+      )
+      storageFilesRemoved = await removeSnapshotsFromStorage(paths)
+      console.log(`Removed ${storageFilesRemoved}/${paths.length} snapshot files from storage`)
+    }
 
     return NextResponse.json({
       success: true,
-      deletedCount: deletedCount || 0,
+      deletedCount,
+      storageFilesRemoved,
     })
   } catch (error) {
     console.error('Error in cleanup-snapshots cron:', error)

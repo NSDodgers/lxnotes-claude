@@ -444,6 +444,7 @@ const TRIGGER_BADGES: Record<SnapshotTriggerReason, { label: string; className: 
   before_restore: { label: 'Pre-Restore', className: 'bg-amber-500/20 text-amber-400' },
   before_fixture_import: { label: 'Pre-Import', className: 'bg-blue-500/20 text-blue-400' },
   before_script_replace: { label: 'Pre-Script', className: 'bg-purple-500/20 text-purple-400' },
+  scheduled: { label: 'Auto', className: 'bg-cyan-500/20 text-cyan-400' },
 }
 
 function formatRelativeTime(dateStr: string): string {

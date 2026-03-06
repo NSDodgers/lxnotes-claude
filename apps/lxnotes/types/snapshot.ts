@@ -57,7 +57,7 @@ export interface ProductionSnapshot {
   counts: ProductionSnapshotCounts
 }
 
-export type SnapshotTriggerReason = 'manual' | 'before_restore' | 'before_fixture_import' | 'before_script_replace'
+export type SnapshotTriggerReason = 'manual' | 'before_restore' | 'before_fixture_import' | 'before_script_replace' | 'scheduled'
 
 export interface SnapshotListItem {
   id: string
