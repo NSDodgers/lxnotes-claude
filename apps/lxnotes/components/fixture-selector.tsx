@@ -33,35 +33,61 @@ export function FixtureSelector({
   const [availableFixtures, setAvailableFixtures] = useState<FixtureInfo[]>([])
   const lastAutoSelectedRef = useRef<string>('')
 
-  // Parse channel expression and fetch fixtures
+  // Parse channel expression and fetch fixtures (debounced to avoid intermediate keystrokes)
   useEffect(() => {
-    if (searchExpression.trim()) {
-      const parsed = ChannelExpressionParser.parse(searchExpression.trim())
-      setParsedExpression(parsed)
-      
-      if (parsed.channels.length > 0) {
-        const fixtures = getFixturesByChannels(productionId, parsed.channels)
-        setAvailableFixtures(fixtures)
-        
-        // Automatically select all fixtures that match the channel expression
-        // Only auto-select if this is a new/different expression
-        if (fixtures.length > 0 && lastAutoSelectedRef.current !== searchExpression.trim()) {
-          const newFixtureIds = fixtures.map(f => f.id)
-          // Only add fixtures that aren't already selected to avoid duplicates
-          const uniqueNewIds = newFixtureIds.filter(id => !selectedFixtureIds.includes(id))
-          if (uniqueNewIds.length > 0) {
-            onSelectionChange([...selectedFixtureIds, ...uniqueNewIds])
+    const timer = setTimeout(() => {
+      if (searchExpression.trim()) {
+        const parsed = ChannelExpressionParser.parse(searchExpression.trim())
+        setParsedExpression(parsed)
+
+        if (parsed.channels.length > 0) {
+          const fixtures = getFixturesByChannels(productionId, parsed.channels)
+          setAvailableFixtures(fixtures)
+
+          // Sync selection to match current expression:
+          // Add new matches and remove fixtures no longer in expression
+          if (lastAutoSelectedRef.current !== searchExpression.trim()) {
+            const matchedIds = new Set(fixtures.map(f => f.id))
+            // Keep manually-unrelated selections, add new matches, remove stale ones
+            const previousMatchIds = lastAutoSelectedRef.current
+              ? new Set(
+                  getFixturesByChannels(
+                    productionId,
+                    ChannelExpressionParser.parse(lastAutoSelectedRef.current).channels
+                  ).map(f => f.id)
+                )
+              : new Set<string>()
+
+            const updated = selectedFixtureIds
+              .filter(id => !previousMatchIds.has(id) || matchedIds.has(id))
+            const newIds = fixtures
+              .filter(f => !updated.includes(f.id))
+              .map(f => f.id)
+
+            onSelectionChange([...updated, ...newIds])
             lastAutoSelectedRef.current = searchExpression.trim()
           }
+        } else {
+          setAvailableFixtures([])
         }
       } else {
+        setParsedExpression(null)
         setAvailableFixtures([])
+        // Remove fixtures that were auto-selected by the previous expression
+        if (lastAutoSelectedRef.current) {
+          const previousMatchIds = new Set(
+            getFixturesByChannels(
+              productionId,
+              ChannelExpressionParser.parse(lastAutoSelectedRef.current).channels
+            ).map(f => f.id)
+          )
+          onSelectionChange(selectedFixtureIds.filter(id => !previousMatchIds.has(id)))
+        }
+        lastAutoSelectedRef.current = ''
       }
-    } else {
-      setParsedExpression(null)
-      setAvailableFixtures([])
-      lastAutoSelectedRef.current = ''
-    }
+    }, 400)
+
+    return () => clearTimeout(timer)
   }, [searchExpression, productionId, getFixturesByChannels, selectedFixtureIds, onSelectionChange])
 
   // Update parent channel expression

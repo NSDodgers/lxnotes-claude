@@ -12,6 +12,7 @@ import { createClient } from './client'
 import type { Database } from './database.types'
 
 type DbNote = Database['public']['Tables']['notes']['Row']
+type DbFixture = Database['public']['Tables']['fixtures']['Row']
 type DbProduction = Database['public']['Tables']['productions']['Row']
 
 /**
@@ -101,6 +102,7 @@ export interface RealtimeCallbacks {
   onNoteUpdate?: (note: DbNote) => void
   onNoteDelete?: (oldNote: DbNote) => void
   onProductionUpdate?: (production: DbProduction) => void
+  onFixtureChange?: (fixture: DbFixture, eventType: 'INSERT' | 'UPDATE' | 'DELETE') => void
   onError?: (error: Error) => void
   onStatusChange?: (status: string) => void
 }
@@ -146,6 +148,48 @@ export function subscribeToNoteChanges(
             case 'DELETE':
               if (callbacks.onNoteDelete) callbacks.onNoteDelete(payload.old as DbNote)
               break
+          }
+        }
+      )
+    },
+    callbacks.onError,
+    callbacks.onStatusChange
+  )
+}
+
+/**
+ * Subscribe to real-time changes for fixtures (channel/type/position data)
+ * Includes automatic retry with exponential backoff on connection failures
+ */
+export function subscribeToFixtureChanges(
+  productionId: string,
+  callbacks: Pick<RealtimeCallbacks, 'onFixtureChange' | 'onStatusChange' | 'onError'>
+): () => void {
+  // SECURITY: Validate productionId is a valid UUID
+  if (!productionId || !isValidUUID(productionId)) {
+    if (isDev) console.warn(`[Realtime] Invalid productionId for fixtures subscription: ${productionId}`)
+    return () => { }
+  }
+
+  const supabase = createClient()
+  const channelName = `production-${productionId}-fixtures`
+
+  return createSubscriptionWithRetry(
+    channelName,
+    () => {
+      return supabase.channel(channelName).on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'fixtures',
+          filter: `production_id=eq.${productionId}`
+        },
+        (payload) => {
+          if (isDev) console.log(`[Realtime] Fixture event: ${payload.eventType}`, payload)
+          if (callbacks.onFixtureChange) {
+            const fixture = (payload.eventType === 'DELETE' ? payload.old : payload.new) as DbFixture
+            callbacks.onFixtureChange(fixture, payload.eventType as 'INSERT' | 'UPDATE' | 'DELETE')
           }
         }
       )

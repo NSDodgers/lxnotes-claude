@@ -14,6 +14,7 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef, Re
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { useAuthContext } from '@/components/auth/auth-provider'
+import { subscribeToFixtureChanges } from '@/lib/supabase/realtime'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -91,6 +92,23 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
     return () => {
       isMountedRef.current = false
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productionId, isAuthenticated, isValidId])
+
+  // Subscribe to realtime fixture changes
+  useEffect(() => {
+    if (!isValidId || !isAuthenticated) return
+
+    const unsubscribe = subscribeToFixtureChanges(productionId, {
+      onFixtureChange: () => {
+        refreshFixtures()
+      },
+      onError: (err) => {
+        if (isDev) console.error('[FixturesContext] Realtime error:', err)
+      },
+    })
+
+    return unsubscribe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productionId, isAuthenticated, isValidId])
 
