@@ -93,8 +93,9 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     scriptPageId: '',
     sceneSongId: '',
     lightwrightItemId: '',
+    sceneryNeeds: '',
   })
-  
+
   // Lightwright selection state for work notes
   const [selectedLightwrightIds, setSelectedLightwrightIds] = useState<string[]>([])
   const [channelExpression, setChannelExpression] = useState('')
@@ -117,6 +118,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
         scriptPageId: editingNote.scriptPageId || '',
         sceneSongId: editingNote.sceneSongId || '',
         lightwrightItemId: editingNote.lightwrightItemId || '',
+        sceneryNeeds: editingNote.sceneryNeeds || '',
       })
       
       // Load existing Lightwright selections for work notes
@@ -161,6 +163,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       sceneSongId: formData.sceneSongId || undefined,
       lightwrightItemId: formData.lightwrightItemId || undefined,
       channelNumbers: moduleType === 'work' ? channelExpression : undefined,
+      sceneryNeeds: moduleType === 'work' ? formData.sceneryNeeds || undefined : undefined,
     }
 
     // Pass note data and fixture IDs to parent
@@ -176,6 +179,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       scriptPageId: '',
       sceneSongId: '',
       lightwrightItemId: '',
+      sceneryNeeds: '',
     })
     setSelectedLightwrightIds([])
     setChannelExpression('')
@@ -254,6 +258,20 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                     onChannelExpressionChange={setChannelExpression}
                   />
                 </div>
+              </div>
+            )}
+
+            {moduleType === 'work' && (
+              <div className="space-y-2">
+                <Label htmlFor="sceneryNeeds">Scenery Needs</Label>
+                <Textarea
+                  id="sceneryNeeds"
+                  data-testid="scenery-needs"
+                  value={formData.sceneryNeeds}
+                  onChange={(e) => setFormData({ ...formData, sceneryNeeds: e.target.value })}
+                  placeholder="Any scenic coordination needed..."
+                  className="min-h-[60px] resize-none"
+                />
               </div>
             )}
 

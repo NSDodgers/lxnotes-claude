@@ -856,7 +856,7 @@ function SnapshotHistorySection({
         ) : (
           <div className="space-y-2">
             {snapshots.map((snap) => {
-              const badge = TRIGGER_BADGES[snap.trigger_reason]
+              const badge = TRIGGER_BADGES[snap.trigger_reason] || { label: snap.trigger_reason, className: 'bg-gray-500/20 text-gray-400' }
               const isProcessingThis = processingId === snap.id
               const isExpanded = expandedId === snap.id
 
