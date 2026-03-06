@@ -78,7 +78,11 @@ function SortableItem({ id, position, index }: SortableItemProps) {
   )
 }
 
-export function PositionManager() {
+interface PositionManagerProps {
+  productionId: string
+}
+
+export function PositionManager({ productionId }: PositionManagerProps) {
   const pathname = usePathname()
   const { name: productionName } = useCurrentProductionStore()
   const { getOrderedPositions, updateOrder, orders } = usePositionStore()
@@ -93,9 +97,6 @@ export function PositionManager() {
     : isProductionMode
       ? `/production/${prodId}`
       : ''
-
-  // Use a hardcoded production ID for demo - in real app this would come from context
-  const productionId = 'prod-1'
 
   const [orderedPositions, setOrderedPositions] = useState<string[]>([])
   const [availablePositions, setAvailablePositions] = useState<string[]>([])

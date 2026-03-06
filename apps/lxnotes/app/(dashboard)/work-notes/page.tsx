@@ -626,7 +626,7 @@ export default function WorkNotesPage() {
             </SheetDescription>
           </SheetHeader>
 
-          <PositionManager />
+          <PositionManager productionId={productionId} />
         </SheetContent>
       </Sheet>
     </>

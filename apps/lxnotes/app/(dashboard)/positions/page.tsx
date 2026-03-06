@@ -1,6 +1,7 @@
 'use client'
 
 import { PositionManager } from '@/components/position-manager'
+import { useProductionOptional } from '@/components/production/production-provider'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -8,15 +9,16 @@ import { Button } from '@/components/ui/button'
 
 export default function PositionsPage() {
   const pathname = usePathname()
+  const productionContext = useProductionOptional()
+  const productionId = productionContext?.productionId ?? 'prod-1'
 
   // Build base URL matching the current route context (demo, production, or default)
   const isDemoMode = pathname.startsWith('/demo')
   const isProductionMode = pathname.startsWith('/production/')
-  const productionId = isProductionMode ? pathname.split('/')[2] : null
   const baseUrl = isDemoMode
     ? '/demo'
     : isProductionMode
-      ? `/production/${productionId}`
+      ? `/production/${productionContext?.productionId}`
       : ''
 
   return (
@@ -38,7 +40,7 @@ export default function PositionsPage() {
         </div>
 
         {/* Position Manager */}
-        <PositionManager />
+        <PositionManager productionId={productionId} />
       </div>
   )
 }
