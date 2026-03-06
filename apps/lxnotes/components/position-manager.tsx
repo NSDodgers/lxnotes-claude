@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { GripVertical, RotateCcw, Download, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -77,9 +79,20 @@ function SortableItem({ id, position, index }: SortableItemProps) {
 }
 
 export function PositionManager() {
+  const pathname = usePathname()
   const { name: productionName } = useCurrentProductionStore()
   const { getOrderedPositions, updateOrder, orders } = usePositionStore()
   const { getUniquePositions, lastPositionUpdate } = useFixtureStore()
+
+  // Build base URL matching the current route context (demo, production, or default)
+  const isDemoMode = pathname.startsWith('/demo')
+  const isProductionMode = pathname.startsWith('/production/')
+  const prodId = isProductionMode ? pathname.split('/')[2] : null
+  const baseUrl = isDemoMode
+    ? '/demo'
+    : isProductionMode
+      ? `/production/${prodId}`
+      : ''
 
   // Use a hardcoded production ID for demo - in real app this would come from context
   const productionId = 'prod-1'
@@ -204,7 +217,7 @@ export function PositionManager() {
           Upload hookup CSV data to manage position sorting
         </p>
         <Button variant="outline" asChild>
-          <a href="/work-notes">Go to Work Notes</a>
+          <Link href={`${baseUrl}/work-notes`}>Go to Work Notes</Link>
         </Button>
       </div>
     )
