@@ -94,7 +94,7 @@ export function BugReportButton() {
         onClick={handleClick}
         disabled={isCapturing}
         data-testid="bug-report-button"
-        className="fixed bottom-4 right-4 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-red-600 shadow-lg transition-colors hover:bg-red-500 disabled:opacity-50"
+        className="fixed bottom-4 right-4 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-red-600 shadow-lg transition-colors hover:bg-red-500 disabled:opacity-50"
         title="Report a bug"
       >
         <Bug className="h-5 w-5 text-white" />
