@@ -90,7 +90,7 @@ interface ProductionProviderProps {
 
 export function ProductionProvider({ productionId, children }: ProductionProviderProps) {
   const router = useRouter()
-  const { isAuthenticated, isSuperAdmin } = useAuthContext()
+  const { isAuthenticated, isSuperAdmin, isLoading: isAuthLoading } = useAuthContext()
   const [production, setProduction] = useState<Production | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -465,6 +465,23 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
     }
   }, [production])
 
+  // Auth guard: redirect unauthenticated or unauthorized users
+  useEffect(() => {
+    if (isAuthLoading || isLoading) return
+
+    // Not signed in → redirect to home
+    if (!isAuthenticated) {
+      router.push('/')
+      return
+    }
+
+    // Signed in but no access (RLS returned null)
+    if (!production && error) {
+      toast.error('You do not have access to this production')
+      router.push('/')
+    }
+  }, [isAuthLoading, isLoading, isAuthenticated, production, error, router])
+
   // Access Control Effect
   useEffect(() => {
     if (!isLoading && production?.deletedAt) {
@@ -521,6 +538,11 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
       unsubscribe()
     }
   }, [productionId, isAuthenticated])
+
+  // Don't render while auth is loading or user is unauthenticated
+  if (isAuthLoading || (!isAuthenticated && !isLoading)) {
+    return null
+  }
 
   // Render "Deleted" state for admins who are allowed to stay and restore
   if (!isLoading && production?.deletedAt && isAdmin) {
