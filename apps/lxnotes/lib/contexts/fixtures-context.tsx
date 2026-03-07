@@ -68,6 +68,44 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
       if (isMountedRef.current) {
         syncFixtures(productionId, fixtures)
       }
+
+      // Load fixture links from Supabase
+      if (adapter.fixtureLinks) {
+        try {
+          const dbLinks = await adapter.fixtureLinks.getAll()
+
+          if (isMountedRef.current) {
+            const localLinks = useFixtureStore.getState().workNoteLinks
+
+            if (dbLinks.length === 0 && localLinks.length > 0) {
+              // Migration: push localStorage links to Supabase
+              const linksByNote = new Map<string, string[]>()
+              for (const link of localLinks) {
+                const existing = linksByNote.get(link.workNoteId) || []
+                existing.push(link.fixtureInfoId)
+                linksByNote.set(link.workNoteId, existing)
+              }
+
+              for (const [workNoteId, fixtureIds] of linksByNote) {
+                adapter.fixtureLinks.setForWorkNote(workNoteId, fixtureIds).catch(err => {
+                  if (isDev) console.error('[FixturesContext] Failed to migrate links for note:', workNoteId, err)
+                })
+              }
+              if (isDev) console.log('[FixturesContext] Migrated', localLinks.length, 'links to Supabase')
+            } else {
+              // Sync DB links into store
+              const mappedLinks = dbLinks.map(row => ({
+                workNoteId: row.work_note_id,
+                fixtureInfoId: row.fixture_id,
+                createdAt: row.created_at ? new Date(row.created_at) : new Date(),
+              }))
+              useFixtureStore.getState().syncLinks(mappedLinks)
+            }
+          }
+        } catch (linkErr) {
+          if (isDev) console.error('[FixturesContext] Failed to load fixture links:', linkErr)
+        }
+      }
     } catch (err) {
       if (isDev) console.error('[FixturesContext] Failed to load fixtures:', err)
       if (isMountedRef.current) {

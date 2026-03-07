@@ -48,6 +48,7 @@ interface FixtureState {
 
   // External Sync
   syncFixtures: (productionId: string, fixtures: FixtureInfo[]) => void
+  syncLinks: (links: WorkNoteFixtureLink[]) => void
 }
 
 // Check if we're in demo mode
@@ -86,6 +87,21 @@ export const useFixtureStore = create<FixtureState>()(
 
         const uniqueWorkNotes = [...new Set(affectedWorkNotes)]
         uniqueWorkNotes.forEach(workNoteId => {
+          get().updateAggregates(workNoteId)
+        })
+      },
+
+      // Sync links from external source (e.g. Supabase)
+      syncLinks: (links: WorkNoteFixtureLink[]) => {
+        const state = get()
+        const oldNoteIds = new Set(state.workNoteLinks.map(l => l.workNoteId))
+        const newNoteIds = new Set(links.map(l => l.workNoteId))
+
+        set({ workNoteLinks: links })
+
+        // Recalculate aggregates for all affected work notes (union of old + new)
+        const allNoteIds = new Set([...oldNoteIds, ...newNoteIds])
+        allNoteIds.forEach(workNoteId => {
           get().updateAggregates(workNoteId)
         })
       },

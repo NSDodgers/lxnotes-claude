@@ -36,6 +36,7 @@ import { useNotes } from '@/lib/contexts/notes-context'
 // Lazy loaded via dynamic import to avoid loading 4,682 lines on page load
 // import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 import { isDemoMode } from '@/lib/demo-data'
+import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
@@ -298,6 +299,14 @@ export default function WorkNotesPage() {
       // Handle fixture linking for work notes
       if (noteData.moduleType === 'work' && lightwrightFixtureIds) {
         linkFixturesToWorkNote(editingNote.id, lightwrightFixtureIds)
+
+        // Persist to Supabase
+        if (!isDemo && isProductionMode) {
+          const adapter = createSupabaseStorageAdapter(productionId)
+          adapter.fixtureLinks?.setForWorkNote(editingNote.id, lightwrightFixtureIds).catch(err => {
+            console.error('[WorkNotes] Failed to persist fixture links:', err)
+          })
+        }
       }
     } else {
       // Create new note
@@ -306,6 +315,14 @@ export default function WorkNotesPage() {
       // Handle fixture linking for work notes
       if (noteData.moduleType === 'work' && lightwrightFixtureIds && lightwrightFixtureIds.length > 0) {
         linkFixturesToWorkNote(note.id, lightwrightFixtureIds)
+
+        // Persist to Supabase
+        if (!isDemo && isProductionMode) {
+          const adapter = createSupabaseStorageAdapter(productionId)
+          adapter.fixtureLinks?.setForWorkNote(note.id, lightwrightFixtureIds).catch(err => {
+            console.error('[WorkNotes] Failed to persist fixture links:', err)
+          })
+        }
       }
     }
     setEditingNote(null)

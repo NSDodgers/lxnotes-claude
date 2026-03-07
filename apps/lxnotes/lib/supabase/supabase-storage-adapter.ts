@@ -332,6 +332,46 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
       },
     },
 
+    fixtureLinks: {
+      async getAll(): Promise<{ work_note_id: string; fixture_id: string; created_at: string | null }[]> {
+        const { data, error } = await (supabase as SupabaseAny)
+          .from('work_note_fixture_links')
+          .select('work_note_id, fixture_id, created_at, notes!inner(production_id)')
+          .eq('notes.production_id', productionId)
+
+        if (error) throw error
+        return (data || []).map((row: { work_note_id: string; fixture_id: string; created_at: string | null }) => ({
+          work_note_id: row.work_note_id,
+          fixture_id: row.fixture_id,
+          created_at: row.created_at,
+        }))
+      },
+
+      async setForWorkNote(workNoteId: string, fixtureIds: string[]): Promise<void> {
+        // Delete existing links for this work note
+        const { error: deleteError } = await (supabase as SupabaseAny)
+          .from('work_note_fixture_links')
+          .delete()
+          .eq('work_note_id', workNoteId)
+
+        if (deleteError) throw deleteError
+
+        // Insert new links
+        if (fixtureIds.length > 0) {
+          const rows = fixtureIds.map(fixtureId => ({
+            work_note_id: workNoteId,
+            fixture_id: fixtureId,
+          }))
+
+          const { error: insertError } = await (supabase as SupabaseAny)
+            .from('work_note_fixture_links')
+            .insert(rows)
+
+          if (insertError) throw insertError
+        }
+      },
+    },
+
     script: {
       async getPages(): Promise<ScriptPage[]> {
         const { data, error } = await supabase

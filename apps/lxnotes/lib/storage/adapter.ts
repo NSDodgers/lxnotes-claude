@@ -40,6 +40,12 @@ export interface StorageAdapter {
     clear(): Promise<void>
   }
 
+  // Fixture links (optional — only implemented in Supabase adapter)
+  fixtureLinks?: {
+    getAll(): Promise<{ work_note_id: string; fixture_id: string; created_at: string | null }[]>
+    setForWorkNote(workNoteId: string, fixtureIds: string[]): Promise<void>
+  }
+
   // Script operations
   script: {
     getPages(): Promise<ScriptPage[]>
