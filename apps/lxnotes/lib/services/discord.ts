@@ -61,6 +61,7 @@ export async function submitBugReport(report: BugReport): Promise<void> {
   }
 
   const payload = {
+    content: '<@267747133929684992> <@204741533931405313>',
     thread_name: threadName,
     embeds: [embed],
   }
