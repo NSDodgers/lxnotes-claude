@@ -34,12 +34,12 @@ BEGIN
   LOOP
     -- Each production is isolated: failure here won't affect others
     BEGIN
-      -- Skip if a snapshot already exists within the last 4 hours (dedup safety)
+      -- Skip if a snapshot already exists within the last 20 hours (dedup safety for daily cadence)
       SELECT EXISTS (
         SELECT 1
         FROM production_snapshots
         WHERE production_id = v_prod.id
-          AND created_at > NOW() - INTERVAL '4 hours'
+          AND created_at > NOW() - INTERVAL '20 hours'
       ) INTO v_recent_exists;
 
       IF v_recent_exists THEN
@@ -84,7 +84,7 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION create_scheduled_snapshots IS 'Creates auto-snapshots for all active productions with per-production error isolation. Returns JSONB { created, errors, snapshot_ids }.';
+COMMENT ON FUNCTION create_scheduled_snapshots IS 'Creates daily auto-snapshots for all active productions with per-production error isolation. Returns JSONB { created, errors, snapshot_ids }.';
 
 -- Restrict execution to service_role only
 REVOKE EXECUTE ON FUNCTION public.create_scheduled_snapshots() FROM PUBLIC;

@@ -10,7 +10,7 @@ type SupabaseAny = any
  * Creates scheduled auto-snapshots for all active productions.
  *
  * This endpoint is called by Vercel Cron
- * Schedule: Every 6 hours
+ * Schedule: Daily at 3am UTC
  */
 export async function GET(request: Request) {
   try {

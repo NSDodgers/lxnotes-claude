@@ -3,7 +3,7 @@
 -- ============================================
 -- Adds 'scheduled' as a valid trigger_reason and creates a function
 -- that iterates all active productions and creates snapshots for each.
--- Called by the /api/cron/auto-snapshot endpoint every 6 hours.
+-- Called by the /api/cron/auto-snapshot endpoint daily.
 
 -- ── 1. Add 'scheduled' to trigger_reason CHECK constraint ──
 
@@ -159,12 +159,12 @@ BEGIN
     WHERE is_demo = FALSE
       AND deleted_at IS NULL
   LOOP
-    -- Skip if a snapshot already exists within the last 4 hours (dedup safety)
+    -- Skip if a snapshot already exists within the last 20 hours (dedup safety for daily cadence)
     SELECT EXISTS (
       SELECT 1
       FROM production_snapshots
       WHERE production_id = v_prod.id
-        AND created_at > NOW() - INTERVAL '4 hours'
+        AND created_at > NOW() - INTERVAL '20 hours'
     ) INTO v_recent_exists;
 
     IF v_recent_exists THEN
@@ -197,7 +197,7 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION create_scheduled_snapshots IS 'Creates auto-snapshots for all active productions. Called by cron every 6 hours. Skips productions with a snapshot in the last 4 hours.';
+COMMENT ON FUNCTION create_scheduled_snapshots IS 'Creates auto-snapshots for all active productions. Called by cron daily. Skips productions with a snapshot in the last 20 hours.';
 
 -- Restrict execution to service_role only
 REVOKE EXECUTE ON FUNCTION public.create_scheduled_snapshots() FROM PUBLIC;
