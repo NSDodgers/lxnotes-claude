@@ -52,10 +52,17 @@ export function useInlineEditing(moduleType: ModuleType): InlineEditing {
     const order = EDITABLE_COLUMN_ORDER[moduleType]
     const currentIndex = order.indexOf(currentColumn)
     if (currentIndex < order.length - 1) {
-      setState(prev => ({ ...prev, editingColumn: order[currentIndex + 1] }))
+      setState(prev => {
+        // Only advance if we're still editing this column — prevents
+        // cascade when blur fires on unmounted cells during re-render
+        if (prev.editingColumn !== currentColumn) return prev
+        return { ...prev, editingColumn: order[currentIndex + 1] }
+      })
     } else {
-      // Last column — done editing
-      setState({ editingNoteId: null, editingColumn: null, isNewNote: false })
+      setState(prev => {
+        if (prev.editingColumn !== currentColumn) return prev
+        return { editingNoteId: null, editingColumn: null, isNewNote: false }
+      })
     }
   }, [moduleType])
 
