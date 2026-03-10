@@ -238,6 +238,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                 <Input
                   id="cueNumbers"
                   type="text"
+                  autoFocus
                   value={formData.cueNumbers}
                   onChange={(e) => setFormData({ ...formData, cueNumbers: e.target.value })}
                   placeholder="e.g., 127 or 45-47 or 89, 92, 95"
@@ -279,6 +280,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
               <Label htmlFor="description">Note Content</Label>
               <Textarea
                 id="description"
+                autoFocus={moduleType !== 'cue'}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Enter your lighting note here..."
