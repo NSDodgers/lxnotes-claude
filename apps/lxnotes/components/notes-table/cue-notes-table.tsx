@@ -97,7 +97,7 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, o
   const handleQuickAddClick = useCallback(async () => {
     if (onQuickAdd && inlineEditing) {
       const newNote = await onQuickAdd()
-      inlineEditing.startEditing(newNote.id, 'title', true)
+      inlineEditing.startEditing(newNote.id, 'cueNumber', true)
     }
   }, [onQuickAdd, inlineEditing])
 
