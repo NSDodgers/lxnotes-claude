@@ -191,6 +191,13 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   const availableTypes = getTypes(moduleType)
   const availablePriorities = getPriorities(moduleType)
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      handleSubmit(e as unknown as React.FormEvent)
+    }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
@@ -200,7 +207,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="flex flex-col min-h-0 flex-1">
           <DialogScrollableContent className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -323,6 +330,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                 className="flex-1"
               >
                 {editingNote ? 'Update Note' : 'Create Note'}
+                <kbd className="ml-2 text-xs opacity-60">⌘↵</kbd>
               </Button>
             </div>
           </DialogStickyFooter>
