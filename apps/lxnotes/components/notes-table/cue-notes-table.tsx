@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useEffect, useCallback } from 'react'
+import { useMemo, useEffect, useCallback, useRef } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -85,14 +85,37 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, o
   const { frozenCount, freeze, unfreeze, headerRowRef, getFrozenHeaderStyle, getFrozenCellStyle, isLastFrozen } =
     useColumnFreeze('cue')
 
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current)
+    }
+  }, [])
+
   const handleCellClick = useCallback((note: Note, columnId: string, e: React.MouseEvent) => {
     if (inlineEditing && EDITABLE_COLUMNS.has(columnId)) {
       e.stopPropagation()
-      inlineEditing.startEditing(note.id, columnId as EditableColumn)
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current)
+      clickTimerRef.current = setTimeout(() => {
+        clickTimerRef.current = null
+        if (onEdit) onEdit(note)
+      }, 250)
     } else if (onEdit) {
       onEdit(note)
     }
   }, [inlineEditing, onEdit])
+
+  const handleCellDoubleClick = useCallback((note: Note, columnId: string, e: React.MouseEvent) => {
+    if (inlineEditing && EDITABLE_COLUMNS.has(columnId)) {
+      e.stopPropagation()
+      if (clickTimerRef.current) {
+        clearTimeout(clickTimerRef.current)
+        clickTimerRef.current = null
+      }
+      inlineEditing.startEditing(note.id, columnId as EditableColumn)
+    }
+  }, [inlineEditing])
 
   const handleQuickAddClick = useCallback(async () => {
     if (onQuickAdd && inlineEditing) {
@@ -206,6 +229,7 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, o
                         }}
                         suppressHydrationWarning
                         onClick={(e) => handleCellClick(row.original, cell.column.id, e)}
+                        onDoubleClick={(e) => handleCellDoubleClick(row.original, cell.column.id, e)}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
