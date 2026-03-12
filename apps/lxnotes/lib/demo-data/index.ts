@@ -7,4 +7,4 @@
 export * from './loader'
 export * from './version'
 export { PIRATES_PRODUCTION } from './production/pirates-info'
-export { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from './script/pirates-pages-songs'
+export { PIRATES_PAGES, PIRATES_SONGS } from './script/pirates-pages-songs'

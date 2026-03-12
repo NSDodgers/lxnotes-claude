@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { useAuthContext } from '@/components/auth/auth-provider'
-import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, ArrowRight, Upload, Pencil, Check, X } from 'lucide-react'
+import { Plus, FileText, Theater, Music, Trash2, AlertTriangle, ArrowRight, Upload, Pencil, Check, X, BookOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ScriptPage, SceneSong } from '@/types'
 import {
@@ -54,7 +54,13 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   const [isEditingPage, setIsEditingPage] = useState(false)
   const [editPageNumber, setEditPageNumber] = useState(page.pageNumber)
   const [editFirstCue, setEditFirstCue] = useState(page.firstCueNumber || '')
+  const [editActName, setEditActName] = useState(page.actName || '')
   const editPageNumberRef = useRef<HTMLInputElement>(null)
+
+  // Act editing state
+  const [isEditingAct, setIsEditingAct] = useState(false)
+  const [actNameInput, setActNameInput] = useState(page.actName || '')
+  const [actCueInput, setActCueInput] = useState(page.actFirstCueNumber || '')
 
   // Inline form state for Add Scene/Song
   const [addingType, setAddingType] = useState<'scene' | 'song' | null>(null)
@@ -103,6 +109,7 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   const openPageEdit = () => {
     setEditPageNumber(page.pageNumber)
     setEditFirstCue(page.firstCueNumber || '')
+    setEditActName(page.actName || '')
     setIsEditingPage(true)
     setTimeout(() => editPageNumberRef.current?.focus(), 0)
   }
@@ -113,6 +120,7 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
     updatePage(page.id, {
       pageNumber: editPageNumber.trim(),
       firstCueNumber: editFirstCue.trim() || undefined,
+      actName: editActName.trim() || undefined,
     })
 
     // Validate after update
@@ -135,6 +143,7 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   const handleCancelPageEdit = () => {
     setEditPageNumber(page.pageNumber)
     setEditFirstCue(page.firstCueNumber || '')
+    setEditActName(page.actName || '')
     setIsEditingPage(false)
   }
 
@@ -145,6 +154,37 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
     } else if (e.key === 'Escape') {
       e.preventDefault()
       handleCancelPageEdit()
+    }
+  }
+
+  // Act handlers
+  const handleSaveAct = async () => {
+    updatePage(page.id, {
+      actName: actNameInput.trim() || undefined,
+      actFirstCueNumber: actCueInput.trim() || undefined,
+    })
+    setIsEditingAct(false)
+    await onPersist()
+  }
+
+  const handleRemoveAct = async () => {
+    updatePage(page.id, { actName: undefined, actFirstCueNumber: undefined })
+    setActNameInput('')
+    setActCueInput('')
+    setIsEditingAct(false)
+    await onPersist()
+  }
+
+  const handleContinueAct = async () => {
+    if (!page.actName) return
+    const pageIndex = allPages.findIndex(p => p.id === page.id)
+    const nextPage = pageIndex < allPages.length - 1 ? allPages[pageIndex + 1] : null
+    if (nextPage && nextPage.actName !== page.actName) {
+      updatePage(nextPage.id, {
+        actName: page.actName,
+        actFirstCueNumber: page.actFirstCueNumber,
+      })
+      await onPersist()
     }
   }
 
@@ -264,6 +304,18 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
                 />
               </div>
 
+              <div className="flex items-center gap-compact-2">
+                <span className="text-sm text-text-secondary">Act:</span>
+                <input
+                  type="text"
+                  value={editActName}
+                  onChange={(e) => setEditActName(e.target.value)}
+                  onKeyDown={handlePageEditKeyDown}
+                  placeholder="None"
+                  className="h-compact-7 bg-bg-tertiary border border-modules-cue rounded px-compact-2 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue w-28"
+                />
+              </div>
+
               <div className="flex items-center gap-compact-1">
                 <Button
                   size="sm"
@@ -342,6 +394,17 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-compact-2">
+            {!page.actName && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => { setActNameInput(''); setIsEditingAct(true) }}
+                disabled={addingType !== null}
+              >
+                <BookOpen className="h-4 w-4 mr-1" />
+                Add Act
+              </Button>
+            )}
             <Button
               size="sm"
               variant="secondary"
@@ -483,10 +546,19 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
         )}
 
         {/* Page Content */}
-        {allItems.length > 0 && (
+        {(page.actName || allItems.length > 0) && (
           <div className="px-3 pb-3 pt-2">
             <div className="border-l-2 border-bg-hover/50 pl-4 space-y-1.5">
-              {allItems.map((item, index) => (
+              {page.actName && (
+                <ActItem
+                  page={page}
+                  allPages={allPages}
+                  onEdit={() => { setActNameInput(page.actName || ''); setActCueInput(page.actFirstCueNumber || ''); setIsEditingAct(true) }}
+                  onRemove={handleRemoveAct}
+                  onContinue={handleContinueAct}
+                />
+              )}
+              {allItems.map((item) => (
                 <SceneSongItem
                   key={item.id}
                   item={item}
@@ -526,7 +598,190 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
         </div>
       )}
 
+      {/* Add/Edit Act Dialog */}
+      {isEditingAct && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
+            <h3 className="text-lg font-semibold text-text-primary mb-4">
+              {page.actName ? 'Edit Act' : 'Add Act'}
+            </h3>
+            <form onSubmit={(e) => { e.preventDefault(); handleSaveAct() }} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  Act Name
+                </label>
+                <input
+                  type="text"
+                  value={actNameInput}
+                  onChange={(e) => setActNameInput(e.target.value)}
+                  placeholder="e.g., Act 1, Prologue"
+                  className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-cue"
+                  autoFocus
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  First Cue Number
+                </label>
+                <input
+                  type="text"
+                  value={actCueInput}
+                  onChange={(e) => setActCueInput(e.target.value)}
+                  placeholder="e.g., 1, 100"
+                  className="w-full rounded-lg bg-bg-tertiary border border-bg-hover px-3 py-2 text-text-primary focus:outline-hidden focus:border-modules-cue"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setIsEditingAct(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="cue"
+                  className="flex-1"
+                  disabled={!actNameInput.trim()}
+                >
+                  {page.actName ? 'Save' : 'Add Act'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </>
+  )
+}
+
+function ActItem({ page, allPages, onEdit, onRemove, onContinue }: {
+  page: ScriptPage
+  allPages: ScriptPage[]
+  onEdit: () => void
+  onRemove: () => void
+  onContinue: () => void
+}) {
+  if (!page.actName) return null
+
+  // Determine if this is a continuation (previous page has the same act name)
+  const pageIndex = allPages.findIndex(p => p.id === page.id)
+  const previousPage = pageIndex > 0 ? allPages[pageIndex - 1] : null
+  const isContinuation = previousPage?.actName === page.actName
+
+  // Count how many consecutive pages share this act name (from the first occurrence)
+  let actStartIndex = pageIndex
+  while (actStartIndex > 0 && allPages[actStartIndex - 1]?.actName === page.actName) {
+    actStartIndex--
+  }
+  let actEndIndex = pageIndex
+  while (actEndIndex < allPages.length - 1 && allPages[actEndIndex + 1]?.actName === page.actName) {
+    actEndIndex++
+  }
+  const totalPages = actEndIndex - actStartIndex + 1
+  const isFirstOccurrence = pageIndex === actStartIndex
+
+  // Can continue if next page exists and doesn't already have this act
+  const nextPage = pageIndex < allPages.length - 1 ? allPages[pageIndex + 1] : null
+  const canContinue = nextPage && nextPage.actName !== page.actName
+
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-compact-3 py-compact-2 px-compact-3 rounded border group",
+        isContinuation
+          ? "bg-bg-tertiary/30 border-bg-hover/20"
+          : "bg-amber-500/10 border-amber-500/25"
+      )}
+      onDoubleClick={onEdit}
+      title="Double-click to edit"
+      data-testid="act-label"
+    >
+      {/* Icon */}
+      <BookOpen className={cn("h-3.5 w-3.5 shrink-0", isContinuation ? "text-text-tertiary" : "text-amber-500")} />
+
+      {/* Name with continuation indicators */}
+      <div className="flex items-center gap-compact-2 flex-1">
+        {isContinuation && (
+          <span className="text-xs text-text-tertiary font-mono" title="Continued from previous page">
+            ←
+          </span>
+        )}
+        <span className={cn(
+          "text-sm",
+          isContinuation ? "text-text-secondary" : "text-text-primary"
+        )}>
+          {page.actName}
+        </span>
+        {isFirstOccurrence && totalPages > 1 && (
+          <span
+            className="text-xs text-amber-500/70 font-medium"
+            title={`This act spans ${totalPages} pages`}
+          >
+            ({totalPages} pages)
+          </span>
+        )}
+      </div>
+
+      {/* First Cue */}
+      {isFirstOccurrence && (
+        <div className="flex items-center gap-compact-2">
+          <span className="text-xs text-text-secondary">Cue:</span>
+          <span className={cn(
+            "text-sm",
+            page.actFirstCueNumber ? "text-text-primary" : "text-text-muted"
+          )}>
+            {page.actFirstCueNumber || 'None'}
+          </span>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-compact-2">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation()
+            onEdit()
+          }}
+          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          title="Edit"
+        >
+          <Pencil className="h-3 w-3" />
+        </Button>
+        {canContinue && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation()
+              onContinue()
+            }}
+            className="h-7 px-3 border-amber-500/50 text-amber-500 hover:bg-amber-500 hover:text-white hover:border-amber-500"
+            title={`Continue "${page.actName}" to page ${nextPage?.pageNumber}`}
+          >
+            <ArrowRight className="h-3 w-3 mr-1" />
+            <span className="text-xs font-medium">Page {nextPage?.pageNumber}</span>
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove()
+          }}
+          className="h-7 w-7 p-0"
+        >
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      </div>
+    </div>
   )
 }
 

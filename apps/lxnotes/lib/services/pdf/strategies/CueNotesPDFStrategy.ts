@@ -65,6 +65,11 @@ export class CueNotesPDFStrategy implements PDFStrategy {
 
       let display = `Pg. ${location.page.pageNumber}`
 
+      // Add act name if present
+      if (location.page.actName) {
+        display += ` – ${location.page.actName}`
+      }
+
       // Determine which item to show based on priority: song > scene > page only
       if (location.song) {
         const songDisplay = location.song.continuesFromId

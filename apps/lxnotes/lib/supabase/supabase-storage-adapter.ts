@@ -386,6 +386,8 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
           productionId: row.production_id,
           pageNumber: row.page_number,
           firstCueNumber: row.first_cue_number ?? undefined,
+          actName: row.act_name ?? undefined,
+          actFirstCueNumber: row.act_first_cue_number ?? undefined,
           createdAt: new Date(row.created_at!),
           updatedAt: new Date(row.updated_at!),
         }))
@@ -411,6 +413,8 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
           id: p.id,
           page_number: p.pageNumber,
           first_cue_number: p.firstCueNumber ?? null,
+          act_name: p.actName ?? null,
+          act_first_cue_number: p.actFirstCueNumber ?? null,
         }))
 
         const { error } = await supabase.rpc('replace_script_pages', {

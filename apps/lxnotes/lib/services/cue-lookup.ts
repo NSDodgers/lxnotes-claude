@@ -3,6 +3,7 @@ import { useScriptStore } from '@/lib/stores/script-store'
 export interface CueLookupResult {
   display: string
   page?: string
+  act?: string
   scene?: string
   song?: string
 }
@@ -22,8 +23,14 @@ export function useCueLookup() {
     }
 
     let display = `Pg. ${location.page.pageNumber}`
+    const act = location.page.actName || ''
     let scene = ''
     let song = ''
+
+    // Add act name if present
+    if (act) {
+      display += ` - ${act}`
+    }
 
     // Determine which item to show based on priority: song > scene > page only
     if (location.song) {
@@ -32,13 +39,14 @@ export function useCueLookup() {
     } else if (location.scene) {
       display += ` - ${location.scene.name}`
       scene = location.scene.name
-    } else {
+    } else if (!act) {
       display += '.'
     }
 
     return {
       display,
       page: location.page.pageNumber,
+      act,
       scene,
       song
     }

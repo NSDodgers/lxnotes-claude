@@ -7,7 +7,7 @@ import type { ScriptPage, SceneSong } from '@/types'
 
 export const PIRATES_PAGES: ScriptPage[] = [
   {
-    "id": "page-1",
+    "id": "page-1", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "1",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -15,7 +15,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1"
   },
   {
-    "id": "page-2",
+    "id": "page-2", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "2",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -23,7 +23,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "51"
   },
   {
-    "id": "page-3",
+    "id": "page-3", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "3",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -31,7 +31,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "78"
   },
   {
-    "id": "page-4",
+    "id": "page-4", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "4",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -39,7 +39,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "111"
   },
   {
-    "id": "page-5",
+    "id": "page-5", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "5",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -47,7 +47,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "135"
   },
   {
-    "id": "page-6",
+    "id": "page-6", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "6",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -55,7 +55,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "160"
   },
   {
-    "id": "page-7",
+    "id": "page-7", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "7",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -63,7 +63,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "200"
   },
   {
-    "id": "page-8",
+    "id": "page-8", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "8",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -71,7 +71,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "238"
   },
   {
-    "id": "page-9",
+    "id": "page-9", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "9",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -79,7 +79,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "275"
   },
   {
-    "id": "page-10",
+    "id": "page-10", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "10",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -87,7 +87,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "288"
   },
   {
-    "id": "page-11",
+    "id": "page-11", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "11",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -95,7 +95,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "312"
   },
   {
-    "id": "page-12",
+    "id": "page-12", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "12",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -103,7 +103,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "356"
   },
   {
-    "id": "page-13",
+    "id": "page-13", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "13",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -111,7 +111,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "395"
   },
   {
-    "id": "page-14",
+    "id": "page-14", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "14",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -119,7 +119,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "430"
   },
   {
-    "id": "page-15",
+    "id": "page-15", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "15",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -127,7 +127,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "472"
   },
   {
-    "id": "page-16",
+    "id": "page-16", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "16",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -135,7 +135,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "482"
   },
   {
-    "id": "page-17",
+    "id": "page-17", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "17",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -143,7 +143,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "517"
   },
   {
-    "id": "page-18",
+    "id": "page-18", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "18",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -151,7 +151,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "544"
   },
   {
-    "id": "page-19",
+    "id": "page-19", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "19",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -159,7 +159,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "558"
   },
   {
-    "id": "page-20",
+    "id": "page-20", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "20",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -167,7 +167,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "590"
   },
   {
-    "id": "page-21",
+    "id": "page-21", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "21",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -175,7 +175,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "609"
   },
   {
-    "id": "page-22",
+    "id": "page-22", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "22",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -183,7 +183,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "650"
   },
   {
-    "id": "page-23",
+    "id": "page-23", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "23",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -191,7 +191,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "676"
   },
   {
-    "id": "page-24",
+    "id": "page-24", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "24",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -199,7 +199,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "695"
   },
   {
-    "id": "page-25",
+    "id": "page-25", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "25",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -207,7 +207,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "712"
   },
   {
-    "id": "page-26",
+    "id": "page-26", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "26",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -215,7 +215,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "762"
   },
   {
-    "id": "page-27",
+    "id": "page-27", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "27",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -223,7 +223,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "801"
   },
   {
-    "id": "page-28",
+    "id": "page-28", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "28",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -231,7 +231,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "832"
   },
   {
-    "id": "page-29",
+    "id": "page-29", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "29",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -239,7 +239,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "863"
   },
   {
-    "id": "page-30",
+    "id": "page-30", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "30",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -247,7 +247,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "908"
   },
   {
-    "id": "page-31",
+    "id": "page-31", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "31",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -255,7 +255,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "939"
   },
   {
-    "id": "page-32",
+    "id": "page-32", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "32",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -263,7 +263,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "952"
   },
   {
-    "id": "page-33",
+    "id": "page-33", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "33",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -271,7 +271,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "983"
   },
   {
-    "id": "page-34",
+    "id": "page-34", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "34",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -279,7 +279,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1021"
   },
   {
-    "id": "page-35",
+    "id": "page-35", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "35",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -287,7 +287,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1050"
   },
   {
-    "id": "page-36",
+    "id": "page-36", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "36",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -295,7 +295,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1073"
   },
   {
-    "id": "page-37",
+    "id": "page-37", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "37",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -303,7 +303,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1121"
   },
   {
-    "id": "page-38",
+    "id": "page-38", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "38",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -311,7 +311,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1162"
   },
   {
-    "id": "page-39",
+    "id": "page-39", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "39",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -319,7 +319,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1178"
   },
   {
-    "id": "page-40",
+    "id": "page-40", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "40",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -327,7 +327,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1219"
   },
   {
-    "id": "page-41",
+    "id": "page-41", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "41",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -335,7 +335,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1267"
   },
   {
-    "id": "page-42",
+    "id": "page-42", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "42",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -343,7 +343,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1290"
   },
   {
-    "id": "page-43",
+    "id": "page-43", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "43",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -351,7 +351,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1324"
   },
   {
-    "id": "page-44",
+    "id": "page-44", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "44",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -359,7 +359,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1338"
   },
   {
-    "id": "page-45",
+    "id": "page-45", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "45",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -367,7 +367,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1387"
   },
   {
-    "id": "page-46",
+    "id": "page-46", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "46",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -375,7 +375,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1404"
   },
   {
-    "id": "page-47",
+    "id": "page-47", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "47",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -383,7 +383,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1448"
   },
   {
-    "id": "page-48",
+    "id": "page-48", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "48",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -391,7 +391,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1458"
   },
   {
-    "id": "page-49",
+    "id": "page-49", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "49",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -399,7 +399,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1486"
   },
   {
-    "id": "page-50",
+    "id": "page-50", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "50",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -407,7 +407,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1497"
   },
   {
-    "id": "page-51",
+    "id": "page-51", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "51",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -415,7 +415,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1526"
   },
   {
-    "id": "page-52",
+    "id": "page-52", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "52",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -423,7 +423,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1539"
   },
   {
-    "id": "page-53",
+    "id": "page-53", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "53",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -431,7 +431,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1587"
   },
   {
-    "id": "page-54",
+    "id": "page-54", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "54",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -439,7 +439,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1635"
   },
   {
-    "id": "page-55",
+    "id": "page-55", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "55",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -447,7 +447,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1671"
   },
   {
-    "id": "page-56",
+    "id": "page-56", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "56",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -455,7 +455,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1708"
   },
   {
-    "id": "page-57",
+    "id": "page-57", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "57",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -463,7 +463,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1758"
   },
   {
-    "id": "page-58",
+    "id": "page-58", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "58",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -471,7 +471,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1802"
   },
   {
-    "id": "page-59",
+    "id": "page-59", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "59",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -479,7 +479,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1830"
   },
   {
-    "id": "page-60",
+    "id": "page-60", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "60",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -487,7 +487,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1874"
   },
   {
-    "id": "page-61",
+    "id": "page-61", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "61",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -495,7 +495,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1909"
   },
   {
-    "id": "page-62",
+    "id": "page-62", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "62",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -503,7 +503,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1939"
   },
   {
-    "id": "page-63",
+    "id": "page-63", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "63",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -511,7 +511,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "1955"
   },
   {
-    "id": "page-64",
+    "id": "page-64", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "64",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -519,7 +519,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2003"
   },
   {
-    "id": "page-65",
+    "id": "page-65", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "65",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -527,7 +527,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2049"
   },
   {
-    "id": "page-66",
+    "id": "page-66", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "66",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -535,7 +535,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2093"
   },
   {
-    "id": "page-67",
+    "id": "page-67", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "67",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -543,7 +543,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2110"
   },
   {
-    "id": "page-68",
+    "id": "page-68", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "68",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -551,7 +551,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2152"
   },
   {
-    "id": "page-69",
+    "id": "page-69", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "69",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -559,7 +559,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2175"
   },
   {
-    "id": "page-70",
+    "id": "page-70", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "70",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -567,7 +567,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2187"
   },
   {
-    "id": "page-71",
+    "id": "page-71", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "71",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -575,7 +575,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2230"
   },
   {
-    "id": "page-72",
+    "id": "page-72", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "72",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -583,7 +583,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2250"
   },
   {
-    "id": "page-73",
+    "id": "page-73", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "73",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -591,7 +591,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2270"
   },
   {
-    "id": "page-74",
+    "id": "page-74", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "74",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -599,7 +599,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2282"
   },
   {
-    "id": "page-75",
+    "id": "page-75", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "75",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -607,7 +607,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2296"
   },
   {
-    "id": "page-76",
+    "id": "page-76", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "76",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -615,7 +615,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2342"
   },
   {
-    "id": "page-77",
+    "id": "page-77", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "77",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -623,7 +623,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2376"
   },
   {
-    "id": "page-78",
+    "id": "page-78", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "78",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -631,7 +631,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2391"
   },
   {
-    "id": "page-79",
+    "id": "page-79", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "79",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -639,7 +639,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2423"
   },
   {
-    "id": "page-80",
+    "id": "page-80", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "80",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -647,7 +647,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2451"
   },
   {
-    "id": "page-81",
+    "id": "page-81", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "81",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -655,7 +655,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2475"
   },
   {
-    "id": "page-82",
+    "id": "page-82", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "82",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -663,7 +663,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2507"
   },
   {
-    "id": "page-83",
+    "id": "page-83", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "83",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -671,7 +671,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2519"
   },
   {
-    "id": "page-84",
+    "id": "page-84", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "84",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -679,7 +679,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2541"
   },
   {
-    "id": "page-85",
+    "id": "page-85", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "85",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -687,7 +687,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2585"
   },
   {
-    "id": "page-86",
+    "id": "page-86", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "86",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -695,7 +695,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2598"
   },
   {
-    "id": "page-87",
+    "id": "page-87", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "87",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -703,7 +703,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2630"
   },
   {
-    "id": "page-88",
+    "id": "page-88", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "88",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -711,7 +711,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2649"
   },
   {
-    "id": "page-89",
+    "id": "page-89", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "89",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -719,7 +719,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2665"
   },
   {
-    "id": "page-90",
+    "id": "page-90", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "90",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -727,7 +727,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2696"
   },
   {
-    "id": "page-91",
+    "id": "page-91", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "91",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -735,7 +735,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2716"
   },
   {
-    "id": "page-92",
+    "id": "page-92", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "92",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -743,7 +743,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2756"
   },
   {
-    "id": "page-93",
+    "id": "page-93", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "93",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -751,7 +751,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2804"
   },
   {
-    "id": "page-94",
+    "id": "page-94", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "94",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -759,7 +759,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2837"
   },
   {
-    "id": "page-95",
+    "id": "page-95", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "95",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -767,7 +767,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2872"
   },
   {
-    "id": "page-96",
+    "id": "page-96", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "96",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -775,7 +775,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2894"
   },
   {
-    "id": "page-97",
+    "id": "page-97", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "97",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -783,7 +783,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2920"
   },
   {
-    "id": "page-98",
+    "id": "page-98", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "98",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -791,7 +791,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2951"
   },
   {
-    "id": "page-99",
+    "id": "page-99", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "99",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -799,7 +799,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2976"
   },
   {
-    "id": "page-100",
+    "id": "page-100", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "100",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -807,7 +807,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "2986"
   },
   {
-    "id": "page-101",
+    "id": "page-101", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "101",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -815,7 +815,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3026"
   },
   {
-    "id": "page-102",
+    "id": "page-102", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "102",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -823,7 +823,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3047"
   },
   {
-    "id": "page-103",
+    "id": "page-103", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "103",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -831,7 +831,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3063"
   },
   {
-    "id": "page-104",
+    "id": "page-104", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "104",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -839,7 +839,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3103"
   },
   {
-    "id": "page-105",
+    "id": "page-105", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "105",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -847,7 +847,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3124"
   },
   {
-    "id": "page-106",
+    "id": "page-106", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "106",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -855,7 +855,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3158"
   },
   {
-    "id": "page-107",
+    "id": "page-107", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "107",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -863,7 +863,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3170"
   },
   {
-    "id": "page-108",
+    "id": "page-108", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "108",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -871,7 +871,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3214"
   },
   {
-    "id": "page-109",
+    "id": "page-109", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "109",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -879,7 +879,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3233"
   },
   {
-    "id": "page-110",
+    "id": "page-110", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "110",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -887,7 +887,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3257"
   },
   {
-    "id": "page-111",
+    "id": "page-111", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "111",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -895,7 +895,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3298"
   },
   {
-    "id": "page-112",
+    "id": "page-112", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "112",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -903,7 +903,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3342"
   },
   {
-    "id": "page-113",
+    "id": "page-113", "actName": "Act 1", "actFirstCueNumber": "1",
     "productionId": "prod-1",
     "pageNumber": "113",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -911,7 +911,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3372"
   },
   {
-    "id": "page-114",
+    "id": "page-114", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "114",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -919,7 +919,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3398"
   },
   {
-    "id": "page-115",
+    "id": "page-115", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "115",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -927,7 +927,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3442"
   },
   {
-    "id": "page-116",
+    "id": "page-116", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "116",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -935,7 +935,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3480"
   },
   {
-    "id": "page-117",
+    "id": "page-117", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "117",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -943,7 +943,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3516"
   },
   {
-    "id": "page-118",
+    "id": "page-118", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "118",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -951,7 +951,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3564"
   },
   {
-    "id": "page-119",
+    "id": "page-119", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "119",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -959,7 +959,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3574"
   },
   {
-    "id": "page-120",
+    "id": "page-120", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "120",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -967,7 +967,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3614"
   },
   {
-    "id": "page-121",
+    "id": "page-121", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "121",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -975,7 +975,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3657"
   },
   {
-    "id": "page-122",
+    "id": "page-122", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "122",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -983,7 +983,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3694"
   },
   {
-    "id": "page-123",
+    "id": "page-123", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "123",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -991,7 +991,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3719"
   },
   {
-    "id": "page-124",
+    "id": "page-124", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "124",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -999,7 +999,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3761"
   },
   {
-    "id": "page-125",
+    "id": "page-125", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "125",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1007,7 +1007,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3786"
   },
   {
-    "id": "page-126",
+    "id": "page-126", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "126",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1015,7 +1015,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3796"
   },
   {
-    "id": "page-127",
+    "id": "page-127", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "127",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1023,7 +1023,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3827"
   },
   {
-    "id": "page-128",
+    "id": "page-128", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "128",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1031,7 +1031,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3862"
   },
   {
-    "id": "page-129",
+    "id": "page-129", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "129",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1039,7 +1039,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3896"
   },
   {
-    "id": "page-130",
+    "id": "page-130", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "130",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1047,7 +1047,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3940"
   },
   {
-    "id": "page-131",
+    "id": "page-131", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "131",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1055,7 +1055,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "3973"
   },
   {
-    "id": "page-132",
+    "id": "page-132", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "132",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1063,7 +1063,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4002"
   },
   {
-    "id": "page-133",
+    "id": "page-133", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "133",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1071,7 +1071,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4030"
   },
   {
-    "id": "page-134",
+    "id": "page-134", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "134",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1079,7 +1079,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4063"
   },
   {
-    "id": "page-135",
+    "id": "page-135", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "135",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1087,7 +1087,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4093"
   },
   {
-    "id": "page-136",
+    "id": "page-136", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "136",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1095,7 +1095,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4141"
   },
   {
-    "id": "page-137",
+    "id": "page-137", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "137",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1103,7 +1103,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4178"
   },
   {
-    "id": "page-138",
+    "id": "page-138", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "138",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1111,7 +1111,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4198"
   },
   {
-    "id": "page-139",
+    "id": "page-139", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "139",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1119,7 +1119,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4243"
   },
   {
-    "id": "page-140",
+    "id": "page-140", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "140",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1127,7 +1127,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4285"
   },
   {
-    "id": "page-141",
+    "id": "page-141", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "141",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1135,7 +1135,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4335"
   },
   {
-    "id": "page-142",
+    "id": "page-142", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "142",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1143,7 +1143,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4348"
   },
   {
-    "id": "page-143",
+    "id": "page-143", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "143",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1151,7 +1151,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4379"
   },
   {
-    "id": "page-144",
+    "id": "page-144", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "144",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1159,7 +1159,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4424"
   },
   {
-    "id": "page-145",
+    "id": "page-145", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "145",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1167,7 +1167,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4446"
   },
   {
-    "id": "page-146",
+    "id": "page-146", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "146",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1175,7 +1175,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4461"
   },
   {
-    "id": "page-147",
+    "id": "page-147", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "147",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1183,7 +1183,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4511"
   },
   {
-    "id": "page-148",
+    "id": "page-148", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "148",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1191,7 +1191,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4522"
   },
   {
-    "id": "page-149",
+    "id": "page-149", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "149",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1199,7 +1199,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4569"
   },
   {
-    "id": "page-150",
+    "id": "page-150", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "150",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1207,7 +1207,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4589"
   },
   {
-    "id": "page-151",
+    "id": "page-151", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "151",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1215,7 +1215,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4622"
   },
   {
-    "id": "page-152",
+    "id": "page-152", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "152",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1223,7 +1223,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4665"
   },
   {
-    "id": "page-153",
+    "id": "page-153", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "153",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1231,7 +1231,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4699"
   },
   {
-    "id": "page-154",
+    "id": "page-154", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "154",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1239,7 +1239,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4729"
   },
   {
-    "id": "page-155",
+    "id": "page-155", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "155",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1247,7 +1247,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4753"
   },
   {
-    "id": "page-156",
+    "id": "page-156", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "156",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1255,7 +1255,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4766"
   },
   {
-    "id": "page-157",
+    "id": "page-157", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "157",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1263,7 +1263,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4778"
   },
   {
-    "id": "page-158",
+    "id": "page-158", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "158",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1271,7 +1271,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4828"
   },
   {
-    "id": "page-159",
+    "id": "page-159", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "159",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1279,7 +1279,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4848"
   },
   {
-    "id": "page-160",
+    "id": "page-160", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "160",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1287,7 +1287,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4863"
   },
   {
-    "id": "page-161",
+    "id": "page-161", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "161",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1295,7 +1295,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4907"
   },
   {
-    "id": "page-162",
+    "id": "page-162", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "162",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1303,7 +1303,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4957"
   },
   {
-    "id": "page-163",
+    "id": "page-163", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "163",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1311,7 +1311,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "4984"
   },
   {
-    "id": "page-164",
+    "id": "page-164", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "164",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1319,7 +1319,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5023"
   },
   {
-    "id": "page-165",
+    "id": "page-165", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "165",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1327,7 +1327,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5054"
   },
   {
-    "id": "page-166",
+    "id": "page-166", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "166",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1335,7 +1335,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5095"
   },
   {
-    "id": "page-167",
+    "id": "page-167", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "167",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1343,7 +1343,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5142"
   },
   {
-    "id": "page-168",
+    "id": "page-168", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "168",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1351,7 +1351,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5177"
   },
   {
-    "id": "page-169",
+    "id": "page-169", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "169",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1359,7 +1359,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5201"
   },
   {
-    "id": "page-170",
+    "id": "page-170", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "170",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1367,7 +1367,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5248"
   },
   {
-    "id": "page-171",
+    "id": "page-171", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "171",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1375,7 +1375,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5275"
   },
   {
-    "id": "page-172",
+    "id": "page-172", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "172",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1383,7 +1383,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5285"
   },
   {
-    "id": "page-173",
+    "id": "page-173", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "173",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1391,7 +1391,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5312"
   },
   {
-    "id": "page-174",
+    "id": "page-174", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "174",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1399,7 +1399,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5330"
   },
   {
-    "id": "page-175",
+    "id": "page-175", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "175",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1407,7 +1407,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5369"
   },
   {
-    "id": "page-176",
+    "id": "page-176", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "176",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1415,7 +1415,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5403"
   },
   {
-    "id": "page-177",
+    "id": "page-177", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "177",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1423,7 +1423,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5446"
   },
   {
-    "id": "page-178",
+    "id": "page-178", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "178",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1431,7 +1431,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5469"
   },
   {
-    "id": "page-179",
+    "id": "page-179", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "179",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1439,7 +1439,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5505"
   },
   {
-    "id": "page-180",
+    "id": "page-180", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "180",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1447,7 +1447,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5532"
   },
   {
-    "id": "page-181",
+    "id": "page-181", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "181",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1455,7 +1455,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5570"
   },
   {
-    "id": "page-182",
+    "id": "page-182", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "182",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1463,7 +1463,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5595"
   },
   {
-    "id": "page-183",
+    "id": "page-183", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "183",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1471,7 +1471,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5629"
   },
   {
-    "id": "page-184",
+    "id": "page-184", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "184",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1479,7 +1479,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5673"
   },
   {
-    "id": "page-185",
+    "id": "page-185", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "185",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1487,7 +1487,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5690"
   },
   {
-    "id": "page-186",
+    "id": "page-186", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "186",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1495,7 +1495,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5738"
   },
   {
-    "id": "page-187",
+    "id": "page-187", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "187",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1503,7 +1503,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5761"
   },
   {
-    "id": "page-188",
+    "id": "page-188", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "188",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -1511,7 +1511,7 @@ export const PIRATES_PAGES: ScriptPage[] = [
     "firstCueNumber": "5771"
   },
   {
-    "id": "page-189",
+    "id": "page-189", "actName": "Act 2", "actFirstCueNumber": "3398",
     "productionId": "prod-1",
     "pageNumber": "189",
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
@@ -3407,29 +3407,6 @@ export const PIRATES_SONGS: SceneSong[] = [
     "name": "Sighing softly to the river",
     "type": "song",
     "firstCueNumber": "5797",
-    "orderIndex": 0,
-    createdAt: new Date("2024-01-01T00:00:00.000Z"),
-    updatedAt: new Date("2024-01-01T00:00:00.000Z")
-  }
-]
-
-export const PIRATES_ACTS: SceneSong[] = [
-  {
-    "productionId": "prod-1", "moduleType": "cue", "id": "act-1",
-    "scriptPageId": "page-1",
-    "name": "Act 1",
-    "type": "scene",
-    "firstCueNumber": "1",
-    "orderIndex": 0,
-    createdAt: new Date("2024-01-01T00:00:00.000Z"),
-    updatedAt: new Date("2024-01-01T00:00:00.000Z")
-  },
-  {
-    "productionId": "prod-1", "moduleType": "cue", "id": "act-2",
-    "scriptPageId": "page-114",
-    "name": "Act 2",
-    "type": "scene",
-    "firstCueNumber": "3398",
     "orderIndex": 0,
     createdAt: new Date("2024-01-01T00:00:00.000Z"),
     updatedAt: new Date("2024-01-01T00:00:00.000Z")

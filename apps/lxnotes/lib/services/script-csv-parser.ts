@@ -7,6 +7,7 @@ const SCRIPT_HEADER_SYNONYMS: Record<string, string[]> = {
   pageFirstCue: ['Page First Cue', 'Page Cue', 'First Cue'],
   act: ['Act', 'Act Name', 'Act Number'],
   actContinues: ['Act continues', 'Act Continues', 'Act Continue'],
+  actFirstCue: ['Act First Cue', 'Act Cue'],
   scene: ['Scene', 'Scene Name', 'Scene Title'],
   sceneContinues: ['Scene continues', 'Scene Continues'],
   sceneFirstCue: ['Scene First Cue', 'Scene Cue'],
@@ -179,8 +180,10 @@ export class ScriptCSVParser {
     let lastSong: SceneSong | null = null
     // Track order per page
     const pageOrderMap = new Map<string, number>()
-    // Track detected acts
+    // Track detected acts and current act for continuation
     const actsDetected = new Set<string>()
+    let currentAct: string | null = null
+    let currentActFirstCue: string | null = null
     let skippedRows = 0
 
     for (let i = 0; i < rows.length; i++) {
@@ -198,6 +201,9 @@ export class ScriptCSVParser {
 
       const pageFirstCue = ScriptCSVParser.getFieldValue(row, headerMapping, 'pageFirstCue')
       const act = ScriptCSVParser.getFieldValue(row, headerMapping, 'act')
+      const actContinuesRaw = ScriptCSVParser.getFieldValue(row, headerMapping, 'actContinues')
+      const actContinues = actContinuesRaw ? ScriptCSVParser.parseBoolean(actContinuesRaw) : false
+      const actFirstCue = ScriptCSVParser.getFieldValue(row, headerMapping, 'actFirstCue')
       const sceneName = ScriptCSVParser.getFieldValue(row, headerMapping, 'scene')
       const sceneContinuesRaw = ScriptCSVParser.getFieldValue(row, headerMapping, 'sceneContinues')
       const sceneFirstCue = ScriptCSVParser.getFieldValue(row, headerMapping, 'sceneFirstCue')
@@ -208,8 +214,19 @@ export class ScriptCSVParser {
       const sceneContinues = sceneContinuesRaw ? ScriptCSVParser.parseBoolean(sceneContinuesRaw) : false
       const songContinues = songContinuesRaw ? ScriptCSVParser.parseBoolean(songContinuesRaw) : false
 
-      // Track acts
-      if (act) {
+      // Track acts — a new act name updates currentAct; actContinues keeps it going
+      if (act && !actContinues) {
+        currentAct = act
+        currentActFirstCue = actFirstCue || null
+        actsDetected.add(act)
+      } else if (actContinues && !act && currentAct) {
+        // Explicit continuation with no new name — keep currentAct
+        // Update first cue if provided on continuation row
+        if (actFirstCue) currentActFirstCue = actFirstCue
+      } else if (act && actContinues) {
+        // Name provided on a continuation row — treat as continuation of same act
+        currentAct = act
+        if (actFirstCue) currentActFirstCue = actFirstCue
         actsDetected.add(act)
       }
 
@@ -221,6 +238,8 @@ export class ScriptCSVParser {
           productionId,
           pageNumber,
           firstCueNumber: pageFirstCue || undefined,
+          actName: currentAct || undefined,
+          actFirstCueNumber: currentActFirstCue || undefined,
           createdAt: now,
           updatedAt: now,
         }
@@ -410,6 +429,7 @@ export class ScriptCSVParser {
       { value: 'pageFirstCue', label: 'Page First Cue', required: false },
       { value: 'act', label: 'Act', required: false },
       { value: 'actContinues', label: 'Act continues', required: false },
+      { value: 'actFirstCue', label: 'Act First Cue', required: false },
       { value: 'scene', label: 'Scene', required: false },
       { value: 'sceneContinues', label: 'Scene continues', required: false },
       { value: 'sceneFirstCue', label: 'Scene First Cue', required: false },

@@ -15,7 +15,7 @@ import generateDemoNotes from './notes/demo-notes-data'
 import type { Note } from '@/types'
 import { PIRATES_PRODUCTION } from './production/pirates-info'
 import { DEMO_METADATA } from './version'
-import { PIRATES_PAGES, PIRATES_SONGS, PIRATES_ACTS } from './script/pirates-pages-songs'
+import { PIRATES_PAGES, PIRATES_SONGS } from './script/pirates-pages-songs'
 import { getPiratesFixtures } from './fixtures/pirates-fixtures'
 
 /**
@@ -66,14 +66,14 @@ export async function initializeDemoSession(): Promise<void> {
       // Load production info
       await storage.production.set(PIRATES_PRODUCTION)
 
-      // Load script data (pages, songs, acts) to session storage
+      // Load script data (pages and songs) to session storage
       await storage.script.setPages(PIRATES_PAGES)
-      await storage.script.setScenesSongs([...PIRATES_ACTS, ...PIRATES_SONGS])
+      await storage.script.setScenesSongs([...PIRATES_SONGS])
     }
 
     // Always populate the script store with Pirates data for demo mode
     // This ensures the in-memory store has the data regardless of session storage state
-    useScriptStore.getState().setScriptData(PIRATES_PAGES, PIRATES_ACTS, PIRATES_SONGS)
+    useScriptStore.getState().setScriptData(PIRATES_PAGES, [], PIRATES_SONGS)
 
     // Load demo notes into the in-memory notes store (session-scoped)
     const notesStore = useMockNotesStore.getState()
@@ -187,7 +187,7 @@ export async function initializeDemoSession(): Promise<void> {
     console.log(`✅ Demo data initialized: ${DEMO_METADATA.productionName} v${DEMO_METADATA.version}`)
     console.log(`  - ${PIRATES_PAGES.length} pages`)
     console.log(`  - ${PIRATES_SONGS.length} songs`)
-    console.log(`  - ${PIRATES_ACTS.length} acts`)
+    console.log(`  - ${PIRATES_PAGES.filter(p => p.actName).length} pages with acts`)
     console.log(`  - ${workNotes.length} work notes`)
     console.log(`  - ${cueNotes.length} cue notes`)
     console.log(`  - ${productionNotes.length} production notes`)

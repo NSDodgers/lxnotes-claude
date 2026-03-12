@@ -131,19 +131,8 @@ export interface ScriptPage {
   productionId: string
   pageNumber: string
   firstCueNumber?: string
-  createdAt: Date
-  updatedAt: Date
-}
-
-export interface Act {
-  id: string
-  productionId: string
-  actNumber: string
-  orderIndex: number
-  currentPageId: string
-  continuesOnPageId?: string
-  continuesFromId?: string
-  firstCueNumber?: string
+  actName?: string
+  actFirstCueNumber?: string
   createdAt: Date
   updatedAt: Date
 }

@@ -86,12 +86,23 @@ export function FixturesProvider({ children, productionId }: FixturesProviderPro
                 linksByNote.set(link.workNoteId, existing)
               }
 
-              for (const [workNoteId, fixtureIds] of linksByNote) {
-                adapter.fixtureLinks.setForWorkNote(workNoteId, fixtureIds).catch(err => {
-                  if (isDev) console.error('[FixturesContext] Failed to migrate links for note:', workNoteId, err)
-                })
-              }
-              if (isDev) console.log('[FixturesContext] Migrated', localLinks.length, 'links to Supabase')
+              const fixtureLinksAdapter = adapter.fixtureLinks
+              await Promise.allSettled(
+                Array.from(linksByNote.entries()).map(([workNoteId, fixtureIds]) =>
+                  fixtureLinksAdapter.setForWorkNote(workNoteId, fixtureIds)
+                )
+              )
+              if (isDev) console.log('[FixturesContext] Migration attempted for', localLinks.length, 'links')
+
+              // Re-fetch from DB and sync to store — clears any stale local links
+              // that failed migration (e.g. note IDs from demo/other productions)
+              const migratedLinks = await fixtureLinksAdapter.getAll()
+              const mappedMigrated = migratedLinks.map(row => ({
+                workNoteId: row.work_note_id,
+                fixtureInfoId: row.fixture_id,
+                createdAt: row.created_at ? new Date(row.created_at) : new Date(),
+              }))
+              useFixtureStore.getState().syncLinks(mappedMigrated)
             } else {
               // Sync DB links into store
               const mappedLinks = dbLinks.map(row => ({

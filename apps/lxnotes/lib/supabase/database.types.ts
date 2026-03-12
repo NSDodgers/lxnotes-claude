@@ -815,6 +815,8 @@ export type Database = {
       }
       script_pages: {
         Row: {
+          act_first_cue_number: string | null
+          act_name: string | null
           created_at: string | null
           first_cue_number: string | null
           id: string
@@ -823,6 +825,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          act_first_cue_number?: string | null
+          act_name?: string | null
           created_at?: string | null
           first_cue_number?: string | null
           id?: string
@@ -831,6 +835,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          act_first_cue_number?: string | null
+          act_name?: string | null
           created_at?: string | null
           first_cue_number?: string | null
           id?: string
