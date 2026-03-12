@@ -694,7 +694,7 @@ function ActItem({ page, allPages, onEdit, onRemove, onContinue }: {
       className={cn(
         "flex items-center gap-compact-3 py-compact-2 px-compact-3 rounded border group",
         isContinuation
-          ? "bg-bg-tertiary/30 border-bg-hover/20"
+          ? "bg-amber-500/5 border-amber-500/15"
           : "bg-amber-500/10 border-amber-500/25"
       )}
       onDoubleClick={onEdit}
@@ -702,7 +702,7 @@ function ActItem({ page, allPages, onEdit, onRemove, onContinue }: {
       data-testid="act-label"
     >
       {/* Icon */}
-      <BookOpen className={cn("h-3.5 w-3.5 shrink-0", isContinuation ? "text-text-tertiary" : "text-amber-500")} />
+      <BookOpen className={cn("h-3.5 w-3.5 shrink-0", isContinuation ? "text-amber-500/40" : "text-amber-500")} />
 
       {/* Name with continuation indicators */}
       <div className="flex items-center gap-compact-2 flex-1">
@@ -989,7 +989,9 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
           className={cn(
             "flex items-center gap-compact-3 py-compact-2 px-compact-3 rounded border cursor-pointer group",
             isContinuation
-              ? "bg-bg-tertiary/30 border-bg-hover/20"
+              ? item.type === 'scene'
+                ? "bg-modules-work/5 border-modules-work/15"
+                : "bg-modules-production/5 border-modules-production/15"
               : item.type === 'scene'
                 ? "bg-modules-work/10 border-modules-work/25"
                 : "bg-modules-production/10 border-modules-production/25"
@@ -999,9 +1001,9 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
         >
           {/* Type icon */}
           {item.type === 'scene' ? (
-            <Theater className={cn("h-3.5 w-3.5 shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-work")} />
+            <Theater className={cn("h-3.5 w-3.5 shrink-0", isContinuation ? "text-modules-work/40" : "text-modules-work")} />
           ) : (
-            <Music className={cn("h-3.5 w-3.5 shrink-0", isContinuation ? "text-text-tertiary" : "text-modules-production")} />
+            <Music className={cn("h-3.5 w-3.5 shrink-0", isContinuation ? "text-modules-production/40" : "text-modules-production")} />
           )}
 
           {/* Name with continuation indicators */}
