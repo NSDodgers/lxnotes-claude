@@ -117,6 +117,7 @@ export interface NoteEmailData {
   senderEmail: string
   noteCount: number
   todoCount: number
+  reviewCount: number
   completeCount: number
   cancelledCount: number
   filterDescription: string
@@ -281,6 +282,7 @@ export async function sendNoteEmail(
       message: data.message,
       senderName: data.senderName,
       todoCount: data.todoCount,
+      reviewCount: data.reviewCount,
       completeCount: data.completeCount,
       cancelledCount: data.cancelledCount,
       filterDescription: data.filterDescription,
@@ -294,7 +296,7 @@ ${data.moduleName} - ${data.productionName}
 
 ${data.message}
 
-Summary: ${data.noteCount} notes (${data.todoCount} todo, ${data.completeCount} complete, ${data.cancelledCount} cancelled)
+Summary: ${data.noteCount} notes (${data.todoCount} todo, ${data.reviewCount} in review, ${data.completeCount} complete, ${data.cancelledCount} cancelled)
 Filter: ${data.filterDescription}
 
 ${data.pdfAttachment ? `PDF attached: ${data.pdfAttachment.filename}` : ''}

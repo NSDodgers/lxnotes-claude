@@ -75,7 +75,7 @@ interface WizardState {
   // Common
   presetName: string
   // Filter options
-  statusFilter: 'todo' | 'complete' | 'cancelled' | null
+  statusFilter: 'todo' | 'review' | 'complete' | 'cancelled' | null
   typeFilters: string[]
   priorityFilters: string[]
   sortBy: string
@@ -343,6 +343,7 @@ export function PresetWizard({
           <StatusFilterStep
             value={state.statusFilter}
             onChange={(v) => updateState('statusFilter', v)}
+            moduleType={moduleType}
           />
         )
       case 2:

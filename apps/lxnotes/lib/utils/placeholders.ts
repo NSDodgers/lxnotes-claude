@@ -10,11 +10,13 @@ export interface PlaceholderData {
     noteStats?: {
         total: number
         todo: number
+        review: number
         complete: number
         cancelled: number
     }
     noteCount?: number
     todoCount?: number
+    reviewCount?: number
     completeCount?: number
     cancelledCount?: number
     filterDescription?: string
@@ -31,6 +33,7 @@ export function resolvePlaceholders(text: string, data: PlaceholderData): string
     // Handle stats shorthands if full object is not provided or vice versa
     const total = data.noteStats?.total ?? data.noteCount ?? 0
     const todo = data.noteStats?.todo ?? data.todoCount ?? 0
+    const review = data.noteStats?.review ?? data.reviewCount ?? 0
     const complete = data.noteStats?.complete ?? data.completeCount ?? 0
     const cancelled = data.noteStats?.cancelled ?? data.cancelledCount ?? 0
 
@@ -45,6 +48,7 @@ export function resolvePlaceholders(text: string, data: PlaceholderData): string
         .replace(/\{\{NOTE_COUNT\}\}/g, String(total))
         .replace(/\{\{TODO_COUNT\}\}/g, String(todo))
         .replace(/\{\{COMPLETE_COUNT\}\}/g, String(complete))
+        .replace(/\{\{REVIEW_COUNT\}\}/g, String(review))
         .replace(/\{\{CANCELLED_COUNT\}\}/g, String(cancelled))
         .replace(/\{\{FILTER_DESCRIPTION\}\}/g, data.filterDescription || '')
         .replace(/\{\{SORT_DESCRIPTION\}\}/g, data.sortDescription || '')

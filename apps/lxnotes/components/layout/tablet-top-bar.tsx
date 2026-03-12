@@ -24,8 +24,9 @@ function getModuleInfo(pathname: string) {
   return null
 }
 
-const statusFilters: { value: NoteStatus; label: string }[] = [
+const baseStatusFilters: { value: NoteStatus; label: string; workOnly?: boolean }[] = [
   { value: 'todo', label: 'To Do' },
+  { value: 'review', label: 'In Review', workOnly: true },
   { value: 'complete', label: 'Done' },
   { value: 'cancelled', label: 'Cancelled' },
 ]
@@ -72,7 +73,7 @@ export function TabletTopBar() {
 
       {/* Status filters */}
       <div className="flex items-center gap-1">
-        {statusFilters.map((sf) => (
+        {baseStatusFilters.filter(sf => !sf.workOnly || moduleInfo?.moduleType === 'work').map((sf) => (
           <Button
             key={sf.value}
             onClick={() => setFilterStatus(sf.value)}

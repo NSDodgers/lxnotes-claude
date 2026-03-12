@@ -1,16 +1,17 @@
 'use client'
 
-import { Check, X } from 'lucide-react'
+import { Check, Eye, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import type { Note, NoteStatus } from '@/types'
+import type { ModuleType, Note, NoteStatus } from '@/types'
 
 interface ActionCellProps {
   note: Note
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
+  moduleType?: ModuleType
 }
 
-export function ActionCell({ note, onStatusUpdate }: ActionCellProps) {
+export function ActionCell({ note, onStatusUpdate, moduleType }: ActionCellProps) {
   return (
     <div className="flex items-center gap-1">
       <Button
@@ -30,6 +31,25 @@ export function ActionCell({ note, onStatusUpdate }: ActionCellProps) {
       >
         <Check className="h-3 w-3" />
       </Button>
+      {moduleType === 'work' && (
+        <Button
+          size="icon"
+          variant="review"
+          onClick={(e) => {
+            e.stopPropagation()
+            onStatusUpdate(note.id, note.status === 'review' ? 'todo' : 'review')
+          }}
+          title={note.status === 'review' ? 'Mark as todo' : 'Mark as in review'}
+          className={cn(
+            "h-7 w-7",
+            note.status === 'review'
+              ? "bg-status-review/20 border-status-review text-status-review shadow-xs"
+              : "opacity-60 hover:opacity-100"
+          )}
+        >
+          <Eye className="h-3 w-3" />
+        </Button>
+      )}
       <Button
         size="icon"
         variant="cancelled"

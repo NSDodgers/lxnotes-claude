@@ -1,22 +1,28 @@
 'use client'
 
 import { cn } from '@/lib/utils'
+import type { ModuleType } from '@/types'
 
-type StatusFilter = 'todo' | 'complete' | 'cancelled' | null
+type StatusFilter = 'todo' | 'review' | 'complete' | 'cancelled' | null
 
 interface StatusFilterStepProps {
   value: StatusFilter
   onChange: (value: StatusFilter) => void
+  moduleType?: ModuleType
 }
 
-const statusOptions: { value: StatusFilter; label: string; description: string }[] = [
+const baseStatusOptions: { value: StatusFilter; label: string; description: string; workOnly?: boolean }[] = [
   { value: null, label: 'All Statuses', description: 'Include notes with any status' },
   { value: 'todo', label: 'Todo Only', description: 'Only notes that are still pending' },
+  { value: 'review', label: 'In Review Only', description: 'Only notes awaiting design review', workOnly: true },
   { value: 'complete', label: 'Complete Only', description: 'Only notes that are done' },
   { value: 'cancelled', label: 'Cancelled Only', description: 'Only notes that were cancelled' },
 ]
 
-export function StatusFilterStep({ value, onChange }: StatusFilterStepProps) {
+export function StatusFilterStep({ value, onChange, moduleType }: StatusFilterStepProps) {
+  const statusOptions = baseStatusOptions.filter(
+    option => !option.workOnly || moduleType === 'work'
+  )
   return (
     <div className="space-y-4" data-testid="wizard-step-status">
       <div className="space-y-2">

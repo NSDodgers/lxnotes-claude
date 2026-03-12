@@ -41,7 +41,7 @@ export function createWorkColumns({ onStatusUpdate, inlineEditing }: CreateColum
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }) => <ActionCell note={row.original} onStatusUpdate={onStatusUpdate} />,
+      cell: ({ row }) => <ActionCell note={row.original} onStatusUpdate={onStatusUpdate} moduleType="work" />,
       enableSorting: false,
       enableResizing: true,
       size: 80,

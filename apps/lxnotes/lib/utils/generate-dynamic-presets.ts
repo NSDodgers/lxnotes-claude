@@ -52,9 +52,10 @@ function generateEmailPresetId(moduleType: ModuleType, suffix: string): string {
 /**
  * Generates system filter/sort presets dynamically based on visible types and priorities.
  *
- * Standard presets (4):
+ * Standard presets (4, or 5 for work notes):
  * - All To-Do (by [Sort])
  * - All To-Do Grouped (by [Sort]) - groupByType: true
+ * - All In Review (by [Sort]) - work notes only
  * - All Complete (by Date)
  * - All Cancelled (by Date)
  *
@@ -118,7 +119,30 @@ export function generateSystemFilterPresets(
     updatedAt: baseDate,
   })
 
-  // 3. All Complete (by Date)
+  // 3. All In Review (by Sort) - work notes only
+  if (moduleType === 'work') {
+    presets.push({
+      id: generateFilterPresetId(moduleType, 'all-in-review'),
+      productionId,
+      type: 'filter_sort',
+      moduleType,
+      name: `All In Review (by ${sortLabel})`,
+      config: {
+        statusFilter: 'review',
+        typeFilters: [ALL_TYPES_SENTINEL],
+        priorityFilters: allPriorityValues,
+        sortBy,
+        sortOrder,
+        groupByType: false,
+      },
+      isDefault: true,
+      createdBy: 'system',
+      createdAt: baseDate,
+      updatedAt: baseDate,
+    })
+  }
+
+  // 4. All Complete (by Date)
   presets.push({
     id: generateFilterPresetId(moduleType, 'all-complete'),
     productionId,

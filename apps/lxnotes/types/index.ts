@@ -1,5 +1,5 @@
 export type ModuleType = 'cue' | 'work' | 'production' | 'actor'
-export type NoteStatus = 'todo' | 'complete' | 'cancelled'
+export type NoteStatus = 'todo' | 'review' | 'complete' | 'cancelled'
 export type UserRole = 'admin' | 'user'
 export type AppId = 'lxnotes' | 'director_notes'
 export type DepartmentRole = 'head' | 'member'

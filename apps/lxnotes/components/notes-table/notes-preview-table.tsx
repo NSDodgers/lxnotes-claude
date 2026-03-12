@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import type { Note, ModuleType } from '@/types'
-import { CheckSquare, Square, XSquare } from 'lucide-react'
+import { CheckSquare, Eye, Square, XSquare } from 'lucide-react'
 import {
   formatChannels,
   formatPositionUnit,
@@ -95,6 +95,8 @@ export function NotesPreviewTable({ notes, moduleType, showCheckboxes }: NotesPr
           const status = getValue()
           if (status === 'complete') {
             return <CheckSquare className="h-4 w-4 text-green-500" />
+          } else if (status === 'review') {
+            return <Eye className="h-4 w-4 text-amber-500" />
           } else if (status === 'cancelled') {
             return <XSquare className="h-4 w-4 text-muted-foreground" />
           }
