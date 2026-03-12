@@ -63,7 +63,8 @@ export const commonStyles = StyleSheet.create({
   logo: {
     width: 40,
     height: 40,
-    marginRight: 10
+    marginRight: 10,
+    objectFit: 'contain' as const,
   },
   headerInfo: {
     flex: 1,

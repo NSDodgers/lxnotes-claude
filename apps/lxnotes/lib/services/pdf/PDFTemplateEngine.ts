@@ -39,12 +39,19 @@ export class PDFTemplateEngine {
     if (hasValidLogo) {
       // Logo + Production Name layout
       try {
-        // Add logo image (centered above title)
-        const logoWidth = 50
-        const logoHeight = 50
+        // Calculate aspect-ratio-preserving dimensions within 50x50 bounding box
+        const maxSize = 50
+        const dims = this.getImageDimensions(this.config.productionLogo!)
+        let logoWidth = maxSize
+        let logoHeight = maxSize
+        if (dims) {
+          const ratio = Math.min(maxSize / dims.width, maxSize / dims.height)
+          logoWidth = dims.width * ratio
+          logoHeight = dims.height * ratio
+        }
         const logoX = (pageWidth - logoWidth) / 2
-        this.doc.addImage(this.config.productionLogo!, 'PNG', logoX, yPos, logoWidth, logoHeight)
-        yPos += logoHeight + 10
+        this.doc.addImage(this.config.productionLogo!, 'PNG', logoX, yPos + (maxSize - logoHeight) / 2, logoWidth, logoHeight)
+        yPos += maxSize + 10
       } catch (error) {
         console.warn('Failed to add logo image:', error)
         // Continue without logo
@@ -346,6 +353,40 @@ export class PDFTemplateEngine {
       'cancelled': 'Cancelled'
     }
     return statusMap[status] || status
+  }
+
+  private getImageDimensions(dataUrl: string): { width: number; height: number } | null {
+    try {
+      // Extract base64 data and decode to get image header for dimensions
+      const base64 = dataUrl.split('base64,')[1]
+      if (!base64) return null
+      const binary = atob(base64.slice(0, 100)) // Only need header bytes
+      const bytes = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+
+      // PNG: width at bytes 16-19, height at bytes 20-23
+      if (bytes[0] === 0x89 && bytes[1] === 0x50) {
+        const width = (bytes[16] << 24) | (bytes[17] << 16) | (bytes[18] << 8) | bytes[19]
+        const height = (bytes[20] << 24) | (bytes[21] << 16) | (bytes[22] << 8) | bytes[23]
+        return { width, height }
+      }
+
+      // JPEG: scan for SOF0 marker (0xFF 0xC0)
+      const fullBinary = atob(base64.slice(0, 1000))
+      const fullBytes = new Uint8Array(fullBinary.length)
+      for (let i = 0; i < fullBinary.length; i++) fullBytes[i] = fullBinary.charCodeAt(i)
+      for (let i = 0; i < fullBytes.length - 8; i++) {
+        if (fullBytes[i] === 0xFF && (fullBytes[i + 1] === 0xC0 || fullBytes[i + 1] === 0xC2)) {
+          const height = (fullBytes[i + 5] << 8) | fullBytes[i + 6]
+          const width = (fullBytes[i + 7] << 8) | fullBytes[i + 8]
+          return { width, height }
+        }
+      }
+
+      return null
+    } catch {
+      return null
+    }
   }
 
   private isBase64Image(str: string): boolean {

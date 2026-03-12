@@ -282,8 +282,8 @@ export default function CueNotesPage() {
                 {(() => {
                   const displayLogo = logo || DEFAULT_PRODUCTION_LOGO
                   return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
-                    <div className="relative w-full h-full">
-                      <Image src={displayLogo} alt="Production logo" fill className="object-cover" />
+                    <div className="relative w-full h-full bg-black">
+                      <Image src={displayLogo} alt="Production logo" fill className="object-contain" />
                     </div>
                   ) : (
                     <span>{displayLogo}</span>

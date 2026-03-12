@@ -54,12 +54,12 @@ export function DeletedProductionCard({ production, onRestore }: DeletedProducti
           {(() => {
             const displayLogo = production.logo || DEFAULT_PRODUCTION_LOGO
             return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
-              <div className="relative w-full h-full">
+              <div className="relative w-full h-full bg-black">
                 <Image
                   src={displayLogo}
                   alt={`${production.name} logo`}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                 />
               </div>
             ) : (

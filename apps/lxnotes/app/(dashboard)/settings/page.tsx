@@ -190,7 +190,9 @@ export default function SettingsPage() {
                       {(() => {
                         const displayLogo = logoPreview || DEFAULT_PRODUCTION_LOGO
                         return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
-                          <Image src={displayLogo} alt="Logo preview" fill className="object-cover" />
+                          <div className="relative w-full h-full bg-black">
+                            <Image src={displayLogo} alt="Logo preview" fill className="object-contain" />
+                          </div>
                         ) : (
                           <span className="text-2xl">{displayLogo}</span>
                         )
