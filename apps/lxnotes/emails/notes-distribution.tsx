@@ -19,6 +19,7 @@ interface NotesDistributionEmailProps {
   message: string
   senderName: string
   todoCount: number
+  reviewCount: number
   completeCount: number
   cancelledCount: number
   filterDescription: string
@@ -49,6 +50,7 @@ export function NotesDistributionEmail({
   message = 'Here are the latest notes from the production.',
   senderName = 'Team Member',
   todoCount = 5,
+  reviewCount = 0,
   completeCount = 3,
   cancelledCount = 1,
   filterDescription = 'All notes',
@@ -77,6 +79,7 @@ export function NotesDistributionEmail({
             {/* Summary card */}
             <SummaryCard
               todoCount={todoCount}
+              reviewCount={reviewCount}
               completeCount={completeCount}
               cancelledCount={cancelledCount}
               filterDescription={filterDescription}

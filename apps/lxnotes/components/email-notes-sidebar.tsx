@@ -167,6 +167,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       const noteStats = {
         total: filteredNotes.length,
         todo: filteredNotes.filter(n => n.status === 'todo').length,
+        review: filteredNotes.filter(n => n.status === 'review').length,
         complete: filteredNotes.filter(n => n.status === 'complete').length,
         cancelled: filteredNotes.filter(n => n.status === 'cancelled').length,
       }

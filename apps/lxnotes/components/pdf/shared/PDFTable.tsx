@@ -26,6 +26,10 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: '#22c55e'
   },
+  reviewmark: {
+    fontSize: 8,
+    color: '#f59e0b'
+  },
   cancelmark: {
     fontSize: 8,
     color: '#ef4444'
@@ -143,6 +147,11 @@ const StatusCheckbox: React.FC<{ status: string }> = ({ status }) => {
       {status === 'complete' && (
         <View style={commonStyles.checkbox}>
           <Text style={styles.checkmark}>✓</Text>
+        </View>
+      )}
+      {status === 'review' && (
+        <View style={commonStyles.checkbox}>
+          <Text style={styles.reviewmark}>●</Text>
         </View>
       )}
       {status === 'cancelled' && (

@@ -50,7 +50,7 @@ export function createTabletWorkColumns({ onStatusUpdate }: CreateColumnsOptions
     {
       id: 'actions',
       header: '',
-      cell: ({ row }) => <TabletActionCell note={row.original} onStatusUpdate={onStatusUpdate} />,
+      cell: ({ row }) => <TabletActionCell note={row.original} onStatusUpdate={onStatusUpdate} moduleType="work" />,
       enableSorting: false,
       enableResizing: false,
       size: 140,

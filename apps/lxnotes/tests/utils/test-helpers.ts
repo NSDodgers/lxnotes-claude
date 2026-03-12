@@ -89,7 +89,7 @@ export class TestHelpers {
   }
 
   // Filter helpers
-  async setStatusFilter(status: 'todo' | 'complete' | 'cancelled') {
+  async setStatusFilter(status: 'todo' | 'review' | 'complete' | 'cancelled') {
     await this.page.click(`${selectors.notes.statusFilter}[data-status="${status}"]`);
   }
 

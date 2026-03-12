@@ -31,7 +31,7 @@ export const createPageStylePresetSchema = pageStylePresetSchema.omit({
 
 // Filter Sort Preset schema
 export const filterSortPresetConfigSchema = z.object({
-  statusFilter: z.enum(['todo', 'complete', 'cancelled']).nullable(),
+  statusFilter: z.enum(['todo', 'review', 'complete', 'cancelled']).nullable(),
   typeFilters: z.array(z.string()).default([]),
   priorityFilters: z.array(z.string()).default([]),
   sortBy: z.string().min(1, 'Sort field is required'),

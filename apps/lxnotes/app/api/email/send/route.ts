@@ -27,6 +27,7 @@ interface SendEmailRequest {
   noteStats: {
     total: number
     todo: number
+    review: number
     complete: number
     cancelled: number
   }
@@ -150,7 +151,7 @@ export async function POST(request: Request) {
       userFullName: fullName,
       userFirstName: firstName,
       userLastName: lastName,
-      noteStats: noteStats || { total: 0, todo: 0, complete: 0, cancelled: 0 },
+      noteStats: noteStats || { total: 0, todo: 0, review: 0, complete: 0, cancelled: 0 },
       filterDescription: filterDescription || 'All notes',
       sortDescription: sortDescription || 'Default order',
       dateRange: dateRange || 'All dates',
@@ -203,6 +204,7 @@ export async function POST(request: Request) {
       senderEmail,
       noteCount: noteStats?.total || 0,
       todoCount: noteStats?.todo || 0,
+      reviewCount: noteStats?.review || 0,
       completeCount: noteStats?.complete || 0,
       cancelledCount: noteStats?.cancelled || 0,
       filterDescription: filterDescription || 'All notes',

@@ -6,6 +6,7 @@ import {
 
 interface SummaryCardProps {
   todoCount: number
+  reviewCount?: number
   completeCount: number
   cancelledCount: number
   filterDescription: string
@@ -17,6 +18,7 @@ interface SummaryCardProps {
  */
 export function SummaryCard({
   todoCount,
+  reviewCount = 0,
   completeCount,
   cancelledCount,
   filterDescription,
@@ -51,6 +53,12 @@ export function SummaryCard({
           }}
         >
           <span style={{ color: '#3b82f6' }}>{todoCount} todo</span>
+          {reviewCount > 0 && (
+            <>
+              {' '}&bull;{' '}
+              <span style={{ color: '#f59e0b' }}>{reviewCount} in review</span>
+            </>
+          )}
           {' '}&bull;{' '}
           <span style={{ color: '#22c55e' }}>{completeCount} complete</span>
           {' '}&bull;{' '}

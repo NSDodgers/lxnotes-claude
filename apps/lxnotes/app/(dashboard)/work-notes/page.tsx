@@ -460,6 +460,13 @@ export default function WorkNotesPage() {
                     To Do
                   </Button>
                   <Button
+                    onClick={() => setFilterStatus('review')}
+                    variant={filterStatus === 'review' ? 'review' : 'secondary'}
+                    size="sm"
+                  >
+                    In Review
+                  </Button>
+                  <Button
                     onClick={() => setFilterStatus('complete')}
                     variant={filterStatus === 'complete' ? 'complete' : 'secondary'}
                     size="sm"
