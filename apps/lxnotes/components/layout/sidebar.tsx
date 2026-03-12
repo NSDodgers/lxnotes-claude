@@ -168,10 +168,13 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* Policy Links */}
+        {/* Policy Links & Build Info */}
         {!collapsed && (
           <div className="border-t border-bg-tertiary px-compact-4 py-compact-3">
             <PolicyFooter layout="vertical" />
+            <p className="mt-compact-2 text-xs text-text-tertiary">
+              Build: {process.env.NEXT_PUBLIC_BUILD_SHA}
+            </p>
           </div>
         )}
 

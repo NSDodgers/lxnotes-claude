@@ -6,6 +6,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
+  // Expose build info to the client
+  env: {
+    NEXT_PUBLIC_BUILD_SHA: (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7) || 'dev',
+  },
   // Monorepo root for output file tracing
   outputFileTracingRoot: path.join(__dirname, '../..'),
 
