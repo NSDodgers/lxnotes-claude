@@ -394,7 +394,7 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
       },
 
       async setPages(pages: ScriptPage[]): Promise<void> {
-        // Auto-snapshot before script replacement — blocks replace if snapshot fails
+        // Best-effort snapshot before script replacement — warns but does not block on failure
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
           const { error: snapshotError } = await (supabase as SupabaseAny).rpc('create_production_snapshot', {
@@ -403,8 +403,7 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
             p_created_by: user.id,
           })
           if (snapshotError) {
-            console.error('Pre-script-replace snapshot failed:', snapshotError)
-            throw new Error('Cannot replace script pages: failed to create safety snapshot. Please try again.')
+            console.warn('[StorageAdapter] Pre-script-replace snapshot failed (continuing with replace):', snapshotError)
           }
         }
 

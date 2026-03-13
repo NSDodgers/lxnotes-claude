@@ -17,6 +17,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet'
 import { ScriptImportWizard } from '@/components/script-import-wizard'
+import { toast } from 'sonner'
 
 interface ScriptManagerProps {
   isOpen: boolean
@@ -1218,6 +1219,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
         console.error('  Error.stack:', error.stack)
       }
       console.dir(error, { depth: 5 })
+      toast.error('Failed to save script data. Please try again.')
     }
   }, [isDemoMode, productionId, isAuthenticated, getSortedPages])
 
@@ -1234,8 +1236,10 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
       const allScenesSongs = [...importedScenes, ...importedSongs]
       await adapter.script.setPages(importedPages)
       await adapter.script.setScenesSongs(allScenesSongs)
+      toast.success('Script data saved successfully.')
     } catch (error) {
       console.error('[ScriptManager] Failed to persist imported script data:', error)
+      toast.error('Failed to save imported script data. Please try again.')
     }
   }, [setScriptData, isDemoMode, productionId, isAuthenticated])
 

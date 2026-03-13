@@ -12,7 +12,7 @@ import type { ScriptPage, SceneSong } from '@/types'
 interface ScriptImportWizardProps {
   productionId: string
   hasExistingData: boolean
-  onImportComplete: (pages: ScriptPage[], scenes: SceneSong[], songs: SceneSong[]) => void
+  onImportComplete: (pages: ScriptPage[], scenes: SceneSong[], songs: SceneSong[]) => void | Promise<void>
   onCancel: () => void
 }
 
