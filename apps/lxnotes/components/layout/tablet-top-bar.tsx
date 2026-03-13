@@ -35,7 +35,7 @@ export function TabletTopBar() {
   const pathname = usePathname()
   const moduleInfo = getModuleInfo(pathname)
   const { toggleTabletSidebar, toggleTabletMode } = useTabletModeStore()
-  const { filterStatus, searchTerm, onAddNote, setFilterStatus, setSearchTerm, clearAllFilters } = useNotesFilterStore()
+  const { filterStatus, searchTerm, onAddNote, setFilterStatus, setSearchTerm, clearAllFilters, statusCounts } = useNotesFilterStore()
   const [searchExpanded, setSearchExpanded] = useState(false)
 
   // Clear search and filters when navigating between modules
@@ -81,7 +81,7 @@ export function TabletTopBar() {
             size="sm"
             className="text-xs px-2 h-8"
           >
-            {sf.label}
+            {sf.label} ({statusCounts[sf.value] || 0})
           </Button>
         ))}
       </div>

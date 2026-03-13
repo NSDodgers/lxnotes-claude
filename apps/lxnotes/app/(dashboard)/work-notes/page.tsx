@@ -97,6 +97,7 @@ export default function WorkNotesPage() {
   const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
   const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
   const setOnAddNote = useNotesFilterStore((s) => s.setOnAddNote)
+  const setStatusCounts = useNotesFilterStore((s) => s.setStatusCounts)
   const tabletFilterTypes = useNotesFilterStore((s) => s.filterTypes)
   const tabletFilterPriorities = useNotesFilterStore((s) => s.filterPriorities)
   const tabletSortField = useNotesFilterStore((s) => s.sortField)
@@ -176,6 +177,20 @@ export default function WorkNotesPage() {
   const effectiveFilterStatus = isTabletMode ? tabletFilterStatus : filterStatus
 
   const effectiveFilterTypes = isTabletMode ? tabletFilterTypes : filterTypes
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const note of notes) {
+      counts[note.status] = (counts[note.status] || 0) + 1
+    }
+    return counts
+  }, [notes])
+
+  useEffect(() => {
+    if (isTabletMode) {
+      setStatusCounts(statusCounts)
+    }
+  }, [isTabletMode, statusCounts, setStatusCounts])
 
   const filteredNotes = useMemo(() => {
     const filtered = notes.filter(note => {
@@ -457,28 +472,28 @@ export default function WorkNotesPage() {
                     variant={filterStatus === 'todo' ? 'todo' : 'secondary'}
                     size="sm"
                   >
-                    To Do
+                    To Do ({statusCounts['todo'] || 0})
                   </Button>
                   <Button
                     onClick={() => setFilterStatus('review')}
                     variant={filterStatus === 'review' ? 'review' : 'secondary'}
                     size="sm"
                   >
-                    In Review
+                    In Review ({statusCounts['review'] || 0})
                   </Button>
                   <Button
                     onClick={() => setFilterStatus('complete')}
                     variant={filterStatus === 'complete' ? 'complete' : 'secondary'}
                     size="sm"
                   >
-                    Complete
+                    Complete ({statusCounts['complete'] || 0})
                   </Button>
                   <Button
                     onClick={() => setFilterStatus('cancelled')}
                     variant={filterStatus === 'cancelled' ? 'cancelled' : 'secondary'}
                     size="sm"
                   >
-                    Cancelled
+                    Cancelled ({statusCounts['cancelled'] || 0})
                   </Button>
                 </div>
               </div>
