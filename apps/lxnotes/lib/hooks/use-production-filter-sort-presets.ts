@@ -18,12 +18,13 @@ export function useProductionFilterSortPresets(moduleType: ModuleType) {
     }, [store, moduleType])
 
     // Get production presets for this module
+    const filterSortPresets = productionContext?.production?.filterSortPresets
     const productionPresets = useMemo(() => {
-        if (!productionContext?.production?.filterSortPresets) return []
-        return productionContext.production.filterSortPresets.filter(
+        if (!filterSortPresets) return []
+        return filterSortPresets.filter(
             p => p.moduleType === moduleType
         )
-    }, [productionContext?.production?.filterSortPresets, moduleType])
+    }, [filterSortPresets, moduleType])
 
     // Merge presets: production presets override system presets with same ID
     const presets = useMemo(() => {

@@ -1142,7 +1142,7 @@ export default function ProductionNotesPage() {
       createdBy: displayName,
     } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
     return note
-  }, [notesContext, productionContext?.productionId, user])
+  }, [notesContext, productionContext?.productionId, user, inlineEditing.lastType])
 
   const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
     const updates: Partial<Note> = {}

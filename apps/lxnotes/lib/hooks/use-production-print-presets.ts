@@ -23,12 +23,13 @@ export function useProductionPrintPresets(moduleType: ModuleType) {
 
 
     // Get production presets for this module
+    const printPresets = productionContext?.production?.printPresets
     const productionPresets = useMemo(() => {
-        if (!productionContext?.production?.printPresets) return []
-        return productionContext.production.printPresets.filter(
+        if (!printPresets) return []
+        return printPresets.filter(
             p => p.moduleType === moduleType
         )
-    }, [productionContext?.production?.printPresets, moduleType])
+    }, [printPresets, moduleType])
 
     // Merge presets: production presets override system presets with same ID
     const presets = useMemo(() => {

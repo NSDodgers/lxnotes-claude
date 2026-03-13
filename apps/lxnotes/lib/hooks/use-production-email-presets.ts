@@ -25,12 +25,13 @@ export function useProductionEmailPresets(moduleType: ModuleType) {
   }, [store, moduleType])
 
   // Get production presets for this module
+  const emailPresets = productionContext?.production?.emailPresets
   const productionPresets = useMemo(() => {
-    if (!productionContext?.production?.emailPresets) return []
-    return productionContext.production.emailPresets.filter(
+    if (!emailPresets) return []
+    return emailPresets.filter(
       p => p.moduleType === moduleType
     )
-  }, [productionContext?.production?.emailPresets, moduleType])
+  }, [emailPresets, moduleType])
 
   // Merge presets: production presets override system presets with same ID
   const presets = useMemo(() => {

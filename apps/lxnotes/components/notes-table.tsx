@@ -901,6 +901,7 @@ function ResizableHeaderCell({
     pointerIdRef.current = null
     setIsResizing(false)
     window.removeEventListener('pointermove', handlePointerMove)
+    // eslint-disable-next-line react-hooks/immutability -- self-referencing event listener cleanup is intentional
     window.removeEventListener('pointerup', handlePointerUp)
 
     const startX = Number(handleRef.current?.dataset.startX ?? event.clientX)

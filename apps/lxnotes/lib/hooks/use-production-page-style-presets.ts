@@ -18,10 +18,11 @@ export function useProductionPageStylePresets() {
     }, [store])
 
     // Get production presets
+    const pageStylePresets = productionContext?.production?.pageStylePresets
     const productionPresets = useMemo(() => {
-        if (!productionContext?.production?.pageStylePresets) return []
-        return productionContext.production.pageStylePresets
-    }, [productionContext?.production?.pageStylePresets])
+        if (!pageStylePresets) return []
+        return pageStylePresets
+    }, [pageStylePresets])
 
     // Merge presets: production presets override system presets with same ID
     const presets = useMemo(() => {
