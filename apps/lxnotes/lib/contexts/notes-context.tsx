@@ -292,6 +292,39 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- operationQueue methods are stable Zustand references
   }, [resolvedProductionId, isDemoMode])
 
+  // Refetch notes on window focus as a fallback for realtime
+  useEffect(() => {
+    if (!resolvedProductionId || isDemoMode) return
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState !== 'visible') return
+
+      const currentAdapter = adapterRef.current
+      if (!currentAdapter) return
+
+      try {
+        const [cueNotes, workNotes, productionNotes, actorNotes] = await Promise.all([
+          currentAdapter.notes.getAll('cue'),
+          currentAdapter.notes.getAll('work'),
+          currentAdapter.notes.getAll('production'),
+          currentAdapter.notes.getAll('actor'),
+        ])
+
+        setSupabaseNotes({
+          cue: cueNotes,
+          work: workNotes,
+          production: productionNotes,
+          actor: actorNotes,
+        })
+      } catch (err) {
+        console.error('Failed to refetch notes on focus:', err)
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [resolvedProductionId, isDemoMode])
+
   // Get notes based on mode
   const getNotes = useCallback((moduleType: ModuleType): Note[] => {
     if (isDemoMode || !resolvedProductionId) {
