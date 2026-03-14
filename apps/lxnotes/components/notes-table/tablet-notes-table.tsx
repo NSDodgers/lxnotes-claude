@@ -74,7 +74,11 @@ export function TabletNotesTable({
                 <TableRow
                   key={row.id}
                   className={onEdit ? 'cursor-pointer' : ''}
-                  onClick={onEdit ? () => onEdit(row.original) : undefined}
+                  onClick={onEdit ? (e: React.MouseEvent) => {
+                    // Don't trigger edit if clicking on action buttons (touch devices may not stopPropagation reliably)
+                    if ((e.target as HTMLElement).closest('button')) return
+                    onEdit(row.original)
+                  } : undefined}
                   style={{ minHeight: 56 }}
                 >
                   {row.getVisibleCells().map((cell) => (
