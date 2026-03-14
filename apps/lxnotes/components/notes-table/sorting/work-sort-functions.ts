@@ -103,8 +103,8 @@ export const channelsSortFn: SortingFn<Note> = (rowA, rowB) => {
   const aggregateA = getAggregate(rowA.original.id)
   const aggregateB = getAggregate(rowB.original.id)
 
-  const channelA = extractLowestChannelNumber(aggregateA?.channels || '')
-  const channelB = extractLowestChannelNumber(aggregateB?.channels || '')
+  const channelA = extractLowestChannelNumber(aggregateA?.channels || rowA.original.channelNumbers || '')
+  const channelB = extractLowestChannelNumber(aggregateB?.channels || rowB.original.channelNumbers || '')
 
   return channelA - channelB
 }

@@ -126,11 +126,12 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
         const linkedFixtures = getLinkedFixtures(editingNote.id)
         setSelectedLightwrightIds(linkedFixtures.map(f => f.id))
         
-        // Set channel expression from linked fixtures
+        // Set channel expression from linked fixtures, or fall back to note's channelNumbers
         if (linkedFixtures.length > 0) {
           const channels = linkedFixtures.map(f => f.channel).sort((a, b) => a - b)
-          // Use the formatting function from the store
           setChannelExpression(formatChannelsAsExpression(channels))
+        } else if (editingNote.channelNumbers) {
+          setChannelExpression(editingNote.channelNumbers)
         }
       }
     } else if (defaultType) {

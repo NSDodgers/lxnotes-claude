@@ -32,7 +32,7 @@ export function createTabletWorkColumns({ onStatusUpdate }: CreateColumnsOptions
       id: 'channels',
       header: 'Ch',
       cell: ({ row }) => (
-        <FixtureAggregateCell noteId={row.original.id} field="channels" />
+        <FixtureAggregateCell noteId={row.original.id} field="channels" fallbackChannels={row.original.channelNumbers} />
       ),
       enableSorting: false,
       enableResizing: false,

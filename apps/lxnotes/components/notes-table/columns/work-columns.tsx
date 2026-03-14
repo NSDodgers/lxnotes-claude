@@ -111,6 +111,7 @@ export function createWorkColumns({ onStatusUpdate, inlineEditing }: CreateColum
         <FixtureAggregateCell
           noteId={row.original.id}
           field="channels"
+          fallbackChannels={row.original.channelNumbers}
         />
       ),
       sortingFn: channelsSortFn,
