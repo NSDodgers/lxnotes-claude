@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {
   ArrowLeft,
+  BarChart3,
   Database,
   Shield,
   Loader2,
@@ -170,13 +171,22 @@ export default function AdminDashboardPage() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-modules-production text-white rounded-lg hover:bg-modules-production/90 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            New Production
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/settings/admin/stats"
+              className="flex items-center gap-2 px-4 py-2 bg-bg-tertiary text-text-secondary rounded-lg hover:bg-bg-tertiary/80 transition-colors"
+            >
+              <BarChart3 className="h-4 w-4" />
+              Stats
+            </Link>
+            <button
+              onClick={() => setIsCreateOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-modules-production text-white rounded-lg hover:bg-modules-production/90 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              New Production
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
