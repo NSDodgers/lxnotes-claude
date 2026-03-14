@@ -20,7 +20,16 @@ export function TabletLayout({ children }: { children: React.ReactNode }) {
   const isDemoMode = pathname.startsWith('/demo')
 
   return (
-    <div className={cn("h-screen w-screen overflow-hidden flex flex-col bg-bg-primary", isDemoMode && "pt-[36px]")} data-testid="tablet-mode-indicator">
+    <div
+      className={cn("flex flex-col bg-bg-primary overflow-hidden", isDemoMode && "pt-[18px]")}
+      style={{
+        width: '50vw',
+        height: '50vh',
+        transform: 'scale(2)',
+        transformOrigin: 'top left',
+      }}
+      data-testid="tablet-mode-indicator"
+    >
       <TabletTopBar />
       {moduleType && <TabletFilterChips moduleType={moduleType} />}
       <TabletOverlaySidebar />

@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { Sidebar } from './sidebar'
 import { TabletLayout } from './tablet-layout'
 import { usePathname } from 'next/navigation'
@@ -16,17 +15,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Only demo mode has a banner now (production mode banner was removed)
   const hasBanner = isDemoMode
 
-  // Scale the entire UI 2x in tablet mode for touch-friendly sizing
-  useEffect(() => {
-    if (isTabletMode) {
-      document.documentElement.style.zoom = '2'
-    } else {
-      document.documentElement.style.zoom = ''
-    }
-    return () => {
-      document.documentElement.style.zoom = ''
-    }
-  }, [isTabletMode])
+  // Note: Tablet mode scaling is handled via CSS transform in tablet-layout.tsx
+  // CSS zoom breaks touch event coordinates on iOS Safari
 
   if (isTabletMode) {
     return <TabletLayout>{children}</TabletLayout>
