@@ -300,10 +300,13 @@ export default function WorkNotesPage() {
     }
   }, [isTabletMode, tabletAddNote, setOnAddNote])
 
+  const updateNoteStatusRef = useRef(updateNoteStatus)
+  updateNoteStatusRef.current = updateNoteStatus
+
   const tabletColumns = useMemo(
-    () => createTabletWorkColumns({ onStatusUpdate: updateNoteStatus }),
+    () => createTabletWorkColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isTabletMode]
+    []
   )
 
   const handleDialogAdd = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>, lightwrightFixtureIds?: string[]) => {

@@ -1192,10 +1192,13 @@ export default function ProductionNotesPage() {
     }
   }, [isTabletMode, tabletAddNote, setOnAddNote])
 
+  const updateNoteStatusRef = useRef(updateNoteStatus)
+  updateNoteStatusRef.current = updateNoteStatus
+
   const tabletColumns = useMemo(
-    () => createTabletProductionColumns({ onStatusUpdate: updateNoteStatus }),
+    () => createTabletProductionColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isTabletMode]
+    []
   )
 
   const handleDialogAdd = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {

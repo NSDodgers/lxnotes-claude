@@ -252,10 +252,13 @@ export default function CueNotesPage() {
     }
   }, [isTabletMode, tabletAddNote, setOnAddNote])
 
+  const updateNoteStatusRef = useRef(updateNoteStatus)
+  updateNoteStatusRef.current = updateNoteStatus
+
   const tabletColumns = useMemo(
-    () => createTabletCueColumns({ onStatusUpdate: updateNoteStatus }),
+    () => createTabletCueColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isTabletMode]
+    []
   )
 
   // Tablet mode rendering
