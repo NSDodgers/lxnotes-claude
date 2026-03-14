@@ -18,10 +18,12 @@ import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
 import { PolicyFooter } from './policy-footer'
 import { UserMenu } from '@/components/auth/user-menu'
+import { useNotes } from '@/lib/contexts/notes-context'
 
 export function Sidebar() {
   const { collapsed, toggleCollapsed } = useSidebarStore()
   const pathname = usePathname()
+  const { connectionStatus } = useNotes()
 
   // Detect mode: demo, production, or default
   const isDemoMode = pathname.startsWith('/demo')
@@ -174,7 +176,17 @@ export function Sidebar() {
         {!collapsed && (
           <div className="border-t border-bg-tertiary px-compact-4 py-compact-3">
             <PolicyFooter layout="vertical" />
-            <p className="mt-compact-2 text-xs text-text-tertiary">
+            <p className="mt-compact-2 text-xs text-text-tertiary flex items-center gap-1">
+              <span
+                className={cn(
+                  'inline-block w-2 h-2 rounded-full',
+                  connectionStatus === 'connected' ? 'bg-green-500' :
+                  connectionStatus === 'connecting' ? 'bg-yellow-500 animate-pulse' :
+                  connectionStatus === 'error' ? 'bg-red-500' :
+                  'bg-gray-500'
+                )}
+                title={`Realtime: ${connectionStatus}`}
+              />
               Build: {process.env.NEXT_PUBLIC_BUILD_SHA}
             </p>
           </div>

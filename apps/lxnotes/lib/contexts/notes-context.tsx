@@ -174,6 +174,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       setConnectionStatus('connecting')
       const unsubscribe = subscribeToNoteChanges(resolvedProductionId, {
         onStatusChange: (status) => {
+          console.log('[Realtime] Connection status:', status)
           if (status === 'SUBSCRIBED') {
             setConnectionStatus('connected')
             // Update operation queue and trigger processing
@@ -220,6 +221,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
           })
         },
         onNoteUpdate: (updatedNote) => {
+          console.log('[Realtime] Note update received:', updatedNote.id, 'status:', updatedNote.status)
           const moduleType = updatedNote.module_type as ModuleType
           if (!moduleType || !['cue', 'work', 'production', 'actor'].includes(moduleType)) {
             if (isDev) console.warn('[NotesContext] Invalid module_type on update, ignoring:', moduleType)
