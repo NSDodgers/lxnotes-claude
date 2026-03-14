@@ -13,7 +13,7 @@ import { usePathname } from 'next/navigation'
 import type { Note, ModuleType, NoteStatus } from '@/types'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
-import { subscribeToNoteChanges } from '@/lib/supabase/realtime'
+import { subscribeToNoteChanges, broadcastNoteChange } from '@/lib/supabase/realtime'
 import { useUndoStore } from '@/lib/stores/undo-store'
 import { useOperationQueueStore, type QueuedOperation, markNoteAsSynced, wasRecentlySynced } from '@/lib/stores/operation-queue-store'
 import {
@@ -382,6 +382,8 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
           n.id === tempId ? newNote : n
         ),
       }))
+      // Broadcast to other clients
+      broadcastNoteChange(resolvedProductionId!, 'INSERT', noteToDbFormat(newNote))
       // Push to undo stack
       undoStore.push(createCreateCommand(newNote))
       return newNote
@@ -455,7 +457,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
 
     // Online: execute immediately
     try {
-      await adapter.notes.update(id, updates)
+      const savedNote = await adapter.notes.update(id, updates)
+
+      // Broadcast to other clients
+      broadcastNoteChange(resolvedProductionId!, 'UPDATE', noteToDbFormat(savedNote))
 
       // Push to undo stack after successful update
       const updatedNote = { ...previousNote, ...updates, updatedAt }
@@ -536,6 +541,9 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     // Online: execute immediately
     try {
       await adapter.notes.delete(id)
+
+      // Broadcast to other clients
+      broadcastNoteChange(resolvedProductionId!, 'DELETE', noteToDbFormat(noteToDelete))
 
       // Push to undo stack after successful delete
       undoStore.push(createDeleteCommand(noteToDelete))
@@ -893,6 +901,36 @@ interface RawDbNote {
   scenery_needs?: string | null
   deleted_at?: string | null
   deleted_by?: string | null
+}
+
+// Helper to convert Note to DB format for broadcasting
+function noteToDbFormat(note: Note): RawDbNote {
+  return {
+    id: note.id,
+    production_id: note.productionId,
+    module_type: note.moduleType,
+    title: note.title,
+    description: note.description ?? null,
+    type: note.type ?? null,
+    priority: note.priority,
+    status: note.status,
+    created_by: note.createdBy ?? null,
+    assigned_to: note.assignedTo ?? null,
+    completed_by: note.completedBy ?? null,
+    created_at: note.createdAt?.toISOString() ?? null,
+    updated_at: note.updatedAt?.toISOString() ?? null,
+    completed_at: note.completedAt?.toISOString() ?? null,
+    due_date: note.dueDate?.toISOString() ?? null,
+    cue_number: note.cueNumber ?? null,
+    script_page_id: note.scriptPageId ?? null,
+    scene_song_id: note.sceneSongId ?? null,
+    lightwright_item_id: note.lightwrightItemId ?? null,
+    channel_numbers: note.channelNumbers ?? null,
+    position_unit: note.positionUnit ?? null,
+    scenery_needs: note.sceneryNeeds ?? null,
+    deleted_at: note.deletedAt?.toISOString() ?? null,
+    deleted_by: note.deletedBy ?? null,
+  }
 }
 
 // Helper function to convert database note to Note type

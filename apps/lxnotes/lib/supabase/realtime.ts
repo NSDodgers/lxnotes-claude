@@ -124,7 +124,8 @@ export function subscribeToNoteChanges(
   const supabase = createClient()
   const channelName = `production-${productionId}-notes`
 
-  return createSubscriptionWithRetry(
+  // Use both postgres_changes (for when RLS works) and broadcast (as reliable fallback)
+  const unsubPostgres = createSubscriptionWithRetry(
     channelName,
     () => {
       return supabase.channel(channelName).on(
@@ -155,6 +156,58 @@ export function subscribeToNoteChanges(
     callbacks.onError,
     callbacks.onStatusChange
   )
+
+  // Broadcast channel for direct client-to-client sync (bypasses postgres_changes + RLS)
+  const broadcastChannelName = `broadcast-${productionId}-notes`
+  const broadcastChannel = supabase.channel(broadcastChannelName)
+    .on('broadcast', { event: 'note-change' }, (payload) => {
+      const { eventType, note } = payload.payload as { eventType: string; note: DbNote }
+      console.log('[Realtime] Broadcast received:', eventType, note.id)
+
+      switch (eventType) {
+        case 'INSERT':
+          if (callbacks.onNoteInsert) callbacks.onNoteInsert(note)
+          break
+        case 'UPDATE':
+          if (callbacks.onNoteUpdate) callbacks.onNoteUpdate(note)
+          break
+        case 'DELETE':
+          if (callbacks.onNoteDelete) callbacks.onNoteDelete(note)
+          break
+      }
+    })
+    .subscribe()
+
+  // Store broadcast channel reference for sending
+  _broadcastChannels.set(productionId, broadcastChannel)
+
+  return () => {
+    unsubPostgres()
+    supabase.removeChannel(broadcastChannel)
+    _broadcastChannels.delete(productionId)
+  }
+}
+
+// Map of production ID to broadcast channel for sending events
+const _broadcastChannels = new Map<string, ReturnType<ReturnType<typeof createClient>['channel']>>()
+
+/**
+ * Broadcast a note change to other clients in the same production.
+ * This is a reliable fallback when postgres_changes + RLS silently drops events.
+ */
+export function broadcastNoteChange(
+  productionId: string,
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE',
+  note: unknown
+) {
+  const channel = _broadcastChannels.get(productionId)
+  if (channel) {
+    channel.send({
+      type: 'broadcast',
+      event: 'note-change',
+      payload: { eventType, note },
+    })
+  }
 }
 
 /**
