@@ -11,7 +11,7 @@ type SupabaseAny = any
  * Get production details including short code
  */
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -36,7 +36,7 @@ export async function GET(
     // Fetch production details
     const { data: production, error: prodError } = await supabase
       .from('productions')
-      .select('id, name, abbreviation, short_code, app_id, saved_recipients')
+      .select('id, name, abbreviation, short_code')
       .eq('id', id)
       .is('deleted_at', null)
       .single()
@@ -53,8 +53,6 @@ export async function GET(
       name: production.name,
       abbreviation: production.abbreviation,
       shortCode: production.short_code ?? '',
-      appId: production.app_id,
-      savedRecipients: production.saved_recipients || [],
     })
   } catch (error) {
     console.error('Error fetching production:', error)

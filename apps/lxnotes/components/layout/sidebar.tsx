@@ -73,6 +73,7 @@ export function Sidebar() {
               alt="LX Notes"
               width={28}
               height={28}
+              style={{ height: 'auto' }}
               className="object-contain"
             />
           ) : (
@@ -81,6 +82,7 @@ export function Sidebar() {
               alt="LX Notes"
               width={120}
               height={40}
+              style={{ height: 'auto' }}
               className="object-contain"
             />
           )}

@@ -870,9 +870,12 @@ function SnapshotHistorySection({
                   )}
                 >
                   {/* Row header — always visible */}
-                  <button
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => toggleExpand(snap.id)}
-                    className="w-full p-3 flex items-center justify-between gap-3 text-left"
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(snap.id) } }}
+                    className="w-full p-3 flex items-center justify-between gap-3 text-left cursor-pointer"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       {isExpanded
@@ -915,7 +918,7 @@ function SnapshotHistorySection({
                         )}
                       </div>
                     )}
-                  </button>
+                  </div>
 
                   {/* Expanded content */}
                   {isExpanded && (

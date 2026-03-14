@@ -1151,11 +1151,20 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
   const [newFirstCueNumber, setNewFirstCueNumber] = useState('')
   const pageNumberInputRef = useRef<HTMLInputElement>(null)
 
+  // Debounce + version guard for persistToSupabase
+  const persistVersionRef = useRef(0)
+  const persistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const pages = getSortedPages()
 
   // Fetch fresh script data from Supabase when sidebar opens
   useEffect(() => {
-    if (!isOpen || isDemoMode || !isAuthenticated || !productionId || productionId === 'demo-production') {
+    if (!isOpen || isDemoMode || !productionId || productionId === 'demo-production') {
+      return
+    }
+    if (!isAuthenticated) {
+      console.warn('[ScriptManager] Skipping script data fetch: User not authenticated')
+      toast.warning('Unable to load script data — you are not authenticated.')
       return
     }
 
@@ -1178,7 +1187,16 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
     fetchScriptData()
   }, [isOpen, isDemoMode, isAuthenticated, productionId, setScriptData])
 
-  // Persist all script data to Supabase
+  // Clean up debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (persistTimerRef.current) {
+        clearTimeout(persistTimerRef.current)
+      }
+    }
+  }, [])
+
+  // Persist all script data to Supabase (debounced, with "latest wins" version guard)
   const persistToSupabase = useCallback(async () => {
     // Skip if demo mode OR if we don't have a real production ID
     if (isDemoMode || !productionId || productionId === 'demo-production') {
@@ -1186,29 +1204,50 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
       return
     }
 
-    // Skip if not authenticated (avoids 401 errors)
+    // Warn user if not authenticated — their changes won't be saved
     if (!isAuthenticated) {
-      console.log('[ScriptManager] Skipping Supabase persist: User not authenticated')
+      toast.warning('Changes not saved — you are not authenticated. Please sign in again.')
+      console.warn('[ScriptManager] Skipping Supabase persist: User not authenticated')
+      return
+    }
+
+    // Bump version and debounce — rapid edits collapse into one save
+    const version = ++persistVersionRef.current
+    if (persistTimerRef.current) {
+      clearTimeout(persistTimerRef.current)
+    }
+
+    await new Promise<void>((resolve) => {
+      persistTimerRef.current = setTimeout(resolve, 300)
+    })
+
+    // If a newer persist was requested during the debounce, abort — latest state wins
+    if (version !== persistVersionRef.current) {
+      console.log(`[ScriptManager] Persist v${version} superseded by v${persistVersionRef.current}, skipping`)
       return
     }
 
     try {
       const adapter = createSupabaseStorageAdapter(productionId)
-      const currentPages = getSortedPages()
-      // Read fresh from store to avoid stale closure (same pattern as handleImportComplete)
+      // Read fresh from store to avoid stale closure
+      const currentPages = useScriptStore.getState().getSortedPages()
       const { scenes: currentScenes, songs: currentSongs } = useScriptStore.getState()
       const allScenesSongs = [...currentScenes, ...currentSongs]
 
-      console.log('[ScriptManager] Persisting to Supabase:', { productionId, pagesCount: currentPages.length, scenesSongsCount: allScenesSongs.length })
+      console.log(`[ScriptManager] Persisting to Supabase (v${version}):`, { productionId, pagesCount: currentPages.length, scenesSongsCount: allScenesSongs.length })
 
       // Run sequentially to identify which operation fails
       await adapter.script.setPages(currentPages)
-      console.log('[ScriptManager] Pages persisted successfully')
+
+      // Check again after await — a newer persist may have started
+      if (version !== persistVersionRef.current) {
+        console.log(`[ScriptManager] Persist v${version} superseded after setPages, aborting`)
+        return
+      }
 
       await adapter.script.setScenesSongs(allScenesSongs)
-      console.log('[ScriptManager] Scenes/Songs persisted successfully')
+      console.log(`[ScriptManager] Persist v${version} completed successfully`)
     } catch (error: unknown) {
-      // Try multiple ways to get error info
       console.error('[ScriptManager] Failed to persist script data to Supabase:')
       console.error('  Type:', typeof error)
       console.error('  Constructor:', error?.constructor?.name)
@@ -1221,7 +1260,7 @@ export function ScriptManager({ isOpen, onClose, productionId }: ScriptManagerPr
       console.dir(error, { depth: 5 })
       toast.error('Failed to save script data. Please try again.')
     }
-  }, [isDemoMode, productionId, isAuthenticated, getSortedPages])
+  }, [isDemoMode, productionId, isAuthenticated])
 
   // Import completion handler — persists directly with imported data to avoid stale closure
   const handleImportComplete = useCallback(async (importedPages: ScriptPage[], importedScenes: SceneSong[], importedSongs: SceneSong[]) => {
