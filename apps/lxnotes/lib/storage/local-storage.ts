@@ -64,7 +64,7 @@ export class LocalStorageAdapter implements StorageAdapter {
         cue: [],
         work: [],
         production: [],
-        actor: []
+        electrician: []
       }
       return allNotes[moduleType] || []
     },
@@ -86,7 +86,7 @@ export class LocalStorageAdapter implements StorageAdapter {
         cue: [],
         work: [],
         production: [],
-        actor: []
+        electrician: []
       }
 
       const newNote: Note = {
@@ -143,7 +143,7 @@ export class LocalStorageAdapter implements StorageAdapter {
         cue: [],
         work: [],
         production: [],
-        actor: []
+        electrician: []
       }
 
       const createdNotes: Note[] = notes.map(noteData => ({

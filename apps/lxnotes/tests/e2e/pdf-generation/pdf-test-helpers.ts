@@ -34,7 +34,7 @@ export class PDFTestHelpers {
       cue: '/cue-notes',
       work: '/work-notes',
       production: '/production-notes',
-      actor: '/actor-notes'
+      electrician: '/electrician-notes'
     }
 
     await this.page.goto(`http://localhost:3001${moduleRoutes[moduleType]}`)

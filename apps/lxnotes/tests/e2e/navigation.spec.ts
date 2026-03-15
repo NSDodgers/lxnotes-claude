@@ -32,6 +32,11 @@ test.describe('Navigation', () => {
     await helpers.expectPageTitle('Work Notes');
     await expect(page).toHaveURL(/.*\/work-notes/);
 
+    // Navigate to Electrician Notes
+    await helpers.navigateToModule('electrician-notes');
+    await helpers.expectPageTitle('Electrician Notes');
+    await expect(page).toHaveURL(/.*\/electrician-notes/);
+
     // Navigate to Production Notes
     await helpers.navigateToModule('production-notes');
     await helpers.expectPageTitle('Production Notes');
@@ -179,6 +184,7 @@ test.describe('Navigation', () => {
     // Navigate between all modules
     await helpers.navigateToModule('cue-notes');
     await helpers.navigateToModule('work-notes');
+    await helpers.navigateToModule('electrician-notes');
     await helpers.navigateToModule('production-notes');
     await helpers.navigateToModule('settings');
 

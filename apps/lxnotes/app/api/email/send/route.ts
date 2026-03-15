@@ -44,7 +44,7 @@ function getModuleName(moduleType: ModuleType): string {
     cue: 'Cue Notes',
     work: 'Work Notes',
     production: 'Production Notes',
-    actor: 'Actor Notes',
+    electrician: 'Electrician Notes',
   }
   return names[moduleType] || moduleType
 }

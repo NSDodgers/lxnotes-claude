@@ -49,7 +49,8 @@ const getSystemDefaults = (moduleType: ModuleType): CustomPriority[] => {
       ]
     
     case 'work':
-      // Extended 1-9 scale for Work module
+    case 'electrician':
+      // Extended 1-9 scale for Work and Electrician modules
       return [
         { id: 'sys-work-pri-1', productionId, moduleType, value: 'critical', label: 'Critical', color: '#DC2626', sortOrder: 1, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
         { id: 'sys-work-pri-2', productionId, moduleType, value: 'very_high', label: 'Very High', color: '#EA580C', sortOrder: 2, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
@@ -80,10 +81,10 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
         cue: [],
         work: [],
         production: [],
-        actor: []
+        electrician: []
       },
       systemOverrides: [],
-      
+
       getSystemDefaults: (moduleType: ModuleType) => {
         return getSystemDefaults(moduleType)
       },
@@ -234,7 +235,7 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
 
       loadFromProduction: (config: CustomPrioritiesConfig) => {
         set({
-          customPriorities: config.customPriorities ?? { cue: [], work: [], production: [], actor: [] },
+          customPriorities: config.customPriorities ?? { cue: [], work: [], production: [], electrician: [] },
           systemOverrides: config.systemOverrides ?? [],
         })
       },

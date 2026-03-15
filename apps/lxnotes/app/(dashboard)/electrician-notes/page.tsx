@@ -1,0 +1,640 @@
+'use client'
+
+import { ElectricianNotesTable } from '@/components/notes-table/electrician-notes-table'
+import { TabletNotesTable } from '@/components/notes-table/tablet-notes-table'
+import { createTabletElectricianColumns } from '@/components/notes-table/columns/tablet-electrician-columns'
+import { AddNoteDialog } from '@/components/add-note-dialog'
+import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
+import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
+import { HookupImportSidebar } from '@/components/hookup-import-sidebar'
+import { FixtureDataViewer } from '@/components/fixture-data-viewer'
+import { PositionManager } from '@/components/position-manager'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useInlineEditing } from '@/hooks/use-inline-editing'
+import type { EditableColumn } from '@/hooks/use-inline-editing'
+import { usePathname } from 'next/navigation'
+import { Plus, Search, Zap, Upload, Mail, Printer, Database, ArrowUpDown, RotateCcw, ChevronDown } from 'lucide-react'
+import type { Note, NoteStatus, FilterSortPreset } from '@/types'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { MultiSelect } from '@/components/ui/multi-select'
+import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
+import { useProductionOptional } from '@/components/production/production-provider'
+import { useAuthContext } from '@/components/auth/auth-provider'
+import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
+import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
+import { useNotes } from '@/lib/contexts/notes-context'
+import { isDemoMode } from '@/lib/demo-data'
+import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
+import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
+import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { sortNotes } from '@/lib/utils/filter-sort-notes'
+import { UndoRedoButtons } from '@/components/undo-redo-buttons'
+import Image from 'next/image'
+
+export default function ElectricianNotesPage() {
+  const notesContext = useNotes()
+  const isDemo = isDemoMode()
+  const notes = useMemo(() => {
+    return isDemo
+      ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.electrician : [])
+      : notesContext.getNotes('electrician')
+  }, [isDemo, notesContext])
+
+  const [, forceUpdate] = useState({})
+  useEffect(() => {
+    if (isDemo) {
+      const unsubscribe = useMockNotesStore.subscribe(
+        (state) => state.notes.electrician,
+        () => forceUpdate({})
+      )
+      return () => {
+        if (typeof unsubscribe === 'function') unsubscribe()
+      }
+    }
+  }, [isDemo])
+
+  const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
+
+  useEffect(() => {
+    if (!isDemoMode() && typeof window !== 'undefined' && !window.location.pathname.startsWith('/production/')) {
+      initializeWithMockData()
+    }
+  }, [initializeWithMockData])
+
+  const productionContext = useProductionOptional()
+  const { user } = useAuthContext()
+  const storeData = useCurrentProductionStore()
+  const pathname = usePathname()
+  const isProductionMode = pathname.startsWith('/production/')
+  const productionId = productionContext?.productionId ?? 'prod-1'
+  const name = productionContext?.production?.name ?? (isProductionMode ? '' : storeData.name)
+  const abbreviation = productionContext?.production?.abbreviation ?? (isProductionMode ? '' : storeData.abbreviation)
+  const logo = isProductionMode
+    ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
+    : storeData.logo
+  const customTypesStore = useCustomTypesStore()
+  const { isTabletMode } = useTabletModeStore()
+  const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
+  const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
+  const setOnAddNote = useNotesFilterStore((s) => s.setOnAddNote)
+  const setStatusCounts = useNotesFilterStore((s) => s.setStatusCounts)
+  const tabletFilterTypes = useNotesFilterStore((s) => s.filterTypes)
+  const tabletFilterPriorities = useNotesFilterStore((s) => s.filterPriorities)
+  const tabletSortField = useNotesFilterStore((s) => s.sortField)
+  const tabletSortDirection = useNotesFilterStore((s) => s.sortDirection)
+  const customPrioritiesStore = useCustomPrioritiesStore()
+  const fixturesLength = useFixtureStore((state) => state.fixtures.length)
+  const uploadFixtures = useFixtureStore((state) => state.uploadFixtures)
+  const linkFixturesToWorkNote = useFixtureStore((state) => state.linkFixturesToWorkNote)
+  const getHasBeenDeleted = useFixtureStore((state) => state.getHasBeenDeleted)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterStatus, setFilterStatus] = useState<NoteStatus>('todo')
+  const [filterTypes, setFilterTypes] = useState<string[]>([])
+  const [isLightwrightDialogOpen, setIsLightwrightDialogOpen] = useState(false)
+  const [isLightwrightViewerOpen, setIsLightwrightViewerOpen] = useState(false)
+  const [isPositionManagerOpen, setIsPositionManagerOpen] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [dialogDefaultType, setDialogDefaultType] = useState<string>('Work')
+  const [editingNote, setEditingNote] = useState<Note | null>(null)
+  const [isEmailViewOpen, setIsEmailViewOpen] = useState(false)
+  const [isPrintViewOpen, setIsPrintViewOpen] = useState(false)
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
+  const resetColumnsRef = useRef<(() => void) | null>(null)
+  const inlineEditing = useInlineEditing('electrician')
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  const loadTestData = useCallback(async () => {
+    if (fixturesLength === 0 && !isProductionMode) {
+      const { generateSampleFixtures } = await import('@/lib/test-data/sample-fixture-data')
+
+      const testFixtures = generateSampleFixtures()
+      const parsedRows = testFixtures.map(f => ({
+        lwid: f.lwid,
+        channel: f.channel,
+        position: f.position,
+        unitNumber: f.unitNumber,
+        fixtureType: f.fixtureType,
+        purpose: f.purpose,
+        universeAddressRaw: f.universeAddressRaw,
+        universe: f.universe,
+        address: f.address,
+        positionOrder: f.positionOrder
+      }))
+      uploadFixtures(productionId, parsedRows, false)
+    }
+  }, [fixturesLength, uploadFixtures, isProductionMode, productionId])
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && !isDemoMode() && !isProductionMode && fixturesLength === 0 && !getHasBeenDeleted()) {
+      loadTestData()
+    }
+  }, [fixturesLength, getHasBeenDeleted, loadTestData, isProductionMode])
+
+  const availableTypes = isHydrated ? customTypesStore.getTypes('electrician') : []
+  const typeOptions = availableTypes.map(type => ({
+    value: type.value,
+    label: type.label,
+    color: type.color
+  }))
+
+  const effectiveSearchTerm = isTabletMode ? tabletSearchTerm : searchTerm
+  const effectiveFilterStatus = isTabletMode ? tabletFilterStatus : filterStatus
+  const effectiveFilterTypes = isTabletMode ? tabletFilterTypes : filterTypes
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const note of notes) {
+      counts[note.status] = (counts[note.status] || 0) + 1
+    }
+    return counts
+  }, [notes])
+
+  useEffect(() => {
+    if (isTabletMode) {
+      setStatusCounts(statusCounts)
+    }
+  }, [isTabletMode, statusCounts, setStatusCounts])
+
+  const filteredNotes = useMemo(() => {
+    const filtered = notes.filter(note => {
+      const matchesSearch = note.title.toLowerCase().includes(effectiveSearchTerm.toLowerCase()) ||
+        note.description?.toLowerCase().includes(effectiveSearchTerm.toLowerCase())
+      const matchesStatus = note.status === effectiveFilterStatus
+      const matchesType = effectiveFilterTypes.length > 0
+        ? effectiveFilterTypes.includes(note.type || '')
+        : true
+      const matchesPriority = isTabletMode && tabletFilterPriorities.length > 0
+        ? tabletFilterPriorities.includes(note.priority)
+        : true
+      return matchesSearch && matchesStatus && matchesType && matchesPriority
+    })
+
+    if (isTabletMode) {
+      const activeSortField = tabletSortField ?? 'priority'
+      const priorities = isHydrated ? customPrioritiesStore.getPriorities('electrician') : []
+      return sortNotes(filtered, {
+        type: 'filter_sort',
+        moduleType: 'electrician',
+        id: '_tablet',
+        name: '_tablet',
+        config: {
+          statusFilter: null,
+          typeFilters: [],
+          priorityFilters: [],
+          sortBy: activeSortField,
+          sortOrder: tabletSortDirection,
+          groupByType: false,
+        },
+      } as unknown as FilterSortPreset, priorities)
+    }
+
+    return filtered
+  }, [notes, effectiveSearchTerm, effectiveFilterStatus, effectiveFilterTypes, isTabletMode, tabletFilterPriorities, tabletSortField, tabletSortDirection, isHydrated, customPrioritiesStore])
+
+  const openQuickAdd = (typeValue: string) => {
+    setDialogDefaultType(typeValue)
+    setEditingNote(null)
+    setIsDialogOpen(true)
+  }
+
+  const updateNoteStatus = async (noteId: string, status: NoteStatus) => {
+    await notesContext.updateNote(noteId, { status })
+  }
+
+  const handleQuickAdd = useCallback(async () => {
+    const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
+    const note = await notesContext.addNote({
+      moduleType: 'electrician',
+      title: '',
+      status: 'todo',
+      priority: 'medium',
+      type: inlineEditing.lastType ?? 'work',
+      productionId,
+      createdBy: displayName,
+    } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
+    return note
+  }, [notesContext, productionId, user, inlineEditing.lastType])
+
+  const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
+    const updates: Partial<Note> = {}
+    if (column === 'title') updates.title = value
+    else if (column === 'type') {
+      updates.type = value
+      inlineEditing.setLastType(value)
+    }
+    else if (column === 'priority') updates.priority = value
+    await notesContext.updateNote(noteId, updates)
+  }, [notesContext, inlineEditing])
+
+  const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
+    if (isNewNote) {
+      const note = notesContext.getNotes('electrician').find(n => n.id === noteId)
+      if (note && !note.title.trim()) {
+        await notesContext.deleteNote(noteId)
+      }
+    }
+    inlineEditing.stopEditing()
+  }, [notesContext, inlineEditing])
+
+  const inlineEditingProps = useMemo(() => ({
+    ...inlineEditing,
+    onSave: handleInlineSave,
+    onAdvance: inlineEditing.moveToNextCell,
+    onCancel: handleInlineCancel,
+  }), [inlineEditing, handleInlineSave, handleInlineCancel])
+
+  const handleEditNote = (note: Note) => {
+    setEditingNote(note)
+    setDialogDefaultType(note.type || 'Work')
+    setIsDialogOpen(true)
+  }
+
+  const tabletAddNote = useCallback(() => {
+    setEditingNote(null)
+    setDialogDefaultType('work')
+    setIsDialogOpen(true)
+  }, [])
+
+  useEffect(() => {
+    if (isTabletMode) {
+      setOnAddNote(tabletAddNote)
+      return () => setOnAddNote(null)
+    }
+  }, [isTabletMode, tabletAddNote, setOnAddNote])
+
+  const updateNoteStatusRef = useRef(updateNoteStatus)
+  updateNoteStatusRef.current = updateNoteStatus
+
+  const tabletColumns = useMemo(
+    () => createTabletElectricianColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
+
+  const handleDialogAdd = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>, lightwrightFixtureIds?: string[]) => {
+    if (editingNote) {
+      await notesContext.updateNote(editingNote.id, noteData)
+
+      if (noteData.moduleType === 'electrician' && lightwrightFixtureIds) {
+        linkFixturesToWorkNote(editingNote.id, lightwrightFixtureIds)
+
+        if (!isDemo && isProductionMode) {
+          const adapter = createSupabaseStorageAdapter(productionId)
+          adapter.fixtureLinks?.setForWorkNote(editingNote.id, lightwrightFixtureIds).catch(err => {
+            console.error('[ElectricianNotes] Failed to persist fixture links:', err)
+          })
+        }
+      }
+    } else {
+      const note = await notesContext.addNote(noteData)
+
+      if (noteData.moduleType === 'electrician' && lightwrightFixtureIds && lightwrightFixtureIds.length > 0) {
+        linkFixturesToWorkNote(note.id, lightwrightFixtureIds)
+
+        if (!isDemo && isProductionMode) {
+          const adapter = createSupabaseStorageAdapter(productionId)
+          adapter.fixtureLinks?.setForWorkNote(note.id, lightwrightFixtureIds).catch(err => {
+            console.error('[ElectricianNotes] Failed to persist fixture links:', err)
+          })
+        }
+      }
+    }
+    setEditingNote(null)
+  }
+
+  // Tablet mode rendering
+  if (isTabletMode) {
+    return (
+      <>
+        <div className="h-full">
+          <TabletNotesTable
+            notes={filteredNotes}
+            columns={tabletColumns}
+            onEdit={handleEditNote}
+            emptyIcon={Zap}
+            emptyMessage="No electrician notes found"
+          />
+        </div>
+
+        <AddNoteDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onAdd={handleDialogAdd}
+          moduleType="electrician"
+          defaultType={dialogDefaultType}
+          editingNote={editingNote}
+        />
+      </>
+    )
+  }
+
+  return (
+    <>
+      <div className="flex flex-col h-[calc(100vh-4rem)]">
+        {/* Sticky Header Container */}
+        <div className="flex-none space-y-6 pb-4">
+          {/* Header */}
+          <div className="grid grid-cols-[auto_1fr_auto] items-start border-b border-bg-tertiary pb-6 min-w-0">
+            {/* Left: Production Info */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center w-16 h-16 bg-bg-secondary rounded-lg text-2xl overflow-hidden">
+                {(() => {
+                  const displayLogo = logo || DEFAULT_PRODUCTION_LOGO
+                  return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
+                    <div className="relative w-full h-full bg-black">
+                      <Image src={displayLogo} alt="Production logo" fill className="object-contain" />
+                    </div>
+                  ) : (
+                    <span>{displayLogo}</span>
+                  )
+                })()}
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-text-primary">{name}</h2>
+                <p className="text-text-secondary">{abbreviation}</p>
+              </div>
+            </div>
+
+            {/* Center: Module Heading */}
+            <div className="flex justify-center">
+              <h1 className="text-3xl font-bold text-text-primary flex items-center gap-3 whitespace-nowrap">
+                <Zap className="h-8 w-8 text-modules-electrician" />
+                Electrician Notes
+              </h1>
+            </div>
+
+            {/* Right: Action Buttons */}
+            <div className="flex flex-col items-end gap-2 min-w-0">
+              {/* Row 1: View/Export Actions */}
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                <UndoRedoButtons />
+                <div className="h-6 w-px bg-border" />
+                <Button
+                  onClick={() => setIsPrintViewOpen(true)}
+                  variant="secondary"
+                >
+                  <Printer className="h-4 w-4" />
+                  PDF
+                </Button>
+                <Button
+                  onClick={() => setIsEmailViewOpen(true)}
+                  variant="secondary"
+                >
+                  <Mail className="h-4 w-4" />
+                  Email
+                </Button>
+                <Button
+                  onClick={() => setIsLightwrightViewerOpen(true)}
+                  variant="secondary"
+                >
+                  <Database className="h-4 w-4" />
+                  View Hookup
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => setIsPositionManagerOpen(true)}
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                  Manage Positions
+                </Button>
+              </div>
+              {/* Row 2: Modification Actions */}
+              <div className="flex gap-2 flex-wrap justify-end">
+                <Button
+                  onClick={() => setIsLightwrightDialogOpen(true)}
+                  variant="outline"
+                >
+                  <Upload className="h-5 w-5" />
+                  Import Hookup CSV
+                </Button>
+                <Button
+                  onClick={() => openQuickAdd('work')}
+                  variant="electrician"
+                >
+                  <Plus className="h-5 w-5" />
+                  Add Electrician Note
+                </Button>
+              </div>
+            </div>
+          </div>
+
+
+          {/* Filters and Search */}
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="flex flex-wrap gap-4">
+              {/* Status Filters - No "In Review" for electrician */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-text-secondary">Status</label>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setFilterStatus('todo')}
+                    variant={filterStatus === 'todo' ? 'todo' : 'secondary'}
+                    size="sm"
+                  >
+                    To Do ({statusCounts['todo'] || 0})
+                  </Button>
+                  <Button
+                    onClick={() => setFilterStatus('complete')}
+                    variant={filterStatus === 'complete' ? 'complete' : 'secondary'}
+                    size="sm"
+                  >
+                    Complete ({statusCounts['complete'] || 0})
+                  </Button>
+                  <Button
+                    onClick={() => setFilterStatus('cancelled')}
+                    variant={filterStatus === 'cancelled' ? 'cancelled' : 'secondary'}
+                    size="sm"
+                  >
+                    Cancelled ({statusCounts['cancelled'] || 0})
+                  </Button>
+                </div>
+              </div>
+
+              {/* Type Filter */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-text-secondary">Type</label>
+                <MultiSelect
+                  options={typeOptions}
+                  selected={filterTypes}
+                  onChange={setFilterTypes}
+                  placeholder="All Types"
+                  className="min-w-[140px]"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search electrician notes..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full md:w-80 pl-8 font-medium"
+                  data-testid="search-input"
+                  aria-label="Search notes"
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (resetColumnsRef.current) {
+                    resetColumnsRef.current()
+                  }
+                }}
+                title="Reset column widths to defaults"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Quick Add Bar */}
+          {filterStatus === 'todo' && (
+            <>
+              <div className="hidden sm:flex items-center gap-2 flex-wrap">
+                <span className="text-muted-foreground text-sm">Quick Add:</span>
+                {availableTypes.map(type => (
+                  <Button
+                    key={type.id}
+                    onClick={() => openQuickAdd(type.value)}
+                    size="xs"
+                    style={{
+                      backgroundColor: type.color,
+                      borderColor: type.color
+                    }}
+                    className="text-white hover:opacity-80 transition-opacity"
+                  >
+                    <Plus className="h-3 w-3" />{type.label}
+                  </Button>
+                ))}
+              </div>
+              <div className="flex sm:hidden">
+                <Popover open={isQuickAddOpen} onOpenChange={setIsQuickAddOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="secondary" size="sm">
+                      <Plus className="h-4 w-4" />
+                      Quick Add
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-auto max-w-[calc(100vw-2rem)]">
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableTypes.map(type => (
+                        <Button
+                          key={type.id}
+                          onClick={() => {
+                            openQuickAdd(type.value)
+                            setIsQuickAddOpen(false)
+                          }}
+                          size="xs"
+                          style={{
+                            backgroundColor: type.color,
+                            borderColor: type.color
+                          }}
+                          className="text-white hover:opacity-80 transition-opacity"
+                        >
+                          <Plus className="h-3 w-3" />{type.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </>
+          )}
+        </div>
+
+
+        {/* Notes Table - Fills remaining space */}
+        <div className="flex-1 min-h-0">
+          <ElectricianNotesTable
+            notes={filteredNotes}
+            onStatusUpdate={updateNoteStatus}
+            onEdit={handleEditNote}
+            onMountResetFn={(resetFn) => {
+              resetColumnsRef.current = resetFn
+            }}
+            onQuickAdd={handleQuickAdd}
+            inlineEditing={inlineEditingProps}
+          />
+
+          {filteredNotes.length === 0 && (
+            <div className="text-center py-12">
+              <Zap className="h-12 w-12 text-text-muted mx-auto mb-4" />
+              <p className="text-text-secondary">No electrician notes found</p>
+              <p className="text-text-muted text-sm mt-1">Try adjusting your filters or add a new note</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <AddNoteDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onAdd={handleDialogAdd}
+        moduleType="electrician"
+        defaultType={dialogDefaultType}
+        editingNote={editingNote}
+      />
+
+      <EmailNotesSidebar
+        moduleType="electrician"
+        isOpen={isEmailViewOpen}
+        onClose={() => setIsEmailViewOpen(false)}
+      />
+
+      <PrintNotesSidebar
+        moduleType="electrician"
+        isOpen={isPrintViewOpen}
+        onClose={() => setIsPrintViewOpen(false)}
+        notes={notes}
+      />
+
+      <HookupImportSidebar
+        isOpen={isLightwrightDialogOpen}
+        onClose={() => setIsLightwrightDialogOpen(false)}
+        productionId={productionId}
+      />
+
+      <FixtureDataViewer
+        isOpen={isLightwrightViewerOpen}
+        onClose={() => setIsLightwrightViewerOpen(false)}
+        productionId={productionId}
+      />
+
+      <Sheet open={isPositionManagerOpen} onOpenChange={setIsPositionManagerOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-4xl max-w-none">
+          <SheetHeader className="pb-6">
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-5 w-5 text-modules-electrician" />
+              <SheetTitle>Position Management</SheetTitle>
+            </div>
+            <SheetDescription>
+              Customize the sort order of positions from your fixture data
+            </SheetDescription>
+          </SheetHeader>
+
+          <PositionManager productionId={productionId} />
+        </SheetContent>
+      </Sheet>
+    </>
+  )
+}

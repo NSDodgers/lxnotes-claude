@@ -14,6 +14,7 @@ import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { usePositionStore } from '@/lib/stores/position-store'
 import { FixtureAggregateDisplay } from '@/components/fixture-aggregate-display'
 import { useColumnLayoutStore } from '@/lib/stores/column-layout-store'
+import { isFixtureModule } from '@/lib/utils/module-helpers'
 import {
   Table,
   TableBody,
@@ -103,7 +104,7 @@ const getColumnDefinitions = (moduleType: ModuleType): ColumnDefinition[] => {
     })
   }
 
-  if (moduleType === 'work') {
+  if (isFixtureModule(moduleType)) {
     moduleSpecificBeforeNote.push(
       {
         id: 'workChannels',
@@ -153,7 +154,7 @@ const getColumnDefinitions = (moduleType: ModuleType): ColumnDefinition[] => {
 
   const moduleSpecificAfterNote: ColumnDefinition[] = []
 
-  if (moduleType === 'work') {
+  if (isFixtureModule(moduleType)) {
     moduleSpecificAfterNote.push({
       id: 'workSceneryNeeds',
       label: 'Scenery Needs',
@@ -489,7 +490,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
           return priority ? priority.sortOrder : 999
 
         case 'positionUnit':
-          const position = moduleType === 'work' ? extractPositionFromUnit(note.positionUnit || '') : ''
+          const position = isFixtureModule(moduleType) ? extractPositionFromUnit(note.positionUnit || '') : ''
           if (orderedPositions.length > 0) {
             const index = orderedPositions.indexOf(position)
             return index === -1 ? 9999 : index
@@ -511,7 +512,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
 
         case 'channels':
           // Get channel from fixture aggregate for work notes
-          const aggregate = moduleType === 'work' ? getAggregate(note.id) : null
+          const aggregate = isFixtureModule(moduleType) ? getAggregate(note.id) : null
           return aggregate ? extractLowestChannelNumber(aggregate.channels) : 0
 
         case 'type':
@@ -535,7 +536,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
         if (primaryField === 'priority' || primaryField === 'type') {
           return 'scriptPageId' // Cue number
         }
-      } else if (moduleType === 'work') {
+      } else if (isFixtureModule(moduleType)) {
         if (primaryField === 'priority' || primaryField === 'type' || primaryField === 'positionUnit') {
           return 'channels'
         }
@@ -758,7 +759,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
       if (note.scriptPageId) return `Pg. ${note.scriptPageId.split('-')[1]}`
       if (note.sceneSongId) return note.sceneSongId
     }
-    if (moduleType === 'work' && note.lightwrightItemId) {
+    if (isFixtureModule(moduleType) && note.lightwrightItemId) {
       return note.lightwrightItemId
     }
     return ''
@@ -797,7 +798,7 @@ export function NotesTable({ notes, moduleType, onStatusUpdate, onEdit }: NotesT
           </TableHeader>
           <TableBody>
             {sortedNotes.map((note) => {
-              const workAggregate = moduleType === 'work' ? getAggregate(note.id) : undefined
+              const workAggregate = isFixtureModule(moduleType) ? getAggregate(note.id) : undefined
 
               return (
                 <TableRow

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import {
   Lightbulb,
   Wrench,
+  Zap,
   FileText,
   Settings,
   ChevronLeft,
@@ -47,6 +48,7 @@ export function Sidebar() {
   const navigation = [
     { name: 'Cue Notes', href: `${baseUrl}/cue-notes`, icon: Lightbulb, color: 'text-modules-cue' },
     { name: 'Work Notes', href: `${baseUrl}/work-notes`, icon: Wrench, color: 'text-modules-work' },
+    { name: 'Electrician Notes', href: `${baseUrl}/electrician-notes`, icon: Zap, color: 'text-modules-electrician' },
     { name: 'Production Notes', href: `${baseUrl}/production-notes`, icon: FileText, color: 'text-modules-production' },
     { name: 'Settings', href: `${baseUrl}/settings`, icon: Settings },
   ]

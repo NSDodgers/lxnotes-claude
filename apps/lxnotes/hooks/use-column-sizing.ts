@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ColumnSizingState, OnChangeFn } from '@tanstack/react-table'
 
-type ModuleType = 'cue' | 'work' | 'production'
+type ModuleType = 'cue' | 'work' | 'production' | 'electrician'
 
 /**
  * Hook for managing column sizing with localStorage persistence

@@ -28,6 +28,7 @@ import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { PlaceholderData } from '@/lib/utils/placeholders'
 import { useAuthContext } from '@/components/auth/auth-provider'
+import { isFixtureModule } from '@/lib/utils/module-helpers'
 
 interface PrintNotesSidebarProps {
   moduleType: ModuleType
@@ -42,7 +43,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
   cue: 'Cue Notes',
   work: 'Work Notes',
   production: 'Production Notes',
-  actor: 'Actor Notes',
+  electrician: 'Electrician Notes',
 }
 
 export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNotes }: PrintNotesSidebarProps) {
@@ -133,7 +134,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
         notes,
         productionName,
         productionLogo,
-        ...(moduleType === 'work' && { fixtureAggregates }),
+        ...(isFixtureModule(moduleType) && { fixtureAggregates }),
       })
 
       if (result.success && result.pdfBlob) {

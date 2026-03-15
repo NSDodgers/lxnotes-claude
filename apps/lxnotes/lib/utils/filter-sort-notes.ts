@@ -1,4 +1,5 @@
 import type { Note, FilterSortPreset, CustomPriority } from '@/types'
+import { isFixtureModule } from '@/lib/utils/module-helpers'
 import { ALL_TYPES_SENTINEL } from './generate-dynamic-presets'
 
 /**
@@ -91,7 +92,7 @@ export function sortNotes(
         if (primaryField === 'priority' || primaryField === 'type') {
           return 'cue_number'
         }
-      } else if (moduleType === 'work') {
+      } else if (isFixtureModule(moduleType)) {
         if (primaryField === 'priority' || primaryField === 'type' || primaryField === 'position') {
           return 'channel'
         }

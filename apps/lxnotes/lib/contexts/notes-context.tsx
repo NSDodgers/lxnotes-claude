@@ -22,6 +22,7 @@ import {
   createDeleteCommand,
 } from '@/lib/undo/types'
 import { toast } from 'sonner'
+import { isFixtureModule } from '@/lib/utils/module-helpers'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -123,7 +124,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     cue: [],
     work: [],
     production: [],
-    actor: [],
+    electrician: [],
   })
   const [isLoading, setIsLoading] = useState(isProductionMode && !isDemoMode)
   const [error, setError] = useState<Error | null>(null)
@@ -146,18 +147,18 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
           setIsLoading(true)
           setError(null)
 
-          const [cueNotes, workNotes, productionNotes, actorNotes] = await Promise.all([
+          const [cueNotes, workNotes, productionNotes, electricianNotes] = await Promise.all([
             storageAdapter.notes.getAll('cue'),
             storageAdapter.notes.getAll('work'),
             storageAdapter.notes.getAll('production'),
-            storageAdapter.notes.getAll('actor'),
+            storageAdapter.notes.getAll('electrician'),
           ])
 
           setSupabaseNotes({
             cue: cueNotes,
             work: workNotes,
             production: productionNotes,
-            actor: actorNotes,
+            electrician: electricianNotes,
           })
         } catch (err) {
           console.error('Failed to load notes:', err)
@@ -193,7 +194,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         onNoteInsert: (newNote) => {
           if (isDev) console.log('[NotesContext] onNoteInsert raw payload:', newNote)
           const moduleType = newNote.module_type as ModuleType
-          if (!moduleType || !['cue', 'work', 'production', 'actor'].includes(moduleType)) {
+          if (!moduleType || !['cue', 'work', 'production', 'electrician'].includes(moduleType)) {
             if (isDev) console.warn('[NotesContext] Invalid module_type on insert, ignoring:', moduleType)
             return
           }
@@ -237,7 +238,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
         onNoteUpdate: (updatedNote) => {
           console.log('[Realtime] Note update received:', updatedNote.id, 'status:', updatedNote.status)
           const moduleType = updatedNote.module_type as ModuleType
-          if (!moduleType || !['cue', 'work', 'production', 'actor'].includes(moduleType)) {
+          if (!moduleType || !['cue', 'work', 'production', 'electrician'].includes(moduleType)) {
             if (isDev) console.warn('[NotesContext] Invalid module_type on update, ignoring:', moduleType)
             return
           }
@@ -277,7 +278,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
           const moduleType = deletedNote.module_type as ModuleType
           // DELETE events may lack module_type when REPLICA IDENTITY is not FULL
           // (e.g. during snapshot restore which hard-deletes notes)
-          if (!moduleType || !['cue', 'work', 'production', 'actor'].includes(moduleType)) {
+          if (!moduleType || !['cue', 'work', 'production', 'electrician'].includes(moduleType)) {
             setSupabaseNotes(prev => {
               const updated = { ...prev }
               for (const mt of Object.keys(updated) as ModuleType[]) {
@@ -317,18 +318,18 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       if (!currentAdapter) return
 
       try {
-        const [cueNotes, workNotes, productionNotes, actorNotes] = await Promise.all([
+        const [cueNotes, workNotes, productionNotes, electricianNotes] = await Promise.all([
           currentAdapter.notes.getAll('cue'),
           currentAdapter.notes.getAll('work'),
           currentAdapter.notes.getAll('production'),
-          currentAdapter.notes.getAll('actor'),
+          currentAdapter.notes.getAll('electrician'),
         ])
 
         setSupabaseNotes({
           cue: cueNotes,
           work: workNotes,
           production: productionNotes,
-          actor: actorNotes,
+          electrician: electricianNotes,
         })
       } catch (err) {
         console.error('Failed to refetch notes on focus:', err)
@@ -595,7 +596,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
   const validateNote = useCallback((moduleType: ModuleType, note: Partial<Note>) => {
     if (moduleType === 'cue') {
       return mockNotesStore.validateCueNote(note)
-    } else if (moduleType === 'work') {
+    } else if (isFixtureModule(moduleType)) {
       return mockNotesStore.validateWorkNote(note)
     }
     return mockNotesStore.validateProductionNote(note)
@@ -871,7 +872,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       cue: mockNotesStore.getAllNotes('cue'),
       work: mockNotesStore.getAllNotes('work'),
       production: mockNotesStore.getAllNotes('production'),
-      actor: mockNotesStore.getAllNotes('actor'),
+      electrician: mockNotesStore.getAllNotes('electrician'),
     }
     : supabaseNotes
 

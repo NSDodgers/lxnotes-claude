@@ -2,7 +2,7 @@
 
 > Reference documentation for the LX Notes codebase architecture.
 > Keep this file up to date when making architectural changes.
-> Last updated: 2026-02-25
+> Last updated: 2026-03-15
 
 ## Table of Contents
 
@@ -73,6 +73,7 @@ graph LR
         subgraph Dashboard["(dashboard)/"]
             CueNotes["cue-notes"]
             WorkNotes["work-notes"]
+            ElecNotes["electrician-notes"]
             ProdNotes["production-notes"]
             Positions["positions"]
             ManageScript["manage-script"]
@@ -82,6 +83,7 @@ graph LR
         subgraph ProdRoutes["production/[id]/(dashboard)/"]
             PCue["cue-notes"]
             PWork["work-notes"]
+            PElec["electrician-notes"]
             PProd["production-notes"]
             PPos["positions"]
             PScript["manage-script"]
@@ -91,6 +93,7 @@ graph LR
         subgraph DemoRoutes["demo/(dashboard)/"]
             DCue["cue-notes"]
             DWork["work-notes"]
+            DElec["electrician-notes"]
             DProd["production-notes"]
             DPos["positions"]
             DScript["manage-script"]
@@ -454,13 +457,13 @@ graph TB
     subgraph Modules["Module Types"]
         Cue["Cue Notes<br/>color: purple<br/>ModuleType: 'cue'"]
         Work["Work Notes<br/>color: blue<br/>ModuleType: 'work'"]
+        Elec["Electrician Notes<br/>color: green<br/>ModuleType: 'electrician'"]
         Prod["Production Notes<br/>color: cyan<br/>ModuleType: 'production'"]
-        Actor["Actor<br/>ModuleType: 'actor'"]
     end
 
     subgraph PerModule["Per-Module Configuration"]
-        CustomTypes["Custom Types<br/>cue: 10-12 system defaults<br/>work: 10-12 system defaults<br/>production: 10-12 system defaults"]
-        CustomPrio["Custom Priorities<br/>cue/prod: 1-5 scale<br/>work: 1-9 scale"]
+        CustomTypes["Custom Types<br/>cue: 12 system defaults<br/>work: 5 system defaults<br/>electrician: 4 system defaults<br/>production: 11 system defaults"]
+        CustomPrio["Custom Priorities<br/>cue/prod: 1-5 scale<br/>work/electrician: 1-9 scale"]
         ColLayout["Column Layouts<br/>per module per profile"]
         FilterPresets["Filter/Sort Presets<br/>system presets depend on<br/>visible types & priorities"]
     end

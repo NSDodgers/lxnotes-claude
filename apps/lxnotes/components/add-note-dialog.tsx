@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { isFixtureModule } from '@/lib/utils/module-helpers'
 
 interface AddNoteDialogProps {
   isOpen: boolean
@@ -88,7 +89,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     title: '',
     description: '',
     priority: 'medium',
-    type: defaultType || (moduleType === 'cue' ? 'Cue' : moduleType === 'work' ? 'Work' : 'Lighting'),
+    type: defaultType || (moduleType === 'cue' ? 'Cue' : moduleType === 'electrician' ? 'Work' : moduleType === 'work' ? 'Work' : 'Lighting'),
     cueNumbers: '',
     scriptPageId: '',
     sceneSongId: '',
@@ -96,7 +97,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     sceneryNeeds: '',
   })
 
-  // Lightwright selection state for work notes
+  // Lightwright selection state for fixture modules
   const [selectedLightwrightIds, setSelectedLightwrightIds] = useState<string[]>([])
   const [channelExpression, setChannelExpression] = useState('')
 
@@ -121,8 +122,8 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
         sceneryNeeds: editingNote.sceneryNeeds || '',
       })
       
-      // Load existing Lightwright selections for work notes
-      if (moduleType === 'work') {
+      // Load existing Lightwright selections for fixture modules
+      if (isFixtureModule(moduleType)) {
         const linkedFixtures = getLinkedFixtures(editingNote.id)
         setSelectedLightwrightIds(linkedFixtures.map(f => f.id))
         
@@ -163,19 +164,19 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       // The cue number display is stored in cueNumber field
       sceneSongId: formData.sceneSongId || undefined,
       lightwrightItemId: formData.lightwrightItemId || undefined,
-      channelNumbers: moduleType === 'work' ? channelExpression : undefined,
-      sceneryNeeds: moduleType === 'work' ? formData.sceneryNeeds || undefined : undefined,
+      channelNumbers: isFixtureModule(moduleType) ? channelExpression : undefined,
+      sceneryNeeds: isFixtureModule(moduleType) ? formData.sceneryNeeds || undefined : undefined,
     }
 
     // Pass note data and fixture IDs to parent
-    onAdd(noteData, moduleType === 'work' ? selectedLightwrightIds : undefined)
+    onAdd(noteData, isFixtureModule(moduleType) ? selectedLightwrightIds : undefined)
     
     // Reset form
     setFormData({
       title: '',
       description: '',
       priority: 'medium',
-      type: defaultType || (moduleType === 'cue' ? 'Cue' : moduleType === 'work' ? 'Work' : 'Lighting'),
+      type: defaultType || (moduleType === 'cue' ? 'Cue' : moduleType === 'electrician' ? 'Work' : moduleType === 'work' ? 'Work' : 'Lighting'),
       cueNumbers: '',
       scriptPageId: '',
       sceneSongId: '',
@@ -184,7 +185,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     })
     setSelectedLightwrightIds([])
     setChannelExpression('')
-    
+
     onClose()
   }
 
@@ -255,7 +256,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
               </div>
             )}
 
-            {moduleType === 'work' && (
+            {isFixtureModule(moduleType) && (
               <div className="space-y-2">
                 <Label>Fixture Selection (optional)</Label>
                 <div className="border rounded-lg p-4">
@@ -270,7 +271,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
               </div>
             )}
 
-            {moduleType === 'work' && (
+            {isFixtureModule(moduleType) && (
               <div className="space-y-2">
                 <Label htmlFor="sceneryNeeds">Scenery Needs</Label>
                 <Textarea

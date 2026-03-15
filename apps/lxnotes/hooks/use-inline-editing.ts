@@ -9,7 +9,7 @@ const EDITABLE_COLUMN_ORDER: Record<ModuleType, EditableColumn[]> = {
   cue: ['cueNumber', 'title', 'priority', 'type'],
   work: ['title', 'priority', 'type'],
   production: ['title', 'priority', 'type'],
-  actor: ['title', 'priority', 'type'],
+  electrician: ['title', 'priority', 'type'],
 }
 
 export interface InlineEditingState {

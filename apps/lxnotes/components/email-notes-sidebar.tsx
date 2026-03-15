@@ -30,6 +30,7 @@ import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { PlaceholderData } from '@/lib/utils/placeholders'
 import { useAuthContext } from '@/components/auth/auth-provider'
+import { isFixtureModule } from '@/lib/utils/module-helpers'
 
 interface EmailNotesSidebarProps {
   moduleType: ModuleType
@@ -43,7 +44,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
   cue: 'Cue Notes',
   work: 'Work Notes',
   production: 'Production Notes',
-  actor: 'Actor Notes',
+  electrician: 'Electrician Notes',
 }
 
 export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSidebarProps) {
@@ -186,7 +187,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
             notes,
             productionName,
             productionLogo,
-            ...(moduleType === 'work' && { fixtureAggregates }),
+            ...(isFixtureModule(moduleType) && { fixtureAggregates }),
           })
 
           if (result.success && result.pdfBlob) {

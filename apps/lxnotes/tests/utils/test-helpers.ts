@@ -5,10 +5,11 @@ export class TestHelpers {
   constructor(private page: Page) {}
 
   // Navigation helpers
-  async navigateToModule(module: 'cue-notes' | 'work-notes' | 'production-notes' | 'settings') {
+  async navigateToModule(module: 'cue-notes' | 'work-notes' | 'electrician-notes' | 'production-notes' | 'settings') {
     const linkMap = {
       'cue-notes': selectors.sidebar.cueNotesLink,
       'work-notes': selectors.sidebar.workNotesLink,
+      'electrician-notes': selectors.sidebar.electricianNotesLink,
       'production-notes': selectors.sidebar.productionNotesLink,
       'settings': selectors.sidebar.settingsLink,
     };
@@ -129,7 +130,7 @@ export class TestHelpers {
     await this.saveDialog();
   }
 
-  async createFilterSortPreset(name: string, moduleType: 'cue' | 'work' | 'production') {
+  async createFilterSortPreset(name: string, moduleType: 'cue' | 'work' | 'electrician' | 'production') {
     await this.navigateToSettingsTab('presets');
     await this.expandBuildingBlocks();
     await this.page.click(`${selectors.settings.presets.filterSortSection} ${selectors.settings.presets.addButton}`);
@@ -152,14 +153,14 @@ export class TestHelpers {
   }
 
   // Print/Email helpers — new card-based flow
-  async openPrintSidebar(module: 'cue' | 'work' | 'production') {
+  async openPrintSidebar(module: 'cue' | 'work' | 'electrician' | 'production') {
     await this.navigateToModule(`${module}-notes` as any);
     await this.page.click(selectors.printEmail.printButton);
     // Sidebar now shows card grid
     await this.page.waitForSelector('[data-testid="preset-card-grid"], [role="dialog"]', { timeout: 5000 });
   }
 
-  async openEmailSidebar(module: 'cue' | 'work' | 'production') {
+  async openEmailSidebar(module: 'cue' | 'work' | 'electrician' | 'production') {
     await this.navigateToModule(`${module}-notes` as any);
     await this.page.click(selectors.printEmail.emailButton);
     await this.page.waitForSelector('[data-testid="preset-card-grid"], [role="dialog"]', { timeout: 5000 });

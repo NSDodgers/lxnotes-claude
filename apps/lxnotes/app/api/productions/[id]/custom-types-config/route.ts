@@ -50,7 +50,7 @@ export async function GET(
     }
 
     const defaultConfig: CustomTypesConfig = {
-      customTypes: { cue: [], work: [], production: [], actor: [] },
+      customTypes: { cue: [], work: [], production: [], electrician: [] },
       systemOverrides: [],
     }
 

@@ -50,7 +50,7 @@ export async function GET(
     }
 
     const defaultConfig: CustomPrioritiesConfig = {
-      customPriorities: { cue: [], work: [], production: [], actor: [] },
+      customPriorities: { cue: [], work: [], production: [], electrician: [] },
       systemOverrides: [],
     }
 

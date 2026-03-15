@@ -48,7 +48,7 @@ export const useMockNotesStore = create<MockNotesState>()(subscribeWithSelector(
     cue: [],
     work: [],
     production: [],
-    actor: []
+    electrician: []
   },
 
   getAllNotes: (moduleType) => {
@@ -1086,7 +1086,7 @@ export const useMockNotesStore = create<MockNotesState>()(subscribeWithSelector(
         cue: cueNotes,
         work: workNotes,
         production: productionNotes,
-        actor: [] // Actor notes are empty in demo mode (for future Director Notes app)
+        electrician: [] // Electrician notes are empty in demo mode
       }
     })
   }

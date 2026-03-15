@@ -30,7 +30,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
   cue: 'Cue Notes',
   work: 'Work Notes',
   production: 'Production Notes',
-  actor: 'Actor Notes',
+  electrician: 'Electrician Notes',
 }
 
 const moduleOptions: ModuleType[] = ['cue', 'work', 'production']

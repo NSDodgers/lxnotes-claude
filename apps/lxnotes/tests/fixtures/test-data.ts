@@ -104,6 +104,7 @@ export const selectors = {
     toggle: '[data-testid="sidebar-toggle"]',
     cueNotesLink: 'a[href="/cue-notes"]',
     workNotesLink: 'a[href="/work-notes"]',
+    electricianNotesLink: 'a[href="/electrician-notes"]',
     productionNotesLink: 'a[href="/production-notes"]',
     settingsLink: 'a[href="/settings"]',
     tabletModeToggle: '[data-testid="tablet-mode-toggle"]',

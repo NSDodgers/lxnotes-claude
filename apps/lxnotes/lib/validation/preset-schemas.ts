@@ -43,7 +43,7 @@ export const filterSortPresetConfigSchema = z.object({
 
 export const filterSortPresetSchema = basePresetSchema.extend({
   type: z.literal('filter_sort'),
-  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
     message: 'Module type is required',
   }),
   config: filterSortPresetConfigSchema,
@@ -72,7 +72,7 @@ export const emailMessagePresetConfigSchema = z.object({
 
 export const emailMessagePresetSchema = basePresetSchema.extend({
   type: z.literal('email_message'),
-  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
     message: 'Module type is required',
   }),
   config: emailMessagePresetConfigSchema,
@@ -90,7 +90,7 @@ export const printPresetConfigSchema = z.object({
 
 export const printPresetSchema = basePresetSchema.extend({
   type: z.literal('print'),
-  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
     message: 'Module type is required',
   }),
   config: printPresetConfigSchema,
@@ -118,27 +118,27 @@ export const updatePrintPresetSchema = printPresetConfigSchema.partial()
 const cueNotesSortFields = ['cue_number', 'priority', 'type', 'created_at', 'completed_at', 'cancelled_at'] as const
 const workNotesSortFields = ['priority', 'type', 'channel', 'position', 'created_at', 'completed_at', 'cancelled_at'] as const
 const productionNotesSortFields = ['priority', 'department', 'created_at', 'completed_at', 'cancelled_at'] as const
-const actorNotesSortFields = ['priority', 'type', 'created_at', 'completed_at', 'cancelled_at'] as const // For Director Notes
+const electricianNotesSortFields = ['priority', 'type', 'channel', 'position', 'created_at', 'completed_at', 'cancelled_at'] as const
 
 const sortFieldsMap = {
   cue: cueNotesSortFields,
   work: workNotesSortFields,
   production: productionNotesSortFields,
-  actor: actorNotesSortFields,
-} as const satisfies Record<'cue' | 'work' | 'production' | 'actor', readonly [string, ...string[]]>
+  electrician: electricianNotesSortFields,
+} as const satisfies Record<'cue' | 'work' | 'production' | 'electrician', readonly [string, ...string[]]>
 
 type ModuleSortFieldsMap = typeof sortFieldsMap
 
 export const getSortFieldsForModule = <T extends keyof ModuleSortFieldsMap>(moduleType: T) =>
   sortFieldsMap[moduleType]
 
-export const validateSortFieldForModule = (sortBy: string, moduleType: 'cue' | 'work' | 'production' | 'actor') => {
+export const validateSortFieldForModule = (sortBy: string, moduleType: 'cue' | 'work' | 'production' | 'electrician') => {
   const validFields = getSortFieldsForModule(moduleType)
   return (validFields as readonly string[]).includes(sortBy)
 }
 
 // Helper function to validate filter/sort preset config based on module
-export const createModuleSpecificFilterSortSchema = (moduleType: 'cue' | 'work' | 'production' | 'actor') => {
+export const createModuleSpecificFilterSortSchema = (moduleType: 'cue' | 'work' | 'production' | 'electrician') => {
   const validSortFields = getSortFieldsForModule(moduleType)
 
   return filterSortPresetConfigSchema.extend({
@@ -169,7 +169,7 @@ export const filterSortFormSchema = z.object({
 
 export const emailMessageFormSchema = z.object({
   name: basePresetSchema.shape.name,
-  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
     message: 'Module type is required',
   }),
   recipients: emailMessagePresetConfigSchema.shape.recipients,
@@ -183,7 +183,7 @@ export const emailMessageFormSchema = z.object({
 
 export const printFormSchema = z.object({
   name: basePresetSchema.shape.name,
-  moduleType: z.enum(['cue', 'work', 'production', 'actor'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
     message: 'Module type is required',
   }),
   filterSortPresetId: printPresetConfigSchema.shape.filterSortPresetId,

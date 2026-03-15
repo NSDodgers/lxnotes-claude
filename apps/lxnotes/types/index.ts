@@ -1,4 +1,4 @@
-export type ModuleType = 'cue' | 'work' | 'production' | 'actor'
+export type ModuleType = 'cue' | 'work' | 'production' | 'electrician'
 export type NoteStatus = 'todo' | 'review' | 'complete' | 'cancelled'
 export type UserRole = 'admin' | 'user'
 export type AppId = 'lxnotes' | 'director_notes'

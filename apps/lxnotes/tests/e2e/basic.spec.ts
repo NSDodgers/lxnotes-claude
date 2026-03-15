@@ -36,6 +36,7 @@ test.describe('Basic Application Tests', () => {
     // Should have navigation to different modules
     await expect(page.locator('a[href="/cue-notes"]')).toBeVisible();
     await expect(page.locator('a[href="/work-notes"]')).toBeVisible();
+    await expect(page.locator('a[href="/electrician-notes"]')).toBeVisible();
     await expect(page.locator('a[href="/production-notes"]')).toBeVisible();
     await expect(page.locator('a[href="/settings"]')).toBeVisible();
   });
@@ -66,6 +67,7 @@ test.describe('Basic Application Tests', () => {
     const modules = [
       { path: '/cue-notes', expectedText: 'Cue' },
       { path: '/work-notes', expectedText: 'Work' },
+      { path: '/electrician-notes', expectedText: 'Electrician' },
       { path: '/production-notes', expectedText: 'Production' },
       { path: '/settings', expectedText: 'Settings' }
     ];

@@ -10,7 +10,7 @@ function inferModule(pathname: string): string {
   if (pathname.includes('/cue')) return 'Cue Notes'
   if (pathname.includes('/work')) return 'Work Notes'
   if (pathname.includes('/production')) return 'Production Notes'
-  if (pathname.includes('/actor')) return 'Actor Tracking'
+  if (pathname.includes('/electrician')) return 'Electrician Tracking'
   if (pathname.includes('/settings')) return 'Settings'
   return 'General'
 }

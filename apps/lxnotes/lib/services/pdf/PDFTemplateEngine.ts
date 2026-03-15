@@ -2,6 +2,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { CellHookData } from 'jspdf-autotable'
 import type { PDFConfiguration, PDFFormattedNote, PDFStrategy } from './types'
+import { isFixtureModule } from '@/lib/utils/module-helpers'
 
 export class PDFTemplateEngine {
   private doc: jsPDF
@@ -235,7 +236,7 @@ export class PDFTemplateEngine {
           noteText,
           this.formatDateLikeExample(note.createdAt)
         ]
-      } else if (moduleType === 'work') {
+      } else if (isFixtureModule(moduleType)) {
         const moduleData = note.moduleSpecificData || {}
         const channels = typeof moduleData.channels === 'string' ? moduleData.channels : '-'
         const positionUnit = typeof moduleData.positionUnit === 'string' ? moduleData.positionUnit : '-'

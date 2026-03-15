@@ -76,6 +76,14 @@ const getSystemDefaults = (moduleType: ModuleType): CustomType[] => {
         { id: 'sys-work-5', productionId, moduleType, value: 'think', label: 'Think', color: '#0F766E', isSystem: true, isHidden: false, sortOrder: 5, createdAt: baseDate, updatedAt: baseDate },
       ]
     
+    case 'electrician':
+      return [
+        { id: 'sys-elec-1', productionId, moduleType, value: 'work', label: 'Work', color: '#4B5563', isSystem: true, isHidden: false, sortOrder: 1, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-elec-2', productionId, moduleType, value: 'focus', label: 'Focus', color: '#991B1B', isSystem: true, isHidden: false, sortOrder: 2, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-elec-3', productionId, moduleType, value: 'paperwork', label: 'Paperwork', color: '#4D7C0F', isSystem: true, isHidden: false, sortOrder: 3, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-elec-4', productionId, moduleType, value: 'think', label: 'Think', color: '#0F766E', isSystem: true, isHidden: false, sortOrder: 4, createdAt: baseDate, updatedAt: baseDate },
+      ]
+
     default:
       return []
   }
@@ -94,10 +102,10 @@ export const useCustomTypesStore = create<CustomTypesState>()(
         cue: [],
         work: [],
         production: [],
-        actor: []
+        electrician: []
       },
       systemOverrides: [],
-      
+
       getSystemDefaults: (moduleType: ModuleType) => {
         return getSystemDefaults(moduleType)
       },
@@ -221,7 +229,7 @@ export const useCustomTypesStore = create<CustomTypesState>()(
 
       loadFromProduction: (config: CustomTypesConfig) => {
         set({
-          customTypes: config.customTypes ?? { cue: [], work: [], production: [], actor: [] },
+          customTypes: config.customTypes ?? { cue: [], work: [], production: [], electrician: [] },
           systemOverrides: config.systemOverrides ?? [],
         })
       },

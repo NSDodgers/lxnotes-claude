@@ -12,6 +12,7 @@ import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useDemoProductionStore } from '@/lib/stores/production-store'
 import { useScriptStore } from '@/lib/stores/script-store'
 import generateDemoNotes from './notes/demo-notes-data'
+import { DEMO_ELECTRICIAN_NOTES } from './notes/electrician-notes'
 import type { Note } from '@/types'
 import { PIRATES_PRODUCTION } from './production/pirates-info'
 import { DEMO_METADATA } from './version'
@@ -121,6 +122,20 @@ export async function initializeDemoSession(): Promise<void> {
       }
     }
 
+    // Electrician notes
+    let storedElectricianNotes: Note[] = []
+    {
+      const existing = await storage.notes.getAll('electrician')
+      if (existing.length > 0) {
+        notesStore.setNotes('electrician', existing)
+        storedElectricianNotes = existing
+      } else if (DEMO_ELECTRICIAN_NOTES.length > 0) {
+        const created = await storage.notes.createMany(DEMO_ELECTRICIAN_NOTES.map(toPayload))
+        notesStore.setNotes('electrician', created)
+        storedElectricianNotes = created
+      }
+    }
+
     // Load fixtures into the fixture store
     const fixtureStore = useFixtureStore.getState()
 
@@ -145,9 +160,10 @@ export async function initializeDemoSession(): Promise<void> {
       const result = fixtureStore.uploadFixtures('prod-1', parsedRows, false)
       console.log(`  - ${result.inserted} fixtures inserted, ${result.updated} updated`)
 
-      // Link fixtures to work notes based on channelNumbers expressions
-      const workNotesWithChannels = storedWorkNotes.filter(note => note.channelNumbers)
-      console.log(`  - Processing ${workNotesWithChannels.length} work notes with channel expressions`)
+      // Link fixtures to work and electrician notes based on channelNumbers expressions
+      const allFixtureNotes = [...storedWorkNotes, ...storedElectricianNotes]
+      const workNotesWithChannels = allFixtureNotes.filter(note => note.channelNumbers)
+      console.log(`  - Processing ${workNotesWithChannels.length} work/electrician notes with channel expressions`)
 
       // Get fresh state after upload to access the newly uploaded fixtures
       const updatedFixtureStore = useFixtureStore.getState()
@@ -191,6 +207,7 @@ export async function initializeDemoSession(): Promise<void> {
     console.log(`  - ${workNotes.length} work notes`)
     console.log(`  - ${cueNotes.length} cue notes`)
     console.log(`  - ${productionNotes.length} production notes`)
+    console.log(`  - ${DEMO_ELECTRICIAN_NOTES.length} electrician notes`)
   } catch (error) {
     console.error('❌ Failed to initialize demo data:', error)
     throw error

@@ -25,6 +25,7 @@ import {
 } from '@/lib/utils/pdf-formatters'
 import { useCueLookup } from '@/lib/services/cue-lookup'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
+import { isFixtureModule } from '@/lib/utils/module-helpers'
 
 interface NotesPreviewTableProps {
   notes: Note[]
@@ -177,7 +178,7 @@ export function NotesPreviewTable({ notes, moduleType, showCheckboxes }: NotesPr
           }
         })
       )
-    } else if (moduleType === 'work') {
+    } else if (isFixtureModule(moduleType)) {
       // Channels column
       cols.push(
         columnHelper.display({

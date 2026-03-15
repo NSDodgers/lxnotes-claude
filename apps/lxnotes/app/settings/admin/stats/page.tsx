@@ -33,7 +33,7 @@ const MODULE_COLORS: Record<string, { dot: string; bar: string; label: string }>
   cue: { dot: 'bg-modules-cue', bar: 'bg-modules-cue', label: 'Cue Notes' },
   work: { dot: 'bg-modules-work', bar: 'bg-modules-work', label: 'Work Notes' },
   production: { dot: 'bg-modules-production', bar: 'bg-modules-production', label: 'Production Notes' },
-  actor: { dot: 'bg-yellow-500', bar: 'bg-yellow-500', label: 'Actor Notes' },
+  electrician: { dot: 'bg-yellow-500', bar: 'bg-yellow-500', label: 'Electrician Notes' },
 }
 
 const STATUS_COLORS: Record<string, { dot: string; bar: string; label: string }> = {

@@ -34,7 +34,7 @@ function getModuleColor(moduleType: ModuleType): string {
     cue: '#8b5cf6',        // Purple
     work: '#3b82f6',       // Blue
     production: '#06b6d4', // Cyan
-    actor: '#f59e0b',      // Amber
+    electrician: '#22c55e', // Green
   }
   return colors[moduleType] || '#14b8a6'
 }

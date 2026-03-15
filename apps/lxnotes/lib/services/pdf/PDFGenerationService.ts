@@ -21,7 +21,7 @@ export class PDFGenerationService {
       cue: new CueNotesPDFStrategy(),
       work: new WorkNotesPDFStrategy(),
       production: new ProductionNotesPDFStrategy(),
-      actor: new ProductionNotesPDFStrategy() // Actor notes use same PDF layout as production notes
+      electrician: new ProductionNotesPDFStrategy() // Electrician notes use same PDF layout as production notes
     }
   }
 

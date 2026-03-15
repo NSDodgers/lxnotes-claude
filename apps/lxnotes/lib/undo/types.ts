@@ -37,7 +37,7 @@ export interface UndoableCommand {
   /** ID of the affected entity */
   entityId: string
 
-  /** Module type for notes (cue, work, production, actor) */
+  /** Module type for notes (cue, work, production, electrician) */
   moduleType: ModuleType
 
   /**
