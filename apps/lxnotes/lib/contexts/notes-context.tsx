@@ -15,7 +15,7 @@ import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToNoteChanges, broadcastNoteChange } from '@/lib/supabase/realtime'
 import { useUndoStore } from '@/lib/stores/undo-store'
-import { useOperationQueueStore, type QueuedOperation, markNoteAsSynced, wasRecentlySynced } from '@/lib/stores/operation-queue-store'
+import { useOperationQueueStore, type QueuedOperation, markNoteAsSynced, wasRecentlySynced, addPendingCreation, removePendingCreation, getPendingCreationTempId } from '@/lib/stores/operation-queue-store'
 import {
   createCreateCommand,
   createUpdateCommand,
@@ -206,12 +206,26 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
             return
           }
 
+          // Check if there's a pending optimistic creation for this module — if so,
+          // replace the temp note instead of adding a duplicate
+          const pendingTempId = getPendingCreationTempId(moduleType)
+
           setSupabaseNotes(prev => {
             if (isDev) console.log('[NotesContext] Current count for', moduleType, ':', prev[moduleType]?.length)
             // Check if already exists (deduplication)
             if (prev[moduleType]?.some(n => n.id === note.id)) {
               if (isDev) console.log('[NotesContext] Note already exists, skipping')
               return prev
+            }
+            // Replace pending optimistic note if it exists in state
+            if (pendingTempId && prev[moduleType]?.some(n => n.id === pendingTempId)) {
+              if (isDev) console.log('[NotesContext] Replacing pending temp note', pendingTempId, 'with real note', note.id)
+              markNoteAsSynced(note.id)
+              removePendingCreation(pendingTempId)
+              return {
+                ...prev,
+                [moduleType]: prev[moduleType].map(n => n.id === pendingTempId ? note : n),
+              }
             }
             if (isDev) console.log('[NotesContext] Adding note. New count:', (prev[moduleType]?.length || 0) + 1)
             return {
@@ -371,8 +385,10 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     }
 
     // Online: execute immediately
+    addPendingCreation(tempId, noteData.moduleType)
     try {
       const newNote = await adapter.notes.create(noteData)
+      removePendingCreation(tempId)
       // Mark as recently synced BEFORE updating state to prevent realtime duplication
       markNoteAsSynced(newNote.id)
       // Replace temp note with real note
@@ -388,6 +404,7 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       undoStore.push(createCreateCommand(newNote))
       return newNote
     } catch (err) {
+      removePendingCreation(tempId)
       console.error('Failed to create note:', err)
       // Revert optimistic update
       setSupabaseNotes(prev => ({
@@ -681,19 +698,26 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
 
     switch (op.type) {
       case 'create': {
-        const newNote = await currentAdapter.notes.create(op.payload.data as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
-        // Mark as recently synced BEFORE updating state to prevent realtime duplication
-        markNoteAsSynced(newNote.id)
-        // Replace temp ID with real ID in state
-        setSupabaseNotes(prev => ({
-          ...prev,
-          [op.moduleType]: prev[op.moduleType].map(n =>
-            n.id === op.noteId ? newNote : n
-          ),
-        }))
-        // Push to undo stack
-        undoStore.push(createCreateCommand(newNote))
-        return newNote
+        addPendingCreation(op.noteId, op.moduleType)
+        try {
+          const newNote = await currentAdapter.notes.create(op.payload.data as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
+          removePendingCreation(op.noteId)
+          // Mark as recently synced BEFORE updating state to prevent realtime duplication
+          markNoteAsSynced(newNote.id)
+          // Replace temp ID with real ID in state
+          setSupabaseNotes(prev => ({
+            ...prev,
+            [op.moduleType]: prev[op.moduleType].map(n =>
+              n.id === op.noteId ? newNote : n
+            ),
+          }))
+          // Push to undo stack
+          undoStore.push(createCreateCommand(newNote))
+          return newNote
+        } catch (err) {
+          removePendingCreation(op.noteId)
+          throw err
+        }
       }
       case 'update': {
         await currentAdapter.notes.update(op.noteId, op.payload.data)

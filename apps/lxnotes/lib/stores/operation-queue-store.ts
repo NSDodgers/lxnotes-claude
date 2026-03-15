@@ -47,6 +47,31 @@ export function wasRecentlySynced(noteId: string): boolean {
   return recentlySyncedNoteIds.has(noteId)
 }
 
+/**
+ * Module-level Map to track in-flight note creations.
+ * Maps temp UUID → module type so realtime INSERT handlers can replace
+ * the optimistic note instead of adding a duplicate.
+ */
+const pendingCreations = new Map<string, ModuleType>()
+
+/** Register an in-flight create so realtime can reconcile it. */
+export function addPendingCreation(tempId: string, moduleType: ModuleType): void {
+  pendingCreations.set(tempId, moduleType)
+}
+
+/** Remove a pending creation (called on success or failure). */
+export function removePendingCreation(tempId: string): void {
+  pendingCreations.delete(tempId)
+}
+
+/** Find the temp ID for a pending creation in the given module, if any. */
+export function getPendingCreationTempId(moduleType: ModuleType): string | undefined {
+  for (const [tempId, mt] of pendingCreations) {
+    if (mt === moduleType) return tempId
+  }
+  return undefined
+}
+
 export interface QueuedOperation {
   /** Unique ID for tracking */
   id: string
