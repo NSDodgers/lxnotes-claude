@@ -3,7 +3,7 @@ import { Note, NoteStatus } from '@/types'
 import { TabletPriorityDot } from '../cells/tablet-priority-dot'
 import { TabletActionCell } from '../cells/tablet-action-cell'
 import { FixtureAggregateCell } from '../cells/fixture-aggregate-cell'
-import { TypeColoredText } from '../cells/type-colored-text'
+
 
 interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
@@ -43,7 +43,7 @@ export function createTabletWorkColumns({ onStatusUpdate }: CreateColumnsOptions
       accessorKey: 'title',
       header: 'Note',
       cell: ({ row }) => (
-        <TypeColoredText note={row.original} moduleType="work" className="text-base font-medium break-words">{row.original.title}</TypeColoredText>
+        <div className="text-base font-medium break-words">{row.original.title}</div>
       ),
       enableSorting: false,
       enableResizing: false,

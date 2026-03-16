@@ -7,7 +7,7 @@ import { EditableTextCell } from '../cells/editable-text-cell'
 import { EditableTypeCell } from '../cells/editable-type-cell'
 import { EditablePriorityCell } from '../cells/editable-priority-cell'
 import { ScriptLookupCell } from '../cells/script-lookup-cell'
-import { TypeColoredText } from '../cells/type-colored-text'
+
 import { prioritySortFn, cueNumberSortFn, dateSortFn } from '../sorting/cue-sort-functions'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
@@ -124,11 +124,11 @@ export function createCueColumns({ onStatusUpdate, inlineEditing }: CreateColumn
               onCancel={inlineEditing.onCancel}
               isNewNote={inlineEditing.isNewNote}
               placeholder="Cue #"
-              moduleType="cue"
+
             />
           )
         }
-        return <TypeColoredText note={note} moduleType="cue" className="text-sm">{note.cueNumber || '-'}</TypeColoredText>
+        return <span className="text-sm">{note.cueNumber || '-'}</span>
       },
       sortingFn: cueNumberSortFn,
       enableSorting: true,
@@ -155,11 +155,11 @@ export function createCueColumns({ onStatusUpdate, inlineEditing }: CreateColumn
               onCancel={inlineEditing.onCancel}
               isNewNote={inlineEditing.isNewNote}
               placeholder="Type note..."
-              moduleType="cue"
+
             />
           )
         }
-        return <TypeColoredText note={note} moduleType="cue" className="font-medium max-w-md">{note.title}</TypeColoredText>
+        return <div className="font-medium max-w-md">{note.title}</div>
       },
       enableSorting: false,
       enableResizing: true,
