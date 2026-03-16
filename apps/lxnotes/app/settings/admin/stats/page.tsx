@@ -46,12 +46,13 @@ const STATUS_COLORS: Record<string, { dot: string; bar: string; label: string }>
 const PRIORITY_COLORS: Record<string, { dot: string; bar: string; label: string }> = {
   critical: { dot: 'bg-red-700', bar: 'bg-red-700', label: 'Critical' },
   very_high: { dot: 'bg-red-500', bar: 'bg-red-500', label: 'Very High' },
-  high: { dot: 'bg-red-400', bar: 'bg-red-400', label: 'High' },
-  medium_high: { dot: 'bg-orange-400', bar: 'bg-orange-400', label: 'Medium High' },
-  medium: { dot: 'bg-orange-500', bar: 'bg-orange-500', label: 'Medium' },
-  medium_low: { dot: 'bg-yellow-500', bar: 'bg-yellow-500', label: 'Medium Low' },
-  low: { dot: 'bg-green-500', bar: 'bg-green-500', label: 'Low' },
-  very_low: { dot: 'bg-green-400', bar: 'bg-green-400', label: 'Very Low' },
+  high: { dot: 'bg-amber-500', bar: 'bg-amber-500', label: 'High' },
+  medium_high: { dot: 'bg-gray-400', bar: 'bg-gray-400', label: 'Medium High' },
+  medium: { dot: 'bg-gray-400', bar: 'bg-gray-400', label: 'Medium' },
+  medium_low: { dot: 'bg-gray-500', bar: 'bg-gray-500', label: 'Medium Low' },
+  low: { dot: 'bg-gray-500', bar: 'bg-gray-500', label: 'Low' },
+  very_low: { dot: 'bg-gray-600', bar: 'bg-gray-600', label: 'Very Low' },
+  uncritical: { dot: 'bg-gray-700', bar: 'bg-gray-700', label: 'Uncritical' },
   none: { dot: 'bg-gray-500', bar: 'bg-gray-500', label: 'None' },
 }
 

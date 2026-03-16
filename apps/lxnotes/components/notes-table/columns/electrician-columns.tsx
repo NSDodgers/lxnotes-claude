@@ -7,6 +7,7 @@ import { EditableTextCell } from '../cells/editable-text-cell'
 import { EditableTypeCell } from '../cells/editable-type-cell'
 import { EditablePriorityCell } from '../cells/editable-priority-cell'
 import { FixtureAggregateCell } from '../cells/fixture-aggregate-cell'
+import { TypeColoredText } from '../cells/type-colored-text'
 import { prioritySortFn, positionSortFn, channelsSortFn, dateSortFn } from '../sorting/work-sort-functions'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
@@ -177,10 +178,11 @@ export function createElectricianColumns({ onStatusUpdate, inlineEditing }: Crea
               onCancel={inlineEditing.onCancel}
               isNewNote={inlineEditing.isNewNote}
               placeholder="Type note..."
+              moduleType="electrician"
             />
           )
         }
-        return <div className="font-medium max-w-md">{note.title}</div>
+        return <TypeColoredText note={note} moduleType="electrician" className="font-medium max-w-md">{note.title}</TypeColoredText>
       },
       enableSorting: false,
       enableResizing: true,

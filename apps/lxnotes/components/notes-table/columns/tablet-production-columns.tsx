@@ -3,6 +3,7 @@ import { Note, NoteStatus } from '@/types'
 import { TabletPriorityDot } from '../cells/tablet-priority-dot'
 import { TabletActionCell } from '../cells/tablet-action-cell'
 import { TypeCell } from '../cells/type-cell'
+import { TypeColoredText } from '../cells/type-colored-text'
 
 interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
@@ -12,11 +13,11 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
   return [
     {
       accessorKey: 'priority',
-      header: '',
+      header: 'Priority',
       cell: ({ row }) => <TabletPriorityDot note={row.original} moduleType="production" />,
       enableSorting: false,
       enableResizing: false,
-      size: 50,
+      size: 120,
     },
     {
       accessorKey: 'type',
@@ -29,8 +30,8 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
     {
       accessorKey: 'title',
       header: 'Note',
-      cell: ({ getValue }) => (
-        <div className="text-base font-medium truncate">{getValue() as string}</div>
+      cell: ({ row }) => (
+        <TypeColoredText note={row.original} moduleType="production" className="text-base font-medium break-words">{row.original.title}</TypeColoredText>
       ),
       enableSorting: false,
       enableResizing: false,

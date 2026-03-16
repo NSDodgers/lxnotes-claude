@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import type { Note } from '@/types'
+import type { Note, ModuleType } from '@/types'
 import type { EditableColumn } from '@/hooks/use-inline-editing'
+import { TypeColoredText } from './type-colored-text'
 
 interface EditableTextCellProps {
   note: Note
@@ -14,6 +15,7 @@ interface EditableTextCellProps {
   onCancel: (noteId: string, isNewNote: boolean) => void
   isNewNote: boolean
   placeholder?: string
+  moduleType?: ModuleType
 }
 
 export function EditableTextCell({
@@ -26,6 +28,7 @@ export function EditableTextCell({
   onCancel,
   isNewNote,
   placeholder,
+  moduleType,
 }: EditableTextCellProps) {
   const [localValue, setLocalValue] = useState(value)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -62,6 +65,12 @@ export function EditableTextCell({
   }, [handleSaveAndAdvance, onCancel, note.id, isNewNote])
 
   if (!isEditing) {
+    if (moduleType) {
+      if (column === 'title') {
+        return <TypeColoredText note={note} moduleType={moduleType} className="font-medium max-w-md">{value || '-'}</TypeColoredText>
+      }
+      return <TypeColoredText note={note} moduleType={moduleType} className="text-sm">{value || '-'}</TypeColoredText>
+    }
     if (column === 'title') {
       return <div className="font-medium max-w-md">{value || '-'}</div>
     }

@@ -12,7 +12,7 @@ interface TabletActionCellProps {
 
 export function TabletActionCell({ note, onStatusUpdate, moduleType }: TabletActionCellProps) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 justify-end">
       <button
         onClick={(e) => {
           e.stopPropagation()

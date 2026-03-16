@@ -6,6 +6,7 @@ import { TypeCell } from '../cells/type-cell'
 import { EditableTextCell } from '../cells/editable-text-cell'
 import { EditableTypeCell } from '../cells/editable-type-cell'
 import { EditablePriorityCell } from '../cells/editable-priority-cell'
+import { TypeColoredText } from '../cells/type-colored-text'
 import { dateSortFn } from '../sorting/cue-sort-functions'
 import { SortingFn } from '@tanstack/react-table'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
@@ -139,10 +140,11 @@ export function createProductionColumns({ onStatusUpdate, inlineEditing }: Creat
               onCancel={inlineEditing.onCancel}
               isNewNote={inlineEditing.isNewNote}
               placeholder="Type note..."
+              moduleType="production"
             />
           )
         }
-        return <div className="font-medium max-w-md">{note.title}</div>
+        return <TypeColoredText note={note} moduleType="production" className="font-medium max-w-md">{note.title}</TypeColoredText>
       },
       enableSorting: false,
       enableResizing: true,

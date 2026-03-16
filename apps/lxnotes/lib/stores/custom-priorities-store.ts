@@ -43,9 +43,9 @@ const getSystemDefaults = (moduleType: ModuleType): CustomPriority[] => {
       return [
         { id: 'sys-pri-1', productionId, moduleType, value: 'critical', label: 'Critical', color: '#DC2626', sortOrder: 1, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
         { id: 'sys-pri-2', productionId, moduleType, value: 'very_high', label: 'Very High', color: '#EA580C', sortOrder: 2, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-pri-3', productionId, moduleType, value: 'medium', label: 'Medium', color: '#D97706', sortOrder: 3, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-pri-4', productionId, moduleType, value: 'low', label: 'Low', color: '#65A30D', sortOrder: 4, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-pri-5', productionId, moduleType, value: 'very_low', label: 'Very Low', color: '#16A34A', sortOrder: 5, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-pri-3', productionId, moduleType, value: 'medium', label: 'Medium', color: '#9CA3AF', sortOrder: 3, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-pri-4', productionId, moduleType, value: 'low', label: 'Low', color: '#6B7280', sortOrder: 4, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-pri-5', productionId, moduleType, value: 'very_low', label: 'Very Low', color: '#4B5563', sortOrder: 5, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
       ]
     
     case 'work':
@@ -55,12 +55,12 @@ const getSystemDefaults = (moduleType: ModuleType): CustomPriority[] => {
         { id: 'sys-work-pri-1', productionId, moduleType, value: 'critical', label: 'Critical', color: '#DC2626', sortOrder: 1, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
         { id: 'sys-work-pri-2', productionId, moduleType, value: 'very_high', label: 'Very High', color: '#EA580C', sortOrder: 2, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
         { id: 'sys-work-pri-3', productionId, moduleType, value: 'high', label: 'High', color: '#F59E0B', sortOrder: 3, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-pri-4', productionId, moduleType, value: 'medium_high', label: 'Medium High', color: '#EAB308', sortOrder: 4, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-pri-5', productionId, moduleType, value: 'medium', label: 'Medium', color: '#D97706', sortOrder: 5, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-pri-6', productionId, moduleType, value: 'medium_low', label: 'Medium Low', color: '#84CC16', sortOrder: 6, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-pri-7', productionId, moduleType, value: 'low', label: 'Low', color: '#65A30D', sortOrder: 7, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-pri-8', productionId, moduleType, value: 'very_low', label: 'Very Low', color: '#16A34A', sortOrder: 8, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
-        { id: 'sys-work-pri-9', productionId, moduleType, value: 'uncritical', label: 'Uncritical', color: '#22C55E', sortOrder: 9, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-pri-4', productionId, moduleType, value: 'medium_high', label: 'Medium High', color: '#B0B5BD', sortOrder: 4, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-pri-5', productionId, moduleType, value: 'medium', label: 'Medium', color: '#9CA3AF', sortOrder: 5, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-pri-6', productionId, moduleType, value: 'medium_low', label: 'Medium Low', color: '#868C96', sortOrder: 6, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-pri-7', productionId, moduleType, value: 'low', label: 'Low', color: '#6B7280', sortOrder: 7, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-pri-8', productionId, moduleType, value: 'very_low', label: 'Very Low', color: '#4B5563', sortOrder: 8, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
+        { id: 'sys-work-pri-9', productionId, moduleType, value: 'uncritical', label: 'Uncritical', color: '#374151', sortOrder: 9, isSystem: true, isHidden: false, createdAt: baseDate, updatedAt: baseDate },
       ]
     
     default:

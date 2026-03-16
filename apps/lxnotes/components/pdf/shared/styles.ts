@@ -23,10 +23,13 @@ export const moduleColors = {
 export const priorityColors = {
   critical: '#dc2626',
   very_high: '#ea580c',
-  high: '#f97316',
-  medium: '#eab308',
-  low: '#22c55e',
-  very_low: '#86efac'
+  high: '#f59e0b',
+  medium_high: '#b0b5bd',
+  medium: '#9ca3af',
+  medium_low: '#868c96',
+  low: '#6b7280',
+  very_low: '#4b5563',
+  uncritical: '#374151'
 }
 
 // Type colors (matching current design)

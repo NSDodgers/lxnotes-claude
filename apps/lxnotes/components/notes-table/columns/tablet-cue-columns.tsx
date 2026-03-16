@@ -2,6 +2,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Note, NoteStatus } from '@/types'
 import { TabletPriorityDot } from '../cells/tablet-priority-dot'
 import { TabletActionCell } from '../cells/tablet-action-cell'
+import { TypeColoredText } from '../cells/type-colored-text'
 
 interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
@@ -11,20 +12,19 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
   return [
     {
       accessorKey: 'priority',
-      header: '',
+      header: 'Priority',
       cell: ({ row }) => <TabletPriorityDot note={row.original} moduleType="cue" />,
       enableSorting: false,
       enableResizing: false,
-      size: 50,
+      size: 120,
     },
     {
       id: 'cueNumber',
       accessorFn: (row) => row.cueNumber,
       header: 'Cue #',
-      cell: ({ getValue }) => {
-        const value = getValue() as string | undefined
-        return <span className="text-sm font-bold">{value || '-'}</span>
-      },
+      cell: ({ row }) => (
+        <TypeColoredText note={row.original} moduleType="cue" className="text-sm font-bold">{row.original.cueNumber || '-'}</TypeColoredText>
+      ),
       enableSorting: false,
       enableResizing: false,
       size: 70,
@@ -32,8 +32,8 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
     {
       accessorKey: 'title',
       header: 'Note',
-      cell: ({ getValue }) => (
-        <div className="text-base font-medium truncate">{getValue() as string}</div>
+      cell: ({ row }) => (
+        <TypeColoredText note={row.original} moduleType="cue" className="text-base font-medium break-words">{row.original.title}</TypeColoredText>
       ),
       enableSorting: false,
       enableResizing: false,
