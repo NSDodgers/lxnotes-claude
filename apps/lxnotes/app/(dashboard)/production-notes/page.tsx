@@ -24,9 +24,13 @@ import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { isDemoMode } from '@/lib/demo-data'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { sortNotes } from '@/lib/utils/filter-sort-notes'
+import { MobileNoteList } from '@/components/notes-table/mobile-note-card'
+import { MobileFilterBar } from '@/components/layout/mobile-filter-bar'
+import { MobileActionBar } from '@/components/layout/mobile-action-bar'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import Image from 'next/image'
 
@@ -1027,6 +1031,7 @@ export default function ProductionNotesPage() {
     : storeData.logo
   const customTypesStore = useCustomTypesStore()
   const { isTabletMode } = useTabletModeStore()
+  const isMobile = useIsMobile()
   const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
   const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
   const setOnAddNote = useNotesFilterStore((s) => s.setOnAddNote)
@@ -1062,11 +1067,12 @@ export default function ProductionNotesPage() {
     color: type.color
   }))
 
-  // In tablet mode, use shared filter store; in desktop, use local state
-  const effectiveSearchTerm = isTabletMode ? tabletSearchTerm : searchTerm
-  const effectiveFilterStatus = isTabletMode ? tabletFilterStatus : filterStatus
+  // In tablet/mobile mode, use shared filter store; in desktop, use local state
+  const useSharedFilters = isTabletMode || isMobile
+  const effectiveSearchTerm = useSharedFilters ? tabletSearchTerm : searchTerm
+  const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
 
-  const effectiveFilterTypes = isTabletMode ? tabletFilterTypes : filterTypes
+  const effectiveFilterTypes = useSharedFilters ? tabletFilterTypes : filterTypes
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -1077,10 +1083,10 @@ export default function ProductionNotesPage() {
   }, [notes])
 
   useEffect(() => {
-    if (isTabletMode) {
+    if (isTabletMode || isMobile) {
       setStatusCounts(statusCounts)
     }
-  }, [isTabletMode, statusCounts, setStatusCounts])
+  }, [isTabletMode, isMobile, statusCounts, setStatusCounts])
 
   const filteredNotes = useMemo(() => {
     const filtered = notes.filter(note => {
@@ -1090,13 +1096,13 @@ export default function ProductionNotesPage() {
       const matchesType = effectiveFilterTypes.length > 0
         ? effectiveFilterTypes.includes(note.type || '')
         : true
-      const matchesPriority = isTabletMode && tabletFilterPriorities.length > 0
+      const matchesPriority = useSharedFilters && tabletFilterPriorities.length > 0
         ? tabletFilterPriorities.includes(note.priority)
         : true
       return matchesSearch && matchesStatus && matchesType && matchesPriority
     })
 
-    if (isTabletMode) {
+    if (useSharedFilters) {
       const activeSortField = tabletSortField ?? 'priority'
       const priorities = isHydrated ? customPrioritiesStore.getPriorities('production') : []
       return sortNotes(filtered, {
@@ -1116,7 +1122,7 @@ export default function ProductionNotesPage() {
     }
 
     return filtered
-  }, [notes, effectiveSearchTerm, effectiveFilterStatus, effectiveFilterTypes, isTabletMode, tabletFilterPriorities, tabletSortField, tabletSortDirection, isHydrated, customPrioritiesStore])
+  }, [notes, effectiveSearchTerm, effectiveFilterStatus, effectiveFilterTypes, useSharedFilters, tabletFilterPriorities, tabletSortField, tabletSortDirection, isHydrated, customPrioritiesStore])
 
 
   const openQuickAdd = (typeValue: string) => {
@@ -1186,11 +1192,11 @@ export default function ProductionNotesPage() {
   }, [])
 
   useEffect(() => {
-    if (isTabletMode) {
+    if (isTabletMode || isMobile) {
       setOnAddNote(tabletAddNote)
       return () => setOnAddNote(null)
     }
-  }, [isTabletMode, tabletAddNote, setOnAddNote])
+  }, [isTabletMode, isMobile, tabletAddNote, setOnAddNote])
 
   const updateNoteStatusRef = useRef(updateNoteStatus)
   updateNoteStatusRef.current = updateNoteStatus
@@ -1210,6 +1216,54 @@ export default function ProductionNotesPage() {
       await notesContext.addNote(noteData)
     }
     setEditingNote(null)
+  }
+
+  // Mobile mode rendering
+  if (isMobile) {
+    return (
+      <>
+        <MobileFilterBar moduleType="production" statusCounts={statusCounts} />
+        <MobileNoteList
+          notes={filteredNotes}
+          moduleType="production"
+          onStatusUpdate={updateNoteStatus}
+          onEdit={handleEditNote}
+          emptyIcon={FileText}
+          emptyMessage="No production notes found"
+        />
+        <MobileActionBar
+          moduleType="production"
+          onAddNote={() => openQuickAdd('lighting')}
+          onPDF={() => setIsPrintViewOpen(true)}
+          onEmail={() => setIsEmailViewOpen(true)}
+          overflowItems={[
+            { label: 'Undo / Redo', icon: RotateCcw, onClick: () => {} },
+          ]}
+        />
+
+        <AddNoteDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onAdd={handleDialogAdd}
+          moduleType="production"
+          defaultType={dialogDefaultType}
+          editingNote={editingNote}
+        />
+
+        <EmailNotesSidebar
+          moduleType="production"
+          isOpen={isEmailViewOpen}
+          onClose={() => setIsEmailViewOpen(false)}
+        />
+
+        <PrintNotesSidebar
+          moduleType="production"
+          isOpen={isPrintViewOpen}
+          onClose={() => setIsPrintViewOpen(false)}
+          notes={notes}
+        />
+      </>
+    )
   }
 
   // Tablet mode rendering

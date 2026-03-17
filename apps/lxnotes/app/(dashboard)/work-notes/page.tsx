@@ -38,9 +38,13 @@ import { useNotes } from '@/lib/contexts/notes-context'
 import { isDemoMode } from '@/lib/demo-data'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { sortNotes } from '@/lib/utils/filter-sort-notes'
+import { MobileNoteList } from '@/components/notes-table/mobile-note-card'
+import { MobileFilterBar } from '@/components/layout/mobile-filter-bar'
+import { MobileActionBar } from '@/components/layout/mobile-action-bar'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import Image from 'next/image'
 
@@ -94,6 +98,7 @@ export default function WorkNotesPage() {
     : storeData.logo
   const customTypesStore = useCustomTypesStore()
   const { isTabletMode } = useTabletModeStore()
+  const isMobile = useIsMobile()
   const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
   const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
   const setOnAddNote = useNotesFilterStore((s) => s.setOnAddNote)
@@ -172,11 +177,12 @@ export default function WorkNotesPage() {
     color: type.color
   }))
 
-  // In tablet mode, use shared filter store; in desktop, use local state
-  const effectiveSearchTerm = isTabletMode ? tabletSearchTerm : searchTerm
-  const effectiveFilterStatus = isTabletMode ? tabletFilterStatus : filterStatus
+  // In tablet/mobile mode, use shared filter store; in desktop, use local state
+  const useSharedFilters = isTabletMode || isMobile
+  const effectiveSearchTerm = useSharedFilters ? tabletSearchTerm : searchTerm
+  const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
 
-  const effectiveFilterTypes = isTabletMode ? tabletFilterTypes : filterTypes
+  const effectiveFilterTypes = useSharedFilters ? tabletFilterTypes : filterTypes
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -187,10 +193,10 @@ export default function WorkNotesPage() {
   }, [notes])
 
   useEffect(() => {
-    if (isTabletMode) {
+    if (isTabletMode || isMobile) {
       setStatusCounts(statusCounts)
     }
-  }, [isTabletMode, statusCounts, setStatusCounts])
+  }, [isTabletMode, isMobile, statusCounts, setStatusCounts])
 
   const filteredNotes = useMemo(() => {
     const filtered = notes.filter(note => {
@@ -200,13 +206,13 @@ export default function WorkNotesPage() {
       const matchesType = effectiveFilterTypes.length > 0
         ? effectiveFilterTypes.includes(note.type || '')
         : true
-      const matchesPriority = isTabletMode && tabletFilterPriorities.length > 0
+      const matchesPriority = useSharedFilters && tabletFilterPriorities.length > 0
         ? tabletFilterPriorities.includes(note.priority)
         : true
       return matchesSearch && matchesStatus && matchesType && matchesPriority
     })
 
-    if (isTabletMode) {
+    if (useSharedFilters) {
       const activeSortField = tabletSortField ?? 'priority'
       const priorities = isHydrated ? customPrioritiesStore.getPriorities('work') : []
       return sortNotes(filtered, {
@@ -226,7 +232,7 @@ export default function WorkNotesPage() {
     }
 
     return filtered
-  }, [notes, effectiveSearchTerm, effectiveFilterStatus, effectiveFilterTypes, isTabletMode, tabletFilterPriorities, tabletSortField, tabletSortDirection, isHydrated, customPrioritiesStore])
+  }, [notes, effectiveSearchTerm, effectiveFilterStatus, effectiveFilterTypes, useSharedFilters, tabletFilterPriorities, tabletSortField, tabletSortDirection, isHydrated, customPrioritiesStore])
 
   const openQuickAdd = (typeValue: string) => {
     setDialogDefaultType(typeValue)
@@ -294,11 +300,11 @@ export default function WorkNotesPage() {
   }, [])
 
   useEffect(() => {
-    if (isTabletMode) {
+    if (isTabletMode || isMobile) {
       setOnAddNote(tabletAddNote)
       return () => setOnAddNote(null)
     }
-  }, [isTabletMode, tabletAddNote, setOnAddNote])
+  }, [isTabletMode, isMobile, tabletAddNote, setOnAddNote])
 
   const updateNoteStatusRef = useRef(updateNoteStatus)
   updateNoteStatusRef.current = updateNoteStatus
@@ -344,6 +350,84 @@ export default function WorkNotesPage() {
       }
     }
     setEditingNote(null)
+  }
+
+  // Mobile mode rendering
+  if (isMobile) {
+    return (
+      <>
+        <MobileFilterBar moduleType="work" statusCounts={statusCounts} />
+        <MobileNoteList
+          notes={filteredNotes}
+          moduleType="work"
+          onStatusUpdate={updateNoteStatus}
+          onEdit={handleEditNote}
+          emptyIcon={Wrench}
+          emptyMessage="No work notes found"
+        />
+        <MobileActionBar
+          moduleType="work"
+          onAddNote={() => openQuickAdd('work')}
+          onPDF={() => setIsPrintViewOpen(true)}
+          onEmail={() => setIsEmailViewOpen(true)}
+          overflowItems={[
+            { label: 'Undo / Redo', icon: RotateCcw, onClick: () => {} },
+            { label: 'Import Hookup CSV', icon: Upload, onClick: () => setIsLightwrightDialogOpen(true) },
+            { label: 'View Hookup', icon: Database, onClick: () => setIsLightwrightViewerOpen(true) },
+            { label: 'Manage Positions', icon: ArrowUpDown, onClick: () => setIsPositionManagerOpen(true) },
+          ]}
+        />
+
+        <AddNoteDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onAdd={handleDialogAdd}
+          moduleType="work"
+          defaultType={dialogDefaultType}
+          editingNote={editingNote}
+        />
+
+        <EmailNotesSidebar
+          moduleType="work"
+          isOpen={isEmailViewOpen}
+          onClose={() => setIsEmailViewOpen(false)}
+        />
+
+        <PrintNotesSidebar
+          moduleType="work"
+          isOpen={isPrintViewOpen}
+          onClose={() => setIsPrintViewOpen(false)}
+          notes={notes}
+        />
+
+        <HookupImportSidebar
+          isOpen={isLightwrightDialogOpen}
+          onClose={() => setIsLightwrightDialogOpen(false)}
+          productionId={productionId}
+        />
+
+        <FixtureDataViewer
+          isOpen={isLightwrightViewerOpen}
+          onClose={() => setIsLightwrightViewerOpen(false)}
+          productionId={productionId}
+        />
+
+        <Sheet open={isPositionManagerOpen} onOpenChange={setIsPositionManagerOpen}>
+          <SheetContent side="right" className="w-full sm:max-w-4xl max-w-none">
+            <SheetHeader className="pb-6">
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="h-5 w-5 text-modules-work" />
+                <SheetTitle>Position Management</SheetTitle>
+              </div>
+              <SheetDescription>
+                Customize the sort order of positions from your fixture data
+              </SheetDescription>
+            </SheetHeader>
+            <PositionManager productionId={productionId} />
+          </SheetContent>
+        </Sheet>
+      </>
+    )
   }
 
   // Tablet mode rendering

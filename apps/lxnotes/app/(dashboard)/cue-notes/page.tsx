@@ -27,10 +27,14 @@ import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { sortNotes } from '@/lib/utils/filter-sort-notes'
 import { ScriptManager } from '@/components/script-manager'
+import { MobileNoteList } from '@/components/notes-table/mobile-note-card'
+import { MobileFilterBar } from '@/components/layout/mobile-filter-bar'
+import { MobileActionBar } from '@/components/layout/mobile-action-bar'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import { isDemoMode } from '@/lib/demo-data'
 import Image from 'next/image'
@@ -74,6 +78,7 @@ export default function CueNotesPage() {
     : storeData.logo
   const customTypesStore = useCustomTypesStore()
   const { isTabletMode } = useTabletModeStore()
+  const isMobile = useIsMobile()
   const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
   const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
   const setOnAddNote = useNotesFilterStore((s) => s.setOnAddNote)
@@ -109,11 +114,12 @@ export default function CueNotesPage() {
     label: type.label,
     color: type.color
   }))
-  // In tablet mode, use shared filter store; in desktop, use local state
-  const effectiveSearchTerm = isTabletMode ? tabletSearchTerm : searchTerm
-  const effectiveFilterStatus = isTabletMode ? tabletFilterStatus : filterStatus
+  // In tablet/mobile mode, use shared filter store; in desktop, use local state
+  const useSharedFilters = isTabletMode || isMobile
+  const effectiveSearchTerm = useSharedFilters ? tabletSearchTerm : searchTerm
+  const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
 
-  const effectiveFilterTypes = isTabletMode ? tabletFilterTypes : filterTypes
+  const effectiveFilterTypes = useSharedFilters ? tabletFilterTypes : filterTypes
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -124,10 +130,10 @@ export default function CueNotesPage() {
   }, [notes])
 
   useEffect(() => {
-    if (isTabletMode) {
+    if (isTabletMode || isMobile) {
       setStatusCounts(statusCounts)
     }
-  }, [isTabletMode, statusCounts, setStatusCounts])
+  }, [isTabletMode, isMobile, statusCounts, setStatusCounts])
 
   const filteredNotes = useMemo(() => {
     const filtered = notes.filter(note => {
@@ -140,13 +146,13 @@ export default function CueNotesPage() {
       const matchesType = effectiveFilterTypes.length > 0
         ? effectiveFilterTypes.includes(note.type || '')
         : true
-      const matchesPriority = isTabletMode && tabletFilterPriorities.length > 0
+      const matchesPriority = useSharedFilters && tabletFilterPriorities.length > 0
         ? tabletFilterPriorities.includes(note.priority)
         : true
       return matchesSearch && matchesStatus && matchesType && matchesPriority
     })
 
-    if (isTabletMode) {
+    if (useSharedFilters) {
       const activeSortField = tabletSortField ?? 'cue_number'
       const priorities = isHydrated ? customPrioritiesStore.getPriorities('cue') : []
       return sortNotes(filtered, {
@@ -166,7 +172,7 @@ export default function CueNotesPage() {
     }
 
     return filtered
-  }, [notes, effectiveSearchTerm, effectiveFilterStatus, effectiveFilterTypes, isTabletMode, tabletFilterPriorities, tabletSortField, tabletSortDirection, isHydrated, customPrioritiesStore])
+  }, [notes, effectiveSearchTerm, effectiveFilterStatus, effectiveFilterTypes, useSharedFilters, tabletFilterPriorities, tabletSortField, tabletSortDirection, isHydrated, customPrioritiesStore])
 
   const handleAddNote = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingNote) {
@@ -246,11 +252,11 @@ export default function CueNotesPage() {
   }, [])
 
   useEffect(() => {
-    if (isTabletMode) {
+    if (isTabletMode || isMobile) {
       setOnAddNote(tabletAddNote)
       return () => setOnAddNote(null)
     }
-  }, [isTabletMode, tabletAddNote, setOnAddNote])
+  }, [isTabletMode, isMobile, tabletAddNote, setOnAddNote])
 
   const updateNoteStatusRef = useRef(updateNoteStatus)
   updateNoteStatusRef.current = updateNoteStatus
@@ -260,6 +266,61 @@ export default function CueNotesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
+
+  // Mobile mode rendering
+  if (isMobile) {
+    return (
+      <>
+        <MobileFilterBar moduleType="cue" statusCounts={statusCounts} />
+        <MobileNoteList
+          notes={filteredNotes}
+          moduleType="cue"
+          onStatusUpdate={updateNoteStatus}
+          onEdit={handleEditNote}
+          emptyIcon={Lightbulb}
+          emptyMessage="No cue notes found"
+        />
+        <MobileActionBar
+          moduleType="cue"
+          onAddNote={() => openDialog()}
+          onPDF={() => setIsPrintViewOpen(true)}
+          onEmail={() => setIsEmailViewOpen(true)}
+          overflowItems={[
+            { label: 'Undo / Redo', icon: RotateCcw, onClick: () => {} },
+            { label: 'Manage Script', icon: FileText, onClick: () => setIsScriptManagerOpen(true) },
+          ]}
+        />
+
+        <AddNoteDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onAdd={handleAddNote}
+          moduleType="cue"
+          defaultType={dialogDefaultType}
+          editingNote={editingNote}
+        />
+
+        <EmailNotesSidebar
+          moduleType="cue"
+          isOpen={isEmailViewOpen}
+          onClose={() => setIsEmailViewOpen(false)}
+        />
+
+        <PrintNotesSidebar
+          moduleType="cue"
+          isOpen={isPrintViewOpen}
+          onClose={() => setIsPrintViewOpen(false)}
+          notes={notes}
+        />
+
+        <ScriptManager
+          isOpen={isScriptManagerOpen}
+          onClose={() => setIsScriptManagerOpen(false)}
+          productionId={productionContext?.productionId ?? 'demo-production'}
+        />
+      </>
+    )
+  }
 
   // Tablet mode rendering
   if (isTabletMode) {

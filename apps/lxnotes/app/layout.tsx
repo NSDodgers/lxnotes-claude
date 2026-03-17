@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { Viewport } from 'next'
 import { Inter, Space_Grotesk, JetBrains_Mono, Caveat } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
@@ -29,6 +30,13 @@ const caveat = Caveat({
   variable: '--font-caveat',
   display: 'swap'
 })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+}
 
 export const metadata: Metadata = {
   title: 'LX Notes - Production Notes Manager',

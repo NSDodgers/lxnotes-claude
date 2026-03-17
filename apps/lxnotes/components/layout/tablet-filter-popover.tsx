@@ -28,6 +28,13 @@ const SORT_OPTIONS: Record<string, { field: string; label: string }[]> = {
     { field: 'type', label: 'Type' },
     { field: 'created_at', label: 'Date' },
   ],
+  electrician: [
+    { field: 'priority', label: 'Priority' },
+    { field: 'position', label: 'Position' },
+    { field: 'channel', label: 'Channel' },
+    { field: 'type', label: 'Type' },
+    { field: 'created_at', label: 'Date' },
+  ],
 }
 
 interface TabletFilterPopoverProps {

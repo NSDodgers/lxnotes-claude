@@ -219,6 +219,10 @@
   }
 }
 
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 @utility touch-target {
   /* Touch-friendly tap targets */
   min-height: 44px;
