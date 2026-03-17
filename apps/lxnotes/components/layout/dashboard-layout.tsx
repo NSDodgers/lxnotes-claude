@@ -21,12 +21,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Note: Tablet mode scaling is handled via CSS transform in tablet-layout.tsx
   // CSS zoom breaks touch event coordinates on iOS Safari
 
-  if (isTabletMode) {
-    return <TabletLayout>{children}</TabletLayout>
-  }
-
+  // Mobile takes priority — tablet mode is for iPads on a desk, not phones
   if (isMobile) {
     return <MobileLayout>{children}</MobileLayout>
+  }
+
+  if (isTabletMode) {
+    return <TabletLayout>{children}</TabletLayout>
   }
 
   return (

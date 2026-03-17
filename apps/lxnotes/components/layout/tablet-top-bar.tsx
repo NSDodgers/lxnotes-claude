@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { Menu, Search, Plus, Lightbulb, Wrench, FileText, X, Monitor } from 'lucide-react'
+import { Menu, Search, Plus, Lightbulb, Wrench, Zap, FileText, X, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -17,6 +17,9 @@ function getModuleInfo(pathname: string) {
   }
   if (pathname.includes('/work-notes')) {
     return { name: 'Work Notes', icon: Wrench, color: 'text-modules-work', addVariant: 'work' as const, moduleType: 'work' as ModuleType }
+  }
+  if (pathname.includes('/electrician-notes')) {
+    return { name: 'Electrician Notes', icon: Zap, color: 'text-modules-electrician', addVariant: 'electrician' as const, moduleType: 'electrician' as ModuleType }
   }
   if (pathname.includes('/production-notes')) {
     return { name: 'Production Notes', icon: FileText, color: 'text-modules-production', addVariant: 'production' as const, moduleType: 'production' as ModuleType }

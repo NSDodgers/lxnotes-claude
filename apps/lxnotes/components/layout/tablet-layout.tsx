@@ -10,6 +10,7 @@ import type { ModuleType } from '@/types'
 function getModuleType(pathname: string): ModuleType | null {
   if (pathname.includes('/cue-notes')) return 'cue'
   if (pathname.includes('/work-notes')) return 'work'
+  if (pathname.includes('/electrician-notes')) return 'electrician'
   if (pathname.includes('/production-notes')) return 'production'
   return null
 }

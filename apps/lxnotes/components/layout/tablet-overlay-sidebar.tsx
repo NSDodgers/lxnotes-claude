@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Lightbulb, Wrench, FileText, Settings, LogOut, Tablet } from 'lucide-react'
+import { Lightbulb, Wrench, Zap, FileText, Settings, LogOut, Tablet } from 'lucide-react'
 import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
 import { UserMenu } from '@/components/auth/user-menu'
 
@@ -26,6 +26,7 @@ export function TabletOverlaySidebar() {
   const navigation = [
     { name: 'Cue Notes', href: `${baseUrl}/cue-notes`, icon: Lightbulb, color: 'text-modules-cue' },
     { name: 'Work Notes', href: `${baseUrl}/work-notes`, icon: Wrench, color: 'text-modules-work' },
+    { name: 'Electrician Notes', href: `${baseUrl}/electrician-notes`, icon: Zap, color: 'text-modules-electrician' },
     { name: 'Production Notes', href: `${baseUrl}/production-notes`, icon: FileText, color: 'text-modules-production' },
     { name: 'Settings', href: `${baseUrl}/settings`, icon: Settings },
   ]
