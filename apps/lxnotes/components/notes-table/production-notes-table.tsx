@@ -101,7 +101,7 @@ export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onMountRes
         clickTimerRef.current = null
         if (onEdit) onEdit(note)
       }, 250)
-    } else if (onEdit) {
+    } else if (!inlineEditing && onEdit) {
       onEdit(note)
     }
   }, [inlineEditing, onEdit])

@@ -101,7 +101,7 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, 
         clickTimerRef.current = null
         if (onEdit) onEdit(note)
       }, 250)
-    } else if (onEdit) {
+    } else if (!inlineEditing && onEdit) {
       onEdit(note)
     }
   }, [inlineEditing, onEdit])

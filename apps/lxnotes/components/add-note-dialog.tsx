@@ -136,8 +136,17 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
         }
       }
     } else if (defaultType) {
-      setFormData(prev => ({ ...prev, type: defaultType }))
-      // Reset Lightwright selections for new notes
+      setFormData({
+        title: '',
+        description: '',
+        priority: 'medium',
+        type: defaultType,
+        cueNumbers: '',
+        scriptPageId: '',
+        sceneSongId: '',
+        lightwrightItemId: '',
+        sceneryNeeds: '',
+      })
       setSelectedLightwrightIds([])
       setChannelExpression('')
     }

@@ -94,7 +94,7 @@ export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onMountRe
         clickTimerRef.current = null
         if (onEdit) onEdit(note)
       }, 250)
-    } else if (onEdit) {
+    } else if (!inlineEditing && onEdit) {
       onEdit(note)
     }
   }, [inlineEditing, onEdit])
