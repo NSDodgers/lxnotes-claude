@@ -167,6 +167,19 @@ export function createCueColumns({ onStatusUpdate, inlineEditing }: CreateColumn
       minSize: 150,
     },
     {
+      accessorKey: 'sceneryNeeds',
+      header: 'Scenery Needs',
+      cell: ({ getValue }) => {
+        const value = getValue() as string | undefined
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
+      },
+      enableSorting: false,
+      enableResizing: true,
+      size: 200,
+      minSize: 180,
+      maxSize: 320,
+    },
+    {
       id: 'scriptLookup',
       accessorFn: (row) => row.cueNumber,
       header: 'Script Page - Scene/Song',
