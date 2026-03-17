@@ -17,7 +17,7 @@ function getModuleInfo(pathname: string) {
     return { name: 'Electrician Notes', icon: Zap, color: 'text-modules-electrician', moduleType: 'electrician' as ModuleType }
   }
   if (pathname.includes('/production-notes')) {
-    return { name: 'Production Notes', icon: FileText, color: 'text-modules-production', moduleType: 'production' as ModuleType }
+    return { name: 'Prod. Notes', icon: FileText, color: 'text-modules-production', moduleType: 'production' as ModuleType }
   }
   if (pathname.includes('/settings')) {
     return { name: 'Settings', icon: Settings, color: 'text-text-secondary', moduleType: null }
@@ -37,11 +37,11 @@ export function MobileTopBar() {
   return (
     <div
       data-testid="mobile-top-bar"
-      className="h-12 flex-none flex items-center gap-3 px-3 bg-bg-secondary border-b border-bg-tertiary"
+      className="h-11 flex-none flex items-center gap-2 px-3 bg-bg-secondary border-b border-bg-tertiary"
     >
       <button
         onClick={toggle}
-        className="touch-target flex items-center justify-center rounded-lg hover:bg-bg-tertiary"
+        className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-bg-tertiary"
         aria-label="Open menu"
         data-testid="mobile-menu-button"
       >
@@ -49,9 +49,9 @@ export function MobileTopBar() {
       </button>
 
       {moduleInfo && ModuleIcon && (
-        <div className="flex items-center gap-2">
-          <ModuleIcon className={cn('h-5 w-5', moduleInfo.color)} />
-          <span className="font-semibold text-sm">{moduleInfo.name}</span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <ModuleIcon className={cn('h-4 w-4 shrink-0', moduleInfo.color)} />
+          <span className="font-semibold text-sm truncate">{moduleInfo.name}</span>
         </div>
       )}
     </div>

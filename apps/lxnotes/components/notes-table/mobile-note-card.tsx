@@ -1,9 +1,8 @@
 'use client'
 
 import { Check, X, Eye } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { TabletPriorityDot } from './cells/tablet-priority-dot'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
+import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import type { Note, NoteStatus, ModuleType } from '@/types'
 import type { LucideIcon } from 'lucide-react'
 
@@ -16,8 +15,11 @@ interface MobileNoteCardProps {
 
 function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit }: MobileNoteCardProps) {
   const { getTypes } = useCustomTypesStore()
+  const { getPriorities } = useCustomPrioritiesStore()
   const types = getTypes(moduleType)
+  const priorities = getPriorities(moduleType)
   const noteType = types.find(t => t.value === note.type)
+  const priority = priorities.find(p => p.value === note.priority)
 
   return (
     <div
@@ -25,114 +27,100 @@ function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit }: MobileNote
       onClick={() => onEdit(note)}
       data-testid={`mobile-note-card-${note.id}`}
     >
-      {/* Top row: priority + module-specific field */}
-      <div className="flex items-center justify-between mb-1.5">
-        <TabletPriorityDot note={note} moduleType={moduleType} />
+      {/* Top row: priority dot + label, type badge, module-specific ID */}
+      <div className="flex items-center gap-1.5 flex-wrap mb-1">
+        {/* Priority */}
+        <span
+          className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
+          style={{ backgroundColor: priority?.color || '#6B7280' }}
+        />
+        <span
+          className="text-xs font-medium"
+          style={{ color: priority?.color || '#6B7280' }}
+        >
+          {priority?.label || note.priority}
+        </span>
+
+        {/* Type badge */}
+        {noteType && (
+          <span
+            className="text-[10px] font-medium px-1.5 py-0 rounded-full text-white leading-4"
+            style={{ backgroundColor: noteType.color }}
+          >
+            {noteType.label}
+          </span>
+        )}
+
+        {/* Spacer */}
+        <span className="flex-1" />
+
+        {/* Module-specific field */}
         {note.cueNumber && (
-          <span className="text-xs font-mono text-text-secondary">Cue #{note.cueNumber}</span>
+          <span className="text-[11px] font-mono text-text-secondary shrink-0">Q{note.cueNumber}</span>
         )}
         {note.channelNumbers && (
-          <span className="text-xs font-mono text-text-secondary">Ch {note.channelNumbers}</span>
+          <span className="text-[11px] font-mono text-text-secondary shrink-0 truncate max-w-[80px]">Ch {note.channelNumbers}</span>
         )}
       </div>
 
-      {/* Type badge */}
-      {noteType && (
-        <span
-          className="inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-1.5 text-white"
-          style={{ backgroundColor: noteType.color }}
-        >
-          {noteType.label}
-        </span>
-      )}
-
       {/* Note title */}
-      <p className="text-sm text-text-primary leading-snug mb-1.5">
+      <p className="text-[13px] text-text-primary leading-snug mb-1">
         {note.title || <span className="text-text-muted italic">No title</span>}
       </p>
 
-      {/* Script page info */}
+      {/* Script page / scene info */}
       {(note.scriptPageId || note.sceneSongId) && (
-        <p className="text-xs text-text-muted mb-2">
+        <p className="text-[11px] text-text-muted mb-1">
           {[note.scriptPageId && `Pg. ${note.scriptPageId}`, note.sceneSongId].filter(Boolean).join(' - ')}
         </p>
       )}
 
       {/* Position info for work/electrician */}
       {note.positionUnit && (
-        <p className="text-xs text-text-muted mb-2">{note.positionUnit}</p>
+        <p className="text-[11px] text-text-muted mb-1">{note.positionUnit}</p>
       )}
 
-      {/* Action buttons */}
+      {/* Action buttons - icon + short label, compact */}
       {note.status === 'todo' && (
-        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-bg-tertiary">
-          <Button
-            size="sm"
-            variant="complete"
-            className="h-8 text-xs flex-1"
-            onClick={(e) => {
-              e.stopPropagation()
-              onStatusUpdate(note.id, 'complete')
-            }}
+        <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-bg-tertiary">
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-status-complete/20 text-status-complete"
+            onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'complete') }}
           >
-            <Check className="h-3.5 w-3.5" />
-            Complete
-          </Button>
+            <Check className="h-3 w-3" /> Done
+          </button>
           {moduleType === 'work' && (
-            <Button
-              size="sm"
-              variant="review"
-              className="h-8 text-xs flex-1"
-              onClick={(e) => {
-                e.stopPropagation()
-                onStatusUpdate(note.id, 'review')
-              }}
+            <button
+              className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-status-review/20 text-status-review"
+              onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'review') }}
             >
-              <Eye className="h-3.5 w-3.5" />
-              Review
-            </Button>
+              <Eye className="h-3 w-3" /> Review
+            </button>
           )}
-          <Button
-            size="sm"
-            variant="secondary"
-            className="h-8 text-xs flex-1"
-            onClick={(e) => {
-              e.stopPropagation()
-              onStatusUpdate(note.id, 'cancelled')
-            }}
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-bg-tertiary text-text-secondary"
+            onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'cancelled') }}
           >
-            <X className="h-3.5 w-3.5" />
-            Cancel
-          </Button>
+            <X className="h-3 w-3" /> Cancel
+          </button>
         </div>
       )}
 
       {/* Review status actions */}
       {note.status === 'review' && (
-        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-bg-tertiary">
-          <Button
-            size="sm"
-            variant="complete"
-            className="h-8 text-xs flex-1"
-            onClick={(e) => {
-              e.stopPropagation()
-              onStatusUpdate(note.id, 'complete')
-            }}
+        <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-bg-tertiary">
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-status-complete/20 text-status-complete"
+            onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'complete') }}
           >
-            <Check className="h-3.5 w-3.5" />
-            Complete
-          </Button>
-          <Button
-            size="sm"
-            variant="todo"
-            className="h-8 text-xs flex-1"
-            onClick={(e) => {
-              e.stopPropagation()
-              onStatusUpdate(note.id, 'todo')
-            }}
+            <Check className="h-3 w-3" /> Done
+          </button>
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-status-todo/20 text-status-todo"
+            onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'todo') }}
           >
-            Back to To Do
-          </Button>
+            To Do
+          </button>
         </div>
       )}
     </div>
@@ -169,7 +157,7 @@ export function MobileNoteList({
   }
 
   return (
-    <div className="space-y-3 p-3 pb-24">
+    <div className="space-y-2 p-2 pb-20">
       {notes.map((note) => (
         <MobileNoteCard
           key={note.id}

@@ -37,8 +37,9 @@ export function MobileFilterBar({ moduleType, statusCounts }: MobileFilterBarPro
 
   return (
     <div className="flex-none bg-bg-secondary border-b border-bg-tertiary" data-testid="mobile-filter-bar">
-      {/* Status buttons - horizontal scroll */}
-      <div className="flex items-center gap-1.5 px-3 py-2 overflow-x-auto">
+      {/* Row: status buttons + search + filter — all in one horizontal row */}
+      <div className="flex items-center gap-1 px-2 py-1.5 overflow-x-auto">
+        {/* Status buttons */}
         {baseStatusFilters
           .filter(sf => !sf.workOnly || moduleType === 'work')
           .map((sf) => (
@@ -47,58 +48,50 @@ export function MobileFilterBar({ moduleType, statusCounts }: MobileFilterBarPro
               onClick={() => setFilterStatus(sf.value)}
               variant={filterStatus === sf.value ? sf.value : 'secondary'}
               size="sm"
-              className="text-xs px-2.5 h-8 whitespace-nowrap shrink-0"
+              className="text-[11px] px-2 h-7 whitespace-nowrap shrink-0"
             >
               {sf.shortLabel} ({statusCounts[sf.value] || 0})
             </Button>
           ))}
-      </div>
 
-      {/* Search + filter trigger */}
-      <div className="flex items-center gap-2 px-3 pb-2">
+        {/* Spacer */}
+        <span className="flex-1 min-w-2" />
+
+        {/* Search */}
         {searchExpanded ? (
-          <div className="flex items-center gap-1 flex-1">
-            <div className="relative flex-1">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-8 text-sm pl-8"
-                autoFocus
-                data-testid="mobile-search-input"
-              />
-            </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <Input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-7 w-28 text-xs"
+              autoFocus
+              data-testid="mobile-search-input"
+            />
             <button
-              onClick={() => {
-                setSearchTerm('')
-                setSearchExpanded(false)
-              }}
-              className="touch-target flex items-center justify-center rounded-lg hover:bg-bg-tertiary shrink-0"
+              onClick={() => { setSearchTerm(''); setSearchExpanded(false) }}
+              className="w-7 h-7 flex items-center justify-center rounded hover:bg-bg-tertiary shrink-0"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
         ) : (
-          <>
-            <button
-              onClick={() => setSearchExpanded(true)}
-              className="touch-target flex items-center justify-center rounded-lg hover:bg-bg-tertiary"
-              aria-label="Search"
-              data-testid="mobile-search-button"
-            >
-              <Search className="h-5 w-5 text-text-secondary" />
-            </button>
-            <div className="flex-1" />
-          </>
+          <button
+            onClick={() => setSearchExpanded(true)}
+            className="w-7 h-7 flex items-center justify-center rounded hover:bg-bg-tertiary shrink-0"
+            aria-label="Search"
+            data-testid="mobile-search-button"
+          >
+            <Search className="h-4 w-4 text-text-secondary" />
+          </button>
         )}
 
-        {/* Filter/Sort popover - reuse tablet one */}
-        <div className="relative">
+        {/* Filter/Sort popover */}
+        <div className="relative shrink-0">
           <TabletFilterPopover moduleType={moduleType} />
           {activeFilterCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center">
+            <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-blue-500 text-white text-[9px] flex items-center justify-center">
               {activeFilterCount}
             </span>
           )}

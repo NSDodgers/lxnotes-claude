@@ -33,44 +33,44 @@ export function MobileActionBar({ moduleType, onAddNote, onPDF, onEmail, overflo
       className="fixed bottom-0 left-0 right-0 z-40 bg-bg-secondary border-t border-bg-tertiary safe-bottom"
       data-testid="mobile-action-bar"
     >
-      <div className="flex items-center justify-around gap-1 px-2 py-2">
-        {/* Add Note - primary */}
+      <div className="flex items-center gap-1.5 px-3 py-1.5">
+        {/* Add Note - primary, takes available space */}
         {onAddNote && (
           <Button
             onClick={onAddNote}
             variant={moduleVariants[moduleType] as 'cue' | 'work' | 'production' | 'electrician'}
             size="sm"
-            className="h-10 flex-1 max-w-[140px] text-xs"
+            className="h-9 flex-1 text-xs"
             data-testid="mobile-add-note-button"
           >
-            <Plus className="h-4 w-4" />
-            Add Note
+            <Plus className="h-3.5 w-3.5" />
+            Add
           </Button>
         )}
 
-        {/* PDF */}
+        {/* PDF - icon only */}
         {onPDF && (
           <Button
             onClick={onPDF}
             variant="secondary"
             size="sm"
-            className="h-10 px-3 text-xs"
+            className="h-9 w-9 p-0 shrink-0"
+            title="PDF"
           >
             <Printer className="h-4 w-4" />
-            PDF
           </Button>
         )}
 
-        {/* Email */}
+        {/* Email - icon only */}
         {onEmail && (
           <Button
             onClick={onEmail}
             variant="secondary"
             size="sm"
-            className="h-10 px-3 text-xs"
+            className="h-9 w-9 p-0 shrink-0"
+            title="Email"
           >
             <Mail className="h-4 w-4" />
-            Email
           </Button>
         )}
 
@@ -81,7 +81,7 @@ export function MobileActionBar({ moduleType, onAddNote, onPDF, onEmail, overflo
               <Button
                 variant="secondary"
                 size="sm"
-                className="h-10 w-10 p-0"
+                className="h-9 w-9 p-0 shrink-0"
                 data-testid="mobile-overflow-menu"
               >
                 <MoreHorizontal className="h-4 w-4" />
