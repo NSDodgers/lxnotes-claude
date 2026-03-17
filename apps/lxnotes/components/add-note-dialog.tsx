@@ -174,7 +174,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       sceneSongId: formData.sceneSongId || undefined,
       lightwrightItemId: formData.lightwrightItemId || undefined,
       channelNumbers: isFixtureModule(moduleType) ? channelExpression : undefined,
-      sceneryNeeds: isFixtureModule(moduleType) ? formData.sceneryNeeds || undefined : undefined,
+      sceneryNeeds: (isFixtureModule(moduleType) || moduleType === 'cue') ? formData.sceneryNeeds || undefined : undefined,
     }
 
     // Pass note data and fixture IDs to parent
@@ -280,7 +280,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
               </div>
             )}
 
-            {isFixtureModule(moduleType) && (
+            {(isFixtureModule(moduleType) || moduleType === 'cue') && (
               <div className="space-y-2">
                 <Label htmlFor="sceneryNeeds">Scenery Needs</Label>
                 <Textarea

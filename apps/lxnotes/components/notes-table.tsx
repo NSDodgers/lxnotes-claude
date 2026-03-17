@@ -154,7 +154,7 @@ const getColumnDefinitions = (moduleType: ModuleType): ColumnDefinition[] => {
 
   const moduleSpecificAfterNote: ColumnDefinition[] = []
 
-  if (isFixtureModule(moduleType)) {
+  if (isFixtureModule(moduleType) || moduleType === 'cue') {
     moduleSpecificAfterNote.push({
       id: 'workSceneryNeeds',
       label: 'Scenery Needs',

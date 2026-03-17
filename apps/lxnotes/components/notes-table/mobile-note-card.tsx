@@ -80,6 +80,11 @@ function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit }: MobileNote
         <p className="text-[11px] text-text-muted mb-1">{note.positionUnit}</p>
       )}
 
+      {/* Scenery needs */}
+      {note.sceneryNeeds && (
+        <p className="text-[11px] text-text-muted mb-1">Scenery: {note.sceneryNeeds}</p>
+      )}
+
       {/* Action buttons - icon + short label, compact */}
       {note.status === 'todo' && (
         <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-bg-tertiary">
