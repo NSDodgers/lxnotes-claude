@@ -280,6 +280,19 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
               </div>
             )}
 
+            <div className="space-y-2">
+              <Label htmlFor="description">Note Content</Label>
+              <Textarea
+                id="description"
+                autoFocus={moduleType !== 'cue'}
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Enter your lighting note here..."
+                className="min-h-[80px] resize-none"
+                required
+              />
+            </div>
+
             {(isFixtureModule(moduleType) || moduleType === 'cue') && (
               <div className="space-y-2">
                 <Label htmlFor="sceneryNeeds">Scenery Needs</Label>
@@ -293,19 +306,6 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                 />
               </div>
             )}
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Note Content</Label>
-              <Textarea
-                id="description"
-                autoFocus={moduleType !== 'cue'}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Enter your lighting note here..."
-                className="min-h-[80px] resize-none"
-                required
-              />
-            </div>
 
             {moduleType === 'cue' && formData.cueNumbers && (
               <div className="space-y-4">
