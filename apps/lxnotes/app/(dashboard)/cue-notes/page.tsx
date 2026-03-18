@@ -390,6 +390,7 @@ export default function CueNotesPage() {
               <Button
                 onClick={() => setIsPrintViewOpen(true)}
                 variant="secondary"
+                data-testid="print-notes-button"
               >
                 <Printer className="h-4 w-4" />
                 PDF
@@ -397,6 +398,7 @@ export default function CueNotesPage() {
               <Button
                 onClick={() => setIsEmailViewOpen(true)}
                 variant="secondary"
+                data-testid="email-notes-button"
               >
                 <Mail className="h-4 w-4" />
                 Email
@@ -411,6 +413,7 @@ export default function CueNotesPage() {
               <Button
                 onClick={() => openDialog()}
                 variant="cue"
+                data-testid="add-note-button"
               >
                 <Plus className="h-5 w-5" />
                 Add Cue Note
@@ -422,13 +425,14 @@ export default function CueNotesPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="flex flex-wrap gap-4">
               {/* Status Filters */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2" data-testid="status-filters">
                 <label className="text-sm font-medium text-text-secondary">Status</label>
                 <div className="flex gap-2">
                   <Button
                     onClick={() => setFilterStatus('todo')}
                     variant={filterStatus === 'todo' ? 'todo' : 'secondary'}
                     size="sm"
+                    data-testid="status-filter-todo"
                   >
                     To Do ({statusCounts['todo'] || 0})
                   </Button>
@@ -436,6 +440,7 @@ export default function CueNotesPage() {
                     onClick={() => setFilterStatus('complete')}
                     variant={filterStatus === 'complete' ? 'complete' : 'secondary'}
                     size="sm"
+                    data-testid="status-filter-complete"
                   >
                     Complete ({statusCounts['complete'] || 0})
                   </Button>
@@ -443,6 +448,7 @@ export default function CueNotesPage() {
                     onClick={() => setFilterStatus('cancelled')}
                     variant={filterStatus === 'cancelled' ? 'cancelled' : 'secondary'}
                     size="sm"
+                    data-testid="status-filter-cancelled"
                   >
                     Cancelled ({statusCounts['cancelled'] || 0})
                   </Button>
@@ -560,7 +566,7 @@ export default function CueNotesPage() {
           />
 
           {filteredNotes.length === 0 && (
-            <div className="text-center py-12">
+            <div className="text-center py-12" data-testid="empty-state">
               <Lightbulb className="h-12 w-12 text-text-muted mx-auto mb-4" />
               <p className="text-text-secondary">No cue notes found</p>
               <p className="text-text-muted text-sm mt-1">Try adjusting your filters or add a new note</p>

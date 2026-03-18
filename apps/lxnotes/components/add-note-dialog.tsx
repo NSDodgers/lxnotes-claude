@@ -211,7 +211,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl" data-testid="add-note-dialog">
         <DialogHeader>
           <DialogTitle>
             {editingNote ? 'Edit Note' : 'Add New Note'}
@@ -260,6 +260,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                   value={formData.cueNumbers}
                   onChange={(e) => setFormData({ ...formData, cueNumbers: e.target.value })}
                   placeholder="e.g., 127 or 45-47 or 89, 92, 95"
+                  data-testid="cue-numbers"
                 />
                 <p className="text-xs text-muted-foreground">Enter single number, range (10-15), or list (5, 8, 12)</p>
               </div>
@@ -290,6 +291,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                 placeholder="Enter your lighting note here..."
                 className="min-h-[80px] resize-none"
                 required
+                data-testid="note-description"
               />
             </div>
 
@@ -332,6 +334,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                 variant="secondary"
                 onClick={onClose}
                 className="flex-1"
+                data-testid="cancel-button"
               >
                 Cancel
               </Button>
@@ -339,6 +342,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                 type="submit"
                 variant={moduleType}
                 className="flex-1"
+                data-testid="save-button"
               >
                 {editingNote ? 'Update Note' : 'Create Note'}
                 <kbd className="ml-2 text-xs opacity-60">⌘↵</kbd>

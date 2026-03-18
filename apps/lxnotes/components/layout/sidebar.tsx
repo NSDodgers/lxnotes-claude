@@ -99,6 +99,7 @@ export function Sidebar() {
                 : "p-compact-2"
             )}
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            data-testid="sidebar-collapse"
           >
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={20} />}
           </button>

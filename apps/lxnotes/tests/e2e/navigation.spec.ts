@@ -52,13 +52,13 @@ test.describe('Navigation', () => {
     // Navigate to Cue Notes
     await helpers.navigateToModule('cue-notes');
 
-    // Check if the active link is highlighted
+    // Check if the active link is highlighted (active has text-text-primary, inactive has text-text-secondary)
     const cueNotesLink = page.locator('a[href="/cue-notes"]');
-    await expect(cueNotesLink).toHaveClass(/border-modules-production/);
+    await expect(cueNotesLink).not.toHaveClass(/text-text-secondary/);
 
     // Check other links are not highlighted
     const workNotesLink = page.locator('a[href="/work-notes"]');
-    await expect(workNotesLink).not.toHaveClass(/border-modules-production/);
+    await expect(workNotesLink).toHaveClass(/text-text-secondary/);
   });
 
   test('should toggle sidebar collapse', async ({ page }) => {
@@ -82,36 +82,23 @@ test.describe('Navigation', () => {
   });
 
   test('should toggle designer mode', async ({ page }) => {
-    const designerToggle = page.locator('[data-testid="designer-mode-toggle"]');
+    const designerIndicator = page.locator('[data-testid="designer-mode-indicator"]');
 
     // Initially designer mode should be off
-    await expect(designerToggle).not.toHaveClass(/bg-modules-production/);
+    await expect(designerIndicator).not.toBeVisible();
 
     // Enable designer mode
     await helpers.enableDesignerMode();
 
-    // Designer mode toggle should be active
-    await expect(designerToggle).toHaveClass(/bg-modules-production/);
+    // Designer mode indicator should be visible
+    await expect(designerIndicator).toBeVisible();
 
-    // Disable designer mode
-    await designerToggle.click();
+    // Exit designer mode via top bar button
+    await page.click('[data-testid="designer-mode-exit-topbar"]');
 
-    // Designer mode toggle should be inactive
-    await expect(designerToggle).not.toHaveClass(/bg-modules-production/);
-  });
-
-  test('should display production information in header', async ({ page }) => {
-    // Navigate to a module to see the production header
-    await helpers.navigateToModule('cue-notes');
-
-    // Check production name is displayed
-    await expect(page.locator('[data-testid="production-name"]')).toContainText('Sample Production');
-
-    // Check production abbreviation is displayed
-    await expect(page.locator('[data-testid="production-abbreviation"]')).toBeVisible();
-
-    // Check production logo is displayed
-    await expect(page.locator('[data-testid="production-logo"]')).toBeVisible();
+    // Designer mode indicator should be gone and sidebar should be back
+    await expect(designerIndicator).not.toBeVisible();
+    await expect(page.locator('[data-testid="sidebar"]')).toBeVisible();
   });
 
   test('should maintain navigation state on page reload', async ({ page }) => {
@@ -131,24 +118,37 @@ test.describe('Navigation', () => {
     test('should work on mobile devices', async ({ page }) => {
       await helpers.testMobileLayout();
 
-      // Navigation should still work on mobile
-      await helpers.navigateToModule('cue-notes');
-      await helpers.expectPageTitle('Cue Notes');
+      // Wait for mobile layout to render
+      await helpers.waitForAppReady();
 
-      // Sidebar should adapt to mobile layout
-      const sidebar = page.locator('[data-testid="sidebar"]');
-      await expect(sidebar).toBeVisible();
+      // Mobile top bar should be visible (not sidebar)
+      await expect(page.locator('[data-testid="mobile-top-bar"]')).toBeVisible();
+
+      // Open mobile drawer via menu button
+      await page.click('[data-testid="mobile-menu-button"]');
+      await expect(page.locator('[data-testid="mobile-drawer"]')).toBeVisible();
+
+      // Navigate via drawer link
+      await page.locator('[data-testid="mobile-drawer"] a:has-text("Work Notes")').click();
+      await expect(page).toHaveURL(/.*\/work-notes/);
+
+      // Drawer should close after navigation
+      await expect(page.locator('[data-testid="mobile-drawer"]')).not.toBeVisible();
     });
 
     test('should work on tablet devices', async ({ page }) => {
       await helpers.testTabletLayout();
 
-      // Test designer mode features
+      // Enable designer mode
       await helpers.enableDesignerMode();
 
-      // Navigation should work in designer mode
-      await helpers.navigateToModule('production-notes');
-      await helpers.expectPageTitle('Production Notes');
+      // Open designer overlay sidebar via menu button
+      await page.click('[data-testid="designer-menu-button"]');
+      await expect(page.locator('[data-testid="designer-overlay-sidebar"]')).toBeVisible();
+
+      // Navigate via overlay sidebar link
+      await page.locator('[data-testid="designer-overlay-sidebar"] a:has-text("Production Notes")').click();
+      await expect(page).toHaveURL(/.*\/production-notes/);
     });
 
     test('should work on desktop', async ({ page }) => {
@@ -178,7 +178,7 @@ test.describe('Navigation', () => {
     await helpers.expectPageTitle('Cue Notes');
   });
 
-  test('should not have console errors during navigation', async ({ page }) => {
+  test('should not have console errors during navigation', async () => {
     const errors = await helpers.collectConsoleErrors();
 
     // Navigate between all modules

@@ -208,6 +208,7 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, o
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
+                  data-testid="note-row"
                   className={cn(
                     (onEdit || inlineEditing) && 'cursor-pointer',
                     inlineEditing?.editingNoteId === row.original.id && 'bg-muted/50'

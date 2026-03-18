@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 import { selectors, testIds } from '../fixtures/test-data';
 
 export class TestHelpers {
@@ -13,7 +13,7 @@ export class TestHelpers {
       'production-notes': selectors.sidebar.productionNotesLink,
       'settings': selectors.sidebar.settingsLink,
     };
-    
+
     await this.page.click(linkMap[module]);
     await this.page.waitForURL(`**/${module}`);
   }
@@ -22,17 +22,15 @@ export class TestHelpers {
   async waitForAppReady() {
     // Wait for React hydration
     await this.page.waitForLoadState('networkidle');
-    
-    // Wait for app to be ready - sidebar should be visible and functional
-    await this.page.waitForSelector('[data-testid="sidebar"]', { timeout: 15000 });
-    
+
+    // Wait for app to be ready - sidebar (desktop), mobile top bar, or designer mode indicator
+    await this.page.waitForSelector(
+      '[data-testid="sidebar"], [data-testid="mobile-top-bar"], [data-testid="designer-mode-indicator"]',
+      { timeout: 15000 }
+    );
+
     // Give a moment for Zustand stores to initialize
     await this.page.waitForTimeout(1000);
-    
-    // Optionally check that stores are ready (but don't require specific localStorage keys)
-    await this.page.waitForFunction(() => {
-      return document.querySelector('[data-testid="sidebar"]') !== null;
-    }, { timeout: 5000 });
   }
 
   // Dialog helpers
@@ -42,31 +40,25 @@ export class TestHelpers {
   }
 
   async closeDialog() {
-    await this.page.click(selectors.dialog.closeButton);
+    // Use cancel button or press Escape
+    const cancelButton = this.page.locator(selectors.dialog.cancelButton);
+    if (await cancelButton.isVisible().catch(() => false)) {
+      await cancelButton.click();
+    } else {
+      await this.page.keyboard.press('Escape');
+    }
     await this.page.waitForSelector(selectors.dialog.container, { state: 'hidden' });
   }
 
   async fillNoteForm(noteData: {
-    title?: string;
     description?: string;
-    type?: string;
-    priority?: string;
-    status?: string;
+    cueNumbers?: string;
   }) {
-    if (noteData.title) {
-      await this.page.fill(selectors.forms.titleInput, noteData.title);
-    }
     if (noteData.description) {
       await this.page.fill(selectors.forms.descriptionInput, noteData.description);
     }
-    if (noteData.type) {
-      await this.page.selectOption(selectors.forms.typeSelect, noteData.type);
-    }
-    if (noteData.priority) {
-      await this.page.selectOption(selectors.forms.prioritySelect, noteData.priority);
-    }
-    if (noteData.status) {
-      await this.page.selectOption(selectors.forms.statusSelect, noteData.status);
+    if (noteData.cueNumbers) {
+      await this.page.fill(selectors.forms.cueNumbers, noteData.cueNumbers);
     }
   }
 
@@ -80,18 +72,14 @@ export class TestHelpers {
     return await this.page.locator(selectors.notes.noteRow).count();
   }
 
-  async clickNoteAction(noteTitle: string, action: 'edit' | 'status') {
-    const row = this.page.locator(selectors.notes.noteRow).filter({ hasText: noteTitle });
-    const actionMap = {
-      'edit': selectors.notes.editButton,
-      'status': selectors.notes.statusButton,
-    };
-    await row.locator(actionMap[action]).click();
-  }
-
   // Filter helpers
-  async setStatusFilter(status: 'todo' | 'review' | 'complete' | 'cancelled') {
-    await this.page.click(`${selectors.notes.statusFilter}[data-status="${status}"]`);
+  async setStatusFilter(status: 'todo' | 'complete' | 'cancelled') {
+    const statusMap = {
+      'todo': selectors.notes.statusFilterTodo,
+      'complete': selectors.notes.statusFilterComplete,
+      'cancelled': selectors.notes.statusFilterCancelled,
+    };
+    await this.page.click(statusMap[status]);
   }
 
   async searchNotes(searchTerm: string) {
@@ -229,12 +217,12 @@ export class TestHelpers {
     await expect(this.page.locator('h1')).toContainText(title);
   }
 
-  async expectNoteInTable(noteTitle: string) {
-    await expect(this.page.locator(selectors.notes.notesTable)).toContainText(noteTitle);
+  async expectNoteInTable(noteDescription: string) {
+    await expect(this.page.locator(selectors.notes.notesTable)).toContainText(noteDescription);
   }
 
-  async expectNoteNotInTable(noteTitle: string) {
-    await expect(this.page.locator(selectors.notes.notesTable)).not.toContainText(noteTitle);
+  async expectNoteNotInTable(noteDescription: string) {
+    await expect(this.page.locator(selectors.notes.notesTable)).not.toContainText(noteDescription);
   }
 
   async expectPresetExists(presetName: string) {
@@ -281,9 +269,9 @@ export class TestHelpers {
 
   // Screenshot helpers
   async takeScreenshot(name: string) {
-    await this.page.screenshot({ 
+    await this.page.screenshot({
       path: `tests/screenshots/${name}.png`,
-      fullPage: true 
+      fullPage: true
     });
   }
 }
