@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { TabletFilterPopover } from './tablet-filter-popover'
+import { DesignerFilterPopover } from './designer-filter-popover'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import type { NoteStatus, ModuleType } from '@/types'
 import { usePathname } from 'next/navigation'
@@ -89,7 +89,7 @@ export function MobileFilterBar({ moduleType, statusCounts }: MobileFilterBarPro
 
         {/* Filter/Sort popover */}
         <div className="relative shrink-0">
-          <TabletFilterPopover moduleType={moduleType} />
+          <DesignerFilterPopover moduleType={moduleType} />
           {activeFilterCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-blue-500 text-white text-[9px] flex items-center justify-center">
               {activeFilterCount}

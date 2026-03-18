@@ -12,10 +12,10 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Tablet,
+  LayoutDashboard,
   LogOut
 } from 'lucide-react'
-import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
 import { PolicyFooter } from './policy-footer'
 import { UserMenu } from '@/components/auth/user-menu'
@@ -52,7 +52,7 @@ export function Sidebar() {
     { name: 'Production Notes', href: `${baseUrl}/production-notes`, icon: FileText, color: 'text-modules-production' },
     { name: 'Settings', href: `${baseUrl}/settings`, icon: Settings },
   ]
-  const { isTabletMode, toggleTabletMode } = useTabletModeStore()
+  const { isDesignerMode, toggleDesignerMode } = useDesignerModeStore()
 
   return (
     <aside
@@ -142,7 +142,7 @@ export function Sidebar() {
           )}
         </nav>
 
-        {/* Tablet Mode Toggle */}
+        {/* Designer Mode Toggle */}
         <div className="border-t border-bg-tertiary p-compact-4">
           <div className={cn(
             'flex items-center gap-compact-3 mb-compact-4',
@@ -150,24 +150,24 @@ export function Sidebar() {
           )}>
             {!collapsed && (
               <div className="flex items-center gap-compact-2">
-                <Tablet className="h-4 w-4 text-text-secondary" />
-                <span className="text-sm text-text-secondary">Tablet Mode</span>
+                <LayoutDashboard className="h-4 w-4 text-text-secondary" />
+                <span className="text-sm text-text-secondary">Designer Mode</span>
               </div>
             )}
             <button
-              onClick={toggleTabletMode}
+              onClick={toggleDesignerMode}
               className={cn(
                 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                isTabletMode ? 'bg-modules-production' : 'bg-bg-tertiary',
+                isDesignerMode ? 'bg-modules-production' : 'bg-bg-tertiary',
                 collapsed && 'mx-auto'
               )}
-              title={collapsed ? 'Toggle Tablet Mode' : undefined}
-              data-testid="tablet-mode-toggle"
+              title={collapsed ? 'Toggle Designer Mode' : undefined}
+              data-testid="designer-mode-toggle"
             >
               <span
                 className={cn(
                   'inline-block h-4 w-4 transform rounded-full bg-foreground transition-transform',
-                  isTabletMode ? 'translate-x-6' : 'translate-x-1'
+                  isDesignerMode ? 'translate-x-6' : 'translate-x-1'
                 )}
               />
             </button>

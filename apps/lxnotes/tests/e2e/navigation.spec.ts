@@ -81,23 +81,23 @@ test.describe('Navigation', () => {
     await expect(sidebar).toHaveClass(/w-64/);
   });
 
-  test('should toggle tablet mode', async ({ page }) => {
-    const tabletToggle = page.locator('[data-testid="tablet-mode-toggle"]');
+  test('should toggle designer mode', async ({ page }) => {
+    const designerToggle = page.locator('[data-testid="designer-mode-toggle"]');
 
-    // Initially tablet mode should be off
-    await expect(tabletToggle).not.toHaveClass(/bg-modules-production/);
+    // Initially designer mode should be off
+    await expect(designerToggle).not.toHaveClass(/bg-modules-production/);
 
-    // Enable tablet mode
-    await helpers.enableTabletMode();
+    // Enable designer mode
+    await helpers.enableDesignerMode();
 
-    // Tablet mode toggle should be active
-    await expect(tabletToggle).toHaveClass(/bg-modules-production/);
+    // Designer mode toggle should be active
+    await expect(designerToggle).toHaveClass(/bg-modules-production/);
 
-    // Disable tablet mode
-    await tabletToggle.click();
+    // Disable designer mode
+    await designerToggle.click();
 
-    // Tablet mode toggle should be inactive
-    await expect(tabletToggle).not.toHaveClass(/bg-modules-production/);
+    // Designer mode toggle should be inactive
+    await expect(designerToggle).not.toHaveClass(/bg-modules-production/);
   });
 
   test('should display production information in header', async ({ page }) => {
@@ -143,10 +143,10 @@ test.describe('Navigation', () => {
     test('should work on tablet devices', async ({ page }) => {
       await helpers.testTabletLayout();
 
-      // Test tablet-specific features
-      await helpers.enableTabletMode();
+      // Test designer mode features
+      await helpers.enableDesignerMode();
 
-      // Navigation should work in tablet mode
+      // Navigation should work in designer mode
       await helpers.navigateToModule('production-notes');
       await helpers.expectPageTitle('Production Notes');
     });

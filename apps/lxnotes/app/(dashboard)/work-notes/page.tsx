@@ -37,7 +37,7 @@ import { useNotes } from '@/lib/contexts/notes-context'
 // import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 import { isDemoMode } from '@/lib/demo-data'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
-import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
@@ -97,7 +97,7 @@ export default function WorkNotesPage() {
     ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
     : storeData.logo
   const customTypesStore = useCustomTypesStore()
-  const { isTabletMode } = useTabletModeStore()
+  const { isDesignerMode } = useDesignerModeStore()
   const isMobile = useIsMobile()
   const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
   const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
@@ -178,7 +178,7 @@ export default function WorkNotesPage() {
   }))
 
   // In tablet/mobile mode, use shared filter store; in desktop, use local state
-  const useSharedFilters = isTabletMode || isMobile
+  const useSharedFilters = isDesignerMode || isMobile
   const effectiveSearchTerm = useSharedFilters ? tabletSearchTerm : searchTerm
   const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
 
@@ -193,10 +193,10 @@ export default function WorkNotesPage() {
   }, [notes])
 
   useEffect(() => {
-    if (isTabletMode || isMobile) {
+    if (isDesignerMode || isMobile) {
       setStatusCounts(statusCounts)
     }
-  }, [isTabletMode, isMobile, statusCounts, setStatusCounts])
+  }, [isDesignerMode, isMobile, statusCounts, setStatusCounts])
 
   const filteredNotes = useMemo(() => {
     const filtered = notes.filter(note => {
@@ -293,18 +293,18 @@ export default function WorkNotesPage() {
   }
 
   // Register add-note callback for tablet top bar
-  const tabletAddNote = useCallback(() => {
+  const designerAddNote = useCallback(() => {
     setEditingNote(null)
     setDialogDefaultType('work')
     setIsDialogOpen(true)
   }, [])
 
   useEffect(() => {
-    if (isTabletMode || isMobile) {
-      setOnAddNote(tabletAddNote)
+    if (isDesignerMode || isMobile) {
+      setOnAddNote(designerAddNote)
       return () => setOnAddNote(null)
     }
-  }, [isTabletMode, isMobile, tabletAddNote, setOnAddNote])
+  }, [isDesignerMode, isMobile, designerAddNote, setOnAddNote])
 
   const updateNoteStatusRef = useRef(updateNoteStatus)
   updateNoteStatusRef.current = updateNoteStatus
@@ -431,7 +431,7 @@ export default function WorkNotesPage() {
   }
 
   // Tablet mode rendering
-  if (isTabletMode) {
+  if (isDesignerMode) {
     return (
       <>
         <div className="h-full">

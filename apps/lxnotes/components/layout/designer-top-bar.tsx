@@ -6,9 +6,9 @@ import { Menu, Search, Plus, Lightbulb, Wrench, Zap, FileText, X, Monitor } from
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
-import { TabletFilterPopover } from './tablet-filter-popover'
+import { DesignerFilterPopover } from './designer-filter-popover'
 import type { NoteStatus, ModuleType } from '@/types'
 
 function getModuleInfo(pathname: string) {
@@ -34,10 +34,10 @@ const baseStatusFilters: { value: NoteStatus; label: string; workOnly?: boolean 
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
-export function TabletTopBar() {
+export function DesignerTopBar() {
   const pathname = usePathname()
   const moduleInfo = getModuleInfo(pathname)
-  const { toggleTabletSidebar, toggleTabletMode } = useTabletModeStore()
+  const { toggleDesignerSidebar, toggleDesignerMode } = useDesignerModeStore()
   const { filterStatus, searchTerm, onAddNote, setFilterStatus, setSearchTerm, clearAllFilters, statusCounts } = useNotesFilterStore()
   const [searchExpanded, setSearchExpanded] = useState(false)
 
@@ -52,15 +52,15 @@ export function TabletTopBar() {
 
   return (
     <div
-      data-testid="tablet-top-bar"
+      data-testid="designer-top-bar"
       className="h-12 flex-none flex items-center gap-2 px-3 bg-bg-secondary border-b border-bg-tertiary"
     >
       {/* Hamburger */}
       <button
-        onClick={toggleTabletSidebar}
+        onClick={toggleDesignerSidebar}
         className="touch-target flex items-center justify-center rounded-lg hover:bg-bg-tertiary"
         aria-label="Open menu"
-        data-testid="tablet-menu-button"
+        data-testid="designer-menu-button"
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -91,7 +91,7 @@ export function TabletTopBar() {
 
       {/* Filter/Sort popover */}
       {moduleInfo && (
-        <TabletFilterPopover moduleType={moduleInfo.moduleType} />
+        <DesignerFilterPopover moduleType={moduleInfo.moduleType} />
       )}
 
       {/* Search */}
@@ -104,7 +104,7 @@ export function TabletTopBar() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-40 h-8 text-sm"
             autoFocus
-            data-testid="tablet-search-input"
+            data-testid="designer-search-input"
           />
           <button
             onClick={() => {
@@ -133,17 +133,17 @@ export function TabletTopBar() {
           size="sm"
           variant={moduleInfo.addVariant}
           className="h-8 px-3"
-          data-testid="tablet-add-note-button"
+          data-testid="designer-add-note-button"
         >
           <Plus className="h-4 w-4" />
         </Button>
       )}
 
-      {/* Exit tablet mode */}
+      {/* Exit designer mode */}
       <button
-        onClick={toggleTabletMode}
+        onClick={toggleDesignerMode}
         className="flex items-center gap-1.5 rounded-full px-3 h-8 text-xs text-text-secondary bg-bg-tertiary/50 hover:bg-bg-tertiary border border-bg-tertiary transition-colors touch-target"
-        data-testid="tablet-mode-exit-topbar"
+        data-testid="designer-mode-exit-topbar"
       >
         <Monitor className="h-4 w-4" />
         <span>Exit</span>

@@ -2,9 +2,9 @@
 
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { TabletTopBar } from './tablet-top-bar'
-import { TabletOverlaySidebar } from './tablet-overlay-sidebar'
-import { TabletFilterChips } from './tablet-filter-chips'
+import { DesignerTopBar } from './designer-top-bar'
+import { DesignerOverlaySidebar } from './designer-overlay-sidebar'
+import { DesignerFilterChips } from './designer-filter-chips'
 import type { ModuleType } from '@/types'
 
 function getModuleType(pathname: string): ModuleType | null {
@@ -15,7 +15,7 @@ function getModuleType(pathname: string): ModuleType | null {
   return null
 }
 
-export function TabletLayout({ children }: { children: React.ReactNode }) {
+export function DesignerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const moduleType = getModuleType(pathname)
   const isDemoMode = pathname.startsWith('/demo')
@@ -29,11 +29,11 @@ export function TabletLayout({ children }: { children: React.ReactNode }) {
         transform: 'scale(2)',
         transformOrigin: 'top left',
       }}
-      data-testid="tablet-mode-indicator"
+      data-testid="designer-mode-indicator"
     >
-      <TabletTopBar />
-      {moduleType && <TabletFilterChips moduleType={moduleType} />}
-      <TabletOverlaySidebar />
+      <DesignerTopBar />
+      {moduleType && <DesignerFilterChips moduleType={moduleType} />}
+      <DesignerOverlaySidebar />
       <main className="flex-1 overflow-auto p-3">
         {children}
       </main>

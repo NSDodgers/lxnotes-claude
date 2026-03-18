@@ -26,7 +26,7 @@ import { useAuthContext } from '@/components/auth/auth-provider'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
-import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
@@ -77,7 +77,7 @@ export default function CueNotesPage() {
     ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
     : storeData.logo
   const customTypesStore = useCustomTypesStore()
-  const { isTabletMode } = useTabletModeStore()
+  const { isDesignerMode } = useDesignerModeStore()
   const isMobile = useIsMobile()
   const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
   const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
@@ -115,7 +115,7 @@ export default function CueNotesPage() {
     color: type.color
   }))
   // In tablet/mobile mode, use shared filter store; in desktop, use local state
-  const useSharedFilters = isTabletMode || isMobile
+  const useSharedFilters = isDesignerMode || isMobile
   const effectiveSearchTerm = useSharedFilters ? tabletSearchTerm : searchTerm
   const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
 
@@ -130,10 +130,10 @@ export default function CueNotesPage() {
   }, [notes])
 
   useEffect(() => {
-    if (isTabletMode || isMobile) {
+    if (isDesignerMode || isMobile) {
       setStatusCounts(statusCounts)
     }
-  }, [isTabletMode, isMobile, statusCounts, setStatusCounts])
+  }, [isDesignerMode, isMobile, statusCounts, setStatusCounts])
 
   const filteredNotes = useMemo(() => {
     const filtered = notes.filter(note => {
@@ -245,18 +245,18 @@ export default function CueNotesPage() {
   }), [inlineEditing, handleInlineSave, handleInlineCancel])
 
   // Register add-note callback for tablet top bar
-  const tabletAddNote = useCallback(() => {
+  const designerAddNote = useCallback(() => {
     setEditingNote(null)
     setDialogDefaultType('Cue')
     setIsDialogOpen(true)
   }, [])
 
   useEffect(() => {
-    if (isTabletMode || isMobile) {
-      setOnAddNote(tabletAddNote)
+    if (isDesignerMode || isMobile) {
+      setOnAddNote(designerAddNote)
       return () => setOnAddNote(null)
     }
-  }, [isTabletMode, isMobile, tabletAddNote, setOnAddNote])
+  }, [isDesignerMode, isMobile, designerAddNote, setOnAddNote])
 
   const updateNoteStatusRef = useRef(updateNoteStatus)
   updateNoteStatusRef.current = updateNoteStatus
@@ -323,7 +323,7 @@ export default function CueNotesPage() {
   }
 
   // Tablet mode rendering
-  if (isTabletMode) {
+  if (isDesignerMode) {
     return (
       <>
         <div className="h-full">

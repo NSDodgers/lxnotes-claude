@@ -4,14 +4,14 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Lightbulb, Wrench, Zap, FileText, Settings, LogOut, Tablet } from 'lucide-react'
-import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { Lightbulb, Wrench, Zap, FileText, Settings, LogOut, LayoutDashboard } from 'lucide-react'
+import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { UserMenu } from '@/components/auth/user-menu'
 
-export function TabletOverlaySidebar() {
+export function DesignerOverlaySidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { tabletSidebarOpen, setTabletSidebarOpen, toggleTabletMode } = useTabletModeStore()
+  const { designerSidebarOpen, setDesignerSidebarOpen, toggleDesignerMode } = useDesignerModeStore()
 
   const isDemoMode = pathname.startsWith('/demo')
   const isProductionMode = pathname.startsWith('/production/')
@@ -31,21 +31,21 @@ export function TabletOverlaySidebar() {
     { name: 'Settings', href: `${baseUrl}/settings`, icon: Settings },
   ]
 
-  if (!tabletSidebarOpen) return null
+  if (!designerSidebarOpen) return null
 
   return (
     <>
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-50 bg-black/50"
-        onClick={() => setTabletSidebarOpen(false)}
-        data-testid="tablet-sidebar-backdrop"
+        onClick={() => setDesignerSidebarOpen(false)}
+        data-testid="designer-sidebar-backdrop"
       />
 
       {/* Slide-in panel */}
       <aside
         className="fixed left-0 top-0 z-50 h-screen w-[280px] bg-bg-secondary border-r border-bg-tertiary flex flex-col animate-fade-cue"
-        data-testid="tablet-overlay-sidebar"
+        data-testid="designer-overlay-sidebar"
       >
         {/* Logo */}
         <div className="flex items-center px-4 h-14 border-b border-bg-tertiary">
@@ -69,7 +69,7 @@ export function TabletOverlaySidebar() {
                 href={item.href}
                 onClick={(e) => {
                   e.preventDefault()
-                  setTabletSidebarOpen(false)
+                  setDesignerSidebarOpen(false)
                   router.push(item.href)
                 }}
                 className={cn(
@@ -91,7 +91,7 @@ export function TabletOverlaySidebar() {
               href="/"
               onClick={(e) => {
                 e.preventDefault()
-                setTabletSidebarOpen(false)
+                setDesignerSidebarOpen(false)
                 router.push('/')
               }}
               className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors touch-target text-text-secondary hover:bg-bg-tertiary hover:text-text-primary mt-2 border-t border-bg-tertiary pt-4"
@@ -102,18 +102,18 @@ export function TabletOverlaySidebar() {
           )}
         </nav>
 
-        {/* Tablet mode toggle (to exit) */}
+        {/* Designer mode toggle (to exit) */}
         <div className="border-t border-bg-tertiary p-4">
           <button
             onClick={() => {
-              setTabletSidebarOpen(false)
-              toggleTabletMode()
+              setDesignerSidebarOpen(false)
+              toggleDesignerMode()
             }}
             className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-text-secondary hover:bg-bg-tertiary hover:text-text-primary transition-colors w-full touch-target"
-            data-testid="tablet-mode-exit"
+            data-testid="designer-mode-exit"
           >
-            <Tablet className="h-5 w-5" />
-            <span>Exit Tablet Mode</span>
+            <LayoutDashboard className="h-5 w-5" />
+            <span>Exit Designer Mode</span>
           </button>
         </div>
 

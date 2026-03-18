@@ -15,11 +15,11 @@ const SORT_LABELS: Record<string, string> = {
   channel: 'Channel',
 }
 
-interface TabletFilterChipsProps {
+interface DesignerFilterChipsProps {
   moduleType: ModuleType
 }
 
-export function TabletFilterChips({ moduleType }: TabletFilterChipsProps) {
+export function DesignerFilterChips({ moduleType }: DesignerFilterChipsProps) {
   const filterTypes = useNotesFilterStore((s) => s.filterTypes)
   const filterPriorities = useNotesFilterStore((s) => s.filterPriorities)
   const sortField = useNotesFilterStore((s) => s.sortField)
@@ -49,7 +49,7 @@ export function TabletFilterChips({ moduleType }: TabletFilterChipsProps) {
   return (
     <div
       className="h-9 flex-none flex items-center gap-1.5 px-3 overflow-x-auto"
-      data-testid="tablet-filter-chips"
+      data-testid="designer-filter-chips"
     >
       {sortField && (
         <Chip
@@ -72,7 +72,7 @@ export function TabletFilterChips({ moduleType }: TabletFilterChipsProps) {
       <button
         onClick={clearAllFilters}
         className="text-xs text-text-secondary hover:text-text-primary whitespace-nowrap ml-1"
-        data-testid="tablet-chips-clear-all"
+        data-testid="designer-chips-clear-all"
       >
         Clear all
       </button>

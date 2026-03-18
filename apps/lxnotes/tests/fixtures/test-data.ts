@@ -107,7 +107,7 @@ export const selectors = {
     electricianNotesLink: 'a[href="/electrician-notes"]',
     productionNotesLink: 'a[href="/production-notes"]',
     settingsLink: 'a[href="/settings"]',
-    tabletModeToggle: '[data-testid="tablet-mode-toggle"]',
+    designerModeToggle: '[data-testid="designer-mode-toggle"]',
   },
   notes: {
     addButton: '[data-testid="add-note-button"]',

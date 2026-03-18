@@ -313,7 +313,7 @@ graph TB
     subgraph UIStores["UI State Stores"]
         CL["column-layout-store<br/>column widths per module<br/>(localStorage, v1)"]
         SB["sidebar-store<br/>collapsed state<br/>(localStorage, skipHydration)"]
-        TM["tablet-mode-store<br/>tablet mode toggle<br/>(localStorage)"]
+        TM["designer-mode-store<br/>designer mode toggle<br/>(localStorage)"]
         NF["notes-filter-store<br/>filter/sort/search state<br/>(in-memory)"]
     end
 

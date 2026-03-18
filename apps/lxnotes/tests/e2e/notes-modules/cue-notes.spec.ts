@@ -360,8 +360,8 @@ test.describe('Cue Notes Module', () => {
     test('should work on tablet devices', async ({ page }) => {
       await helpers.testTabletLayout();
       
-      // Enable tablet mode
-      await helpers.enableTabletMode();
+      // Enable designer mode
+      await helpers.enableDesignerMode();
       
       // Should still be fully functional
       await helpers.openDialog('[data-testid="add-note-button"]');

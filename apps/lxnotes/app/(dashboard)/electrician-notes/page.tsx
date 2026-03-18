@@ -35,7 +35,7 @@ import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { isDemoMode } from '@/lib/demo-data'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
-import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
@@ -88,7 +88,7 @@ export default function ElectricianNotesPage() {
     ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
     : storeData.logo
   const customTypesStore = useCustomTypesStore()
-  const { isTabletMode } = useTabletModeStore()
+  const { isDesignerMode } = useDesignerModeStore()
   const isMobile = useIsMobile()
   const tabletFilterStatus = useNotesFilterStore((s) => s.filterStatus)
   const tabletSearchTerm = useNotesFilterStore((s) => s.searchTerm)
@@ -157,7 +157,7 @@ export default function ElectricianNotesPage() {
     color: type.color
   }))
 
-  const useSharedFilters = isTabletMode || isMobile
+  const useSharedFilters = isDesignerMode || isMobile
   const effectiveSearchTerm = useSharedFilters ? tabletSearchTerm : searchTerm
   const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
   const effectiveFilterTypes = useSharedFilters ? tabletFilterTypes : filterTypes
@@ -171,10 +171,10 @@ export default function ElectricianNotesPage() {
   }, [notes])
 
   useEffect(() => {
-    if (isTabletMode || isMobile) {
+    if (isDesignerMode || isMobile) {
       setStatusCounts(statusCounts)
     }
-  }, [isTabletMode, isMobile, statusCounts, setStatusCounts])
+  }, [isDesignerMode, isMobile, statusCounts, setStatusCounts])
 
   const filteredNotes = useMemo(() => {
     const filtered = notes.filter(note => {
@@ -270,18 +270,18 @@ export default function ElectricianNotesPage() {
     setIsDialogOpen(true)
   }
 
-  const tabletAddNote = useCallback(() => {
+  const designerAddNote = useCallback(() => {
     setEditingNote(null)
     setDialogDefaultType('work')
     setIsDialogOpen(true)
   }, [])
 
   useEffect(() => {
-    if (isTabletMode || isMobile) {
-      setOnAddNote(tabletAddNote)
+    if (isDesignerMode || isMobile) {
+      setOnAddNote(designerAddNote)
       return () => setOnAddNote(null)
     }
-  }, [isTabletMode, isMobile, tabletAddNote, setOnAddNote])
+  }, [isDesignerMode, isMobile, designerAddNote, setOnAddNote])
 
   const updateNoteStatusRef = useRef(updateNoteStatus)
   updateNoteStatusRef.current = updateNoteStatus
@@ -402,7 +402,7 @@ export default function ElectricianNotesPage() {
   }
 
   // Tablet mode rendering
-  if (isTabletMode) {
+  if (isDesignerMode) {
     return (
       <>
         <div className="h-full">

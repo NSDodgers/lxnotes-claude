@@ -205,10 +205,10 @@ export class TestHelpers {
     await this.setViewportSize(1920, 1080);
   }
 
-  // Tablet mode helpers
-  async enableTabletMode() {
-    await this.page.click(selectors.sidebar.tabletModeToggle);
-    await expect(this.page.locator('[data-testid="tablet-mode-indicator"]')).toBeVisible();
+  // Designer mode helpers
+  async enableDesignerMode() {
+    await this.page.click(selectors.sidebar.designerModeToggle);
+    await expect(this.page.locator('[data-testid="designer-mode-indicator"]')).toBeVisible();
   }
 
   // Wait helpers

@@ -37,11 +37,11 @@ const SORT_OPTIONS: Record<string, { field: string; label: string }[]> = {
   ],
 }
 
-interface TabletFilterPopoverProps {
+interface DesignerFilterPopoverProps {
   moduleType: ModuleType
 }
 
-export function TabletFilterPopover({ moduleType }: TabletFilterPopoverProps) {
+export function DesignerFilterPopover({ moduleType }: DesignerFilterPopoverProps) {
   const filterTypes = useNotesFilterStore((s) => s.filterTypes)
   const filterPriorities = useNotesFilterStore((s) => s.filterPriorities)
   const sortField = useNotesFilterStore((s) => s.sortField)
@@ -88,7 +88,7 @@ export function TabletFilterPopover({ moduleType }: TabletFilterPopoverProps) {
         <button
           className="touch-target relative flex items-center justify-center rounded-lg hover:bg-bg-tertiary"
           aria-label="Filter and sort"
-          data-testid="tablet-filter-sort-button"
+          data-testid="designer-filter-sort-button"
         >
           <SlidersHorizontal className="h-5 w-5" />
           {hasActiveFilters && (
@@ -127,7 +127,7 @@ export function TabletFilterPopover({ moduleType }: TabletFilterPopoverProps) {
                     ? 'bg-blue-600/20 text-blue-400 border border-blue-500/50'
                     : 'bg-bg-tertiary text-text-secondary hover:bg-bg-tertiary/80'
                 )}
-                data-testid="tablet-sort-asc"
+                data-testid="designer-sort-asc"
               >
                 <ArrowUp className="h-3 w-3" /> Ascending
               </button>
@@ -139,7 +139,7 @@ export function TabletFilterPopover({ moduleType }: TabletFilterPopoverProps) {
                     ? 'bg-blue-600/20 text-blue-400 border border-blue-500/50'
                     : 'bg-bg-tertiary text-text-secondary hover:bg-bg-tertiary/80'
                 )}
-                data-testid="tablet-sort-desc"
+                data-testid="designer-sort-desc"
               >
                 <ArrowDown className="h-3 w-3" /> Descending
               </button>
@@ -227,7 +227,7 @@ export function TabletFilterPopover({ moduleType }: TabletFilterPopoverProps) {
               size="sm"
               onClick={clearAllFilters}
               className="w-full text-xs text-text-secondary"
-              data-testid="tablet-clear-all-filters"
+              data-testid="designer-clear-all-filters"
             >
               Clear All Filters
             </Button>

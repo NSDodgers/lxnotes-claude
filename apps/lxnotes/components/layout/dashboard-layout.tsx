@@ -1,33 +1,33 @@
 'use client'
 
 import { Sidebar } from './sidebar'
-import { TabletLayout } from './tablet-layout'
+import { DesignerLayout } from './designer-layout'
 import { MobileLayout } from './mobile-layout'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
-import { useTabletModeStore } from '@/lib/stores/tablet-mode-store'
+import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebarStore()
-  const { isTabletMode } = useTabletModeStore()
+  const { isDesignerMode } = useDesignerModeStore()
   const isMobile = useIsMobile()
   const pathname = usePathname()
   const isDemoMode = pathname.startsWith('/demo')
   // Only demo mode has a banner now (production mode banner was removed)
   const hasBanner = isDemoMode
 
-  // Note: Tablet mode scaling is handled via CSS transform in tablet-layout.tsx
+  // Note: Designer mode scaling is handled via CSS transform in designer-layout.tsx
   // CSS zoom breaks touch event coordinates on iOS Safari
 
-  // Mobile takes priority — tablet mode is for iPads on a desk, not phones
+  // Mobile takes priority — designer mode is for reviewing layouts, not phones
   if (isMobile) {
     return <MobileLayout>{children}</MobileLayout>
   }
 
-  if (isTabletMode) {
-    return <TabletLayout>{children}</TabletLayout>
+  if (isDesignerMode) {
+    return <DesignerLayout>{children}</DesignerLayout>
   }
 
   return (
