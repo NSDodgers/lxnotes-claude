@@ -69,18 +69,9 @@ export async function isSuperAdmin(userId?: string): Promise<boolean> {
   }
 }
 
-export interface Production {
-  id: string
-  name: string
-  abbreviation: string
-  logo?: string
-  description?: string
-  startDate?: Date
-  endDate?: Date
-  isDemo?: boolean
-  createdAt: Date
-  updatedAt: Date
-}
+// Re-export Production from canonical types
+export type { Production } from '@/types'
+import type { Production } from '@/types'
 
 // Raw database row type (snake_case)
 interface RawProductionRow {

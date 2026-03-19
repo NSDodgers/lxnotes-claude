@@ -7,7 +7,7 @@
 
 import { createClient } from './client'
 import type { StorageAdapter, ProductionData, ScriptPage, SceneSong } from '@/lib/storage/adapter'
-import type { Note, FixtureInfo, ModuleType } from '@/types'
+import type { Note, FixtureInfo, ModuleType, FullProduction, EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset, CustomTypesConfig, CustomPrioritiesConfig } from '@/types'
 import type { Database } from './database.types'
 
 type DbNote = Database['public']['Tables']['notes']['Row']
@@ -602,6 +602,33 @@ export async function createProduction(data: {
   }
 }
 
+/**
+ * Map a raw database production row (with JSONB preset columns) to FullProduction.
+ * Shared between getProduction() and realtime subscription handler.
+ */
+export function mapDbRowToFullProduction(data: Record<string, unknown>): FullProduction {
+  return {
+    id: data.id as string,
+    name: data.name as string,
+    abbreviation: data.abbreviation as string,
+    logo: (data.logo as string) ?? undefined,
+    description: (data.description as string) ?? undefined,
+    startDate: data.start_date ? new Date(data.start_date as string) : undefined,
+    endDate: data.end_date ? new Date(data.end_date as string) : undefined,
+    isDemo: (data.is_demo as boolean) ?? false,
+    emailPresets: (data.email_presets as EmailMessagePreset[]) ?? [],
+    filterSortPresets: (data.filter_sort_presets as FilterSortPreset[]) ?? [],
+    pageStylePresets: (data.page_style_presets as PageStylePreset[]) ?? [],
+    printPresets: (data.print_presets as PrintPreset[]) ?? [],
+    customTypesConfig: (data.custom_types_config as CustomTypesConfig) ?? { customTypes: { cue: [], work: [], production: [], electrician: [] }, systemOverrides: [] },
+    customPrioritiesConfig: (data.custom_priorities_config as CustomPrioritiesConfig) ?? { customPriorities: { cue: [], work: [], production: [], electrician: [] }, systemOverrides: [] },
+    createdAt: new Date(data.created_at as string),
+    updatedAt: new Date(data.updated_at as string),
+    deletedAt: data.deleted_at ? new Date(data.deleted_at as string) : undefined,
+    deletedBy: (data.deleted_by as string) ?? undefined,
+  }
+}
+
 // Export a function to get a single production
 export async function getProduction(id: string) {
   const supabase = createClient()
@@ -617,26 +644,7 @@ export async function getProduction(id: string) {
     throw error
   }
 
-  return {
-    id: data.id,
-    name: data.name,
-    abbreviation: data.abbreviation,
-    logo: data.logo ?? undefined,
-    description: data.description ?? undefined,
-    startDate: data.start_date ? new Date(data.start_date) : undefined,
-    endDate: data.end_date ? new Date(data.end_date) : undefined,
-    isDemo: data.is_demo ?? false,
-    emailPresets: ((data as Record<string, unknown>).email_presets ?? []) as import('@/types').EmailMessagePreset[],
-    filterSortPresets: ((data as Record<string, unknown>).filter_sort_presets ?? []) as import('@/types').FilterSortPreset[],
-    pageStylePresets: ((data as Record<string, unknown>).page_style_presets ?? []) as import('@/types').PageStylePreset[],
-    printPresets: ((data as Record<string, unknown>).print_presets ?? []) as import('@/types').PrintPreset[],
-    customTypesConfig: ((data as Record<string, unknown>).custom_types_config ?? { customTypes: { cue: [], work: [], production: [], electrician: [] }, systemOverrides: [] }) as import('@/types').CustomTypesConfig,
-    customPrioritiesConfig: ((data as Record<string, unknown>).custom_priorities_config ?? { customPriorities: { cue: [], work: [], production: [], electrician: [] }, systemOverrides: [] }) as import('@/types').CustomPrioritiesConfig,
-    createdAt: new Date(data.created_at!),
-    updatedAt: new Date(data.updated_at!),
-    deletedAt: data.deleted_at ? new Date(data.deleted_at) : undefined,
-    deletedBy: data.deleted_by ?? undefined,
-  }
+  return mapDbRowToFullProduction(data as unknown as Record<string, unknown>)
 }
 
 // Helper to map production row to Production type

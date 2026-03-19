@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react'
-import { getProduction, createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
+import { getProduction, createSupabaseStorageAdapter, mapDbRowToFullProduction } from '@/lib/supabase/supabase-storage-adapter'
 import { subscribeToProductionChanges } from '@/lib/supabase/realtime'
 import { useScriptStore } from '@/lib/stores/script-store'
 import { usePositionStore } from '@/lib/stores/position-store'
@@ -9,28 +9,9 @@ import { useAuthContext } from '@/components/auth/auth-provider'
 import { FixturesProvider } from '@/lib/contexts/fixtures-context'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import type { EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset, CustomTypesConfig, CustomPrioritiesConfig } from '@/types'
+import type { FullProduction, EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset, CustomTypesConfig, CustomPrioritiesConfig } from '@/types' // All types used in context API methods
 
-export interface Production {
-  id: string
-  name: string
-  abbreviation: string
-  logo?: string
-  description?: string
-  startDate?: Date
-  endDate?: Date
-  isDemo: boolean
-  emailPresets: EmailMessagePreset[]
-  filterSortPresets: FilterSortPreset[]
-  pageStylePresets: PageStylePreset[]
-  printPresets: PrintPreset[]
-  customTypesConfig: CustomTypesConfig
-  customPrioritiesConfig: CustomPrioritiesConfig
-  createdAt: Date
-  updatedAt: Date
-  deletedAt?: Date
-  deletedBy?: string
-}
+export type { FullProduction as Production }
 
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -38,7 +19,7 @@ import { createClient } from '@/lib/supabase/client'
 import { AlertTriangle, RotateCcw, Loader2 } from 'lucide-react'
 
 interface ProductionContextType {
-  production: Production | null
+  production: FullProduction | null
   productionId: string
   isLoading: boolean
   error: Error | null
@@ -91,7 +72,7 @@ interface ProductionProviderProps {
 export function ProductionProvider({ productionId, children }: ProductionProviderProps) {
   const router = useRouter()
   const { isAuthenticated, isSuperAdmin, isLoading: isAuthLoading } = useAuthContext()
-  const [production, setProduction] = useState<Production | null>(null)
+  const [production, setProduction] = useState<FullProduction | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
@@ -508,26 +489,7 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
 
     const unsubscribe = subscribeToProductionChanges(productionId, {
       onProductionUpdate: (updatedProduction) => {
-        setProduction({
-          id: updatedProduction.id,
-          name: updatedProduction.name,
-          abbreviation: updatedProduction.abbreviation,
-          logo: updatedProduction.logo ?? undefined,
-          description: updatedProduction.description ?? undefined,
-          startDate: updatedProduction.start_date ? new Date(updatedProduction.start_date) : undefined,
-          endDate: updatedProduction.end_date ? new Date(updatedProduction.end_date) : undefined,
-          isDemo: updatedProduction.is_demo ?? false,
-          emailPresets: ((updatedProduction as Record<string, unknown>).email_presets as EmailMessagePreset[]) ?? [],
-          filterSortPresets: ((updatedProduction as Record<string, unknown>).filter_sort_presets as FilterSortPreset[]) ?? [],
-          pageStylePresets: ((updatedProduction as Record<string, unknown>).page_style_presets as PageStylePreset[]) ?? [],
-          printPresets: ((updatedProduction as Record<string, unknown>).print_presets as PrintPreset[]) ?? [],
-          customTypesConfig: ((updatedProduction as Record<string, unknown>).custom_types_config as CustomTypesConfig) ?? { customTypes: { cue: [], work: [], production: [], electrician: [] }, systemOverrides: [] },
-          customPrioritiesConfig: ((updatedProduction as Record<string, unknown>).custom_priorities_config as CustomPrioritiesConfig) ?? { customPriorities: { cue: [], work: [], production: [], electrician: [] }, systemOverrides: [] },
-          createdAt: new Date(updatedProduction.created_at!),
-          updatedAt: new Date(updatedProduction.updated_at!),
-          deletedAt: updatedProduction.deleted_at ? new Date(updatedProduction.deleted_at) : undefined,
-          deletedBy: updatedProduction.deleted_by ?? undefined,
-        })
+        setProduction(mapDbRowToFullProduction(updatedProduction as unknown as Record<string, unknown>))
       },
       onError: (err) => {
         console.error('Realtime subscription error:', err)
