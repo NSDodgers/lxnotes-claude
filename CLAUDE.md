@@ -10,6 +10,7 @@ See [@CLAUDE.sessions.md](./CLAUDE.sessions.md) for task protocols and agent usa
 npm run dev          # Dev server on localhost:3001
 npm run build        # Production build
 npm run lint         # Lint
+npm run test:unit    # Vitest unit tests
 npm run test:e2e     # Playwright E2E tests
 ```
 
@@ -43,6 +44,12 @@ npm run test:e2e     # Playwright E2E tests
 - Keep related code close together (locality over abstraction)
 - Make minimal necessary changes for bug fixes
 - Solve today's problems, not hypothetical future ones
+
+## gstack
+
+Use the /browse skill from gstack for all web browsing. Never use mcp__claude-in-chrome__* tools.
+
+Available skills: /plan-ceo-review, /plan-eng-review, /plan-design-review, /design-consultation, /review, /ship, /browse, /qa, /qa-only, /design-review, /setup-browser-cookies, /retro, /document-release.
 
 ## Testing
 

@@ -8,14 +8,13 @@ import { createClient } from '@/lib/supabase/server'
  * This endpoint is called by GitHub Actions every 3 days
  * Supabase free tier pauses after 7 days of inactivity
  */
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<NextResponse> {
   try {
     // Verify the cron secret to prevent unauthorized access
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
 
-    // In production, verify the cron secret
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

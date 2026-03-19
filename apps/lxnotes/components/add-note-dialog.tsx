@@ -152,7 +152,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     }
   }, [editingNote, defaultType, moduleType, getLinkedFixtures])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement> | { preventDefault: () => void }) => {
     e.preventDefault()
     if (!formData.description.trim()) return
 
@@ -205,7 +205,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault()
-      handleSubmit(e as unknown as React.FormEvent)
+      handleSubmit(e)
     }
   }
 

@@ -367,6 +367,13 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
       updatedAt: now,
     } as Note
 
+    // Register pending creation BEFORE optimistic update to prevent
+    // realtime INSERT from creating duplicates during the window between
+    // state update and registration
+    if (operationQueue.isOnline) {
+      addPendingCreation(tempId, noteData.moduleType)
+    }
+
     // Always apply optimistic update immediately
     setSupabaseNotes(prev => ({
       ...prev,
@@ -386,13 +393,12 @@ export function NotesProvider({ children, productionId }: NotesProviderProps) {
     }
 
     // Online: execute immediately
-    addPendingCreation(tempId, noteData.moduleType)
     try {
       const newNote = await adapter.notes.create(noteData)
       removePendingCreation(tempId)
-      // Mark as recently synced BEFORE updating state to prevent realtime duplication
+      // Mark as recently synced to prevent realtime duplication
       markNoteAsSynced(newNote.id)
-      // Replace temp note with real note
+      // Replace temp note with real note AFTER marking as synced
       setSupabaseNotes(prev => ({
         ...prev,
         [noteData.moduleType]: prev[noteData.moduleType].map(n =>

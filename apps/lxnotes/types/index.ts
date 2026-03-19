@@ -80,11 +80,30 @@ export interface Production {
   startDate?: Date
   endDate?: Date
   shortCode?: string // 6-char code for easy sharing/linking
+  isDemo?: boolean
+  // Preset/config JSONB fields (populated when fetching full production)
+  emailPresets?: EmailMessagePreset[]
+  filterSortPresets?: FilterSortPreset[]
+  pageStylePresets?: PageStylePreset[]
+  printPresets?: PrintPreset[]
+  customTypesConfig?: CustomTypesConfig
+  customPrioritiesConfig?: CustomPrioritiesConfig
   createdAt: Date
   updatedAt: Date
   // Soft-delete fields
   deletedAt?: Date
   deletedBy?: string
+}
+
+/** Full production with all preset/config fields guaranteed present (from getProduction) */
+export interface FullProduction extends Production {
+  isDemo: boolean
+  emailPresets: EmailMessagePreset[]
+  filterSortPresets: FilterSortPreset[]
+  pageStylePresets: PageStylePreset[]
+  printPresets: PrintPreset[]
+  customTypesConfig: CustomTypesConfig
+  customPrioritiesConfig: CustomPrioritiesConfig
 }
 
 export interface Note {

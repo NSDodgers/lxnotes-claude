@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint app components lib --ext .ts,.tsx",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
@@ -59,13 +61,17 @@
     "@playwright/mcp": "^0.0.68",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^25.2.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.0",
     "eslint-config-next": "^16.1.6",
     "eslint-plugin-security": "^4.0.0",
+    "jsdom": "^29.0.0",
     "postcss": "^8.5.6",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
   }
 }

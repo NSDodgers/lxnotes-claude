@@ -14,7 +14,8 @@
  */
 
 import { create } from 'zustand'
-import { subscribeWithSelector, persist } from 'zustand/middleware'
+import { subscribeWithSelector, persist, createJSONStorage } from 'zustand/middleware'
+import { createSafeStorage } from '@/lib/storage/safe-storage'
 import type { Note, ModuleType } from '@/types'
 
 /** How long queued operations remain valid (2 hours in ms) */
@@ -150,6 +151,12 @@ const MAX_RETRIES = 3
 function filterExpiredOperations(queue: QueuedOperation[]): QueuedOperation[] {
   const now = Date.now()
   return queue.filter(op => (now - op.timestamp) < OPERATION_EXPIRY_MS)
+}
+
+// Check if we're in demo mode (use sessionStorage to avoid leaking data)
+const isDemoMode = () => {
+  if (typeof window === 'undefined') return false
+  return window.location.pathname.startsWith('/demo')
 }
 
 /** Type for the persisted subset of state */
@@ -295,6 +302,12 @@ export const useOperationQueueStore = create<OperationQueueState>()(
     })),
     {
       name: 'lxnotes-operation-queue',
+      storage: createJSONStorage(() =>
+        createSafeStorage(
+          'lxnotes-operation-queue',
+          isDemoMode() ? 'session' : 'local'
+        )
+      ),
       // Only persist queue and productionId - not runtime state like isOnline/isSyncing
       partialize: (state): PersistedState => ({
         queue: state.queue,

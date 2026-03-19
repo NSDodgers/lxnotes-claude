@@ -138,7 +138,7 @@ export const useCustomTypesStore = create<CustomTypesState>()(
         const timestamp = new Date()
         const newType: CustomType = {
           ...typeData,
-          id: `custom-${typeData.value}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `custom-${typeData.value}-${Math.random().toString(36).substring(2, 11)}`,
           createdAt: timestamp,
           updatedAt: timestamp,
         }
@@ -181,7 +181,7 @@ export const useCustomTypesStore = create<CustomTypesState>()(
           
           const timestamp = new Date()
           const newOverride: SystemOverride = {
-            id: `override-${systemId}-${Math.random().toString(36).substr(2, 9)}`,
+            id: `override-${systemId}-${Math.random().toString(36).substring(2, 11)}`,
             productionId: 'system',
             moduleType,
             systemId,

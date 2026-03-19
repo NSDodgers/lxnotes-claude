@@ -58,7 +58,7 @@ export const useMockNotesStore = create<MockNotesState>()(subscribeWithSelector(
   addNote: (noteData) => {
     const newNote: Note = {
       ...noteData,
-      id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `note-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
