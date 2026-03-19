@@ -162,7 +162,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     const noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
       productionId,
       moduleType,
-      title: formData.description,
+      title: formData.title,
       description: formData.description,
       priority: formData.priority,
       status: 'todo',
