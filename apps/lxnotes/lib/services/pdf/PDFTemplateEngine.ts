@@ -347,15 +347,6 @@ export class PDFTemplateEngine {
     return typeMap[type.toLowerCase()] || type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()
   }
 
-  private formatStatus(status: string): string {
-    const statusMap: Record<string, string> = {
-      'todo': 'To Do',
-      'complete': 'Complete',
-      'cancelled': 'Cancelled'
-    }
-    return statusMap[status] || status
-  }
-
   private getImageDimensions(dataUrl: string): { width: number; height: number } | null {
     try {
       // Extract base64 data and decode to get image header for dimensions

@@ -117,7 +117,7 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
         const timestamp = new Date()
         const newPriority: CustomPriority = {
           ...priorityData,
-          id: `custom-pri-${priorityData.value}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `custom-pri-${priorityData.value}-${Math.random().toString(36).substring(2, 11)}`,
           createdAt: timestamp,
           updatedAt: timestamp,
         }
@@ -160,7 +160,7 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
           
           const timestamp = new Date()
           const newOverride: SystemOverride = {
-            id: `override-pri-${systemId}-${Math.random().toString(36).substr(2, 9)}`,
+            id: `override-pri-${systemId}-${Math.random().toString(36).substring(2, 11)}`,
             productionId: 'system',
             moduleType,
             systemId,
@@ -219,7 +219,7 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
         const timestamp = new Date()
         const newPriority: CustomPriority = {
           ...priorityData,
-          id: `custom-pri-${priorityData.value}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `custom-pri-${priorityData.value}-${Math.random().toString(36).substring(2, 11)}`,
           sortOrder: newSortOrder,
           createdAt: timestamp,
           updatedAt: timestamp,

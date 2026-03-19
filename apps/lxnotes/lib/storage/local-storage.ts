@@ -91,7 +91,7 @@ export class LocalStorageAdapter implements StorageAdapter {
 
       const newNote: Note = {
         ...noteData,
-        id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `note-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
         createdAt: new Date(),
         updatedAt: new Date()
       }
@@ -148,7 +148,7 @@ export class LocalStorageAdapter implements StorageAdapter {
 
       const createdNotes: Note[] = notes.map(noteData => ({
         ...noteData,
-        id: `note-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `note-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
         createdAt: new Date(),
         updatedAt: new Date()
       }))

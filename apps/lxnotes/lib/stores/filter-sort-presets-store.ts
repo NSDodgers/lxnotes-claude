@@ -56,7 +56,7 @@ export const useFilterSortPresetsStore = create<FilterSortPresetsState>()(
         const timestamp = new Date()
         const newPreset: FilterSortPreset = {
           ...presetData,
-          id: `filter-sort-${Math.random().toString(36).substr(2, 9)}`,
+          id: `filter-sort-${Math.random().toString(36).substring(2, 11)}`,
           createdAt: timestamp,
           updatedAt: timestamp,
         }

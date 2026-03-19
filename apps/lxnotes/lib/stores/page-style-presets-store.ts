@@ -93,7 +93,7 @@ export const usePageStylePresetsStore = create<PageStylePresetsState>()(
         const timestamp = new Date()
         const newPreset: PageStylePreset = {
           ...presetData,
-          id: `page-style-${Math.random().toString(36).substr(2, 9)}`,
+          id: `page-style-${Math.random().toString(36).substring(2, 11)}`,
           createdAt: timestamp,
           updatedAt: timestamp,
         }

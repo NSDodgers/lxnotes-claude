@@ -195,7 +195,7 @@ export class PDFTestHelpers {
   /**
    * Validate PDF content and properties
    */
-  async validatePDF(pdfBlob: Buffer, expectedConfig: PDFTestConfig): Promise<PDFValidationResult> {
+  async validatePDF(pdfBlob: Buffer, _expectedConfig: PDFTestConfig): Promise<PDFValidationResult> {
     const errors: string[] = []
 
     try {

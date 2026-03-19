@@ -53,7 +53,7 @@ export const usePrintPresetsStore = create<PrintPresetsState>()(
         const timestamp = new Date()
         const newPreset: PrintPreset = {
           ...presetData,
-          id: `print-${Math.random().toString(36).substr(2, 9)}`,
+          id: `print-${Math.random().toString(36).substring(2, 11)}`,
           createdAt: timestamp,
           updatedAt: timestamp,
         }
