@@ -3,6 +3,8 @@
 ## Commands
 
 ```bash
+npm run test:unit                         # Run Vitest unit tests
+npm run test:unit:watch                   # Run unit tests in watch mode
 npm run test:e2e                          # Run all E2E tests
 npx playwright test --headed              # Visible browser
 npx playwright test --ui                  # Interactive runner
