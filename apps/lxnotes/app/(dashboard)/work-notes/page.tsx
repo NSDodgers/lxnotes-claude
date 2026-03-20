@@ -52,11 +52,11 @@ export default function WorkNotesPage() {
   const notesContext = useNotes()
   // Determine effective notes based on mode
   const isDemo = isDemoMode()
-  const notes = useMemo(() => {
+  const notes: Note[] = useMemo(() => {
     return isDemo
       ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.work : [])
-      : notesContext.getNotes('work')
-  }, [isDemo, notesContext])
+      : notesContext.notes.work
+  }, [isDemo, notesContext.notes.work])
 
   // Mock store subscription for demo mode only
   const [, forceUpdate] = useState({})
@@ -271,7 +271,7 @@ export default function WorkNotesPage() {
 
   const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
     if (isNewNote) {
-      const note = notesContext.getNotes('work').find(n => n.id === noteId)
+      const note = notesContext.notes.work.find(n => n.id === noteId)
       if (note && !note.title.trim()) {
         await notesContext.deleteNote(noteId)
       }

@@ -978,11 +978,11 @@ export default function ProductionNotesPage() {
   const notesContext = useNotes()
   // Determine effective notes based on mode
   const isDemo = isDemoMode()
-  const notes = useMemo(() => {
+  const notes: Note[] = useMemo(() => {
     return isDemo
       ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.production : [])
-      : notesContext.getNotes('production')
-  }, [isDemo, notesContext])
+      : notesContext.notes.production
+  }, [isDemo, notesContext.notes.production])
 
   const initializeWithMockData = useMockNotesStore(state => state.initializeWithMockData)
 
@@ -1163,7 +1163,7 @@ export default function ProductionNotesPage() {
 
   const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
     if (isNewNote) {
-      const note = notesContext.getNotes('production').find(n => n.id === noteId)
+      const note = notesContext.notes.production.find(n => n.id === noteId)
       if (note && !note.title.trim()) {
         await notesContext.deleteNote(noteId)
       }

@@ -49,11 +49,11 @@ import Image from 'next/image'
 export default function ElectricianNotesPage() {
   const notesContext = useNotes()
   const isDemo = isDemoMode()
-  const notes = useMemo(() => {
+  const notes: Note[] = useMemo(() => {
     return isDemo
       ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.electrician : [])
-      : notesContext.getNotes('electrician')
-  }, [isDemo, notesContext])
+      : notesContext.notes.electrician
+  }, [isDemo, notesContext.notes.electrician])
 
   const [, forceUpdate] = useState({})
   useEffect(() => {
@@ -249,7 +249,7 @@ export default function ElectricianNotesPage() {
 
   const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
     if (isNewNote) {
-      const note = notesContext.getNotes('electrician').find(n => n.id === noteId)
+      const note = notesContext.notes.electrician.find(n => n.id === noteId)
       if (note && !note.title.trim()) {
         await notesContext.deleteNote(noteId)
       }
