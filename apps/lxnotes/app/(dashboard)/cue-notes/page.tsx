@@ -47,8 +47,8 @@ export default function CueNotesPage() {
   const notes: Note[] = useMemo(() => {
     return isDemo
       ? (typeof window !== 'undefined' ? useMockNotesStore.getState().notes.cue : [])
-      : notesContext.getNotes('cue')
-  }, [isDemo, notesContext])
+      : notesContext.notes.cue
+  }, [isDemo, notesContext.notes.cue])
 
   // Mock store subscription for demo mode only
   const [, forceUpdate] = useState({})
@@ -229,7 +229,7 @@ export default function CueNotesPage() {
 
   const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
     if (isNewNote) {
-      const note = notesContext.getNotes('cue').find(n => n.id === noteId)
+      const note = notesContext.notes.cue.find(n => n.id === noteId)
       if (note && !note.title.trim()) {
         await notesContext.deleteNote(noteId)
       }
