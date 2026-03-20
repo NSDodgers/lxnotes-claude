@@ -142,7 +142,7 @@ export function createProductionColumns({ onStatusUpdate, inlineEditing }: Creat
             />
           )
         }
-        return <div className="font-medium max-w-md">{note.title}</div>
+        return <div className="font-medium max-w-md">{note.description || note.title}</div>
       },
       enableSorting: false,
       enableResizing: true,

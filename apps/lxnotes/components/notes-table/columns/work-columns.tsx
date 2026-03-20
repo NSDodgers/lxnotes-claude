@@ -186,7 +186,7 @@ export function createWorkColumns({ onStatusUpdate, inlineEditing }: CreateColum
             />
           )
         }
-        return <div className="font-medium max-w-md">{note.title}</div>
+        return <div className="font-medium max-w-md">{note.description || note.title}</div>
       },
       enableSorting: false,
       enableResizing: true,
