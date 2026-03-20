@@ -132,7 +132,7 @@ export function createProductionColumns({ onStatusUpdate, inlineEditing }: Creat
             <EditableTextCell
               note={note}
               column="title"
-              value={note.title}
+              value={note.description || note.title}
               isEditing={isEditing}
               onSave={inlineEditing.onSave}
               onAdvance={inlineEditing.onAdvance}

@@ -260,7 +260,7 @@ export default function WorkNotesPage() {
 
   const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
     const updates: Partial<Note> = {}
-    if (column === 'title') updates.title = value
+    if (column === 'title') { updates.title = value; updates.description = value }
     else if (column === 'type') {
       updates.type = value
       inlineEditing.setLastType(value)

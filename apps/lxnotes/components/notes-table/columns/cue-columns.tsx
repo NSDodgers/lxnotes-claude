@@ -148,7 +148,7 @@ export function createCueColumns({ onStatusUpdate, inlineEditing }: CreateColumn
             <EditableTextCell
               note={note}
               column="title"
-              value={note.title}
+              value={note.description || note.title}
               isEditing={isEditing}
               onSave={inlineEditing.onSave}
               onAdvance={inlineEditing.onAdvance}
