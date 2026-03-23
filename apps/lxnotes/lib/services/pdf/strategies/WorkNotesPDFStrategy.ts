@@ -39,7 +39,7 @@ export class WorkNotesPDFStrategy implements PDFStrategy {
     const aggregate = fixtureAggregates?.[note.id]
     return {
       channels: aggregate?.channels || note.channelNumbers || '-',
-      positionUnit: (aggregate?.positions?.length ? aggregate.positions.join(', ') : null) || note.positionUnit || '-',
+      positionUnit: (aggregate?.positionsWithUnits?.length ? aggregate.positionsWithUnits.join('\n') : null) || note.positionUnit || '-',
       lightwrightId: note.lightwrightItemId || '-',
       sceneryNeeds: note.sceneryNeeds || '-'
     }

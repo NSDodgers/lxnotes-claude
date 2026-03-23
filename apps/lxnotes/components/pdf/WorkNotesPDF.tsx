@@ -49,7 +49,14 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
       width: 80,
       render: (note: PDFFormattedNote) => {
         const positionUnit = note.moduleSpecificData?.positionUnit
-        return <Text>{typeof positionUnit === 'string' ? positionUnit : '-'}</Text>
+        if (typeof positionUnit !== 'string' || positionUnit === '-') {
+          return <Text>-</Text>
+        }
+        const lines = positionUnit.split('\n')
+        if (lines.length === 1) {
+          return <Text>{lines[0]}</Text>
+        }
+        return <Text>{lines.map(line => `• ${line}`).join('\n')}</Text>
       }
     },
     {
