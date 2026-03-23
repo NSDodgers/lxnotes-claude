@@ -52,7 +52,7 @@ export function FixtureAggregateDisplay({
 
     return (
       <div className="flex items-center gap-2">
-        <ul className="flex flex-col gap-0.5 max-h-24 overflow-y-auto list-disc pl-3.5">
+        <ul className="flex flex-col gap-0.5 list-disc pl-3.5">
           {items.map((item, index) => (
             <li key={index} className={cn('text-sm', className)}>{item}</li>
           ))}
@@ -110,7 +110,7 @@ export function FixtureAggregateDisplay({
     // Multiple universes or many addresses, show as bulleted list
     return (
       <div className="flex items-center gap-2">
-        <ul className="flex flex-col gap-0.5 max-h-24 overflow-y-auto list-disc pl-3.5">
+        <ul className="flex flex-col gap-0.5 list-disc pl-3.5">
           {aggregate.universeAddresses.map((addr, index) => (
             <li key={index} className={cn('font-mono text-sm', className)}>{addr}</li>
           ))}
