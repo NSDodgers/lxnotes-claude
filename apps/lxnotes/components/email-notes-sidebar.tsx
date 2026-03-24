@@ -75,6 +75,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
 
   const [view, setView] = useState<SidebarView>('cards')
   const [selectedPreset, setSelectedPreset] = useState<EmailMessagePreset | null>(null)
+  const [editingPreset, setEditingPreset] = useState<EmailMessagePreset | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [sendError, setSendError] = useState<string | null>(null)
 
@@ -246,6 +247,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const handleClose = () => {
     setView('cards')
     setSelectedPreset(null)
+    setEditingPreset(null)
     setSendError(null)
     onClose()
   }
@@ -271,7 +273,11 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
                 notes={notes}
                 variant="email"
                 onSelectPreset={handleSelectPreset}
-                onCreateNew={() => setView('wizard')}
+                onEditPreset={(preset) => {
+                  setEditingPreset(preset as EmailMessagePreset)
+                  setView('wizard')
+                }}
+                onCreateNew={() => { setEditingPreset(null); setView('wizard') }}
                 onCustomOneOff={() => setView('custom')}
               />
             </div>
@@ -312,8 +318,9 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
               <PresetWizard
               variant="email"
               moduleType={moduleType}
-              onComplete={() => setView('cards')}
-              onBack={() => setView('cards')}
+              editingPreset={editingPreset}
+              onComplete={() => { setEditingPreset(null); setView('cards') }}
+              onBack={() => { setEditingPreset(null); setView('cards') }}
             />
             </div>
           </>

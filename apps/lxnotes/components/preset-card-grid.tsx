@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Send, Download, Loader2, ArrowUpNarrowWide, ArrowDownWideNarrow, FileText } from 'lucide-react'
+import { Plus, Send, Download, Loader2, ArrowUpNarrowWide, ArrowDownWideNarrow, FileText, Pencil } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { EmailMessagePreset, PrintPreset, ModuleType, Note } from '@/types'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
@@ -14,6 +14,7 @@ interface PresetCardGridProps {
   notes: Note[]
   variant: 'email' | 'print'
   onSelectPreset: (preset: ActionPreset) => void
+  onEditPreset?: (preset: ActionPreset) => void
   onCreateNew: () => void
   onCustomOneOff: () => void
   className?: string
@@ -24,6 +25,7 @@ export function PresetCardGrid({
   presets,
   variant,
   onSelectPreset,
+  onEditPreset,
   onCreateNew,
   onCustomOneOff,
   className,
@@ -44,6 +46,7 @@ export function PresetCardGrid({
             preset={preset}
             variant={variant}
             onClick={() => onSelectPreset(preset)}
+            onEdit={onEditPreset && !preset.isDefault ? () => onEditPreset(preset) : undefined}
             isLoading={loadingPresetId === preset.id}
             disabled={!!loadingPresetId}
           />
@@ -95,6 +98,7 @@ interface ActionPresetCardProps {
   preset: ActionPreset
   variant: 'email' | 'print'
   onClick: () => void
+  onEdit?: () => void
   isLoading?: boolean
   disabled?: boolean
 }
@@ -112,7 +116,7 @@ const sortFieldLabels: Record<string, string> = {
   type: 'Type',
 }
 
-function ActionPresetCard({ preset, variant, onClick, isLoading, disabled }: ActionPresetCardProps) {
+function ActionPresetCard({ preset, variant, onClick, onEdit, isLoading, disabled }: ActionPresetCardProps) {
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
   const { getPreset: getPageStylePreset } = usePageStylePresetsStore()
 
@@ -162,9 +166,24 @@ function ActionPresetCard({ preset, variant, onClick, isLoading, disabled }: Act
       )}
       data-testid={`preset-card-${preset.id}`}
     >
-      {/* Preset name - prominent */}
-      <div className="font-medium text-sm text-text-primary leading-tight line-clamp-2">
-        {preset.name}
+      {/* Preset name + edit */}
+      <div className="flex items-start justify-between w-full gap-1">
+        <div className="font-medium text-sm text-text-primary leading-tight line-clamp-2">
+          {preset.name}
+        </div>
+        {onEdit && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onEdit()
+            }}
+            className="p-0.5 -mt-0.5 -mr-1 rounded hover:bg-bg-tertiary transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+            title="Edit preset"
+            data-testid={`preset-card-edit-${preset.id}`}
+          >
+            <Pencil className="h-3 w-3 text-text-secondary" />
+          </button>
+        )}
       </div>
 
       {/* Footer: icons left, action right */}

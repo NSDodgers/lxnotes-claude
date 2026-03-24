@@ -67,6 +67,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
 
   const [view, setView] = useState<SidebarView>('cards')
   const [selectedPreset, setSelectedPreset] = useState<PrintPreset | null>(null)
+  const [editingPreset, setEditingPreset] = useState<PrintPreset | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<string | null>(null)
 
@@ -173,6 +174,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
   const handleClose = () => {
     setView('cards')
     setSelectedPreset(null)
+    setEditingPreset(null)
     setGenerateError(null)
     onClose()
   }
@@ -203,7 +205,11 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
                 notes={notes}
                 variant="print"
                 onSelectPreset={handleSelectPreset}
-                onCreateNew={() => setView('wizard')}
+                onEditPreset={(preset) => {
+                  setEditingPreset(preset as PrintPreset)
+                  setView('wizard')
+                }}
+                onCreateNew={() => { setEditingPreset(null); setView('wizard') }}
                 onCustomOneOff={() => setView('custom')}
                 loadingPresetId={generatingPresetId}
               />
@@ -238,8 +244,9 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
             <PresetWizard
               variant="print"
               moduleType={moduleType}
-              onComplete={() => setView('cards')}
-              onBack={() => setView('cards')}
+              editingPreset={editingPreset}
+              onComplete={() => { setEditingPreset(null); setView('cards') }}
+              onBack={() => { setEditingPreset(null); setView('cards') }}
             />
           </div>
         )}
