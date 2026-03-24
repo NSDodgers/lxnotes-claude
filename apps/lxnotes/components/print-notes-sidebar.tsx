@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { Printer, Download, Loader2 } from 'lucide-react'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
-import { usePrintPresetsStore } from '@/lib/stores/print-presets-store'
+import { useProductionPrintPresets } from '@/lib/hooks/use-production-print-presets'
 import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { PresetCardGrid } from './preset-card-grid'
@@ -49,7 +49,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNotes }: PrintNotesSidebarProps) {
   const { getPreset: getFilterPreset, getPresetsByModule } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
-  const { getPresetsByModule: getPrintPresetsByModule } = usePrintPresetsStore()
+  const { presets: printPresets } = useProductionPrintPresets(moduleType)
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
   const { user } = useAuthContext()
@@ -80,7 +80,6 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
   const [editingFilterPreset, setEditingFilterPreset] = useState<FilterSortPreset | null>(null)
   const [editingPageStylePreset, setEditingPageStylePreset] = useState<PageStylePreset | null>(null)
 
-  const printPresets = getPrintPresetsByModule(moduleType)
   const moduleFilterPresets = getPresetsByModule(moduleType)
   const notes = propNotes || mockNotesStore.getAllNotes(moduleType)
   const moduleName = moduleDisplayNames[moduleType]
