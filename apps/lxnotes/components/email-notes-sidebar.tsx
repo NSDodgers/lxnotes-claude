@@ -176,13 +176,13 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       let pdfBase64: string | undefined
       let pdfFilename: string | undefined
 
-      if (withPdf && filterPreset && pageStylePresetId) {
+      if (withPdf && pageStylePresetId) {
         const pageStylePreset = pageStylePresets.find(p => p.id === pageStylePresetId)
         if (pageStylePreset) {
           const pdfService = PDFGenerationService.getInstance()
           const result = await pdfService.generatePDF({
             moduleType,
-            filterPreset,
+            filterPreset: filterPreset || undefined,
             pageStylePreset,
             notes,
             productionName,

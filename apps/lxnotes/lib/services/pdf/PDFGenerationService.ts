@@ -45,7 +45,9 @@ export class PDFGenerationService {
       const customPriorities = getPriorities(request.moduleType)
 
       // Filter and sort notes using shared utilities
-      const processedNotes = filterAndSortNotes(request.notes, request.filterPreset, customPriorities)
+      const processedNotes = request.filterPreset
+        ? filterAndSortNotes(request.notes, request.filterPreset, customPriorities)
+        : request.notes
 
       // Format notes using strategy
       const formattedNotes = strategy.formatNotes(processedNotes, request.fixtureAggregates)
@@ -59,8 +61,8 @@ export class PDFGenerationService {
           : request.productionLogo,
         includeCheckboxes: request.pageStylePreset.config.includeCheckboxes,
         dateGenerated: new Date(),
-        filterPresetName: request.filterPreset.name,
-        groupByType: request.filterPreset.config.groupByType || false
+        filterPresetName: request.filterPreset?.name || 'All notes',
+        groupByType: request.filterPreset?.config.groupByType || false
       }
 
       // Select the appropriate PDF component based on module type

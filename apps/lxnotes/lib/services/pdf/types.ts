@@ -2,7 +2,7 @@ import type { Note, ModuleType, FilterSortPreset, PageStylePreset, FixtureAggreg
 
 export interface PDFGenerationRequest {
   moduleType: ModuleType
-  filterPreset: FilterSortPreset
+  filterPreset?: FilterSortPreset
   pageStylePreset: PageStylePreset
   notes: Note[]
   productionName?: string
