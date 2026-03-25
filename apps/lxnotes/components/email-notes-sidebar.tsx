@@ -12,6 +12,7 @@ import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
 import { PresetCardGrid } from './preset-card-grid'
 import { ConfirmSendPanel, EmailOverrides } from './confirm-send-panel'
+import { PresetWizard } from './preset-wizard'
 import { PresetEditor } from './preset-editor'
 import {
   Sheet,
@@ -38,7 +39,7 @@ interface EmailNotesSidebarProps {
   onClose: () => void
 }
 
-type SidebarView = 'cards' | 'confirm' | 'wizard' | 'custom'
+type SidebarView = 'cards' | 'confirm' | 'wizard' | 'editor' | 'custom'
 
 const moduleDisplayNames: Record<ModuleType, string> = {
   cue: 'Cue Notes',
@@ -275,7 +276,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
                 onSelectPreset={handleSelectPreset}
                 onEditPreset={(preset) => {
                   setEditingPreset(preset as EmailMessagePreset)
-                  setView('wizard')
+                  setView('editor')
                 }}
                 onCreateNew={() => { setEditingPreset(null); setView('wizard') }}
                 onCustomOneOff={() => setView('custom')}
@@ -315,13 +316,29 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
               <SheetTitle>Create Email Preset</SheetTitle>
             </SheetHeader>
             <div className="flex-1 flex flex-col p-6 overflow-hidden">
+              <PresetWizard
+                variant="email"
+                moduleType={moduleType}
+                onComplete={() => { setView('cards') }}
+                onBack={() => { setView('cards') }}
+              />
+            </div>
+          </>
+        )}
+
+        {view === 'editor' && editingPreset && (
+          <>
+            <SheetHeader className="sr-only">
+              <SheetTitle>Edit Email Preset</SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 flex flex-col p-6 overflow-hidden">
               <PresetEditor
-              variant="email"
-              moduleType={moduleType}
-              editingPreset={editingPreset}
-              onComplete={() => { setEditingPreset(null); setView('cards') }}
-              onBack={() => { setEditingPreset(null); setView('cards') }}
-            />
+                variant="email"
+                moduleType={moduleType}
+                editingPreset={editingPreset}
+                onComplete={() => { setEditingPreset(null); setView('cards') }}
+                onBack={() => { setEditingPreset(null); setView('cards') }}
+              />
             </div>
           </>
         )}

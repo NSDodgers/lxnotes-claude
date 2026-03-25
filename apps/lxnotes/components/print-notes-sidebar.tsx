@@ -9,6 +9,7 @@ import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { PresetCardGrid } from './preset-card-grid'
 import { ConfirmSendPanel } from './confirm-send-panel'
+import { PresetWizard } from './preset-wizard'
 import { PresetEditor } from './preset-editor'
 import { PresetSelector } from './preset-selector'
 import { FilterSortPresetDialog } from './filter-sort-preset-dialog'
@@ -37,7 +38,7 @@ interface PrintNotesSidebarProps {
   notes?: Note[]
 }
 
-type SidebarView = 'cards' | 'confirm' | 'wizard' | 'custom'
+type SidebarView = 'cards' | 'confirm' | 'wizard' | 'editor' | 'custom'
 
 const moduleDisplayNames: Record<ModuleType, string> = {
   cue: 'Cue Notes',
@@ -207,7 +208,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
                 onSelectPreset={handleSelectPreset}
                 onEditPreset={(preset) => {
                   setEditingPreset(preset as PrintPreset)
-                  setView('wizard')
+                  setView('editor')
                 }}
                 onCreateNew={() => { setEditingPreset(null); setView('wizard') }}
                 onCustomOneOff={() => setView('custom')}
@@ -241,6 +242,18 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
         {view === 'wizard' && (
           <div className="flex-1 flex flex-col p-6 overflow-hidden">
             <SheetTitle className="sr-only">Create Print Preset</SheetTitle>
+            <PresetWizard
+              variant="print"
+              moduleType={moduleType}
+              onComplete={() => { setView('cards') }}
+              onBack={() => { setView('cards') }}
+            />
+          </div>
+        )}
+
+        {view === 'editor' && editingPreset && (
+          <div className="flex-1 flex flex-col p-6 overflow-hidden">
+            <SheetTitle className="sr-only">Edit Print Preset</SheetTitle>
             <PresetEditor
               variant="print"
               moduleType={moduleType}
