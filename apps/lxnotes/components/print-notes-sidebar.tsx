@@ -9,7 +9,7 @@ import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { PresetCardGrid } from './preset-card-grid'
 import { ConfirmSendPanel } from './confirm-send-panel'
-import { PresetWizard } from './preset-wizard'
+import { PresetEditor } from './preset-editor'
 import { PresetSelector } from './preset-selector'
 import { FilterSortPresetDialog } from './filter-sort-preset-dialog'
 import { PageStylePresetDialog } from './page-style-preset-dialog'
@@ -241,7 +241,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
         {view === 'wizard' && (
           <div className="flex-1 flex flex-col p-6 overflow-hidden">
             <SheetTitle className="sr-only">Create Print Preset</SheetTitle>
-            <PresetWizard
+            <PresetEditor
               variant="print"
               moduleType={moduleType}
               editingPreset={editingPreset}
