@@ -87,7 +87,7 @@ export function NotesDistributionEmail({
 
             {/* PDF attachment indicator */}
             {pdfFilename && (
-              <Text style={attachmentText}>
+              <Text style={{ ...attachmentText, borderLeft: `3px solid ${accentColor}` }}>
                 Attached: {pdfFilename}
               </Text>
             )}
@@ -135,7 +135,6 @@ const attachmentText = {
   padding: '12px 16px',
   backgroundColor: '#f9fafb',
   borderRadius: '6px',
-  borderLeft: '3px solid #8b5cf6',
 }
 
 export default NotesDistributionEmail
