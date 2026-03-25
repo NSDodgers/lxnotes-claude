@@ -51,7 +51,7 @@ export const typeColors: Record<string, string> = {
 export const commonStyles = StyleSheet.create({
   page: {
     padding: 30,
-    fontSize: 7,
+    fontSize: 9,
     fontFamily: 'Helvetica',
     backgroundColor: '#ffffff'
   },
@@ -64,8 +64,8 @@ export const commonStyles = StyleSheet.create({
     gap: 10
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
     marginRight: 10,
     objectFit: 'contain' as const,
   },
@@ -75,16 +75,16 @@ export const commonStyles = StyleSheet.create({
     justifyContent: 'center'
   },
   productionTitle: {
-    fontSize: 13,
+    fontSize: 16,
     fontFamily: 'Helvetica-Bold',
     marginBottom: 1
   },
   moduleTitle: {
-    fontSize: 10,
+    fontSize: 12,
     marginBottom: 1
   },
   metadata: {
-    fontSize: 7,
+    fontSize: 8,
     color: '#6b7280',
     marginBottom: 0
   },
@@ -98,7 +98,7 @@ export const commonStyles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 0.5,
     borderBottomColor: '#e5e7eb',
-    minHeight: 18,
+    minHeight: 24,
     alignItems: 'center'
   },
   tableHeaderRow: {
@@ -106,25 +106,25 @@ export const commonStyles = StyleSheet.create({
     backgroundColor: '#374151',
     borderBottomWidth: 1,
     borderBottomColor: '#1f2937',
-    minHeight: 22,
+    minHeight: 28,
     alignItems: 'center'
   },
   tableHeader: {
-    padding: 3,
-    fontSize: 7.5,
+    padding: 4,
+    fontSize: 9.5,
     fontFamily: 'Helvetica-Bold',
     color: '#ffffff'
   },
   tableCell: {
-    padding: 3,
-    fontSize: 7,
+    padding: 4,
+    fontSize: 9,
     color: '#000000'
   },
 
   // Checkbox styles - compact
   checkbox: {
-    width: 8,
-    height: 8,
+    width: 10,
+    height: 10,
     borderWidth: 0.5,
     borderColor: '#000000',
     marginRight: 2
@@ -138,11 +138,11 @@ export const commonStyles = StyleSheet.create({
 
   // Badge styles - compact
   badge: {
-    paddingHorizontal: 4,
-    paddingVertical: 2,
+    paddingHorizontal: 5,
+    paddingVertical: 2.5,
     borderRadius: 2,
     color: '#ffffff',
-    fontSize: 6.5,
+    fontSize: 8,
     fontFamily: 'Helvetica-Bold',
     textAlign: 'center'
   },
@@ -154,7 +154,7 @@ export const commonStyles = StyleSheet.create({
     left: 30,
     right: 30,
     textAlign: 'center',
-    fontSize: 6.5,
+    fontSize: 8,
     color: '#6b7280'
   },
 

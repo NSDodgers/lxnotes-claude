@@ -28,17 +28,17 @@ export const CueNotesPDF: React.FC<CueNotesPDFProps> = ({
   const columns = [
     {
       header: 'Priority',
-      width: 60,
+      width: 75,
       render: (note: PDFFormattedNote) => <PriorityBadge priority={note.priority} />
     },
     {
       header: 'Type',
-      width: 80,
+      width: 95,
       render: (note: PDFFormattedNote) => <TypeBadge type={note.type || '-'} />
     },
     {
       header: 'Cue #',
-      width: 50,
+      width: 60,
       render: (note: PDFFormattedNote) => {
         const scriptPage = note.moduleSpecificData?.scriptPage
         return <Text>{typeof scriptPage === 'string' ? scriptPage : '-'}</Text>
@@ -46,7 +46,7 @@ export const CueNotesPDF: React.FC<CueNotesPDFProps> = ({
     },
     {
       header: 'Scene/Song',
-      width: 80,
+      width: 95,
       render: (note: PDFFormattedNote) => {
         const sceneSong = note.moduleSpecificData?.sceneSong
         return <Text>{typeof sceneSong === 'string' ? sceneSong : '-'}</Text>
@@ -61,7 +61,7 @@ export const CueNotesPDF: React.FC<CueNotesPDFProps> = ({
     },
     {
       header: 'Created',
-      width: 60,
+      width: 70,
       render: (note: PDFFormattedNote) => <Text>{formatDate(note.createdAt)}</Text>
     }
   ]

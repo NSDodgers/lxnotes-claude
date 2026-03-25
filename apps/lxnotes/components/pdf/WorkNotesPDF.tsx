@@ -28,17 +28,17 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
   const columns = [
     {
       header: 'Priority',
-      width: 60,
+      width: 75,
       render: (note: PDFFormattedNote) => <PriorityBadge priority={note.priority} />
     },
     {
       header: 'Type',
-      width: 80,
+      width: 95,
       render: (note: PDFFormattedNote) => <TypeBadge type={note.type || '-'} />
     },
     {
       header: 'Channels',
-      width: 50,
+      width: 60,
       render: (note: PDFFormattedNote) => {
         const channels = note.moduleSpecificData?.channels
         return <Text>{typeof channels === 'string' ? channels : '-'}</Text>
@@ -46,7 +46,7 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
     },
     {
       header: 'Position/Unit',
-      width: 80,
+      width: 95,
       render: (note: PDFFormattedNote) => {
         const positionUnit = note.moduleSpecificData?.positionUnit
         if (typeof positionUnit !== 'string' || positionUnit === '-') {
@@ -68,7 +68,7 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
     },
     {
       header: 'Created',
-      width: 60,
+      width: 70,
       render: (note: PDFFormattedNote) => <Text>{formatDate(note.createdAt)}</Text>
     }
   ]

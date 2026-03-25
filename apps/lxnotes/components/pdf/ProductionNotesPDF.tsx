@@ -28,12 +28,12 @@ export const ProductionNotesPDF: React.FC<ProductionNotesPDFProps> = ({
   const columns = [
     {
       header: 'Priority',
-      width: 60,
+      width: 75,
       render: (note: PDFFormattedNote) => <PriorityBadge priority={note.priority} />
     },
     {
       header: 'Type',
-      width: 80,
+      width: 95,
       render: (note: PDFFormattedNote) => {
         const department = note.moduleSpecificData?.department || note.type
         return <TypeBadge type={typeof department === 'string' ? department : '-'} />
@@ -48,7 +48,7 @@ export const ProductionNotesPDF: React.FC<ProductionNotesPDFProps> = ({
     },
     {
       header: 'Created',
-      width: 60,
+      width: 70,
       render: (note: PDFFormattedNote) => <Text>{formatDate(note.createdAt)}</Text>
     }
   ]

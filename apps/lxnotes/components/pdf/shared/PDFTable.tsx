@@ -18,20 +18,20 @@ interface PDFTableProps {
 
 const styles = StyleSheet.create({
   checkboxContainer: {
-    width: 15,
+    width: 20,
     justifyContent: 'center',
     alignItems: 'center'
   },
   checkmark: {
-    fontSize: 8,
+    fontSize: 10,
     color: '#22c55e'
   },
   reviewmark: {
-    fontSize: 8,
+    fontSize: 10,
     color: '#f59e0b'
   },
   cancelmark: {
-    fontSize: 8,
+    fontSize: 10,
     color: '#ef4444'
   },
   typeGroupHeader: {
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     paddingRight: 8
   },
   typeGroupText: {
-    fontSize: 8,
+    fontSize: 10,
     fontFamily: 'Helvetica-Bold',
     color: '#ffffff',
     textTransform: 'uppercase',
@@ -57,7 +57,7 @@ export const PDFTable: React.FC<PDFTableProps> = ({ notes, columns, includeCheck
   }
 
   const allColumns = includeCheckboxes
-    ? [{ header: '', width: 15, render: (note: PDFFormattedNote) => <StatusCheckbox status={note.status} /> }, ...displayColumns]
+    ? [{ header: '', width: 20, render: (note: PDFFormattedNote) => <StatusCheckbox status={note.status} /> }, ...displayColumns]
     : displayColumns
 
   // Helper to format type names for display
