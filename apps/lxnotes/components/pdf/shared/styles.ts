@@ -118,7 +118,7 @@ export const commonStyles = StyleSheet.create({
   tableCell: {
     padding: 3,
     fontSize: 7,
-    color: '#1f2937'
+    color: '#000000'
   },
 
   // Checkbox styles - compact
