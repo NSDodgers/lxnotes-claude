@@ -66,8 +66,16 @@ export function SortOptionsStep({
             onChange={(e) => onSortOrderChange(e.target.value as 'asc' | 'desc')}
             data-testid="wizard-sort-order-select"
           >
-            <option value="asc">Ascending (A-Z, 1-9, oldest first)</option>
-            <option value="desc">Descending (Z-A, 9-1, newest first)</option>
+            <option value="asc">
+              {sortBy === 'priority'
+                ? 'Ascending (lowest priority → highest priority)'
+                : 'Ascending (A-Z, 1-9, oldest first)'}
+            </option>
+            <option value="desc">
+              {sortBy === 'priority'
+                ? 'Descending (highest priority → lowest priority)'
+                : 'Descending (Z-A, 9-1, newest first)'}
+            </option>
           </PresetFormSelect>
         </PresetFormField>
       </div>
