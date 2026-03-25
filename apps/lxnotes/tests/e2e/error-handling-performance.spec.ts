@@ -22,10 +22,7 @@ test.describe('Error Handling & Performance', () => {
       // Try to create a note during network failure
       await helpers.openDialog('[data-testid="add-note-button"]');
       await helpers.fillNoteForm({
-        title: 'Network Test Note',
         description: 'This should fail gracefully',
-        type: 'Cue',
-        priority: 'high'
       });
 
       const saveButton = page.locator('[data-testid="save-button"]');
@@ -202,10 +199,7 @@ test.describe('Error Handling & Performance', () => {
       // Create a note to edit
       await helpers.openDialog('[data-testid="add-note-button"]');
       await helpers.fillNoteForm({
-        title: 'Conflict Test Note',
         description: 'Original description',
-        type: 'Cue',
-        priority: 'medium'
       });
       await helpers.saveDialog();
 

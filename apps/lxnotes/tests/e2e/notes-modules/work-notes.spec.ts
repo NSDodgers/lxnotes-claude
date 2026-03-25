@@ -28,10 +28,7 @@ test.describe('Work Notes Module', () => {
     await helpers.openDialog('[data-testid="add-note-button"]');
     
     await helpers.fillNoteForm({
-      title: 'Focus Light #47',
       description: 'Adjust focus for downstage wash',
-      type: 'Focus',
-      priority: 'medium',
     });
     
     // Fill work-specific fields

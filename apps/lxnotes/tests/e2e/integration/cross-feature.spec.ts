@@ -187,10 +187,7 @@ test.describe('Cross-Feature Integration', () => {
       // Create a note
       await helpers.openDialog('[data-testid="add-note-button"]');
       await helpers.fillNoteForm({
-        title: 'Sync Test Note',
         description: 'Test synchronization',
-        type: 'Lighting',
-        priority: 'high'
       });
       await helpers.saveDialog();
 
@@ -279,10 +276,7 @@ test.describe('Cross-Feature Integration', () => {
       for (const { status, colorClass } of statuses) {
         await helpers.openDialog('[data-testid="add-note-button"]');
         await helpers.fillNoteForm({
-          title: `${status.toUpperCase()} Status Note`,
           description: `Test ${status} status`,
-          type: 'Cue',
-          priority: 'medium'
         });
 
         // Set status
@@ -405,10 +399,7 @@ test.describe('Cross-Feature Integration', () => {
       await helpers.openDialog('[data-testid="add-note-button"]');
 
       await helpers.fillNoteForm({
-        title: 'Loading Test Note',
         description: 'Test loading states',
-        type: 'Work',
-        priority: 'medium'
       });
 
       const saveButton = page.locator('[data-testid="save-button"]');
@@ -472,10 +463,7 @@ test.describe('Cross-Feature Integration', () => {
       // Create a note and check for announcements
       await helpers.openDialog('[data-testid="add-note-button"]');
       await helpers.fillNoteForm({
-        title: 'Announcement Test',
         description: 'Test announcements',
-        type: 'Focus',
-        priority: 'high'
       });
       await helpers.saveDialog();
 

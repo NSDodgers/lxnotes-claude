@@ -28,10 +28,7 @@ test.describe('Production Notes Module', () => {
     await helpers.openDialog('[data-testid="add-note-button"]');
     
     await helpers.fillNoteForm({
-      title: 'Budget Review Meeting',
       description: 'Meet with producer to review lighting budget and equipment needs',
-      type: 'Lighting',
-      priority: 'high',
     });
     
     await helpers.saveDialog();
@@ -76,10 +73,7 @@ test.describe('Production Notes Module', () => {
     await helpers.openDialog('[data-testid="add-note-button"]');
     
     await helpers.fillNoteForm({
-      title: 'Costume Change Lighting Cue',
       description: 'Coordinate with costumes for quick change - need blackout cue 47.5',
-      type: 'Lighting',
-      priority: 'high',
     });
     
     await helpers.saveDialog();
@@ -89,25 +83,15 @@ test.describe('Production Notes Module', () => {
   test('should support production management workflow', async ({ page }) => {
     // Test typical production notes workflow
     const notes = [
-      {
-        title: 'Tech Rehearsal Schedule',
-        description: 'Finalize tech rehearsal schedule with all departments',
-        type: 'Production Management',
-        priority: 'critical',
-      },
-      {
-        title: 'Set Strike Coordination',
-        description: 'Coordinate lighting strike with scenic team',
-        type: 'Lighting',
-        priority: 'medium',
-      },
+      { description: 'Finalize tech rehearsal schedule with all departments' },
+      { description: 'Coordinate lighting strike with scenic team' },
     ];
-    
+
     for (const note of notes) {
       await helpers.openDialog('[data-testid="add-note-button"]');
       await helpers.fillNoteForm(note);
       await helpers.saveDialog();
-      await helpers.expectNoteInTable(note.title);
+      await helpers.expectNoteInTable(note.description);
     }
   });
 
