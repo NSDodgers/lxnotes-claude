@@ -49,7 +49,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 }
 
 export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSidebarProps) {
-  const { presets: moduleEmailPresets, resolvePlaceholders } = useProductionEmailPresets(moduleType)
+  const { presets: moduleEmailPresets, resolvePlaceholders, deletePreset } = useProductionEmailPresets(moduleType)
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const localProductionStore = useCurrentProductionStore()
@@ -278,6 +278,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
                   setEditingPreset(preset as EmailMessagePreset)
                   setView('editor')
                 }}
+                onDeletePreset={deletePreset}
                 onCreateNew={() => { setEditingPreset(null); setView('wizard') }}
                 onCustomOneOff={() => setView('custom')}
               />

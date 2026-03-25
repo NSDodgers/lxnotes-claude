@@ -1,10 +1,21 @@
 'use client'
 
-import { Plus, Send, Download, Loader2, ArrowUpNarrowWide, ArrowDownWideNarrow, FileText, Pencil } from 'lucide-react'
+import { useState } from 'react'
+import { Plus, Send, Download, Loader2, ArrowUpNarrowWide, ArrowDownWideNarrow, FileText, Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { EmailMessagePreset, PrintPreset, ModuleType, Note } from '@/types'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog'
 
 type ActionPreset = EmailMessagePreset | PrintPreset
 
@@ -15,6 +26,7 @@ interface PresetCardGridProps {
   variant: 'email' | 'print'
   onSelectPreset: (preset: ActionPreset) => void
   onEditPreset?: (preset: ActionPreset) => void
+  onDeletePreset?: (presetId: string) => void
   onCreateNew: () => void
   onCustomOneOff: () => void
   className?: string
@@ -26,11 +38,21 @@ export function PresetCardGrid({
   variant,
   onSelectPreset,
   onEditPreset,
+  onDeletePreset,
   onCreateNew,
   onCustomOneOff,
   className,
   loadingPresetId,
 }: PresetCardGridProps) {
+  const [deleteTarget, setDeleteTarget] = useState<ActionPreset | null>(null)
+
+  const handleConfirmDelete = () => {
+    if (deleteTarget && onDeletePreset) {
+      onDeletePreset(deleteTarget.id)
+    }
+    setDeleteTarget(null)
+  }
+
   return (
     <div className={cn('space-y-4', className)}>
       {/* Section header */}
@@ -47,6 +69,7 @@ export function PresetCardGrid({
             variant={variant}
             onClick={() => onSelectPreset(preset)}
             onEdit={onEditPreset && !preset.isDefault ? () => onEditPreset(preset) : undefined}
+            onDelete={onDeletePreset && !preset.isDefault ? () => setDeleteTarget(preset) : undefined}
             isLoading={loadingPresetId === preset.id}
             disabled={!!loadingPresetId}
           />
@@ -89,6 +112,24 @@ export function PresetCardGrid({
       >
         Custom One-Off {variant === 'email' ? 'Distribution' : 'Print'}
       </button>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Preset</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &ldquo;{deleteTarget?.name}&rdquo;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} data-testid="preset-delete-confirm">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
@@ -99,6 +140,7 @@ interface ActionPresetCardProps {
   variant: 'email' | 'print'
   onClick: () => void
   onEdit?: () => void
+  onDelete?: () => void
   isLoading?: boolean
   disabled?: boolean
 }
@@ -116,7 +158,7 @@ const sortFieldLabels: Record<string, string> = {
   type: 'Type',
 }
 
-function ActionPresetCard({ preset, variant, onClick, onEdit, isLoading, disabled }: ActionPresetCardProps) {
+function ActionPresetCard({ preset, variant, onClick, onEdit, onDelete, isLoading, disabled }: ActionPresetCardProps) {
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
   const { getPreset: getPageStylePreset } = usePageStylePresetsStore()
 
@@ -171,18 +213,35 @@ function ActionPresetCard({ preset, variant, onClick, onEdit, isLoading, disable
         <div className="font-medium text-sm text-text-primary leading-tight line-clamp-2">
           {preset.name}
         </div>
-        {onEdit && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onEdit()
-            }}
-            className="p-0.5 -mt-0.5 -mr-1 rounded hover:bg-bg-tertiary transition-colors opacity-0 group-hover:opacity-100 shrink-0"
-            title="Edit preset"
-            data-testid={`preset-card-edit-${preset.id}`}
-          >
-            <Pencil className="h-3 w-3 text-text-secondary" />
-          </button>
+        {(onEdit || onDelete) && (
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 shrink-0 -mt-0.5 -mr-1">
+            {onEdit && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit()
+                }}
+                className="p-0.5 rounded hover:bg-bg-tertiary transition-colors"
+                title="Edit preset"
+                data-testid={`preset-card-edit-${preset.id}`}
+              >
+                <Pencil className="h-3 w-3 text-text-secondary" />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete()
+                }}
+                className="p-0.5 rounded hover:bg-bg-tertiary transition-colors"
+                title="Delete preset"
+                data-testid={`preset-card-delete-${preset.id}`}
+              >
+                <Trash2 className="h-3 w-3 text-destructive" />
+              </button>
+            )}
+          </div>
         )}
       </div>
 

@@ -50,7 +50,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNotes }: PrintNotesSidebarProps) {
   const { getPreset: getFilterPreset, presets: moduleFilterPresets } = useProductionFilterSortPresets(moduleType)
   const { presets: pageStylePresets } = useProductionPageStylePresets()
-  const { presets: printPresets } = useProductionPrintPresets(moduleType)
+  const { presets: printPresets, deletePreset } = useProductionPrintPresets(moduleType)
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
   const { user } = useAuthContext()
@@ -209,6 +209,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
                   setEditingPreset(preset as PrintPreset)
                   setView('editor')
                 }}
+                onDeletePreset={deletePreset}
                 onCreateNew={() => { setEditingPreset(null); setView('wizard') }}
                 onCustomOneOff={() => setView('custom')}
                 loadingPresetId={generatingPresetId}
