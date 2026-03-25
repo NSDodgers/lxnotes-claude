@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from 'react'
 import { Printer, Download, Loader2 } from 'lucide-react'
-import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
+import { useProductionFilterSortPresets } from '@/lib/hooks/use-production-filter-sort-presets'
+import { useProductionPageStylePresets } from '@/lib/hooks/use-production-page-style-presets'
 import { useProductionPrintPresets } from '@/lib/hooks/use-production-print-presets'
 import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
@@ -48,8 +48,8 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 }
 
 export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNotes }: PrintNotesSidebarProps) {
-  const { getPreset: getFilterPreset, getPresetsByModule } = useFilterSortPresetsStore()
-  const { presets: pageStylePresets } = usePageStylePresetsStore()
+  const { getPreset: getFilterPreset, presets: moduleFilterPresets } = useProductionFilterSortPresets(moduleType)
+  const { presets: pageStylePresets } = useProductionPageStylePresets()
   const { presets: printPresets } = useProductionPrintPresets(moduleType)
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
@@ -82,7 +82,6 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
   const [editingFilterPreset, setEditingFilterPreset] = useState<FilterSortPreset | null>(null)
   const [editingPageStylePreset, setEditingPageStylePreset] = useState<PageStylePreset | null>(null)
 
-  const moduleFilterPresets = getPresetsByModule(moduleType)
   const notes = propNotes || mockNotesStore.getAllNotes(moduleType)
   const moduleName = moduleDisplayNames[moduleType]
 
@@ -359,7 +358,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
         editingPreset={editingFilterPreset}
         moduleType={moduleType}
         onSave={(presetId) => {
-          const preset = useFilterSortPresetsStore.getState().getPreset(presetId)
+          const preset = getFilterPreset(presetId)
           if (preset) setCustomFilterPreset(preset)
         }}
       />
@@ -372,8 +371,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
         }}
         editingPreset={editingPageStylePreset}
         onSave={(presetId) => {
-          const preset = pageStylePresets.find(p => p.id === presetId)
-            || usePageStylePresetsStore.getState().presets.find(p => p.id === presetId)
+          const preset = pageStylePresets.find((p: PageStylePreset) => p.id === presetId)
           if (preset) setCustomPageStylePreset(preset)
         }}
       />
