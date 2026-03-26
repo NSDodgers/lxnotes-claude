@@ -179,7 +179,7 @@ export const PriorityBadge: React.FC<{ priority: string }> = ({ priority }) => {
 
   return (
     <View style={[commonStyles.badge, { backgroundColor: color }]}>
-      <Text>{priorityLabels[priority] || priority.toUpperCase()}</Text>
+      <Text style={{ color: '#ffffff' }}>{priorityLabels[priority] || priority.toUpperCase()}</Text>
     </View>
   )
 }
@@ -209,7 +209,7 @@ export const TypeBadge: React.FC<{ type: string }> = ({ type }) => {
 
   return (
     <View style={[commonStyles.badge, { backgroundColor: color }]}>
-      <Text>{formatType(type)}</Text>
+      <Text style={{ color: '#ffffff' }}>{formatType(type)}</Text>
     </View>
   )
 }
