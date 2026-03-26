@@ -14,6 +14,7 @@ interface PDFTableProps {
   columns: TableColumn[]
   includeCheckboxes?: boolean
   groupByType?: boolean
+  typeColorMap?: Record<string, string>
 }
 
 const styles = StyleSheet.create({
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
   }
 })
 
-export const PDFTable: React.FC<PDFTableProps> = ({ notes, columns, includeCheckboxes = false, groupByType = false }) => {
+export const PDFTable: React.FC<PDFTableProps> = ({ notes, columns, includeCheckboxes = false, groupByType = false, typeColorMap }) => {
   // Filter out Type column when grouping is enabled
   let displayColumns = columns
   if (groupByType) {
@@ -81,9 +82,10 @@ export const PDFTable: React.FC<PDFTableProps> = ({ notes, columns, includeCheck
     return typeMap[type.toLowerCase()] || type.charAt(0).toUpperCase() + type.slice(1)
   }
 
-  // Helper to get type color
+  // Helper to get type color — prefer module-specific colors, fall back to hardcoded map
   const getTypeColor = (type: string): string => {
-    return typeColors[type.toLowerCase()] || '#95a5a6'
+    const key = type.toLowerCase()
+    return typeColorMap?.[key] || typeColors[key] || '#95a5a6'
   }
 
   return (
@@ -185,10 +187,11 @@ export const PriorityBadge: React.FC<{ priority: string }> = ({ priority }) => {
 }
 
 // Helper component for type badge
-export const TypeBadge: React.FC<{ type: string }> = ({ type }) => {
+export const TypeBadge: React.FC<{ type: string; typeColorMap?: Record<string, string> }> = ({ type, typeColorMap }) => {
   if (type === '-') return <Text>-</Text>
 
-  const color = typeColors[type.toLowerCase()] || '#95a5a6'
+  const key = type.toLowerCase()
+  const color = typeColorMap?.[key] || typeColors[key] || '#95a5a6'
 
   const formatType = (t: string): string => {
     const typeMap: Record<string, string> = {

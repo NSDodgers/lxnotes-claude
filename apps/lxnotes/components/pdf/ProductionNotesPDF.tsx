@@ -14,6 +14,7 @@ interface ProductionNotesPDFProps {
   dateGenerated?: Date
   filterPresetName?: string
   groupByType?: boolean
+  typeColorMap?: Record<string, string>
 }
 
 export const ProductionNotesPDF: React.FC<ProductionNotesPDFProps> = ({
@@ -23,7 +24,8 @@ export const ProductionNotesPDF: React.FC<ProductionNotesPDFProps> = ({
   includeCheckboxes = false,
   dateGenerated = new Date(),
   filterPresetName,
-  groupByType = false
+  groupByType = false,
+  typeColorMap
 }) => {
   const columns = [
     {
@@ -36,7 +38,7 @@ export const ProductionNotesPDF: React.FC<ProductionNotesPDFProps> = ({
       width: 95,
       render: (note: PDFFormattedNote) => {
         const department = note.moduleSpecificData?.department || note.type
-        return <TypeBadge type={typeof department === 'string' ? department : '-'} />
+        return <TypeBadge type={typeof department === 'string' ? department : '-'} typeColorMap={typeColorMap} />
       }
     },
     {
@@ -70,6 +72,7 @@ export const ProductionNotesPDF: React.FC<ProductionNotesPDFProps> = ({
           columns={columns}
           includeCheckboxes={includeCheckboxes}
           groupByType={groupByType}
+          typeColorMap={typeColorMap}
         />
 
         <PDFFooter pageNumber={1} totalPages={1} />

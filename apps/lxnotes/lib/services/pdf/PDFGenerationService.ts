@@ -9,6 +9,7 @@ import { CueNotesPDF } from '@/components/pdf/CueNotesPDF'
 import { WorkNotesPDF } from '@/components/pdf/WorkNotesPDF'
 import { ProductionNotesPDF } from '@/components/pdf/ProductionNotesPDF'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
 import { DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 
@@ -40,9 +41,17 @@ export class PDFGenerationService {
         throw new Error(`No PDF strategy found for module type: ${request.moduleType}`)
       }
 
-      // Get custom priorities for module
+      // Get custom priorities and types for module
       const { getPriorities } = useCustomPrioritiesStore.getState()
       const customPriorities = getPriorities(request.moduleType)
+
+      // Build type color map from the custom types store
+      const { getTypes } = useCustomTypesStore.getState()
+      const moduleTypes = getTypes(request.moduleType)
+      const typeColorMap: Record<string, string> = {}
+      for (const t of moduleTypes) {
+        typeColorMap[t.value] = t.color
+      }
 
       // Filter and sort notes using shared utilities
       const processedNotes = request.filterPreset
@@ -62,7 +71,8 @@ export class PDFGenerationService {
         includeCheckboxes: request.pageStylePreset.config.includeCheckboxes,
         dateGenerated: new Date(),
         filterPresetName: request.filterPreset?.name || 'All notes',
-        groupByType: request.filterPreset?.config.groupByType || false
+        groupByType: request.filterPreset?.config.groupByType || false,
+        typeColorMap
       }
 
       // Select the appropriate PDF component based on module type

@@ -14,6 +14,7 @@ interface WorkNotesPDFProps {
   dateGenerated?: Date
   filterPresetName?: string
   groupByType?: boolean
+  typeColorMap?: Record<string, string>
 }
 
 export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
@@ -23,7 +24,8 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
   includeCheckboxes = false,
   dateGenerated = new Date(),
   filterPresetName,
-  groupByType = false
+  groupByType = false,
+  typeColorMap
 }) => {
   const columns = [
     {
@@ -34,7 +36,7 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
     {
       header: 'Type',
       width: 95,
-      render: (note: PDFFormattedNote) => <TypeBadge type={note.type || '-'} />
+      render: (note: PDFFormattedNote) => <TypeBadge type={note.type || '-'} typeColorMap={typeColorMap} />
     },
     {
       header: 'Channels',
@@ -90,6 +92,7 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
           columns={columns}
           includeCheckboxes={includeCheckboxes}
           groupByType={groupByType}
+          typeColorMap={typeColorMap}
         />
 
         <PDFFooter pageNumber={1} totalPages={1} />
