@@ -14,6 +14,7 @@ const baseStatusFilters: { value: NoteStatus; label: string; shortLabel: string;
   { value: 'review', label: 'In Review', shortLabel: 'Review', workOnly: true },
   { value: 'complete', label: 'Done', shortLabel: 'Done' },
   { value: 'cancelled', label: 'Cancelled', shortLabel: 'Can.' },
+  { value: 'deleted', label: 'Deleted', shortLabel: 'Del.' },
 ]
 
 interface MobileFilterBarProps {

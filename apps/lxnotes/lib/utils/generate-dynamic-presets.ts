@@ -184,7 +184,28 @@ export function generateSystemFilterPresets(
     updatedAt: baseDate,
   })
 
-  // 5. Type-specific presets (one per visible type)
+  // 5. All Deleted (by Date)
+  presets.push({
+    id: generateFilterPresetId(moduleType, 'all-deleted'),
+    productionId,
+    type: 'filter_sort',
+    moduleType,
+    name: 'All Deleted (by Date)',
+    config: {
+      statusFilter: 'deleted',
+      typeFilters: [ALL_TYPES_SENTINEL],
+      priorityFilters: allPriorityValues,
+      sortBy: 'deleted_at',
+      sortOrder: 'desc',
+      groupByType: false,
+    },
+    isDefault: true,
+    createdBy: 'system',
+    createdAt: baseDate,
+    updatedAt: baseDate,
+  })
+
+  // 6. Type-specific presets (one per visible type)
   for (const type of types) {
     presets.push({
       id: generateFilterPresetId(moduleType, `type-${type.value}`),

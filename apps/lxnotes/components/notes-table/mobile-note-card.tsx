@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, X, Eye } from 'lucide-react'
+import { Check, Trash2, X, Eye } from 'lucide-react'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import type { Note, NoteStatus, ModuleType } from '@/types'
@@ -108,6 +108,12 @@ function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit }: MobileNote
           >
             <X className="h-3 w-3" /> Cancel
           </button>
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-status-deleted/20 text-status-deleted"
+            onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'deleted') }}
+          >
+            <Trash2 className="h-3 w-3" /> Delete
+          </button>
         </div>
       )}
 
@@ -125,6 +131,48 @@ function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit }: MobileNote
             onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'todo') }}
           >
             To Do
+          </button>
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-status-deleted/20 text-status-deleted"
+            onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'deleted') }}
+          >
+            <Trash2 className="h-3 w-3" /> Delete
+          </button>
+        </div>
+      )}
+
+      {/* Complete status actions */}
+      {note.status === 'complete' && (
+        <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-bg-tertiary">
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-status-deleted/20 text-status-deleted"
+            onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'deleted') }}
+          >
+            <Trash2 className="h-3 w-3" /> Delete
+          </button>
+        </div>
+      )}
+
+      {/* Cancelled status actions */}
+      {note.status === 'cancelled' && (
+        <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-bg-tertiary">
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-status-deleted/20 text-status-deleted"
+            onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'deleted') }}
+          >
+            <Trash2 className="h-3 w-3" /> Delete
+          </button>
+        </div>
+      )}
+
+      {/* Deleted status actions */}
+      {note.status === 'deleted' && (
+        <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-bg-tertiary">
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-status-todo/20 text-status-todo"
+            onClick={(e) => { e.stopPropagation(); onStatusUpdate(note.id, 'todo') }}
+          >
+            Restore
           </button>
         </div>
       )}

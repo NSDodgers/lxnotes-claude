@@ -1,5 +1,5 @@
 export type ModuleType = 'cue' | 'work' | 'production' | 'electrician'
-export type NoteStatus = 'todo' | 'review' | 'complete' | 'cancelled'
+export type NoteStatus = 'todo' | 'review' | 'complete' | 'cancelled' | 'deleted'
 export type UserRole = 'admin' | 'user'
 export type AppId = 'lxnotes' | 'director_notes'
 export type DepartmentRole = 'head' | 'member'
@@ -265,9 +265,9 @@ export interface SortConfiguration {
 }
 
 // Module-specific sort fields
-export type CueNotesSortField = 'cue_number' | 'priority' | 'type' | 'created_at' | 'completed_at' | 'cancelled_at'
-export type WorkNotesSortField = 'priority' | 'type' | 'channel' | 'position' | 'created_at' | 'completed_at' | 'cancelled_at'
-export type ProductionNotesSortField = 'priority' | 'department' | 'created_at' | 'completed_at' | 'cancelled_at'
+export type CueNotesSortField = 'cue_number' | 'priority' | 'type' | 'created_at' | 'completed_at' | 'cancelled_at' | 'deleted_at'
+export type WorkNotesSortField = 'priority' | 'type' | 'channel' | 'position' | 'created_at' | 'completed_at' | 'cancelled_at' | 'deleted_at'
+export type ProductionNotesSortField = 'priority' | 'department' | 'created_at' | 'completed_at' | 'cancelled_at' | 'deleted_at'
 
 export type ModuleSortField = CueNotesSortField | WorkNotesSortField | ProductionNotesSortField
 

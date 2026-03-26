@@ -32,6 +32,7 @@ const baseStatusFilters: { value: NoteStatus; label: string; workOnly?: boolean 
   { value: 'review', label: 'In Review', workOnly: true },
   { value: 'complete', label: 'Done' },
   { value: 'cancelled', label: 'Cancelled' },
+  { value: 'deleted', label: 'Deleted' },
 ]
 
 export function DesignerTopBar() {

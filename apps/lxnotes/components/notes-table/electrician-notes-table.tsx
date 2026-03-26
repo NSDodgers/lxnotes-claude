@@ -33,6 +33,7 @@ interface ElectricianNotesTableProps {
   onEdit?: (note: Note) => void
   onMountResetFn?: (resetFn: () => void) => void
   onQuickAdd?: () => Promise<Note>
+  emptyMessage?: string
   inlineEditing?: InlineEditingState & {
     startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
     stopEditing: () => void
@@ -42,7 +43,7 @@ interface ElectricianNotesTableProps {
   }
 }
 
-export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, inlineEditing }: ElectricianNotesTableProps) {
+export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, emptyMessage, inlineEditing }: ElectricianNotesTableProps) {
   const columns = useMemo(
     () => createElectricianColumns({ onStatusUpdate, inlineEditing }),
     [onStatusUpdate, inlineEditing]
@@ -233,7 +234,7 @@ export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onMountRe
                   colSpan={columns.length}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No notes found
+                  {emptyMessage || 'No notes found'}
                 </TableCell>
               </TableRow>
             )}

@@ -23,6 +23,7 @@ const badgeVariants = cva(
         todo: "border-transparent bg-status-todo text-white shadow-lg shadow-status-todo/40",
         complete: "border-status-complete/50 bg-status-complete/20 text-status-complete shadow-lg shadow-status-complete/30",
         cancelled: "border-status-cancelled/50 bg-status-cancelled/20 text-status-cancelled shadow-lg shadow-status-cancelled/30",
+        deleted: "border-status-deleted/50 bg-status-deleted/20 text-status-deleted shadow-lg shadow-status-deleted/30",
         // Priority variants
         high: "border-transparent bg-priority-high text-white shadow-lg shadow-priority-high/40 priority-high",
         medium: "border-transparent bg-priority-medium text-white shadow-lg shadow-priority-medium/40 priority-medium",

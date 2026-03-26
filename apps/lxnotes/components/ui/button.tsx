@@ -28,6 +28,7 @@ const buttonVariants = cva(
         complete: "bg-transparent border border-status-complete/30 text-status-complete hover:bg-status-complete/10 hover:border-status-complete/50 transition-all duration-200",
         review: "bg-transparent border border-status-review/30 text-status-review hover:bg-status-review/10 hover:border-status-review/50 transition-all duration-200",
         cancelled: "bg-transparent border border-status-cancelled/30 text-status-cancelled hover:bg-status-cancelled/10 hover:border-status-cancelled/50 transition-all duration-200",
+        deleted: "bg-transparent border border-status-deleted/30 text-status-deleted hover:bg-status-deleted/10 hover:border-status-deleted/50 transition-all duration-200",
         todo: "bg-status-todo text-white shadow hover:bg-status-todo/90",
         // Enhanced priority variants for quick add buttons
         priority_high: "bg-priority-high text-white shadow-lg shadow-priority-high/30 hover:shadow-priority-high/50 hover:bg-priority-high/90 priority-high",

@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 import type { ModuleType } from '@/types'
 
-type StatusFilter = 'todo' | 'review' | 'complete' | 'cancelled' | null
+type StatusFilter = 'todo' | 'review' | 'complete' | 'cancelled' | 'deleted' | null
 
 interface StatusFilterStepProps {
   value: StatusFilter
@@ -17,6 +17,7 @@ const baseStatusOptions: { value: StatusFilter; label: string; description: stri
   { value: 'review', label: 'In Review Only', description: 'Only notes awaiting design review', workOnly: true },
   { value: 'complete', label: 'Complete Only', description: 'Only notes that are done' },
   { value: 'cancelled', label: 'Cancelled Only', description: 'Only notes that were cancelled' },
+  { value: 'deleted', label: 'Deleted Only', description: 'Only notes that were deleted' },
 ]
 
 export function StatusFilterStep({ value, onChange, moduleType }: StatusFilterStepProps) {

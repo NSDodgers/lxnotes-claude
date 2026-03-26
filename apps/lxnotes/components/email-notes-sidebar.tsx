@@ -173,6 +173,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
         review: filteredNotes.filter(n => n.status === 'review').length,
         complete: filteredNotes.filter(n => n.status === 'complete').length,
         cancelled: filteredNotes.filter(n => n.status === 'cancelled').length,
+        deleted: filteredNotes.filter(n => n.status === 'deleted').length,
       }
 
       let pdfBase64: string | undefined

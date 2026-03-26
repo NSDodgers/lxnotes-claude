@@ -33,6 +33,7 @@ interface WorkNotesTableProps {
   onEdit?: (note: Note) => void
   onMountResetFn?: (resetFn: () => void) => void
   onQuickAdd?: () => Promise<Note>
+  emptyMessage?: string
   inlineEditing?: InlineEditingState & {
     startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
     stopEditing: () => void
@@ -42,7 +43,7 @@ interface WorkNotesTableProps {
   }
 }
 
-export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, inlineEditing }: WorkNotesTableProps) {
+export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, emptyMessage, inlineEditing }: WorkNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createWorkColumns({ onStatusUpdate, inlineEditing }),
@@ -243,7 +244,7 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, 
                   colSpan={columns.length}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No notes found
+                  {emptyMessage || 'No notes found'}
                 </TableCell>
               </TableRow>
             )}

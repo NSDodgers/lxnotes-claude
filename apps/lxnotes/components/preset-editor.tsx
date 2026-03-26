@@ -95,7 +95,7 @@ export function PresetEditor({
 
   // Form state — initialized from editing preset + resolved linked presets
   const [presetName, setPresetName] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'todo' | 'review' | 'complete' | 'cancelled' | ''>('todo')
+  const [statusFilter, setStatusFilter] = useState<'todo' | 'review' | 'complete' | 'cancelled' | 'deleted' | ''>('todo')
   const [typeFilters, setTypeFilters] = useState<string[]>([])
   const [priorityFilters, setPriorityFilters] = useState<string[]>([])
   const [sortBy, setSortBy] = useState('priority')

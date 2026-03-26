@@ -75,7 +75,7 @@ interface WizardState {
   // Common
   presetName: string
   // Filter options
-  statusFilter: 'todo' | 'review' | 'complete' | 'cancelled' | null
+  statusFilter: 'todo' | 'review' | 'complete' | 'cancelled' | 'deleted' | null
   typeFilters: string[]
   priorityFilters: string[]
   sortBy: string

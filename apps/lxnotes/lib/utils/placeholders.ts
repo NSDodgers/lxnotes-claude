@@ -13,12 +13,14 @@ export interface PlaceholderData {
         review: number
         complete: number
         cancelled: number
+        deleted: number
     }
     noteCount?: number
     todoCount?: number
     reviewCount?: number
     completeCount?: number
     cancelledCount?: number
+    deletedCount?: number
     filterDescription?: string
     sortDescription?: string
     dateRange?: string
@@ -36,6 +38,7 @@ export function resolvePlaceholders(text: string, data: PlaceholderData): string
     const review = data.noteStats?.review ?? data.reviewCount ?? 0
     const complete = data.noteStats?.complete ?? data.completeCount ?? 0
     const cancelled = data.noteStats?.cancelled ?? data.cancelledCount ?? 0
+    const deleted = data.noteStats?.deleted ?? data.deletedCount ?? 0
 
     return text
         .replace(/\{\{PRODUCTION_TITLE\}\}/g, data.productionTitle || '')
@@ -50,6 +53,7 @@ export function resolvePlaceholders(text: string, data: PlaceholderData): string
         .replace(/\{\{COMPLETE_COUNT\}\}/g, String(complete))
         .replace(/\{\{REVIEW_COUNT\}\}/g, String(review))
         .replace(/\{\{CANCELLED_COUNT\}\}/g, String(cancelled))
+        .replace(/\{\{DELETED_COUNT\}\}/g, String(deleted))
         .replace(/\{\{FILTER_DESCRIPTION\}\}/g, data.filterDescription || '')
         .replace(/\{\{SORT_DESCRIPTION\}\}/g, data.sortDescription || '')
         .replace(/\{\{DATE_RANGE\}\}/g, data.dateRange || '')

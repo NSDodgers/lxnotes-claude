@@ -29,7 +29,7 @@ function dbNoteToNote(row: DbNote): Note {
     description: row.description ?? undefined,
     type: row.type ?? undefined,
     priority: row.priority,
-    status: row.status as 'todo' | 'review' | 'complete' | 'cancelled',
+    status: row.status as 'todo' | 'review' | 'complete' | 'cancelled' | 'deleted',
     createdBy: row.created_by ?? undefined,
     assignedTo: row.assigned_to ?? undefined,
     completedBy: row.completed_by ?? undefined,

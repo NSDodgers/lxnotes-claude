@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Eye, X } from 'lucide-react'
+import { Check, Eye, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { ModuleType, Note, NoteStatus } from '@/types'
@@ -66,6 +66,23 @@ export function ActionCell({ note, onStatusUpdate, moduleType }: ActionCellProps
         )}
       >
         <X className="h-3 w-3" />
+      </Button>
+      <Button
+        size="icon"
+        variant="deleted"
+        onClick={(e) => {
+          e.stopPropagation()
+          onStatusUpdate(note.id, note.status === 'deleted' ? 'todo' : 'deleted')
+        }}
+        title={note.status === 'deleted' ? 'Restore' : 'Delete'}
+        className={cn(
+          "h-7 w-7",
+          note.status === 'deleted'
+            ? "bg-status-deleted/20 border-status-deleted text-status-deleted shadow-xs"
+            : "opacity-60 hover:opacity-100"
+        )}
+      >
+        <Trash2 className="h-3 w-3" />
       </Button>
     </div>
   )

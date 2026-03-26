@@ -120,6 +120,7 @@ export interface NoteEmailData {
   reviewCount: number
   completeCount: number
   cancelledCount: number
+  deletedCount: number
   filterDescription: string
   includeNotesInBody: boolean
   pdfAttachment?: {

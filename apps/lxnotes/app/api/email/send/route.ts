@@ -30,6 +30,7 @@ interface SendEmailRequest {
     review: number
     complete: number
     cancelled: number
+    deleted: number
   }
   filterDescription: string
   sortDescription: string
@@ -151,7 +152,7 @@ export async function POST(request: Request) {
       userFullName: fullName,
       userFirstName: firstName,
       userLastName: lastName,
-      noteStats: noteStats || { total: 0, todo: 0, review: 0, complete: 0, cancelled: 0 },
+      noteStats: noteStats || { total: 0, todo: 0, review: 0, complete: 0, cancelled: 0, deleted: 0 },
       filterDescription: filterDescription || 'All notes',
       sortDescription: sortDescription || 'Default order',
       dateRange: dateRange || 'All dates',
@@ -207,6 +208,7 @@ export async function POST(request: Request) {
       reviewCount: noteStats?.review || 0,
       completeCount: noteStats?.complete || 0,
       cancelledCount: noteStats?.cancelled || 0,
+      deletedCount: noteStats?.deleted || 0,
       filterDescription: filterDescription || 'All notes',
       includeNotesInBody,
       pdfAttachment: attachPdf && pdfBase64 ? {

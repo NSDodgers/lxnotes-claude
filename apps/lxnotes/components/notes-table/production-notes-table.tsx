@@ -33,6 +33,7 @@ interface ProductionNotesTableProps {
   onEdit?: (note: Note) => void
   onMountResetFn?: (resetFn: () => void) => void
   onQuickAdd?: () => Promise<Note>
+  emptyMessage?: string
   inlineEditing?: InlineEditingState & {
     startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
     stopEditing: () => void
@@ -42,7 +43,7 @@ interface ProductionNotesTableProps {
   }
 }
 
-export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, inlineEditing }: ProductionNotesTableProps) {
+export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, emptyMessage, inlineEditing }: ProductionNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createProductionColumns({ onStatusUpdate, inlineEditing }),
@@ -243,7 +244,7 @@ export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onMountRes
                   colSpan={columns.length}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No notes found
+                  {emptyMessage || 'No notes found'}
                 </TableCell>
               </TableRow>
             )}

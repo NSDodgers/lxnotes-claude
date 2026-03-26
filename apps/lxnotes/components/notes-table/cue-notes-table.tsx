@@ -33,6 +33,7 @@ interface CueNotesTableProps {
   onEdit?: (note: Note) => void
   onMountResetFn?: (resetFn: () => void) => void
   onQuickAdd?: () => Promise<Note>
+  emptyMessage?: string
   inlineEditing?: InlineEditingState & {
     startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
     stopEditing: () => void
@@ -42,7 +43,7 @@ interface CueNotesTableProps {
   }
 }
 
-export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, inlineEditing }: CueNotesTableProps) {
+export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, emptyMessage, inlineEditing }: CueNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createCueColumns({ onStatusUpdate, inlineEditing }),
@@ -244,7 +245,7 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, o
                   colSpan={columns.length}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No notes found
+                  {emptyMessage || 'No notes found'}
                 </TableCell>
               </TableRow>
             )}

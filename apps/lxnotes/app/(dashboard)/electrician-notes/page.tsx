@@ -161,6 +161,9 @@ export default function ElectricianNotesPage() {
   const effectiveSearchTerm = useSharedFilters ? tabletSearchTerm : searchTerm
   const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
   const effectiveFilterTypes = useSharedFilters ? tabletFilterTypes : filterTypes
+  const emptyMessage = effectiveFilterStatus === 'deleted'
+    ? 'No deleted notes. Notes you delete will appear here.'
+    : 'No electrician notes found'
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -334,7 +337,7 @@ export default function ElectricianNotesPage() {
           onStatusUpdate={updateNoteStatus}
           onEdit={handleEditNote}
           emptyIcon={Zap}
-          emptyMessage="No electrician notes found"
+          emptyMessage={emptyMessage}
         />
         <MobileActionBar
           moduleType="electrician"
@@ -411,7 +414,7 @@ export default function ElectricianNotesPage() {
             columns={tabletColumns}
             onEdit={handleEditNote}
             emptyIcon={Zap}
-            emptyMessage="No electrician notes found"
+            emptyMessage={emptyMessage}
           />
         </div>
 
@@ -546,6 +549,13 @@ export default function ElectricianNotesPage() {
                   >
                     Cancelled ({statusCounts['cancelled'] || 0})
                   </Button>
+                  <Button
+                    onClick={() => setFilterStatus('deleted')}
+                    variant={filterStatus === 'deleted' ? 'deleted' : 'secondary'}
+                    size="sm"
+                  >
+                    Deleted ({statusCounts['deleted'] || 0})
+                  </Button>
                 </div>
               </div>
 
@@ -657,6 +667,7 @@ export default function ElectricianNotesPage() {
               resetColumnsRef.current = resetFn
             }}
             onQuickAdd={handleQuickAdd}
+            emptyMessage={emptyMessage}
             inlineEditing={inlineEditingProps}
           />
 

@@ -183,6 +183,9 @@ export default function WorkNotesPage() {
   const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
 
   const effectiveFilterTypes = useSharedFilters ? tabletFilterTypes : filterTypes
+  const emptyMessage = effectiveFilterStatus === 'deleted'
+    ? 'No deleted notes. Notes you delete will appear here.'
+    : 'No work notes found'
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -363,7 +366,7 @@ export default function WorkNotesPage() {
           onStatusUpdate={updateNoteStatus}
           onEdit={handleEditNote}
           emptyIcon={Wrench}
-          emptyMessage="No work notes found"
+          emptyMessage={emptyMessage}
         />
         <MobileActionBar
           moduleType="work"
@@ -440,7 +443,7 @@ export default function WorkNotesPage() {
             columns={tabletColumns}
             onEdit={handleEditNote}
             emptyIcon={Wrench}
-            emptyMessage="No work notes found"
+            emptyMessage={emptyMessage}
           />
         </div>
 
@@ -582,6 +585,13 @@ export default function WorkNotesPage() {
                   >
                     Cancelled ({statusCounts['cancelled'] || 0})
                   </Button>
+                  <Button
+                    onClick={() => setFilterStatus('deleted')}
+                    variant={filterStatus === 'deleted' ? 'deleted' : 'secondary'}
+                    size="sm"
+                  >
+                    Deleted ({statusCounts['deleted'] || 0})
+                  </Button>
                 </div>
               </div>
 
@@ -693,6 +703,7 @@ export default function WorkNotesPage() {
               resetColumnsRef.current = resetFn
             }}
             onQuickAdd={handleQuickAdd}
+            emptyMessage={emptyMessage}
             inlineEditing={inlineEditingProps}
           />
 

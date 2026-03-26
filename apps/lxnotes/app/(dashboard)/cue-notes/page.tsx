@@ -120,6 +120,9 @@ export default function CueNotesPage() {
   const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
 
   const effectiveFilterTypes = useSharedFilters ? tabletFilterTypes : filterTypes
+  const emptyMessage = effectiveFilterStatus === 'deleted'
+    ? 'No deleted notes. Notes you delete will appear here.'
+    : 'No cue notes found'
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -278,7 +281,7 @@ export default function CueNotesPage() {
           onStatusUpdate={updateNoteStatus}
           onEdit={handleEditNote}
           emptyIcon={Lightbulb}
-          emptyMessage="No cue notes found"
+          emptyMessage={emptyMessage}
         />
         <MobileActionBar
           moduleType="cue"
@@ -332,7 +335,7 @@ export default function CueNotesPage() {
             columns={tabletColumns}
             onEdit={handleEditNote}
             emptyIcon={Lightbulb}
-            emptyMessage="No cue notes found"
+            emptyMessage={emptyMessage}
           />
         </div>
 
@@ -452,6 +455,14 @@ export default function CueNotesPage() {
                   >
                     Cancelled ({statusCounts['cancelled'] || 0})
                   </Button>
+                  <Button
+                    onClick={() => setFilterStatus('deleted')}
+                    variant={filterStatus === 'deleted' ? 'deleted' : 'secondary'}
+                    size="sm"
+                    data-testid="status-filter-deleted"
+                  >
+                    Deleted ({statusCounts['deleted'] || 0})
+                  </Button>
                 </div>
               </div>
 
@@ -562,6 +573,7 @@ export default function CueNotesPage() {
               resetColumnsRef.current = resetFn
             }}
             onQuickAdd={handleQuickAdd}
+            emptyMessage={emptyMessage}
             inlineEditing={inlineEditingProps}
           />
 

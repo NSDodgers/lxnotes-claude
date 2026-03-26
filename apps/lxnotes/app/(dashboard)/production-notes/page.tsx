@@ -1073,6 +1073,9 @@ export default function ProductionNotesPage() {
   const effectiveFilterStatus = useSharedFilters ? tabletFilterStatus : filterStatus
 
   const effectiveFilterTypes = useSharedFilters ? tabletFilterTypes : filterTypes
+  const emptyMessage = effectiveFilterStatus === 'deleted'
+    ? 'No deleted notes. Notes you delete will appear here.'
+    : 'No production notes found'
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -1229,7 +1232,7 @@ export default function ProductionNotesPage() {
           onStatusUpdate={updateNoteStatus}
           onEdit={handleEditNote}
           emptyIcon={FileText}
-          emptyMessage="No production notes found"
+          emptyMessage={emptyMessage}
         />
         <MobileActionBar
           moduleType="production"
@@ -1276,7 +1279,7 @@ export default function ProductionNotesPage() {
             columns={tabletColumns}
             onEdit={handleEditNote}
             emptyIcon={FileText}
-            emptyMessage="No production notes found"
+            emptyMessage={emptyMessage}
           />
         </div>
 
@@ -1382,6 +1385,13 @@ export default function ProductionNotesPage() {
                     size="sm"
                   >
                     Cancelled ({statusCounts['cancelled'] || 0})
+                  </Button>
+                  <Button
+                    onClick={() => setFilterStatus('deleted')}
+                    variant={filterStatus === 'deleted' ? 'deleted' : 'secondary'}
+                    size="sm"
+                  >
+                    Deleted ({statusCounts['deleted'] || 0})
                   </Button>
                 </div>
               </div>
@@ -1499,6 +1509,7 @@ export default function ProductionNotesPage() {
             onStatusUpdate={updateNoteStatus}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
+            emptyMessage={emptyMessage}
             inlineEditing={inlineEditingProps}
             onMountResetFn={(resetFn) => {
               resetColumnsRef.current = resetFn
