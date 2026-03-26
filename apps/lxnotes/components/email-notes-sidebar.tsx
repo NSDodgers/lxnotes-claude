@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { Mail, Send, Loader2 } from 'lucide-react'
 import { useProductionEmailPresets } from '@/lib/hooks/use-production-email-presets'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
+import { useProductionPageStylePresets } from '@/lib/hooks/use-production-page-style-presets'
 import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
@@ -51,7 +51,7 @@ const moduleDisplayNames: Record<ModuleType, string> = {
 export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSidebarProps) {
   const { presets: moduleEmailPresets, resolvePlaceholders, deletePreset } = useProductionEmailPresets(moduleType)
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
-  const { presets: pageStylePresets } = usePageStylePresetsStore()
+  const { presets: pageStylePresets } = useProductionPageStylePresets()
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
   const { user } = useAuthContext()
