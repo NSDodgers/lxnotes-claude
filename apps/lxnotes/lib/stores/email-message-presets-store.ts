@@ -122,7 +122,7 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
         if (userPreset) return userPreset
 
         // Check system presets across all modules
-        const modules: ModuleType[] = ['cue', 'work', 'production']
+        const modules: ModuleType[] = ['cue', 'work', 'production', 'electrician']
         for (const moduleType of modules) {
           const systemPresets = computeSystemEmailPresets(moduleType)
           const systemPreset = systemPresets.find(p => p.id === id)
@@ -158,7 +158,7 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
 
       getSystemDefaults: () => {
         // Return all system presets across all modules
-        const modules: ModuleType[] = ['cue', 'work', 'production']
+        const modules: ModuleType[] = ['cue', 'work', 'production', 'electrician']
         return modules.flatMap(moduleType => computeSystemEmailPresets(moduleType))
       },
 

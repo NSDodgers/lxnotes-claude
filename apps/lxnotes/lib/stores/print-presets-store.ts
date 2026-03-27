@@ -91,7 +91,7 @@ export const usePrintPresetsStore = create<PrintPresetsState>()(
         if (userPreset) return userPreset
 
         // Check system presets across all modules
-        const modules: ModuleType[] = ['cue', 'work', 'production']
+        const modules: ModuleType[] = ['cue', 'work', 'production', 'electrician']
         for (const moduleType of modules) {
           const systemPresets = computeSystemPrintPresets(moduleType)
           const systemPreset = systemPresets.find(p => p.id === id)
@@ -114,7 +114,7 @@ export const usePrintPresetsStore = create<PrintPresetsState>()(
 
       getSystemDefaults: () => {
         // Return all system presets across all modules
-        const modules: ModuleType[] = ['cue', 'work', 'production']
+        const modules: ModuleType[] = ['cue', 'work', 'production', 'electrician']
         return modules.flatMap(moduleType => computeSystemPrintPresets(moduleType))
       },
 

@@ -16,6 +16,11 @@ export const moduleColors = {
     primary: '#06b6d4', // Cyan
     light: '#cffafe',
     dark: '#0e7490'
+  },
+  electrician: {
+    primary: '#22c55e', // Green
+    light: '#dcfce7',
+    dark: '#15803d'
   }
 }
 

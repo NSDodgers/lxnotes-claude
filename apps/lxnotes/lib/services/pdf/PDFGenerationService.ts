@@ -87,6 +87,9 @@ export class PDFGenerationService {
         case 'production':
           pdfDocument = React.createElement(ProductionNotesPDF, commonProps)
           break
+        case 'electrician':
+          pdfDocument = React.createElement(ProductionNotesPDF, commonProps)
+          break
         default:
           throw new Error(`Unsupported module type: ${request.moduleType}`)
       }
