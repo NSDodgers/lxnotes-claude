@@ -10,7 +10,7 @@ import { DroppableInput } from '@/components/ui/droppable-input'
 import { DroppableTextarea } from '@/components/ui/droppable-textarea'
 import { PlaceholderChipPanel } from '@/components/placeholder-chip-panel'
 import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
-import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
+import { useProductionFilterSortPresets } from '@/lib/hooks/use-production-filter-sort-presets'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
@@ -49,7 +49,7 @@ export function ConfirmSendPanel({
   onBack,
   onSubmit,
 }: ConfirmSendPanelProps) {
-  const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
+  const { getPreset: getFilterPreset } = useProductionFilterSortPresets(moduleType)
   const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { getPriorities } = useCustomPrioritiesStore()
   const productionContext = useProductionOptional()
