@@ -13,7 +13,7 @@ const HEADER_MAPPINGS = {
   lwid: ['LWID', 'LW ID', 'LW_ID', 'Lightwright ID'],
   channel: ['Channel', 'Chan', 'Ch', 'Channel #', 'Channel Number'],
   position: ['Position', 'Pos'],
-  unitNumber: ['Unit Number', 'Unit', 'Unit #', 'Unit(#)', 'Unit (#)'],
+  unitNumber: ['Unit Number', 'Unit', 'Unit #', 'Unit#', 'Unit(#)', 'Unit (#)'],
   fixtureType: ['Fixture Type', 'Type', 'Instrument Type', 'Fixture', 'Instrument'],
   purpose: ['Purpose', 'Purp', 'Use'],
   universeAddress: ['Universe/Address', 'U/A', 'Address', 'DMX Address', 'Universe', 'DMX'],
@@ -40,7 +40,8 @@ export class HookupParser {
             return
           }
 
-          const headers = results.meta.fields || []
+          // Filter out empty headers (e.g. Lightwright 7 exports a color column with no header name)
+          const headers = (results.meta.fields || []).filter(h => h.trim() !== '')
           const rows = results.data as HookupCSVRow[]
           const headerMapping = this.detectHeaderMapping(headers)
 
@@ -58,31 +59,38 @@ export class HookupParser {
    */
   static detectHeaderMapping(headers: string[]): Record<string, string> {
     const mapping: Record<string, string> = {}
-    
+
+    // Pass 1: exact matches only
     for (const [fieldName, synonyms] of Object.entries(HEADER_MAPPINGS)) {
-      // Try exact matches first
-      const exactMatch = headers.find(header => 
+      const exactMatch = headers.find(header =>
         synonyms.some(synonym => header.toLowerCase() === synonym.toLowerCase())
       )
-      
+
       if (exactMatch) {
         mapping[fieldName] = exactMatch
-        continue
       }
-      
-      // Try partial matches
+    }
+
+    // Pass 2: partial matches for unmapped fields, excluding already-claimed headers
+    const usedHeaders = new Set(Object.values(mapping))
+
+    for (const [fieldName, synonyms] of Object.entries(HEADER_MAPPINGS)) {
+      if (mapping[fieldName]) continue // Already matched exactly
+
       const partialMatch = headers.find(header =>
-        synonyms.some(synonym => 
+        !usedHeaders.has(header) &&
+        synonyms.some(synonym =>
           header.toLowerCase().includes(synonym.toLowerCase()) ||
           synonym.toLowerCase().includes(header.toLowerCase())
         )
       )
-      
+
       if (partialMatch) {
         mapping[fieldName] = partialMatch
+        usedHeaders.add(partialMatch)
       }
     }
-    
+
     return mapping
   }
 

@@ -502,7 +502,7 @@ export function HookupImportSidebar({
                 <div className="flex items-center gap-3">
                   <Download className="h-5 w-5 text-modules-work" />
                   <div>
-                    <div className="font-medium text-text-primary">Lightwright 6 Automated Action</div>
+                    <div className="font-medium text-text-primary">Lightwright Setup</div>
                     <div className="text-sm text-text-secondary">Export your hookup with the correct format</div>
                   </div>
                 </div>
@@ -515,51 +515,61 @@ export function HookupImportSidebar({
 
               {state.isSetupExpanded && (
                 <div className="px-4 pb-4 space-y-4 border-t border-bg-hover">
-                  <p className="text-sm text-text-secondary pt-4">
-                    Install this automated action in Lightwright 6 to export your hookup data in the format LX Notes expects.
-                  </p>
-
-                  <a
-                    href="/lxnotes-with-position.lwa"
-                    download="lxnotes with position.lwa"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-modules-work hover:bg-modules-work/90 text-white rounded-md text-sm font-medium transition-colors"
-                  >
-                    <Download className="h-4 w-4" />
-                    Download Automated Action
-                  </a>
-
-                  <div className="space-y-3 pt-2">
-                    <h4 className="text-sm font-medium text-text-primary">Installation Instructions</h4>
-
-                    <div className="flex items-start gap-3 p-3 bg-bg-tertiary rounded-lg">
-                      <Apple className="h-5 w-5 text-text-secondary mt-0.5 shrink-0" />
-                      <div>
-                        <div className="text-sm font-medium text-text-primary">macOS</div>
-                        <div className="text-sm text-text-secondary mt-1">
-                          Place the downloaded file in:
-                        </div>
-                        <code className="block mt-1 text-xs bg-bg-secondary px-2 py-1 rounded text-modules-work break-all">
-                          /Users/Shared/Lightwright 6/Automated Actions
-                        </code>
-                      </div>
+                  <div className="space-y-4 pt-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-text-primary">Lightwright 7</h4>
+                      <p className="text-sm text-text-secondary mt-1">
+                        Set the columns you want visible, reorder them on the table, sort as needed, select all rows, then right-click &rarr; Export CSV. LX Notes auto-detects the LW7 column format.
+                      </p>
                     </div>
 
-                    <div className="flex items-start gap-3 p-3 bg-bg-tertiary rounded-lg">
-                      <Monitor className="h-5 w-5 text-text-secondary mt-0.5 shrink-0" />
-                      <div>
-                        <div className="text-sm font-medium text-text-primary">Windows</div>
-                        <div className="text-sm text-text-secondary mt-1">
-                          Place the downloaded file in:
+                    <div className="border-t border-bg-hover pt-4">
+                      <h4 className="text-sm font-medium text-text-primary">Lightwright 6</h4>
+                      <p className="text-sm text-text-secondary mt-1">
+                        Install this automated action to export your hookup data in the format LX Notes expects.
+                      </p>
+
+                      <a
+                        href="/lxnotes-with-position.lwa"
+                        download="lxnotes with position.lwa"
+                        className="inline-flex items-center gap-2 px-4 py-2 mt-3 bg-modules-work hover:bg-modules-work/90 text-white rounded-md text-sm font-medium transition-colors"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download Automated Action
+                      </a>
+
+                      <div className="space-y-3 pt-3">
+                        <div className="flex items-start gap-3 p-3 bg-bg-tertiary rounded-lg">
+                          <Apple className="h-5 w-5 text-text-secondary mt-0.5 shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-text-primary">macOS</div>
+                            <div className="text-sm text-text-secondary mt-1">
+                              Place the downloaded file in:
+                            </div>
+                            <code className="block mt-1 text-xs bg-bg-secondary px-2 py-1 rounded text-modules-work break-all">
+                              /Users/Shared/Lightwright 6/Automated Actions
+                            </code>
+                          </div>
                         </div>
-                        <code className="block mt-1 text-xs bg-bg-secondary px-2 py-1 rounded text-modules-work break-all">
-                          C:\Users\Public\Documents\Lightwright 6\Automated Actions
-                        </code>
+
+                        <div className="flex items-start gap-3 p-3 bg-bg-tertiary rounded-lg">
+                          <Monitor className="h-5 w-5 text-text-secondary mt-0.5 shrink-0" />
+                          <div>
+                            <div className="text-sm font-medium text-text-primary">Windows</div>
+                            <div className="text-sm text-text-secondary mt-1">
+                              Place the downloaded file in:
+                            </div>
+                            <code className="block mt-1 text-xs bg-bg-secondary px-2 py-1 rounded text-modules-work break-all">
+                              C:\Users\Public\Documents\Lightwright 6\Automated Actions
+                            </code>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-text-muted">
+                          After placing the file, restart Lightwright. The action will appear in the Automated Actions menu.
+                        </p>
                       </div>
                     </div>
-
-                    <p className="text-xs text-text-muted">
-                      After placing the file, restart Lightwright. The action will appear in the Automated Actions menu.
-                    </p>
                   </div>
                 </div>
               )}
@@ -607,7 +617,7 @@ export function HookupImportSidebar({
                         <span className="text-text-secondary">Unique Lightwright ID for each fixture</span>
                       </div>
                       <div className="text-xs text-text-muted ml-[4.5rem]">
-                        Also accepts: LW ID, LW_ID, Lightwright ID
+                        Also accepts: LW ID, LW_ID, Lightwright ID (LW7 default)
                       </div>
                     </div>
                   </div>
@@ -621,11 +631,11 @@ export function HookupImportSidebar({
                       </div>
                       <div className="flex items-start gap-2 text-sm">
                         <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Unit Number</code>
-                        <span className="text-text-secondary">Unit number on the position</span>
+                        <span className="text-text-secondary">Unit number on the position (LW7: Unit#)</span>
                       </div>
                       <div className="flex items-start gap-2 text-sm">
                         <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Fixture Type</code>
-                        <span className="text-text-secondary">Instrument type (e.g. &quot;Source 4 26&deg;&quot;)</span>
+                        <span className="text-text-secondary">Instrument type (LW7: Instrument Type)</span>
                       </div>
                       <div className="flex items-start gap-2 text-sm">
                         <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Purpose</code>
@@ -633,17 +643,17 @@ export function HookupImportSidebar({
                       </div>
                       <div className="flex items-start gap-2 text-sm">
                         <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Universe/Address</code>
-                        <span className="text-text-secondary">DMX universe/address (e.g. &quot;1/001&quot;)</span>
+                        <span className="text-text-secondary">DMX universe/address (LW7: Address)</span>
                       </div>
                       <div className="flex items-start gap-2 text-sm">
                         <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Position Order</code>
-                        <span className="text-text-secondary">Sort order within a position</span>
+                        <span className="text-text-secondary">Sort order within a position (LW6 only)</span>
                       </div>
                     </div>
                   </div>
 
                   <p className="text-xs text-text-muted">
-                    Header names are matched automatically. Common variations (e.g. &quot;Chan&quot; for Channel, &quot;Type&quot; for Fixture Type) are recognized. You can also manually map headers after upload.
+                    Both Lightwright 6 and 7 export formats are supported. Header names are matched automatically, and common variations are recognized. You can also manually map headers after upload.
                   </p>
                 </div>
               )}
