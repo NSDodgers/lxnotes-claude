@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { Upload, FileText, AlertCircle, CheckCircle, ChevronRight, AlertTriangle, Download, ChevronDown, ChevronUp, Apple, Monitor } from 'lucide-react'
+import { Upload, FileText, AlertCircle, CheckCircle, ChevronRight, AlertTriangle, Download, ChevronDown, ChevronUp, Apple, Monitor, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useAuthContext } from '@/components/auth/auth-provider'
@@ -50,6 +50,7 @@ interface UploadState {
   differencePercentage: number | null
   showDifferenceWarning: boolean
   isSetupExpanded: boolean
+  isDataInfoExpanded: boolean
 }
 
 const steps = [
@@ -92,7 +93,8 @@ export function HookupImportSidebar({
     hasExistingData: false,
     differencePercentage: null,
     showDifferenceWarning: false,
-    isSetupExpanded: false
+    isSetupExpanded: false,
+    isDataInfoExpanded: false
   })
 
   const syncFixtures = useFixtureStore((state) => state.syncFixtures)
@@ -142,7 +144,8 @@ export function HookupImportSidebar({
       hasExistingData,
       differencePercentage: null,
       showDifferenceWarning: false,
-      isSetupExpanded: false
+      isSetupExpanded: false,
+      isDataInfoExpanded: false
     })
   }
 
@@ -499,7 +502,7 @@ export function HookupImportSidebar({
                 <div className="flex items-center gap-3">
                   <Download className="h-5 w-5 text-modules-work" />
                   <div>
-                    <div className="font-medium text-text-primary">Lightwright Automated Action</div>
+                    <div className="font-medium text-text-primary">Lightwright 6 Automated Action</div>
                     <div className="text-sm text-text-secondary">Export your hookup with the correct format</div>
                   </div>
                 </div>
@@ -513,7 +516,7 @@ export function HookupImportSidebar({
               {state.isSetupExpanded && (
                 <div className="px-4 pb-4 space-y-4 border-t border-bg-hover">
                   <p className="text-sm text-text-secondary pt-4">
-                    Install this automated action in Lightwright to export your hookup data in the format LX Notes expects.
+                    Install this automated action in Lightwright 6 to export your hookup data in the format LX Notes expects.
                   </p>
 
                   <a
@@ -558,6 +561,90 @@ export function HookupImportSidebar({
                       After placing the file, restart Lightwright. The action will appear in the Automated Actions menu.
                     </p>
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* Data Input Reference Section */}
+            <div className="border border-bg-hover rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setState(prev => ({ ...prev, isDataInfoExpanded: !prev.isDataInfoExpanded }))}
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-bg-tertiary/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Info className="h-5 w-5 text-modules-work" />
+                  <div>
+                    <div className="font-medium text-text-primary">Data Input Reference</div>
+                    <div className="text-sm text-text-secondary">Column types and names for custom CSVs</div>
+                  </div>
+                </div>
+                {state.isDataInfoExpanded ? (
+                  <ChevronUp className="h-5 w-5 text-text-muted" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-text-muted" />
+                )}
+              </button>
+
+              {state.isDataInfoExpanded && (
+                <div className="px-4 pb-4 space-y-4 border-t border-bg-hover">
+                  <p className="text-sm text-text-secondary pt-4">
+                    If you&apos;re creating a CSV from another source, use these column headers. LX Notes auto-detects common variations.
+                  </p>
+
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-text-primary">Required Columns</h4>
+                    <div className="space-y-1.5">
+                      <div className="flex items-start gap-2 text-sm">
+                        <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Channel</code>
+                        <span className="text-text-secondary">Channel number (e.g. &quot;101&quot;, &quot;2/3&quot;)</span>
+                      </div>
+                      <div className="text-xs text-text-muted ml-[4.5rem]">
+                        Also accepts: Chan, Ch, Channel #, Channel Number
+                      </div>
+                      <div className="flex items-start gap-2 text-sm">
+                        <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">LWID</code>
+                        <span className="text-text-secondary">Unique Lightwright ID for each fixture</span>
+                      </div>
+                      <div className="text-xs text-text-muted ml-[4.5rem]">
+                        Also accepts: LW ID, LW_ID, Lightwright ID
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-text-primary">Optional Columns</h4>
+                    <div className="space-y-1.5">
+                      <div className="flex items-start gap-2 text-sm">
+                        <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Position</code>
+                        <span className="text-text-secondary">Hanging position (e.g. &quot;1st Electric&quot;, &quot;FOH&quot;)</span>
+                      </div>
+                      <div className="flex items-start gap-2 text-sm">
+                        <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Unit Number</code>
+                        <span className="text-text-secondary">Unit number on the position</span>
+                      </div>
+                      <div className="flex items-start gap-2 text-sm">
+                        <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Fixture Type</code>
+                        <span className="text-text-secondary">Instrument type (e.g. &quot;Source 4 26&deg;&quot;)</span>
+                      </div>
+                      <div className="flex items-start gap-2 text-sm">
+                        <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Purpose</code>
+                        <span className="text-text-secondary">Purpose or use for the fixture</span>
+                      </div>
+                      <div className="flex items-start gap-2 text-sm">
+                        <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Universe/Address</code>
+                        <span className="text-text-secondary">DMX universe/address (e.g. &quot;1/001&quot;)</span>
+                      </div>
+                      <div className="flex items-start gap-2 text-sm">
+                        <code className="shrink-0 bg-bg-secondary px-1.5 py-0.5 rounded text-modules-work text-xs">Position Order</code>
+                        <span className="text-text-secondary">Sort order within a position</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-text-muted">
+                    Header names are matched automatically. Common variations (e.g. &quot;Chan&quot; for Channel, &quot;Type&quot; for Fixture Type) are recognized. You can also manually map headers after upload.
+                  </p>
                 </div>
               )}
             </div>
