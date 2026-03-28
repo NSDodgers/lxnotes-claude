@@ -519,7 +519,7 @@ export function HookupImportSidebar({
                     <div>
                       <h4 className="text-sm font-medium text-text-primary">Lightwright 7</h4>
                       <p className="text-sm text-text-secondary mt-1">
-                        Set the columns you want visible, reorder them on the table, sort as needed, select all rows, then right-click &rarr; Export CSV. LX Notes auto-detects the LW7 column format.
+                        Configure your table with the following columns: Lightwright ID, Channel, Position, Unit#, Instrument Type, Purpose, and Address. Set your preferred order and sort, then select all rows and right-click &rarr; Export CSV. LX Notes automatically recognizes the Lightwright 7 format.
                       </p>
                     </div>
 
