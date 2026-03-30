@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { isFixtureModule } from '@/lib/utils/module-helpers'
+import { OrderListSection } from '@/components/order-list-section'
 
 interface AddNoteDialogProps {
   isOpen: boolean
@@ -307,6 +308,13 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                   className="min-h-[60px] resize-none"
                 />
               </div>
+            )}
+
+            {isFixtureModule(moduleType) && editingNote && (
+              <OrderListSection
+                noteId={editingNote.id}
+                moduleType={moduleType as 'work' | 'electrician'}
+              />
             )}
 
             {moduleType === 'cue' && formData.cueNumbers && (

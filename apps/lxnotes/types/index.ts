@@ -145,6 +145,20 @@ export interface Note {
   deletedBy?: string
 }
 
+export interface OrderItem {
+  id: string
+  noteId: string
+  name: string
+  ordered: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface OrderItemCounts {
+  total: number
+  ordered: number
+}
+
 export interface ScriptPage {
   id: string
   productionId: string

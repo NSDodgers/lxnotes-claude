@@ -7,6 +7,7 @@ import { EditableTextCell } from '../cells/editable-text-cell'
 import { EditableTypeCell } from '../cells/editable-type-cell'
 import { EditablePriorityCell } from '../cells/editable-priority-cell'
 import { FixtureAggregateCell } from '../cells/fixture-aggregate-cell'
+import { OrderItemsCell } from '../cells/order-items-cell'
 import { prioritySortFn, positionSortFn, channelsSortFn, dateSortFn } from '../sorting/work-sort-functions'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
@@ -186,6 +187,15 @@ export function createElectricianColumns({ onStatusUpdate, inlineEditing }: Crea
       enableResizing: true,
       size: 300,
       minSize: 150,
+    },
+    {
+      id: 'orders',
+      header: 'Orders',
+      cell: ({ row }) => <OrderItemsCell noteId={row.original.id} />,
+      enableSorting: false,
+      enableResizing: true,
+      size: 80,
+      minSize: 60,
     },
     {
       accessorKey: 'sceneryNeeds',

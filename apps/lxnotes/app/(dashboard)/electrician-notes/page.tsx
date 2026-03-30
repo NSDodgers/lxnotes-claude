@@ -34,6 +34,7 @@ import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { isDemoMode } from '@/lib/demo-data'
+import { useOrderItemCounts } from '@/hooks/use-order-item-counts'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
@@ -87,6 +88,9 @@ export default function ElectricianNotesPage() {
   const logo = isProductionMode
     ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
     : storeData.logo
+  // Populate order item counts store for the Orders column
+  useOrderItemCounts(isProductionMode ? productionId : undefined)
+
   const customTypesStore = useCustomTypesStore()
   const { isDesignerMode } = useDesignerModeStore()
   const isMobile = useIsMobile()
