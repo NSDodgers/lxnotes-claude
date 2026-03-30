@@ -17,13 +17,13 @@ import {
   PresetFormToggle
 } from './preset-dialog'
 import { filterSortFormSchema, type FilterSortFormData, getSortFieldsForModule } from '@/lib/validation/preset-schemas'
-import type { FilterSortPreset, ModuleType } from '@/types'
+import type { FilterSortPreset, PresetModuleType } from '@/types'
 
 interface FilterSortPresetDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   editingPreset?: FilterSortPreset | null
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   /** Called after successful save with the preset id */
   onSave?: (presetId: string) => void
   /** Production context update function - when provided, saves to production instead of local store */

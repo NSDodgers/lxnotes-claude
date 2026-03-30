@@ -3,12 +3,12 @@
 import { useCallback, useMemo } from 'react'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { usePrintPresetsStore } from '@/lib/stores/print-presets-store'
-import type { PrintPreset, ModuleType } from '@/types'
+import type { PrintPreset, PresetModuleType } from '@/types'
 
 /**
  * Hook that provides production-aware print presets.
  */
-export function useProductionPrintPresets(moduleType: ModuleType) {
+export function useProductionPrintPresets(moduleType: PresetModuleType) {
     const productionContext = useProductionOptional()
     const store = usePrintPresetsStore()
 

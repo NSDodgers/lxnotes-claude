@@ -1,4 +1,6 @@
 export type ModuleType = 'cue' | 'work' | 'production' | 'electrician'
+export type CombinedModuleType = 'combined-work-electrician'
+export type PresetModuleType = ModuleType | CombinedModuleType
 export type NoteStatus = 'todo' | 'review' | 'complete' | 'cancelled' | 'deleted'
 export type UserRole = 'admin' | 'user'
 export type AppId = 'lxnotes' | 'director_notes'
@@ -198,7 +200,7 @@ export interface Preset {
   id: string
   productionId: string
   type: 'page_style' | 'filter_sort' | 'email_message' | 'print'
-  moduleType: ModuleType | 'all'
+  moduleType: PresetModuleType | 'all'
   name: string
   config: Record<string, any>
   isDefault: boolean
@@ -220,7 +222,7 @@ export interface PageStylePreset extends Preset {
 
 export interface FilterSortPreset extends Preset {
   type: 'filter_sort'
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   config: {
     statusFilter: NoteStatus | null // null means all statuses
     typeFilters: string[] // Array of type values to include
@@ -233,7 +235,7 @@ export interface FilterSortPreset extends Preset {
 
 export interface EmailMessagePreset extends Preset {
   type: 'email_message'
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   config: {
     recipients: string // Comma-separated email addresses
     subject: string // Subject line with placeholders
@@ -247,7 +249,7 @@ export interface EmailMessagePreset extends Preset {
 
 export interface PrintPreset extends Preset {
   type: 'print'
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   config: {
     filterSortPresetId: string | null
     pageStylePresetId: string | null

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { ChevronDown, Check, Plus, Pencil } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { AnyPreset, ModuleType } from '@/types'
+import type { AnyPreset, ModuleType, PresetModuleType } from '@/types'
 
 interface PresetSelectorProps {
   presets: AnyPreset[]
@@ -15,7 +15,7 @@ interface PresetSelectorProps {
   // New props for quick creation
   enableQuickCreate?: boolean
   presetType?: 'filter_sort' | 'page_style' | 'email_message'
-  moduleType?: ModuleType
+  moduleType?: PresetModuleType
   onQuickCreate?: () => void
   // New props for inline editing
   onEdit?: (preset: AnyPreset) => void

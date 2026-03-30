@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
-import type { EmailMessagePreset, ModuleType } from '@/types'
+import type { EmailMessagePreset, PresetModuleType } from '@/types'
 
 /**
  * Hook that provides production-aware email presets.
@@ -15,7 +15,7 @@ import type { EmailMessagePreset, ModuleType } from '@/types'
  * When not in a production context (demo mode):
  * - Falls back to local Zustand store behavior
  */
-export function useProductionEmailPresets(moduleType: ModuleType) {
+export function useProductionEmailPresets(moduleType: PresetModuleType) {
   const productionContext = useProductionOptional()
   const store = useEmailMessagePresetsStore()
 

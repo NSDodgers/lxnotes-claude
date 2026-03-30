@@ -3,12 +3,12 @@
 import { useCallback, useMemo } from 'react'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import type { FilterSortPreset, ModuleType } from '@/types'
+import type { FilterSortPreset, PresetModuleType } from '@/types'
 
 /**
  * Hook that provides production-aware filter/sort presets.
  */
-export function useProductionFilterSortPresets(moduleType: ModuleType) {
+export function useProductionFilterSortPresets(moduleType: PresetModuleType) {
     const productionContext = useProductionOptional()
     const store = useFilterSortPresetsStore()
 

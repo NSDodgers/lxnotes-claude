@@ -26,7 +26,7 @@ import { useProductionId } from '@/components/production/production-provider'
 
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import type { ModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset, PageStylePreset } from '@/types'
+import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset, PageStylePreset } from '@/types'
 
 // Safe useProductionId that doesn't throw if outside provider (for demo mode)
 function useSafeProductionId() {
@@ -39,7 +39,7 @@ function useSafeProductionId() {
 
 interface PresetWizardProps {
   variant: 'email' | 'print'
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   editingPreset?: EmailMessagePreset | PrintPreset | null
   onComplete: () => void
   onBack: () => void

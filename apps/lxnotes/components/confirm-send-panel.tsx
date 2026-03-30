@@ -16,13 +16,13 @@ import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
 import { useProductionOptional } from '@/components/production/production-provider'
-import type { EmailMessagePreset, PrintPreset, ModuleType, Note } from '@/types'
+import type { EmailMessagePreset, PrintPreset, ModuleType, PresetModuleType, Note } from '@/types'
 
 type ActionPreset = EmailMessagePreset | PrintPreset
 
 interface ConfirmSendPanelProps {
   preset: ActionPreset
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   notes: Note[]
   placeholderData: PlaceholderData
   variant: 'email' | 'print'

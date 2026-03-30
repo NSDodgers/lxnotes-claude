@@ -1,6 +1,6 @@
 'use client'
 
-import { Settings, Palette, Lightbulb, Wrench, Users, X, UserPlus, ChevronDown, ChevronUp, HardDrive } from 'lucide-react'
+import { Settings, Palette, Lightbulb, Wrench, Zap, Users, X, UserPlus, ChevronDown, ChevronUp, HardDrive, SlidersHorizontal } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { TypesManager } from '@/components/types-manager'
@@ -12,12 +12,13 @@ import { PrintPresetsManager } from '@/components/print-presets-manager'
 import { MemberManagement } from '@/components/production/member-management'
 import { ProductionLinkingSection } from '@/components/production/production-linking-section'
 import { BackupSection } from '@/components/settings/backup-section'
+import { ModulesSettings } from '@/components/settings/modules-settings'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useAuthContext } from '@/components/auth/auth-provider'
 import Image from 'next/image'
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState('general')
+  const [activeTab, setActiveTab] = useState('modules')
   const { name, abbreviation, logo, updateProduction, clearLogo } = useCurrentProductionStore()
   const [logoPreview, setLogoPreview] = useState(logo)
 
@@ -112,33 +113,72 @@ export default function SettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-bg-tertiary overflow-x-auto">
-        {[
-          { id: 'general', label: 'Production Information', icon: Settings },
-          { id: 'cue-notes', label: 'Cue Notes', icon: Lightbulb },
-          { id: 'work-notes', label: 'Work Notes', icon: Wrench },
-          { id: 'production-notes', label: 'Production Notes', icon: Users },
-          { id: 'presets', label: 'Presets', icon: Palette },
-          ...(showMembersTab ? [{ id: 'members', label: 'Team Members', icon: UserPlus }] : []),
-          ...(showBackupTab ? [{ id: 'backup', label: 'Backup', icon: HardDrive }] : []),
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            data-testid={`tab-${tab.id}`}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${activeTab === tab.id
-              ? 'border-modules-production text-text-primary'
-              : 'border-transparent text-text-secondary hover:text-text-primary'
-              }`}
-          >
-            <tab.icon className="h-4 w-4" />
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex gap-1 border-b border-bg-tertiary overflow-x-auto items-end">
+        {/* Your Preferences section */}
+        <div className="flex items-end gap-1">
+          <span className="text-[10px] uppercase tracking-wider text-text-tertiary px-2 pb-2.5 hidden sm:block">Your Preferences</span>
+          {[
+            { id: 'modules', label: 'Modules', icon: SlidersHorizontal },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              data-testid={`tab-${tab.id}`}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${activeTab === tab.id
+                ? 'border-modules-production text-text-primary'
+                : 'border-transparent text-text-secondary hover:text-text-primary'
+                }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div className="h-6 w-px bg-bg-tertiary mx-1 mb-2" />
+
+        {/* Production Settings section */}
+        <div className="flex items-end gap-1">
+          <span className="text-[10px] uppercase tracking-wider text-text-tertiary px-2 pb-2.5 hidden sm:block">Production Settings</span>
+          {[
+            { id: 'general', label: 'General', icon: Settings },
+            { id: 'cue-notes', label: 'Cue Notes', icon: Lightbulb },
+            { id: 'work-notes', label: 'Work Notes', icon: Wrench },
+            { id: 'electrician-notes', label: 'Electrician Notes', icon: Zap },
+            { id: 'production-notes', label: 'Production Notes', icon: Users },
+            { id: 'presets', label: 'Presets', icon: Palette },
+            ...(showMembersTab ? [{ id: 'members', label: 'Team Members', icon: UserPlus }] : []),
+            ...(showBackupTab ? [{ id: 'backup', label: 'Backup', icon: HardDrive }] : []),
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              data-testid={`tab-${tab.id}`}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${activeTab === tab.id
+                ? 'border-modules-production text-text-primary'
+                : 'border-transparent text-text-secondary hover:text-text-primary'
+                }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Content */}
       <div className="space-y-6">
+        {activeTab === 'modules' && (
+          <div className="rounded-lg bg-bg-secondary p-6">
+            <h2 className="text-lg font-semibold text-text-primary mb-1">Modules</h2>
+            <p className="text-sm text-text-secondary mb-6">
+              Choose which modules appear in your sidebar. These settings follow you across productions.
+            </p>
+            <ModulesSettings />
+          </div>
+        )}
+
         {activeTab === 'general' && (
           <>
             <div className="rounded-lg bg-bg-secondary p-6 space-y-6">
@@ -255,6 +295,21 @@ export default function SettingsPage() {
               <div className="grid gap-8 lg:grid-cols-2">
                 <TypesManager moduleType="work" />
                 <PrioritiesManager moduleType="work" />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'electrician-notes' && (
+          <div className="space-y-8">
+            <div className="rounded-lg bg-bg-secondary p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="h-3 w-3 rounded-full bg-modules-electrician" />
+                <h2 className="text-xl font-semibold text-text-primary">Electrician Notes Configuration</h2>
+              </div>
+              <div className="grid gap-8 lg:grid-cols-2">
+                <TypesManager moduleType="electrician" />
+                <PrioritiesManager moduleType="electrician" />
               </div>
             </div>
           </div>

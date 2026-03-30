@@ -1,7 +1,13 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { CustomType, CustomTypesConfig, ModuleType, SystemOverride } from '@/types'
+import type { CustomType, CustomTypesConfig, ModuleType, PresetModuleType, SystemOverride } from '@/types'
+
+/** Resolve a PresetModuleType to the underlying ModuleType(s) */
+function resolveModuleTypes(moduleType: PresetModuleType): ModuleType[] {
+  if (moduleType === 'combined-work-electrician') return ['work', 'electrician']
+  return [moduleType]
+}
 
 interface CustomTypesState {
   customTypes: Record<ModuleType, CustomType[]>
@@ -10,8 +16,8 @@ interface CustomTypesState {
   // System defaults per documentation
   getSystemDefaults: (moduleType: ModuleType) => CustomType[]
 
-  // Get merged types (system + custom + overrides)
-  getTypes: (moduleType: ModuleType) => CustomType[]
+  // Get merged types (system + custom + overrides). Accepts PresetModuleType for combined views.
+  getTypes: (moduleType: PresetModuleType) => CustomType[]
 
   // CRUD operations
   addCustomType: (moduleType: ModuleType, type: Omit<CustomType, 'id' | 'createdAt' | 'updatedAt'>) => void
@@ -110,28 +116,39 @@ export const useCustomTypesStore = create<CustomTypesState>()(
         return getSystemDefaults(moduleType)
       },
       
-      getTypes: (moduleType: ModuleType) => {
-        const systemDefaults = getSystemDefaults(moduleType)
-        const customTypes = get().customTypes[moduleType] || []
-        const overrides = get().systemOverrides.filter(o => o.moduleType === moduleType && o.type === 'type')
-        
-        // Apply overrides to system defaults
-        const modifiedSystemDefaults = systemDefaults.map(sysType => {
-          const override = overrides.find(o => o.systemId === sysType.id)
-          if (override) {
-            return {
-              ...sysType,
-              label: override.overrideData.label || sysType.label,
-              color: override.overrideData.color || sysType.color,
-              isHidden: override.overrideData.isHidden ?? sysType.isHidden,
+      getTypes: (moduleType: PresetModuleType) => {
+        const modules = resolveModuleTypes(moduleType)
+        const seen = new Set<string>()
+        const result: CustomType[] = []
+
+        for (const mod of modules) {
+          const systemDefaults = getSystemDefaults(mod)
+          const customTypes = get().customTypes[mod] || []
+          const overrides = get().systemOverrides.filter(o => o.moduleType === mod && o.type === 'type')
+
+          // Apply overrides to system defaults
+          const modifiedSystemDefaults = systemDefaults.map(sysType => {
+            const override = overrides.find(o => o.systemId === sysType.id)
+            if (override) {
+              return {
+                ...sysType,
+                label: override.overrideData.label || sysType.label,
+                color: override.overrideData.color || sysType.color,
+                isHidden: override.overrideData.isHidden ?? sysType.isHidden,
+              }
+            }
+            return sysType
+          }).filter(type => !type.isHidden)
+
+          for (const t of [...modifiedSystemDefaults, ...customTypes]) {
+            if (!seen.has(t.value)) {
+              seen.add(t.value)
+              result.push(t)
             }
           }
-          return sysType
-        }).filter(type => !type.isHidden)
-        
-        // Merge and sort
-        const allTypes = [...modifiedSystemDefaults, ...customTypes]
-        return allTypes.sort((a, b) => a.sortOrder - b.sortOrder)
+        }
+
+        return result.sort((a, b) => a.sortOrder - b.sortOrder)
       },
       
       addCustomType: (moduleType: ModuleType, typeData) => {

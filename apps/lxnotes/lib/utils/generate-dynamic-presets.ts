@@ -1,4 +1,4 @@
-import type { FilterSortPreset, PrintPreset, EmailMessagePreset, ModuleType, CustomType, CustomPriority } from '@/types'
+import type { FilterSortPreset, PrintPreset, EmailMessagePreset, ModuleType, PresetModuleType, CustomType, CustomPriority } from '@/types'
 
 /**
  * Sentinel value indicating "all types" - when present in typeFilters,
@@ -9,12 +9,13 @@ export const ALL_TYPES_SENTINEL = '__all__'
 /**
  * Get the default sort field for a module
  */
-function getModuleSortField(moduleType: ModuleType): { sortBy: string; sortOrder: 'asc' | 'desc' } {
+function getModuleSortField(moduleType: PresetModuleType): { sortBy: string; sortOrder: 'asc' | 'desc' } {
   switch (moduleType) {
     case 'cue':
       return { sortBy: 'cue_number', sortOrder: 'asc' }
     case 'work':
     case 'production':
+    case 'combined-work-electrician':
     default:
       return { sortBy: 'priority', sortOrder: 'desc' }
   }
@@ -23,7 +24,7 @@ function getModuleSortField(moduleType: ModuleType): { sortBy: string; sortOrder
 /**
  * Get the sort field label for display names
  */
-function getSortLabel(moduleType: ModuleType): string {
+function getSortLabel(moduleType: PresetModuleType): string {
   switch (moduleType) {
     case 'cue':
       return 'Cue #'
@@ -37,15 +38,15 @@ function getSortLabel(moduleType: ModuleType): string {
 /**
  * Generate deterministic preset ID for system presets
  */
-function generateFilterPresetId(moduleType: ModuleType, suffix: string): string {
+function generateFilterPresetId(moduleType: PresetModuleType, suffix: string): string {
   return `sys-filter-${moduleType}-${suffix}`
 }
 
-function generatePrintPresetId(moduleType: ModuleType, suffix: string): string {
+function generatePrintPresetId(moduleType: PresetModuleType, suffix: string): string {
   return `sys-print-${moduleType}-${suffix}`
 }
 
-function generateEmailPresetId(moduleType: ModuleType, suffix: string): string {
+function generateEmailPresetId(moduleType: PresetModuleType, suffix: string): string {
   return `sys-email-${moduleType}-${suffix}`
 }
 
@@ -63,7 +64,7 @@ function generateEmailPresetId(moduleType: ModuleType, suffix: string): string {
  * - [TypeLabel] To-Do (by [Sort])
  */
 export function generateSystemFilterPresets(
-  moduleType: ModuleType,
+  moduleType: PresetModuleType,
   types: CustomType[],
   priorities: CustomPriority[]
 ): FilterSortPreset[] {
@@ -120,7 +121,7 @@ export function generateSystemFilterPresets(
   })
 
   // 3. All In Review (by Sort) - work notes only
-  if (moduleType === 'work') {
+  if (moduleType === 'work' || moduleType === 'combined-work-electrician') {
     presets.push({
       id: generateFilterPresetId(moduleType, 'all-in-review'),
       productionId,
@@ -236,7 +237,7 @@ export function generateSystemFilterPresets(
  * Each filter preset gets a matching print preset with Letter Landscape style.
  */
 export function generateSystemPrintPresets(
-  moduleType: ModuleType,
+  moduleType: PresetModuleType,
   filterPresets: FilterSortPreset[]
 ): PrintPreset[] {
   const baseDate = new Date()
@@ -273,7 +274,7 @@ export function generateSystemPrintPresets(
  * - 1 preset per visible type (e.g., "SM Notes", "Director Notes")
  */
 export function generateSystemEmailPresets(
-  moduleType: ModuleType,
+  moduleType: PresetModuleType,
   filterPresets: FilterSortPreset[]
 ): EmailMessagePreset[] {
   const baseDate = new Date()

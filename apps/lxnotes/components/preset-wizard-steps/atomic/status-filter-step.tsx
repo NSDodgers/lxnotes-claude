@@ -1,14 +1,14 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import type { ModuleType } from '@/types'
+import type { ModuleType, PresetModuleType } from '@/types'
 
 type StatusFilter = 'todo' | 'review' | 'complete' | 'cancelled' | 'deleted' | null
 
 interface StatusFilterStepProps {
   value: StatusFilter
   onChange: (value: StatusFilter) => void
-  moduleType?: ModuleType
+  moduleType?: PresetModuleType
 }
 
 const baseStatusOptions: { value: StatusFilter; label: string; description: string; workOnly?: boolean }[] = [

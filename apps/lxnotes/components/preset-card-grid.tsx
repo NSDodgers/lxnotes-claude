@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus, Send, Download, Loader2, ArrowUpNarrowWide, ArrowDownWideNarrow, FileText, Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { EmailMessagePreset, PrintPreset, ModuleType, Note } from '@/types'
+import type { EmailMessagePreset, PrintPreset, ModuleType, PresetModuleType, Note } from '@/types'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import {
@@ -21,7 +21,7 @@ type ActionPreset = EmailMessagePreset | PrintPreset
 
 interface PresetCardGridProps {
   presets: ActionPreset[]
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   notes: Note[]
   variant: 'email' | 'print'
   onSelectPreset: (preset: ActionPreset) => void

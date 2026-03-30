@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { FilterSortPreset, ModuleType } from '@/types'
+import type { FilterSortPreset, ModuleType, PresetModuleType } from '@/types'
 import { generateSystemFilterPresets } from '@/lib/utils/generate-dynamic-presets'
 import { useCustomTypesStore } from './custom-types-store'
 import { useCustomPrioritiesStore } from './custom-priorities-store'
@@ -18,10 +18,10 @@ interface FilterSortPresetsState {
   getPreset: (id: string) => FilterSortPreset | undefined
 
   // Returns all presets (system + user) for a module
-  getPresetsByModule: (moduleType: ModuleType) => FilterSortPreset[]
+  getPresetsByModule: (moduleType: PresetModuleType) => FilterSortPreset[]
 
   // Returns only dynamically generated system presets
-  getSystemDefaults: (moduleType: ModuleType) => FilterSortPreset[]
+  getSystemDefaults: (moduleType: PresetModuleType) => FilterSortPreset[]
 
   // Utilities
   setLoading: (loading: boolean) => void
@@ -31,8 +31,9 @@ interface FilterSortPresetsState {
  * Compute system filter presets dynamically based on current types/priorities stores.
  * This ensures presets stay in sync with visible types and priorities.
  */
-function computeSystemPresets(moduleType: ModuleType): FilterSortPreset[] {
+function computeSystemPresets(moduleType: PresetModuleType): FilterSortPreset[] {
   // Access the stores directly to get current types and priorities
+  // getTypes/getPriorities already handle combined types by returning the union
   const types = useCustomTypesStore.getState().getTypes(moduleType)
   const priorities = useCustomPrioritiesStore.getState().getPriorities(moduleType)
 

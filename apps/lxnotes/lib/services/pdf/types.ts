@@ -8,6 +8,8 @@ export interface PDFGenerationRequest {
   productionName?: string
   productionLogo?: string
   fixtureAggregates?: Record<string, FixtureAggregate>
+  /** Override the module title in the PDF header (e.g., "Work + Electrician Notes" for combined view) */
+  moduleTitleOverride?: string
 }
 
 export interface PDFGenerationResult {

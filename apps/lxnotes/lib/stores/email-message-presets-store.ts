@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { EmailMessagePreset, PlaceholderDefinition, ModuleType } from '@/types'
+import type { EmailMessagePreset, PlaceholderDefinition, ModuleType, PresetModuleType } from '@/types'
 import { generateSystemEmailPresets } from '@/lib/utils/generate-dynamic-presets'
 import { useFilterSortPresetsStore } from './filter-sort-presets-store'
 import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
@@ -18,7 +18,7 @@ interface EmailMessagePresetsState {
   getPreset: (id: string) => EmailMessagePreset | undefined
 
   // Returns all presets (system + user) for a module
-  getPresetsByModule: (moduleType: ModuleType) => EmailMessagePreset[]
+  getPresetsByModule: (moduleType: PresetModuleType) => EmailMessagePreset[]
 
   // Placeholder management
   getAvailablePlaceholders: () => PlaceholderDefinition[]
@@ -60,7 +60,7 @@ const getAvailablePlaceholders = (): PlaceholderDefinition[] => [
  * Compute system email presets dynamically based on current filter presets.
  * Each filter preset gets a corresponding email preset.
  */
-function computeSystemEmailPresets(moduleType: ModuleType): EmailMessagePreset[] {
+function computeSystemEmailPresets(moduleType: PresetModuleType): EmailMessagePreset[] {
   // Get the dynamically generated filter presets for this module
   const filterPresets = useFilterSortPresetsStore.getState().getSystemDefaults(moduleType)
 

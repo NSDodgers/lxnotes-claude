@@ -23,16 +23,16 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import type { ModuleType, PrintPreset, EmailMessagePreset, FilterSortPreset, PageStylePreset, Note } from '@/types'
+import type { ModuleType, PresetModuleType, PrintPreset, EmailMessagePreset, FilterSortPreset, PageStylePreset, Note } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { PlaceholderData } from '@/lib/utils/placeholders'
 import { useAuthContext } from '@/components/auth/auth-provider'
-import { isFixtureModule } from '@/lib/utils/module-helpers'
+import { isFixtureModule, getPdfModuleType } from '@/lib/utils/module-helpers'
 
 interface PrintNotesSidebarProps {
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   isOpen: boolean
   onClose: () => void
   notes?: Note[]
@@ -40,11 +40,12 @@ interface PrintNotesSidebarProps {
 
 type SidebarView = 'cards' | 'confirm' | 'wizard' | 'editor' | 'custom'
 
-const moduleDisplayNames: Record<ModuleType, string> = {
+const moduleDisplayNames: Record<PresetModuleType, string> = {
   cue: 'Cue Notes',
   work: 'Work Notes',
   production: 'Production Notes',
   electrician: 'Electrician Notes',
+  'combined-work-electrician': 'Work + Electrician Notes',
 }
 
 export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNotes }: PrintNotesSidebarProps) {
@@ -82,7 +83,9 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
   const [editingFilterPreset, setEditingFilterPreset] = useState<FilterSortPreset | null>(null)
   const [editingPageStylePreset, setEditingPageStylePreset] = useState<PageStylePreset | null>(null)
 
-  const notes = propNotes || mockNotesStore.getAllNotes(moduleType)
+  // For PDF generation and preset creation, use the base module type
+  const pdfModuleType = getPdfModuleType(moduleType)
+  const notes = propNotes || mockNotesStore.getAllNotes(pdfModuleType)
   const moduleName = moduleDisplayNames[moduleType]
 
   const placeholderData: PlaceholderData = useMemo(() => ({
@@ -128,13 +131,14 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
     try {
       const pdfService = PDFGenerationService.getInstance()
       const result = await pdfService.generatePDF({
-        moduleType,
+        moduleType: pdfModuleType,
         filterPreset,
         pageStylePreset,
         notes,
         productionName,
         productionLogo,
         ...(isFixtureModule(moduleType) && { fixtureAggregates }),
+        ...(moduleType !== pdfModuleType && { moduleTitleOverride: moduleName }),
       })
 
       if (result.success && result.pdfBlob) {

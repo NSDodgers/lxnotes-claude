@@ -5,10 +5,6 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
-  Lightbulb,
-  Wrench,
-  Zap,
-  FileText,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -17,18 +13,39 @@ import {
 } from 'lucide-react'
 import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
+import { useSidebarConfigStore } from '@/lib/stores/sidebar-config-store'
+import { MODULE_REGISTRY, COMBINED_VIEW_REGISTRY, getModuleConfig, getCombinedViewConfig } from '@/lib/config/modules'
 import { PolicyFooter } from './policy-footer'
 import { UserMenu } from '@/components/auth/user-menu'
 import { useNotes } from '@/lib/contexts/notes-context'
+import { useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 export function Sidebar() {
   const { collapsed, toggleCollapsed } = useSidebarStore()
+  const { config, isLoaded, fetchFromSupabase, getVisibleModules, getVisibleCombinedViews } = useSidebarConfigStore()
   const pathname = usePathname()
   const { connectionStatus } = useNotes()
 
-  // Detect mode: demo, production, or default
+  // Detect mode: demo, production, or default (must be before effects that use isDemoMode)
   const isDemoMode = pathname.startsWith('/demo')
   const isProductionMode = pathname.startsWith('/production/')
+
+  // Hydrate sidebar config store from localStorage on mount
+  useEffect(() => {
+    useSidebarConfigStore.persist.rehydrate()
+  }, [])
+
+  // Fetch config from Supabase when authenticated (not in demo mode)
+  useEffect(() => {
+    if (isDemoMode) return
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.id) {
+        fetchFromSupabase(data.user.id)
+      }
+    })
+  }, [isDemoMode, fetchFromSupabase])
   // Only demo mode has a banner now (production mode banner was removed)
   const hasBanner = isDemoMode
 
@@ -44,13 +61,26 @@ export function Sidebar() {
       ? `/production/${productionId}`
       : ''
 
-  // Navigation items with mode support
+  // Build navigation from registry + user config
+  const visibleModules = getVisibleModules()
+  const visibleCombinedViews = getVisibleCombinedViews()
+
+  const moduleNavItems = visibleModules.map((entry) => {
+    const mod = getModuleConfig(entry.id)
+    if (!mod) return null
+    return { name: mod.label, href: `${baseUrl}${mod.route}`, icon: mod.icon, color: mod.colorClass }
+  }).filter(Boolean) as { name: string; href: string; icon: React.ComponentType<{ className?: string }>; color: string }[]
+
+  const combinedNavItems = visibleCombinedViews.map((entry) => {
+    const view = getCombinedViewConfig(entry.id)
+    if (!view) return null
+    return { name: view.label, href: `${baseUrl}${view.route}`, icon: view.icon, color: view.colorClass }
+  }).filter(Boolean) as { name: string; href: string; icon: React.ComponentType<{ className?: string }>; color: string }[]
+
   const navigation = [
-    { name: 'Cue Notes', href: `${baseUrl}/cue-notes`, icon: Lightbulb, color: 'text-modules-cue' },
-    { name: 'Work Notes', href: `${baseUrl}/work-notes`, icon: Wrench, color: 'text-modules-work' },
-    { name: 'Electrician Notes', href: `${baseUrl}/electrician-notes`, icon: Zap, color: 'text-modules-electrician' },
-    { name: 'Production Notes', href: `${baseUrl}/production-notes`, icon: FileText, color: 'text-modules-production' },
-    { name: 'Settings', href: `${baseUrl}/settings`, icon: Settings },
+    ...moduleNavItems,
+    ...combinedNavItems,
+    { name: 'Settings', href: `${baseUrl}/settings`, icon: Settings, color: '' },
   ]
   const { isDesignerMode, toggleDesignerMode } = useDesignerModeStore()
 
@@ -108,13 +138,13 @@ export function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 space-y-1 px-compact-2 py-compact-4">
           {navigation.map((item) => {
-            const isActive = pathname === item.href
+            const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-compact-3 rounded-lg px-compact-3 py-compact-2 text-sm font-medium transition-colors',
+                  'flex items-center gap-compact-3 rounded-lg px-compact-3 py-compact-2 text-sm font-medium transition-all duration-200',
                   isActive
                     ? 'bg-bg-tertiary text-text-primary'
                     : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary',

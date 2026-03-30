@@ -26,11 +26,12 @@ import type { EmailMessagePreset, ModuleType } from '@/types'
 import { useAuthContext } from '@/components/auth/auth-provider'
 
 // Module display names for UI
-const moduleDisplayNames: Record<ModuleType, string> = {
+const moduleDisplayNames: Record<ModuleType | 'combined-work-electrician', string> = {
   cue: 'Cue Notes',
   work: 'Work Notes',
   production: 'Production Notes',
   electrician: 'Electrician Notes',
+  'combined-work-electrician': 'Work + Electrician Notes',
 }
 
 const moduleOptions: ModuleType[] = ['cue', 'work', 'production']

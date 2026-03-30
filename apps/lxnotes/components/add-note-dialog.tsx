@@ -38,6 +38,10 @@ interface AddNoteDialogProps {
   moduleType: ModuleType
   defaultType?: string
   editingNote?: Note | null
+  /** When set, shows a module type selector for the combined view */
+  combinedViewModuleTypes?: ModuleType[]
+  /** Callback when user changes the module type in combined view */
+  onModuleTypeChange?: (moduleType: ModuleType) => void
 }
 
 // Helper function to format channel numbers into expression string
@@ -76,7 +80,7 @@ function formatChannelsAsExpression(channels: number[]): string {
   return ranges.join(', ')
 }
 
-export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType, editingNote }: AddNoteDialogProps) {
+export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType, editingNote, combinedViewModuleTypes, onModuleTypeChange }: AddNoteDialogProps) {
   // Use optional hook to avoid throwing during static generation or demo mode
   const productionContext = useProductionOptional()
   const productionId = productionContext?.productionId ?? 'demo'
@@ -221,6 +225,25 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
 
         <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="flex flex-col min-h-0 flex-1">
           <DialogScrollableContent className="space-y-6">
+            {/* Module type selector for combined view */}
+            {combinedViewModuleTypes && combinedViewModuleTypes.length > 1 && !editingNote && (
+              <div className="space-y-2">
+                <Label>Module</Label>
+                <Select value={moduleType} onValueChange={(value) => onModuleTypeChange?.(value as ModuleType)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {combinedViewModuleTypes.map((mt) => (
+                      <SelectItem key={mt} value={mt}>
+                        {mt === 'work' ? 'Work Notes' : mt === 'electrician' ? 'Electrician Notes' : mt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="type">Type</Label>

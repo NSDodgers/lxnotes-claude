@@ -43,7 +43,7 @@ export const filterSortPresetConfigSchema = z.object({
 
 export const filterSortPresetSchema = basePresetSchema.extend({
   type: z.literal('filter_sort'),
-  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician', 'combined-work-electrician'], {
     message: 'Module type is required',
   }),
   config: filterSortPresetConfigSchema,
@@ -72,7 +72,7 @@ export const emailMessagePresetConfigSchema = z.object({
 
 export const emailMessagePresetSchema = basePresetSchema.extend({
   type: z.literal('email_message'),
-  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician', 'combined-work-electrician'], {
     message: 'Module type is required',
   }),
   config: emailMessagePresetConfigSchema,
@@ -90,7 +90,7 @@ export const printPresetConfigSchema = z.object({
 
 export const printPresetSchema = basePresetSchema.extend({
   type: z.literal('print'),
-  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician', 'combined-work-electrician'], {
     message: 'Module type is required',
   }),
   config: printPresetConfigSchema,
@@ -120,25 +120,29 @@ const workNotesSortFields = ['priority', 'type', 'channel', 'position', 'created
 const productionNotesSortFields = ['priority', 'department', 'created_at', 'completed_at', 'cancelled_at'] as const
 const electricianNotesSortFields = ['priority', 'type', 'channel', 'position', 'created_at', 'completed_at', 'cancelled_at'] as const
 
+// Combined view uses same fields as work (work + electrician share schema)
+const combinedWorkElectricianSortFields = workNotesSortFields
+
 const sortFieldsMap = {
   cue: cueNotesSortFields,
   work: workNotesSortFields,
   production: productionNotesSortFields,
   electrician: electricianNotesSortFields,
-} as const satisfies Record<'cue' | 'work' | 'production' | 'electrician', readonly [string, ...string[]]>
+  'combined-work-electrician': combinedWorkElectricianSortFields,
+} as const satisfies Record<'cue' | 'work' | 'production' | 'electrician' | 'combined-work-electrician', readonly [string, ...string[]]>
 
 type ModuleSortFieldsMap = typeof sortFieldsMap
 
 export const getSortFieldsForModule = <T extends keyof ModuleSortFieldsMap>(moduleType: T) =>
   sortFieldsMap[moduleType]
 
-export const validateSortFieldForModule = (sortBy: string, moduleType: 'cue' | 'work' | 'production' | 'electrician') => {
+export const validateSortFieldForModule = (sortBy: string, moduleType: 'cue' | 'work' | 'production' | 'electrician' | 'combined-work-electrician') => {
   const validFields = getSortFieldsForModule(moduleType)
   return (validFields as readonly string[]).includes(sortBy)
 }
 
 // Helper function to validate filter/sort preset config based on module
-export const createModuleSpecificFilterSortSchema = (moduleType: 'cue' | 'work' | 'production' | 'electrician') => {
+export const createModuleSpecificFilterSortSchema = (moduleType: 'cue' | 'work' | 'production' | 'electrician' | 'combined-work-electrician') => {
   const validSortFields = getSortFieldsForModule(moduleType)
 
   return filterSortPresetConfigSchema.extend({
@@ -169,7 +173,7 @@ export const filterSortFormSchema = z.object({
 
 export const emailMessageFormSchema = z.object({
   name: basePresetSchema.shape.name,
-  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician', 'combined-work-electrician'], {
     message: 'Module type is required',
   }),
   recipients: emailMessagePresetConfigSchema.shape.recipients,
@@ -183,7 +187,7 @@ export const emailMessageFormSchema = z.object({
 
 export const printFormSchema = z.object({
   name: basePresetSchema.shape.name,
-  moduleType: z.enum(['cue', 'work', 'production', 'electrician'], {
+  moduleType: z.enum(['cue', 'work', 'production', 'electrician', 'combined-work-electrician'], {
     message: 'Module type is required',
   }),
   filterSortPresetId: printPresetConfigSchema.shape.filterSortPresetId,

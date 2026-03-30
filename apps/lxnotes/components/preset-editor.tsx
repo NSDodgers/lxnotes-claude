@@ -20,7 +20,7 @@ import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { getSortFieldsForModule } from '@/lib/validation/preset-schemas'
-import type { ModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset, PageStylePreset } from '@/types'
+import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset, PageStylePreset } from '@/types'
 
 function useSafeProductionId() {
   try {
@@ -32,7 +32,7 @@ function useSafeProductionId() {
 
 interface PresetEditorProps {
   variant: 'email' | 'print'
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   editingPreset?: EmailMessagePreset | PrintPreset | null
   onComplete: () => void
   onBack: () => void

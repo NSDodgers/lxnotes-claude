@@ -36,10 +36,15 @@ export class PDFGenerationService {
   async generatePDF(request: PDFGenerationRequest): Promise<PDFGenerationResult> {
     try {
       // Get the appropriate strategy
-      const strategy = this.strategies[request.moduleType]
-      if (!strategy) {
+      const baseStrategy = this.strategies[request.moduleType]
+      if (!baseStrategy) {
         throw new Error(`No PDF strategy found for module type: ${request.moduleType}`)
       }
+
+      // Apply title override if provided (e.g., combined view uses "Work + Electrician Notes")
+      const strategy = request.moduleTitleOverride
+        ? { ...baseStrategy, getModuleTitle: () => request.moduleTitleOverride! }
+        : baseStrategy
 
       // Get custom priorities and types for module
       const { getPriorities } = useCustomPrioritiesStore.getState()

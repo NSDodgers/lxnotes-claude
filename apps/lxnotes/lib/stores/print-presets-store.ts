@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { PrintPreset, ModuleType } from '@/types'
+import type { PrintPreset, ModuleType, PresetModuleType } from '@/types'
 import { generateSystemPrintPresets } from '@/lib/utils/generate-dynamic-presets'
 import { useFilterSortPresetsStore } from './filter-sort-presets-store'
 
@@ -17,7 +17,7 @@ interface PrintPresetsState {
   getPreset: (id: string) => PrintPreset | undefined
 
   // Returns all presets (system + user) for a module
-  getPresetsByModule: (moduleType: ModuleType) => PrintPreset[]
+  getPresetsByModule: (moduleType: PresetModuleType) => PrintPreset[]
 
   // Returns only dynamically generated system presets
   getSystemDefaults: () => PrintPreset[]
@@ -30,7 +30,7 @@ interface PrintPresetsState {
  * Compute system print presets dynamically based on current filter presets.
  * Each filter preset gets a corresponding print preset.
  */
-function computeSystemPrintPresets(moduleType: ModuleType): PrintPreset[] {
+function computeSystemPrintPresets(moduleType: PresetModuleType): PrintPreset[] {
   // Get the dynamically generated filter presets for this module
   const filterPresets = useFilterSortPresetsStore.getState().getSystemDefaults(moduleType)
 

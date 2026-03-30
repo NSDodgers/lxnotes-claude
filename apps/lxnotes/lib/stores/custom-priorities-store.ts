@@ -1,7 +1,13 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { CustomPriority, CustomPrioritiesConfig, ModuleType, SystemOverride } from '@/types'
+import type { CustomPriority, CustomPrioritiesConfig, ModuleType, PresetModuleType, SystemOverride } from '@/types'
+
+/** Resolve a PresetModuleType to the underlying ModuleType(s) */
+function resolveModuleTypes(moduleType: PresetModuleType): ModuleType[] {
+  if (moduleType === 'combined-work-electrician') return ['work', 'electrician']
+  return [moduleType]
+}
 
 interface CustomPrioritiesState {
   customPriorities: Record<ModuleType, CustomPriority[]>
@@ -10,8 +16,8 @@ interface CustomPrioritiesState {
   // System defaults per documentation
   getSystemDefaults: (moduleType: ModuleType) => CustomPriority[]
 
-  // Get merged priorities (system + custom + overrides)
-  getPriorities: (moduleType: ModuleType) => CustomPriority[]
+  // Get merged priorities (system + custom + overrides). Accepts PresetModuleType for combined views.
+  getPriorities: (moduleType: PresetModuleType) => CustomPriority[]
 
   // CRUD operations
   addCustomPriority: (moduleType: ModuleType, priority: Omit<CustomPriority, 'id' | 'createdAt' | 'updatedAt'>) => void
@@ -89,28 +95,38 @@ export const useCustomPrioritiesStore = create<CustomPrioritiesState>()(
         return getSystemDefaults(moduleType)
       },
       
-      getPriorities: (moduleType: ModuleType) => {
-        const systemDefaults = getSystemDefaults(moduleType)
-        const customPriorities = get().customPriorities[moduleType] || []
-        const overrides = get().systemOverrides.filter(o => o.moduleType === moduleType && o.type === 'priority')
-        
-        // Apply overrides to system defaults
-        const modifiedSystemDefaults = systemDefaults.map(sysPriority => {
-          const override = overrides.find(o => o.systemId === sysPriority.id)
-          if (override) {
-            return {
-              ...sysPriority,
-              label: override.overrideData.label || sysPriority.label,
-              color: override.overrideData.color || sysPriority.color,
-              isHidden: override.overrideData.isHidden ?? sysPriority.isHidden,
+      getPriorities: (moduleType: PresetModuleType) => {
+        const modules = resolveModuleTypes(moduleType)
+        const seen = new Set<string>()
+        const result: CustomPriority[] = []
+
+        for (const mod of modules) {
+          const systemDefaults = getSystemDefaults(mod)
+          const customPriorities = get().customPriorities[mod] || []
+          const overrides = get().systemOverrides.filter(o => o.moduleType === mod && o.type === 'priority')
+
+          const modifiedSystemDefaults = systemDefaults.map(sysPriority => {
+            const override = overrides.find(o => o.systemId === sysPriority.id)
+            if (override) {
+              return {
+                ...sysPriority,
+                label: override.overrideData.label || sysPriority.label,
+                color: override.overrideData.color || sysPriority.color,
+                isHidden: override.overrideData.isHidden ?? sysPriority.isHidden,
+              }
+            }
+            return sysPriority
+          }).filter(priority => !priority.isHidden)
+
+          for (const p of [...modifiedSystemDefaults, ...customPriorities]) {
+            if (!seen.has(p.value)) {
+              seen.add(p.value)
+              result.push(p)
             }
           }
-          return sysPriority
-        }).filter(priority => !priority.isHidden)
-        
-        // Merge and sort by sortOrder (supports decimals)
-        const allPriorities = [...modifiedSystemDefaults, ...customPriorities]
-        return allPriorities.sort((a, b) => a.sortOrder - b.sortOrder)
+        }
+
+        return result.sort((a, b) => a.sortOrder - b.sortOrder)
       },
       
       addCustomPriority: (moduleType: ModuleType, priorityData) => {

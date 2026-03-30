@@ -3,14 +3,14 @@
 import { useMemo } from 'react'
 import { PresetFormField, PresetFormSelect } from '@/components/preset-dialog'
 import { getSortFieldsForModule } from '@/lib/validation/preset-schemas'
-import type { ModuleType } from '@/types'
+import type { ModuleType, PresetModuleType } from '@/types'
 
 interface SortOptionsStepProps {
   sortBy: string
   sortOrder: 'asc' | 'desc'
   onSortByChange: (value: string) => void
   onSortOrderChange: (value: 'asc' | 'desc') => void
-  moduleType: ModuleType
+  moduleType: PresetModuleType
 }
 
 const fieldLabels: Record<string, string> = {

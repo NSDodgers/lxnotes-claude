@@ -8,7 +8,7 @@ import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-stor
 import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
-import type { Note, ModuleType } from '@/types'
+import type { Note, ModuleType, PresetModuleType } from '@/types'
 
 interface NameAndSaveStepProps {
   name: string
@@ -19,7 +19,7 @@ interface NameAndSaveStepProps {
   subject?: string
   filterPresetId: string | null
   pageStylePresetId: string | null
-  moduleType: ModuleType
+  moduleType: PresetModuleType
   notes: Note[]
   placeholderData: PlaceholderData
 }
