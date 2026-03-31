@@ -144,12 +144,10 @@ export function ColumnConfigPopover({ moduleType }: ColumnConfigPopoverProps) {
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="p-0"
-        style={{ width: 260, maxHeight: 360 }}
+        className="p-0 w-[260px] max-h-[360px] flex flex-col"
       >
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b border-bg-tertiary">
+        {/* Header - fixed */}
+        <div className="flex-none flex items-center justify-between px-3 py-2 border-b border-bg-tertiary">
             <span className="text-sm font-medium text-text-primary">Columns</span>
             <button
               onClick={handleReset}
@@ -161,57 +159,57 @@ export function ColumnConfigPopover({ moduleType }: ColumnConfigPopoverProps) {
             </button>
           </div>
 
-          <div className="overflow-y-auto p-2 space-y-1">
-            {/* Always visible section */}
-            <div className="px-1 py-1">
-              <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
-                Always visible
-              </span>
-            </div>
-            {pinnedColumns.map((col) => (
-              <div
-                key={col.id}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-md"
-              >
-                <div className="w-[22px]" /> {/* spacer matching drag handle width */}
-                <span className="text-sm flex-1 text-text-secondary">{col.label}</span>
-                <div className="p-1 opacity-30">
-                  <Eye className="h-3.5 w-3.5 text-text-tertiary" />
-                </div>
-              </div>
-            ))}
-
-            {/* Customizable section */}
-            <div className="px-1 py-1 mt-1">
-              <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
-                Customizable
-              </span>
-            </div>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={customizableIds}
-                strategy={verticalListSortingStrategy}
-              >
-                {customizableIds.map((colId) => {
-                  const meta = registry.find((c) => c.id === colId)
-                  if (!meta) return null
-                  return (
-                    <SortableColumnRow
-                      key={colId}
-                      columnId={colId}
-                      label={meta.label}
-                      isHidden={hiddenSet.has(colId)}
-                      onToggle={toggleColumn}
-                    />
-                  )
-                })}
-              </SortableContext>
-            </DndContext>
+        {/* Scrollable content */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-1">
+          {/* Always visible section */}
+          <div className="px-1 py-1">
+            <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
+              Always visible
+            </span>
           </div>
+          {pinnedColumns.map((col) => (
+            <div
+              key={col.id}
+              className="flex items-center gap-2 px-2 py-1.5 rounded-md"
+            >
+              <div className="w-[22px]" /> {/* spacer matching drag handle width */}
+              <span className="text-sm flex-1 text-text-secondary">{col.label}</span>
+              <div className="p-1 opacity-30">
+                <Eye className="h-3.5 w-3.5 text-text-tertiary" />
+              </div>
+            </div>
+          ))}
+
+          {/* Customizable section */}
+          <div className="px-1 py-1 mt-1">
+            <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
+              Customizable
+            </span>
+          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={customizableIds}
+              strategy={verticalListSortingStrategy}
+            >
+              {customizableIds.map((colId) => {
+                const meta = registry.find((c) => c.id === colId)
+                if (!meta) return null
+                return (
+                  <SortableColumnRow
+                    key={colId}
+                    columnId={colId}
+                    label={meta.label}
+                    isHidden={hiddenSet.has(colId)}
+                    onToggle={toggleColumn}
+                  />
+                )
+              })}
+            </SortableContext>
+          </DndContext>
         </div>
       </PopoverContent>
     </Popover>
