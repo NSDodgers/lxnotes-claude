@@ -8,7 +8,7 @@ interface PageStylePresetsState {
   loading: boolean
   
   // CRUD operations
-  addPreset: (preset: Omit<PageStylePreset, 'id' | 'createdAt' | 'updatedAt'>) => void
+  addPreset: (preset: Omit<PageStylePreset, 'id' | 'createdAt' | 'updatedAt'> & { id?: string; createdAt?: Date; updatedAt?: Date }) => void
   updatePreset: (id: string, updates: Partial<PageStylePreset>) => void
   deletePreset: (id: string) => void
   getPreset: (id: string) => PageStylePreset | undefined
@@ -92,10 +92,10 @@ export const usePageStylePresetsStore = create<PageStylePresetsState>()(
       addPreset: (presetData) => {
         const timestamp = new Date()
         const newPreset: PageStylePreset = {
-          ...presetData,
           id: `page-style-${Math.random().toString(36).substring(2, 11)}`,
           createdAt: timestamp,
           updatedAt: timestamp,
+          ...presetData,
         }
         
         set(state => ({

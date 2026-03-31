@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { EmailMessagePreset, PlaceholderDefinition, ModuleType, PresetModuleType } from '@/types'
+import type { EmailMessagePreset, PlaceholderDefinition, PresetModuleType } from '@/types'
 import { generateSystemEmailPresets } from '@/lib/utils/generate-dynamic-presets'
 import { useFilterSortPresetsStore } from './filter-sort-presets-store'
 import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
@@ -12,7 +12,7 @@ interface EmailMessagePresetsState {
   loading: boolean
 
   // CRUD operations for user presets
-  addPreset: (preset: Omit<EmailMessagePreset, 'id' | 'createdAt' | 'updatedAt'>) => void
+  addPreset: (preset: Omit<EmailMessagePreset, 'id' | 'createdAt' | 'updatedAt'> & { id?: string; createdAt?: Date; updatedAt?: Date }) => void
   updatePreset: (id: string, updates: Partial<EmailMessagePreset>) => void
   deletePreset: (id: string) => void
   getPreset: (id: string) => EmailMessagePreset | undefined
@@ -83,10 +83,10 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
       addPreset: (presetData) => {
         const timestamp = new Date()
         const newPreset: EmailMessagePreset = {
-          ...presetData,
           id: `email-message-${Math.random().toString(36).substring(2, 11)}`,
           createdAt: timestamp,
           updatedAt: timestamp,
+          ...presetData,
         }
 
         set(state => ({
@@ -122,7 +122,7 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
         if (userPreset) return userPreset
 
         // Check system presets across all modules
-        const modules: ModuleType[] = ['cue', 'work', 'production', 'electrician']
+        const modules: PresetModuleType[] = ['cue', 'work', 'production', 'electrician', 'combined-work-electrician']
         for (const moduleType of modules) {
           const systemPresets = computeSystemEmailPresets(moduleType)
           const systemPreset = systemPresets.find(p => p.id === id)
@@ -158,7 +158,7 @@ export const useEmailMessagePresetsStore = create<EmailMessagePresetsState>()(
 
       getSystemDefaults: () => {
         // Return all system presets across all modules
-        const modules: ModuleType[] = ['cue', 'work', 'production', 'electrician']
+        const modules: PresetModuleType[] = ['cue', 'work', 'production', 'electrician', 'combined-work-electrician']
         return modules.flatMap(moduleType => computeSystemEmailPresets(moduleType))
       },
 
