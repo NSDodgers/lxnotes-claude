@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Bug } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { useAuthContext } from '@/components/auth/auth-provider'
@@ -43,6 +44,11 @@ export function BugReportButton() {
   const [screenshot, setScreenshot] = useState<string | null>(null)
   const [isCapturing, setIsCapturing] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleClick = useCallback(async () => {
     setIsCapturing(true)
@@ -78,7 +84,7 @@ export function BugReportButton() {
     setIsModalOpen(true)
   }, [])
 
-  if (isLoading || !isAuthenticated) return null
+  if (isLoading || !isAuthenticated || !mounted) return null
 
   const context = {
     route: pathname,
@@ -87,14 +93,14 @@ export function BugReportButton() {
     os: getOSInfo(),
   }
 
-  return (
+  return createPortal(
     <>
       <button
         ref={buttonRef}
         onClick={handleClick}
         disabled={isCapturing}
         data-testid="bug-report-button"
-        className="fixed bottom-4 right-4 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-red-600 shadow-lg transition-colors hover:bg-red-500 disabled:opacity-50"
+        className="fixed bottom-20 right-4 md:bottom-4 z-[2147483647] flex h-11 w-11 items-center justify-center rounded-full bg-red-600 shadow-lg transition-colors hover:bg-red-500 disabled:opacity-50"
         title="Report a bug"
       >
         <Bug className="h-5 w-5 text-white" />
@@ -106,6 +112,7 @@ export function BugReportButton() {
         onRemoveScreenshot={() => setScreenshot(null)}
         context={context}
       />
-    </>
+    </>,
+    document.body
   )
 }
