@@ -189,6 +189,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
 
       let pdfBase64: string | undefined
       let pdfFilename: string | undefined
+      let pdfError: string | undefined
 
       if (withPdf && pageStylePresetId) {
         const pageStylePreset = pageStylePresets.find(p => p.id === pageStylePresetId)
@@ -215,21 +216,21 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
             pdfBase64 = btoa(binary)
             pdfFilename = result.filename || `${moduleType}_notes.pdf`
           } else {
-            console.warn('[Email PDF] PDF generation failed:', result.error || 'unknown error')
+            pdfError = result.error || 'PDF generation returned no data'
+            console.warn('[Email PDF] PDF generation failed:', pdfError)
           }
         } else {
-          console.warn('[Email PDF] Page style preset not found in available presets:', pageStylePresetId)
+          pdfError = `Page style preset "${pageStylePresetId}" not found`
+          console.warn('[Email PDF]', pdfError)
         }
       } else if (withPdf && !pageStylePresetId) {
-        console.warn('[Email PDF] PDF requested but no pageStylePresetId configured on preset')
+        pdfError = 'No page style preset configured'
+        console.warn('[Email PDF]', pdfError)
       }
 
       // Block send if PDF was requested but generation failed
       if (withPdf && !pdfBase64) {
-        const reason = !pageStylePresetId
-          ? 'No page style is configured for this preset. Edit the preset and select a page style.'
-          : 'PDF generation failed. Try sending again, or send without the PDF.'
-        setSendError(reason)
+        setSendError(`PDF generation failed: ${pdfError || 'unknown error'}. Try sending again, or send without the PDF.`)
         setPdfFailedButCanSendWithout(true)
         setIsSending(false)
         return
