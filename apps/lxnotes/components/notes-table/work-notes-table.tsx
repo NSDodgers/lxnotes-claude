@@ -121,7 +121,7 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, 
   const handleQuickAddClick = useCallback(async () => {
     if (onQuickAdd && inlineEditing) {
       const newNote = await onQuickAdd()
-      inlineEditing.startEditing(newNote.id, 'title', true)
+      inlineEditing.startEditing(newNote.id, 'description', true)
     }
   }, [onQuickAdd, inlineEditing])
 

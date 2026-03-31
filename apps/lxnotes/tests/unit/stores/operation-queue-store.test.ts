@@ -14,7 +14,7 @@ describe('Operation Queue Store', () => {
         noteId: 'note-1',
         moduleType: 'cue',
         productionId: 'prod-1',
-        payload: { data: { title: 'Test' } },
+        payload: { data: { description: 'Test' } },
       })
 
       expect(useOperationQueueStore.getState().queue).toHaveLength(1)

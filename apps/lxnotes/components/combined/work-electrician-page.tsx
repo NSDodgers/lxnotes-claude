@@ -75,7 +75,6 @@ export default function CombinedWorkElectricianPage() {
       const q = searchTerm.toLowerCase()
       filtered = filtered.filter(
         (n) =>
-          n.title?.toLowerCase().includes(q) ||
           n.description?.toLowerCase().includes(q) ||
           n.channelNumbers?.toLowerCase().includes(q) ||
           n.positionUnit?.toLowerCase().includes(q)
@@ -124,7 +123,7 @@ export default function CombinedWorkElectricianPage() {
 
   const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
     const updates: Partial<Note> = {}
-    if (column === 'title') { updates.title = value; updates.description = value }
+    if (column === 'description') { updates.description = value }
     else if (column === 'type') {
       updates.type = value
       inlineEditing.setLastType(value)
@@ -137,7 +136,7 @@ export default function CombinedWorkElectricianPage() {
     if (isNewNote) {
       const allNotes = [...notesContext.notes.work, ...notesContext.notes.electrician]
       const note = allNotes.find(n => n.id === noteId)
-      if (note && !note.title.trim()) {
+      if (note && !note.description?.trim()) {
         await notesContext.deleteNote(noteId)
       }
     }

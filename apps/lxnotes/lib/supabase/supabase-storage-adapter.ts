@@ -25,7 +25,6 @@ function dbNoteToNote(row: DbNote): Note {
     id: row.id,
     productionId: row.production_id,
     moduleType: row.module_type as ModuleType,
-    title: row.title,
     description: row.description ?? undefined,
     type: row.type ?? undefined,
     priority: row.priority,
@@ -50,11 +49,11 @@ function dbNoteToNote(row: DbNote): Note {
 }
 
 // Convert Note to database insert/update format
-function noteToDbNote(note: Partial<Note> & { productionId: string; moduleType: ModuleType; title: string }): Database['public']['Tables']['notes']['Insert'] {
+function noteToDbNote(note: Partial<Note> & { productionId: string; moduleType: ModuleType }): Database['public']['Tables']['notes']['Insert'] {
   return {
     production_id: note.productionId,
     module_type: note.moduleType,
-    title: note.title,
+    title: note.description ?? '',
     description: note.description ?? null,
     type: note.type ?? null,
     priority: note.priority ?? 'medium',
@@ -186,7 +185,6 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
       async update(id: string, updates: Partial<Note>): Promise<Note> {
         const dbUpdates: Database['public']['Tables']['notes']['Update'] = {}
 
-        if (updates.title !== undefined) dbUpdates.title = updates.title
         if (updates.description !== undefined) dbUpdates.description = updates.description ?? null
         if (updates.type !== undefined) dbUpdates.type = updates.type ?? null
         if (updates.priority !== undefined) dbUpdates.priority = updates.priority

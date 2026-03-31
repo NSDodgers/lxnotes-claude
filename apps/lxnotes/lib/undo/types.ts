@@ -91,10 +91,10 @@ export function createCommandDescription(
   type: CommandType,
   note: Note | null
 ): string {
-  const titlePreview = note?.title
-    ? note.title.length > 30
-      ? `${note.title.substring(0, 30)}...`
-      : note.title
+  const titlePreview = note?.description
+    ? note.description.length > 30
+      ? `${note.description.substring(0, 30)}...`
+      : note.description
     : 'note'
 
   switch (type) {

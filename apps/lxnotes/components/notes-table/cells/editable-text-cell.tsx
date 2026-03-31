@@ -62,7 +62,7 @@ export function EditableTextCell({
   }, [handleSaveAndAdvance, onCancel, note.id, isNewNote])
 
   if (!isEditing) {
-    if (column === 'title') {
+    if (column === 'description') {
       return <div className="font-medium max-w-md">{value || '-'}</div>
     }
     return <span className="text-sm">{value || '-'}</span>

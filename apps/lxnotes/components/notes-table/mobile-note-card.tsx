@@ -65,7 +65,7 @@ function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit }: MobileNote
 
       {/* Note title */}
       <p className="text-[13px] text-text-primary leading-snug mb-1">
-        {note.title || <span className="text-text-muted italic">No title</span>}
+        {note.description || <span className="text-text-muted italic">No title</span>}
       </p>
 
       {/* Script page / scene info */}

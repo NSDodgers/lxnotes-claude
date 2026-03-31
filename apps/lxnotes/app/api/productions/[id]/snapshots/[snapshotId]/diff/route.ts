@@ -10,7 +10,6 @@ type SnapshotRecord = Record<string, any>
 
 function compareNoteFields(snap: SnapshotRecord, curr: SnapshotRecord): string[] {
   const changes: string[] = []
-  if (snap.title !== curr.title) changes.push('title')
   if (snap.description !== curr.description) changes.push('description')
   if (snap.status !== curr.status) changes.push(`status: ${snap.status} → ${curr.status}`)
   if (snap.priority !== curr.priority) changes.push(`priority: ${snap.priority} → ${curr.priority}`)
@@ -43,7 +42,7 @@ function compareSceneSongFields(snap: SnapshotRecord, curr: SnapshotRecord): str
 // ─── Label formatters ─────────────────────────────────────────────────────────
 
 function noteLabel(n: SnapshotRecord): string {
-  const title = n.title || 'Untitled'
+  const title = n.description || 'Untitled'
   if (n.module_type === 'cue' && n.cue_number) return `Cue ${n.cue_number} — ${title}`
   return title
 }

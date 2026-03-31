@@ -911,7 +911,6 @@ interface RawDbNote {
   id: string
   production_id: string
   module_type: string
-  title: string
   description?: string | null
   type?: string | null
   priority: string
@@ -940,7 +939,6 @@ function noteToDbFormat(note: Note): RawDbNote {
     id: note.id,
     production_id: note.productionId,
     module_type: note.moduleType,
-    title: note.title,
     description: note.description ?? null,
     type: note.type ?? null,
     priority: note.priority,
@@ -970,7 +968,6 @@ function convertDbNoteToNote(dbNote: RawDbNote): Note {
     id: dbNote.id,
     productionId: dbNote.production_id,
     moduleType: dbNote.module_type as ModuleType,
-    title: dbNote.title,
     description: dbNote.description ?? undefined,
     type: dbNote.type ?? undefined,
     priority: dbNote.priority,

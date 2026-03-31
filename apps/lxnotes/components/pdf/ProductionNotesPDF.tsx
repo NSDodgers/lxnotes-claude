@@ -44,7 +44,7 @@ export const ProductionNotesPDF: React.FC<ProductionNotesPDFProps> = ({
     {
       header: 'Note',
       render: (note: PDFFormattedNote) => {
-        const noteText = note.description || note.title
+        const noteText = note.description || ''
         return <Text>{noteText}</Text>
       }
     },

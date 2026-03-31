@@ -5,7 +5,6 @@ export class ProductionNotesPDFStrategy implements PDFStrategy {
   formatNotes(notes: Note[]): PDFFormattedNote[] {
     return notes.map(note => ({
       id: note.id,
-      title: note.title,
       description: note.description,
       type: note.type,
       priority: note.priority,

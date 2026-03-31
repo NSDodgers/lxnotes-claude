@@ -82,7 +82,7 @@ export function sortNotes(
         case 'type':
           return (note.type || '').toLowerCase()
         default:
-          return note.title
+          return note.description || ''
       }
     }
 

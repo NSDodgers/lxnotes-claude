@@ -185,8 +185,7 @@ export default function ElectricianNotesPage() {
 
   const filteredNotes = useMemo(() => {
     const filtered = notes.filter(note => {
-      const matchesSearch = note.title.toLowerCase().includes(effectiveSearchTerm.toLowerCase()) ||
-        note.description?.toLowerCase().includes(effectiveSearchTerm.toLowerCase())
+      const matchesSearch = (note.description || '').toLowerCase().includes(effectiveSearchTerm.toLowerCase())
       const matchesStatus = note.status === effectiveFilterStatus
       const matchesType = effectiveFilterTypes.length > 0
         ? effectiveFilterTypes.includes(note.type || '')
@@ -233,7 +232,7 @@ export default function ElectricianNotesPage() {
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
     const note = await notesContext.addNote({
       moduleType: 'electrician',
-      title: '',
+      description: '',
       status: 'todo',
       priority: 'medium',
       type: inlineEditing.lastType ?? 'work',
@@ -245,7 +244,7 @@ export default function ElectricianNotesPage() {
 
   const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
     const updates: Partial<Note> = {}
-    if (column === 'title') { updates.title = value; updates.description = value }
+    if (column === 'description') { updates.description = value }
     else if (column === 'type') {
       updates.type = value
       inlineEditing.setLastType(value)
@@ -257,7 +256,7 @@ export default function ElectricianNotesPage() {
   const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
     if (isNewNote) {
       const note = notesContext.notes.electrician.find(n => n.id === noteId)
-      if (note && !note.title.trim()) {
+      if (note && !note.description?.trim()) {
         await notesContext.deleteNote(noteId)
       }
     }

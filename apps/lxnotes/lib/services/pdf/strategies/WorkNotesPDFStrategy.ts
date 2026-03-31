@@ -5,7 +5,6 @@ export class WorkNotesPDFStrategy implements PDFStrategy {
   formatNotes(notes: Note[], fixtureAggregates?: Record<string, FixtureAggregate>): PDFFormattedNote[] {
     return notes.map(note => ({
       id: note.id,
-      title: note.title,
       description: note.description,
       type: note.type,
       priority: note.priority,

@@ -91,7 +91,6 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   const { getLinkedFixtures } = useFixtureStore()
 
   const [formData, setFormData] = useState({
-    title: '',
     description: '',
     priority: 'medium',
     type: defaultType || (moduleType === 'cue' ? 'Cue' : moduleType === 'electrician' ? 'Work' : moduleType === 'work' ? 'Work' : 'Lighting'),
@@ -116,7 +115,6 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
           : '')
       
       setFormData({
-        title: editingNote.title || '',
         description: editingNote.description || '',
         priority: editingNote.priority,
         type: editingNote.type || 'Cue',
@@ -142,7 +140,6 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
       }
     } else if (defaultType) {
       setFormData({
-        title: '',
         description: '',
         priority: 'medium',
         type: defaultType,
@@ -167,7 +164,6 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     const noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
       productionId,
       moduleType,
-      title: formData.description,
       description: formData.description,
       priority: formData.priority,
       status: 'todo',
@@ -187,7 +183,6 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
     
     // Reset form
     setFormData({
-      title: '',
       description: '',
       priority: 'medium',
       type: defaultType || (moduleType === 'cue' ? 'Cue' : moduleType === 'electrician' ? 'Work' : moduleType === 'work' ? 'Work' : 'Lighting'),

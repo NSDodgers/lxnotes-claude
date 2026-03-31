@@ -3,13 +3,13 @@
 import { useState, useCallback, useRef } from 'react'
 import type { ModuleType } from '@/types'
 
-export type EditableColumn = 'title' | 'type' | 'priority' | 'cueNumber'
+export type EditableColumn = 'description' | 'type' | 'priority' | 'cueNumber'
 
 const EDITABLE_COLUMN_ORDER: Record<ModuleType, EditableColumn[]> = {
-  cue: ['cueNumber', 'title', 'priority', 'type'],
-  work: ['title', 'priority', 'type'],
-  production: ['title', 'priority', 'type'],
-  electrician: ['title', 'priority', 'type'],
+  cue: ['cueNumber', 'description', 'priority', 'type'],
+  work: ['description', 'priority', 'type'],
+  production: ['description', 'priority', 'type'],
+  electrician: ['description', 'priority', 'type'],
 }
 
 export interface InlineEditingState {

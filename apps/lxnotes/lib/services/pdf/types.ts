@@ -21,7 +21,6 @@ export interface PDFGenerationResult {
 
 export interface PDFFormattedNote {
   id: string
-  title: string
   description?: string
   type?: string
   priority: string

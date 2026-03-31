@@ -112,7 +112,6 @@ export interface Note {
   id: string
   productionId: string
   moduleType: ModuleType
-  title: string
   description?: string
   type?: string
   priority: string // Flexible priority value (replaces enum)

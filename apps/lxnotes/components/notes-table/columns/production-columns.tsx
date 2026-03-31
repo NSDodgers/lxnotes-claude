@@ -122,17 +122,17 @@ export function createProductionColumns({ onStatusUpdate, inlineEditing }: Creat
       minSize: 100,
     },
     {
-      accessorKey: 'title',
+      accessorKey: 'description',
       header: 'Note',
       cell: ({ row }) => {
         const note = row.original
         if (inlineEditing) {
-          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'title'
+          const isEditing = inlineEditing.editingNoteId === note.id && inlineEditing.editingColumn === 'description'
           return (
             <EditableTextCell
               note={note}
-              column="title"
-              value={note.description || note.title}
+              column="description"
+              value={note.description || ''}
               isEditing={isEditing}
               onSave={inlineEditing.onSave}
               onAdvance={inlineEditing.onAdvance}
@@ -142,7 +142,7 @@ export function createProductionColumns({ onStatusUpdate, inlineEditing }: Creat
             />
           )
         }
-        return <div className="font-medium max-w-md">{note.description || note.title}</div>
+        return <div className="font-medium max-w-md">{note.description}</div>
       },
       enableSorting: false,
       enableResizing: true,

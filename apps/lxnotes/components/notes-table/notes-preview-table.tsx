@@ -229,9 +229,7 @@ export function NotesPreviewTable({ notes, moduleType, showCheckboxes }: NotesPr
         header: 'Note',
         cell: ({ row }) => {
           const note = row.original
-          const noteText = note.description
-            ? `${note.title}: ${note.description}`
-            : note.title
+          const noteText = note.description || ''
           return (
             <div className="text-sm text-muted-foreground">
               {noteText}

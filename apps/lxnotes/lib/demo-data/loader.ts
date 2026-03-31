@@ -182,10 +182,10 @@ export async function initializeDemoSession(): Promise<void> {
           fixtureStore.linkFixturesToWorkNote(note.id, matchingFixtures.map(f => f.id))
           linkedCount++
           totalFixturesLinked += matchingFixtures.length
-          console.log(`    ✓ Note "${note.title?.substring(0, 40)}..." (${note.channelNumbers}) → ${matchingFixtures.length} fixtures`)
+          console.log(`    ✓ Note "${note.description?.substring(0, 40)}..." (${note.channelNumbers}) → ${matchingFixtures.length} fixtures`)
         } else {
-          notesWithoutMatches.push(`"${note.title}" (${note.channelNumbers})`)
-          console.warn(`    ⚠ No fixtures found for note "${note.title}" with channels: ${note.channelNumbers}`)
+          notesWithoutMatches.push(`"${note.description}" (${note.channelNumbers})`)
+          console.warn(`    ⚠ No fixtures found for note "${note.description}" with channels: ${note.channelNumbers}`)
         }
       }
 

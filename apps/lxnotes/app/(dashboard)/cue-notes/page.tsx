@@ -141,8 +141,7 @@ export default function CueNotesPage() {
   const filteredNotes = useMemo(() => {
     const filtered = notes.filter(note => {
       const searchLower = effectiveSearchTerm.toLowerCase()
-      const matchesSearch = note.title.toLowerCase().includes(searchLower) ||
-        note.description?.toLowerCase().includes(searchLower) ||
+      const matchesSearch = (note.description || '').toLowerCase().includes(searchLower) ||
         note.scriptPageId?.toLowerCase().includes(searchLower) ||
         note.sceneSongId?.toLowerCase().includes(searchLower)
       const matchesStatus = note.status === effectiveFilterStatus
@@ -208,7 +207,7 @@ export default function CueNotesPage() {
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
     const note = await notesContext.addNote({
       moduleType: 'cue',
-      title: '',
+      description: '',
       status: 'todo',
       priority: 'medium',
       type: inlineEditing.lastType ?? 'cue',
@@ -220,7 +219,7 @@ export default function CueNotesPage() {
 
   const handleInlineSave = useCallback(async (noteId: string, column: EditableColumn, value: string) => {
     const updates: Partial<Note> = {}
-    if (column === 'title') { updates.title = value; updates.description = value }
+    if (column === 'description') { updates.description = value }
     else if (column === 'type') {
       updates.type = value
       inlineEditing.setLastType(value)
@@ -233,7 +232,7 @@ export default function CueNotesPage() {
   const handleInlineCancel = useCallback(async (noteId: string, isNewNote: boolean) => {
     if (isNewNote) {
       const note = notesContext.notes.cue.find(n => n.id === noteId)
-      if (note && !note.title.trim()) {
+      if (note && !note.description?.trim()) {
         await notesContext.deleteNote(noteId)
       }
     }

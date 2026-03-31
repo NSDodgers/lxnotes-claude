@@ -8,7 +8,7 @@ function makeNote(overrides: Partial<Note> = {}): Note {
     id: 'note-1',
     productionId: 'prod-1',
     moduleType: 'cue',
-    title: 'Test note',
+    description: 'Test note',
     priority: 'medium',
     status: 'todo',
     createdAt: new Date(),

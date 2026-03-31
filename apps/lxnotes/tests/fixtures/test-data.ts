@@ -4,7 +4,6 @@ import type { Note, CustomType, CustomPriority, ModuleType } from '../../types';
 export const mockCueNote: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
   productionId: 'prod-1',
   moduleType: 'cue',
-  title: 'Test Fade House Lights',
   description: 'Slow fade to 50% over 3 seconds when actor enters',
   priority: 'critical',
   status: 'todo',
@@ -16,7 +15,6 @@ export const mockCueNote: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
 export const mockWorkNote: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
   productionId: 'prod-1',
   moduleType: 'work',
-  title: 'Focus Channel 47',
   description: 'Adjust focus for front wash position',
   priority: 'medium',
   status: 'todo',
@@ -29,7 +27,6 @@ export const mockWorkNote: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
 export const mockProductionNote: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
   productionId: 'prod-1',
   moduleType: 'production',
-  title: 'Budget Review Meeting',
   description: 'Meet with producer to review lighting budget',
   priority: 'high',
   status: 'todo',

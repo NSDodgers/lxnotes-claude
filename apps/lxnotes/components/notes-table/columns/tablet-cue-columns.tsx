@@ -30,10 +30,10 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       size: 70,
     },
     {
-      accessorKey: 'title',
+      accessorKey: 'description',
       header: 'Note',
       cell: ({ row }) => (
-        <div className="text-base font-medium break-words">{row.original.title}</div>
+        <div className="text-base font-medium break-words">{row.original.description}</div>
       ),
       enableSorting: false,
       enableResizing: false,
