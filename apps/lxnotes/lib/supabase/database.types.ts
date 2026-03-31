@@ -403,7 +403,6 @@ export type Database = {
           script_page_id: string | null
           source_department_id: string | null
           status: string
-          title: string
           transferred_at: string | null
           type: string | null
           updated_at: string | null
@@ -419,7 +418,7 @@ export type Database = {
           cue_number?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
-          description?: string | null
+          description?: string
           due_date?: string | null
           id?: string
           is_transferred?: boolean | null
@@ -433,7 +432,6 @@ export type Database = {
           script_page_id?: string | null
           source_department_id?: string | null
           status?: string
-          title: string
           transferred_at?: string | null
           type?: string | null
           updated_at?: string | null
@@ -463,7 +461,6 @@ export type Database = {
           script_page_id?: string | null
           source_department_id?: string | null
           status?: string
-          title?: string
           transferred_at?: string | null
           type?: string | null
           updated_at?: string | null

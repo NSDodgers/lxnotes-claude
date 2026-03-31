@@ -53,8 +53,7 @@ function noteToDbNote(note: Partial<Note> & { productionId: string; moduleType: 
   return {
     production_id: note.productionId,
     module_type: note.moduleType,
-    title: note.description ?? '',
-    description: note.description ?? null,
+    description: note.description ?? '',
     type: note.type ?? null,
     priority: note.priority ?? 'medium',
     status: note.status ?? 'todo',
