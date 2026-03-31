@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Trash2, X, Eye } from 'lucide-react'
+import { ArrowRightLeft, Check, Trash2, X, Eye } from 'lucide-react'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import type { Note, NoteStatus, ModuleType } from '@/types'
@@ -11,9 +11,10 @@ interface MobileNoteCardProps {
   moduleType: ModuleType
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit: (note: Note) => void
+  onMoveModule?: (noteId: string, moduleType: ModuleType) => void
 }
 
-function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit }: MobileNoteCardProps) {
+function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit, onMoveModule }: MobileNoteCardProps) {
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
   const types = getTypes(moduleType)
@@ -83,6 +84,19 @@ function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit }: MobileNote
       {/* Scenery needs */}
       {note.sceneryNeeds && (
         <p className="text-[11px] text-text-muted mb-1">Scenery: {note.sceneryNeeds}</p>
+      )}
+
+      {/* Move button - shown for work/electrician modules regardless of status */}
+      {(moduleType === 'work' || moduleType === 'electrician') && onMoveModule && (
+        <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-bg-tertiary">
+          <button
+            className="flex-1 h-7 flex items-center justify-center gap-1 rounded-md text-[11px] font-medium bg-teal-500/20 text-teal-400"
+            onClick={(e) => { e.stopPropagation(); onMoveModule(note.id, note.moduleType) }}
+            aria-label={moduleType === 'work' ? 'Move to Electrician Notes' : 'Move to Work Notes'}
+          >
+            <ArrowRightLeft className="h-3 w-3" /> {moduleType === 'work' ? 'Move to Electrician' : 'Move to Work'}
+          </button>
+        </div>
       )}
 
       {/* Action buttons - icon + short label, compact */}
@@ -187,6 +201,7 @@ interface MobileNoteListProps {
   moduleType: ModuleType
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit: (note: Note) => void
+  onMoveModule?: (noteId: string, moduleType: ModuleType) => void
   emptyIcon?: LucideIcon
   emptyMessage?: string
 }
@@ -196,6 +211,7 @@ export function MobileNoteList({
   moduleType,
   onStatusUpdate,
   onEdit,
+  onMoveModule,
   emptyIcon: EmptyIcon,
   emptyMessage = 'No notes found',
 }: MobileNoteListProps) {
@@ -218,6 +234,7 @@ export function MobileNoteList({
           moduleType={moduleType}
           onStatusUpdate={onStatusUpdate}
           onEdit={onEdit}
+          onMoveModule={onMoveModule}
         />
       ))}
     </div>

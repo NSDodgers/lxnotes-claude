@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { Note, NoteStatus } from '@/types'
+import type { ModuleType, Note, NoteStatus } from '@/types'
 import { createWorkColumns } from './columns/work-columns'
 import { ColumnResizeHandle } from './column-resize-handle'
 import { FreezeColumnMenu } from './freeze-column-menu'
@@ -30,6 +30,7 @@ const EDITABLE_COLUMNS = new Set<string>(['title', 'type', 'priority'])
 interface WorkNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
+  onMoveModule?: (noteId: string, moduleType: ModuleType) => void
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
@@ -42,10 +43,10 @@ interface WorkNotesTableProps {
   }
 }
 
-export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: WorkNotesTableProps) {
+export function WorkNotesTable({ notes, onStatusUpdate, onMoveModule, onEdit, onQuickAdd, emptyMessage, inlineEditing }: WorkNotesTableProps) {
   const columns = useMemo(
-    () => createWorkColumns({ onStatusUpdate, inlineEditing }),
-    [onStatusUpdate, inlineEditing]
+    () => createWorkColumns({ onStatusUpdate, onMoveModule, inlineEditing }),
+    [onStatusUpdate, onMoveModule, inlineEditing]
   )
 
   const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder } = useColumnConfig('work')

@@ -16,6 +16,7 @@
     "audit:security": "npm audit --omit=dev --audit-level=high"
   },
   "devDependencies": {
+    "supabase": "^2.84.5",
     "turbo": "^2.8.12"
   },
   "dependencies": {

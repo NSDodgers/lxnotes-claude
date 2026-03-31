@@ -47,6 +47,7 @@ import { MobileFilterBar } from '@/components/layout/mobile-filter-bar'
 import { MobileActionBar } from '@/components/layout/mobile-action-bar'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import Image from 'next/image'
+import { toast } from 'sonner'
 
 export default function ElectricianNotesPage() {
   const notesContext = useNotes()
@@ -228,6 +229,13 @@ export default function ElectricianNotesPage() {
     await notesContext.updateNote(noteId, { status })
   }
 
+  const handleMoveModule = useCallback(async (noteId: string) => {
+    await notesContext.updateNote(noteId, { moduleType: 'work' })
+    toast('Moved to Work Notes', {
+      action: { label: 'Undo', onClick: () => notesContext.undoLastAction() }
+    })
+  }, [notesContext])
+
   const handleQuickAdd = useCallback(async () => {
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
     const note = await notesContext.addNote({
@@ -291,9 +299,11 @@ export default function ElectricianNotesPage() {
 
   const updateNoteStatusRef = useRef(updateNoteStatus)
   updateNoteStatusRef.current = updateNoteStatus
+  const handleMoveModuleRef = useRef(handleMoveModule)
+  handleMoveModuleRef.current = handleMoveModule
 
   const tabletColumns = useMemo(
-    () => createTabletElectricianColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
+    () => createTabletElectricianColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status), onMoveModule: (noteId, moduleType) => handleMoveModuleRef.current(noteId) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
@@ -338,6 +348,7 @@ export default function ElectricianNotesPage() {
           notes={filteredNotes}
           moduleType="electrician"
           onStatusUpdate={updateNoteStatus}
+          onMoveModule={handleMoveModule}
           onEdit={handleEditNote}
           emptyIcon={Zap}
           emptyMessage={emptyMessage}
@@ -654,6 +665,7 @@ export default function ElectricianNotesPage() {
           <ElectricianNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
+            onMoveModule={handleMoveModule}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}

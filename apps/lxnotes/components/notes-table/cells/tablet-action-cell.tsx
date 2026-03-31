@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Eye, X } from 'lucide-react'
+import { ArrowRightLeft, Check, Eye, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ModuleType, Note, NoteStatus } from '@/types'
 
@@ -8,9 +8,10 @@ interface TabletActionCellProps {
   note: Note
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   moduleType?: ModuleType
+  onMoveModule?: (noteId: string, moduleType: ModuleType) => void
 }
 
-export function TabletActionCell({ note, onStatusUpdate, moduleType }: TabletActionCellProps) {
+export function TabletActionCell({ note, onStatusUpdate, moduleType, onMoveModule }: TabletActionCellProps) {
   return (
     <div className="flex items-center gap-3 justify-end">
       <button
@@ -60,6 +61,19 @@ export function TabletActionCell({ note, onStatusUpdate, moduleType }: TabletAct
       >
         <X className="h-6 w-6" strokeWidth={3} />
       </button>
+      {(moduleType === 'work' || moduleType === 'electrician') && onMoveModule && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onMoveModule(note.id, note.moduleType)
+          }}
+          title={moduleType === 'work' ? 'Move to Electrician Notes' : 'Move to Work Notes'}
+          aria-label={moduleType === 'work' ? 'Move to Electrician Notes' : 'Move to Work Notes'}
+          className="flex items-center justify-center w-12 h-12 rounded-xl transition-colors bg-teal-500/20 text-teal-400 hover:bg-teal-500/30"
+        >
+          <ArrowRightLeft className="h-6 w-6" strokeWidth={3} />
+        </button>
+      )}
     </div>
   )
 }

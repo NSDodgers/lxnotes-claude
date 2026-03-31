@@ -8,6 +8,7 @@ import type { EditableColumn } from '@/hooks/use-inline-editing'
 import { EmailNotesSidebar } from '@/components/email-notes-sidebar'
 import { PrintNotesSidebar } from '@/components/print-notes-sidebar'
 import { Plus, Search, Layers, Mail, Printer } from 'lucide-react'
+import { toast } from 'sonner'
 import type { Note, NoteStatus, ModuleType } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -109,6 +110,18 @@ export default function CombinedWorkElectricianPage() {
   const handleStatusUpdate = useCallback(
     async (noteId: string, status: NoteStatus) => {
       await notesContext.updateNote(noteId, { status })
+    },
+    [notesContext]
+  )
+
+  const handleMoveModule = useCallback(
+    async (noteId: string, currentModule: ModuleType) => {
+      const target = currentModule === 'work' ? 'electrician' : 'work'
+      const targetLabel = target === 'work' ? 'Work Notes' : 'Electrician Notes'
+      await notesContext.updateNote(noteId, { moduleType: target })
+      toast(`Moved to ${targetLabel}`, {
+        action: { label: 'Undo', onClick: () => notesContext.undoLastAction() }
+      })
     },
     [notesContext]
   )
@@ -255,6 +268,7 @@ export default function CombinedWorkElectricianPage() {
       <WorkNotesTable
         notes={filteredNotes}
         onStatusUpdate={handleStatusUpdate}
+        onMoveModule={handleMoveModule}
         onEdit={handleEdit}
         emptyMessage="No notes match your filters"
         inlineEditing={inlineEditingProps}
