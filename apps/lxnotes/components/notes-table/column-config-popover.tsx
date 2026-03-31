@@ -29,10 +29,11 @@ interface SortableColumnRowProps {
   columnId: string
   label: string
   isHidden: boolean
+  isPinned: boolean
   onToggle: (columnId: string) => void
 }
 
-function SortableColumnRow({ columnId, label, isHidden, onToggle }: SortableColumnRowProps) {
+function SortableColumnRow({ columnId, label, isHidden, isPinned, onToggle }: SortableColumnRowProps) {
   const {
     attributes,
     listeners,
@@ -54,7 +55,7 @@ function SortableColumnRow({ columnId, label, isHidden, onToggle }: SortableColu
       className={cn(
         'flex items-center gap-2 px-2 py-1.5 rounded-md',
         isDragging ? 'opacity-50 shadow-lg z-10 bg-bg-secondary' : 'hover:bg-bg-tertiary',
-        isHidden && 'opacity-40',
+        isHidden && !isPinned && 'opacity-40',
         'transition-all duration-150'
       )}
     >
@@ -66,20 +67,26 @@ function SortableColumnRow({ columnId, label, isHidden, onToggle }: SortableColu
       >
         <GripVertical className="h-3.5 w-3.5" />
       </div>
-      <span className={cn('text-sm flex-1', isHidden ? 'text-text-tertiary' : 'text-text-primary')}>
+      <span className={cn('text-sm flex-1', isHidden && !isPinned ? 'text-text-tertiary' : 'text-text-primary')}>
         {label}
       </span>
-      <button
-        onClick={() => onToggle(columnId)}
-        className="p-1 rounded hover:bg-bg-secondary transition-colors text-text-secondary hover:text-text-primary"
-        aria-label={`Toggle ${label} visibility`}
-      >
-        {isHidden ? (
-          <EyeOff className="h-3.5 w-3.5" />
-        ) : (
-          <Eye className="h-3.5 w-3.5" />
-        )}
-      </button>
+      {isPinned ? (
+        <div className="p-1 opacity-30">
+          <Eye className="h-3.5 w-3.5 text-text-tertiary" />
+        </div>
+      ) : (
+        <button
+          onClick={() => onToggle(columnId)}
+          className="p-1 rounded hover:bg-bg-secondary transition-colors text-text-secondary hover:text-text-primary"
+          aria-label={`Toggle ${label} visibility`}
+        >
+          {isHidden ? (
+            <EyeOff className="h-3.5 w-3.5" />
+          ) : (
+            <Eye className="h-3.5 w-3.5" />
+          )}
+        </button>
+      )}
     </div>
   )
 }
@@ -105,12 +112,7 @@ export function ColumnConfigPopover({ moduleType }: ColumnConfigPopoverProps) {
       .map(([id]) => id)
   )
 
-  // Split into pinned (canHide=false) and customizable
-  const pinnedColumns = registry.filter((c) => !c.canHide)
-  const customizableIds = columnOrder.filter((id) => {
-    const meta = registry.find((c) => c.id === id)
-    return meta?.canHide
-  })
+  const pinnedIds = new Set(registry.filter((c) => !c.canHide).map((c) => c.id))
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
@@ -161,49 +163,26 @@ export function ColumnConfigPopover({ moduleType }: ColumnConfigPopoverProps) {
 
         {/* Scrollable content */}
         <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-1">
-          {/* Always visible section */}
-          <div className="px-1 py-1">
-            <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
-              Always visible
-            </span>
-          </div>
-          {pinnedColumns.map((col) => (
-            <div
-              key={col.id}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-md"
-            >
-              <div className="w-[22px]" /> {/* spacer matching drag handle width */}
-              <span className="text-sm flex-1 text-text-secondary">{col.label}</span>
-              <div className="p-1 opacity-30">
-                <Eye className="h-3.5 w-3.5 text-text-tertiary" />
-              </div>
-            </div>
-          ))}
-
-          {/* Customizable section */}
-          <div className="px-1 py-1 mt-1">
-            <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
-              Customizable
-            </span>
-          </div>
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={customizableIds}
+              items={columnOrder}
               strategy={verticalListSortingStrategy}
             >
-              {customizableIds.map((colId) => {
+              {columnOrder.map((colId) => {
                 const meta = registry.find((c) => c.id === colId)
                 if (!meta) return null
+                const isPinned = pinnedIds.has(colId)
                 return (
                   <SortableColumnRow
                     key={colId}
                     columnId={colId}
                     label={meta.label}
                     isHidden={hiddenSet.has(colId)}
+                    isPinned={isPinned}
                     onToggle={toggleColumn}
                   />
                 )
