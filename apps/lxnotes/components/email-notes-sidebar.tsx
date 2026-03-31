@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { usePathname } from 'next/navigation'
-import { Mail, Send, Loader2 } from 'lucide-react'
+import { Mail, Send, Loader2, AlertTriangle } from 'lucide-react'
+import { toast } from 'sonner'
 import { useProductionEmailPresets } from '@/lib/hooks/use-production-email-presets'
 import { useProductionFilterSortPresets } from '@/lib/hooks/use-production-filter-sort-presets'
 import { useProductionPageStylePresets } from '@/lib/hooks/use-production-page-style-presets'
@@ -80,6 +81,8 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
   const [editingPreset, setEditingPreset] = useState<EmailMessagePreset | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [sendError, setSendError] = useState<string | null>(null)
+  const [pdfFailedButCanSendWithout, setPdfFailedButCanSendWithout] = useState(false)
+  const lastSendParamsRef = useRef<Parameters<typeof doSend> | null>(null)
 
   // Custom one-off form state
   const [recipients, setRecipients] = useState('')
@@ -161,8 +164,10 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       return
     }
 
+    lastSendParamsRef.current = [recipientList, subjectLine, messageBody, withNotesInBody, withPdf, filterPresetId, pageStylePresetId]
     setIsSending(true)
     setSendError(null)
+    setPdfFailedButCanSendWithout(false)
 
     try {
       const filterPreset = filterPresetId
@@ -209,8 +214,25 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
             }
             pdfBase64 = btoa(binary)
             pdfFilename = result.filename || `${moduleType}_notes.pdf`
+          } else {
+            console.warn('[Email PDF] PDF generation failed:', result.error || 'unknown error')
           }
+        } else {
+          console.warn('[Email PDF] Page style preset not found in available presets:', pageStylePresetId)
         }
+      } else if (withPdf && !pageStylePresetId) {
+        console.warn('[Email PDF] PDF requested but no pageStylePresetId configured on preset')
+      }
+
+      // Block send if PDF was requested but generation failed
+      if (withPdf && !pdfBase64) {
+        const reason = !pageStylePresetId
+          ? 'No page style is configured for this preset. Edit the preset and select a page style.'
+          : 'PDF generation failed. Try sending again, or send without the PDF.'
+        setSendError(reason)
+        setPdfFailedButCanSendWithout(true)
+        setIsSending(false)
+        return
       }
 
       const payload = {
@@ -243,7 +265,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       }
 
       const result = await response.json()
-      alert(`Email sent successfully to ${result.recipientCount} recipient(s)!`)
+      toast.success(`Email sent to ${result.recipientCount} recipient(s)`)
       onClose()
     } catch (error) {
       console.error('Email send error:', error)
@@ -258,7 +280,16 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
     setSelectedPreset(null)
     setEditingPreset(null)
     setSendError(null)
+    setPdfFailedButCanSendWithout(false)
     onClose()
+  }
+
+  const handleSendWithoutPdf = () => {
+    const params = lastSendParamsRef.current
+    if (!params) return
+    setPdfFailedButCanSendWithout(false)
+    setSendError(null)
+    doSend(params[0], params[1], params[2], params[3], false, params[5], params[6])
   }
 
   return (
@@ -312,9 +343,23 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
                 setView('cards')
                 setSelectedPreset(null)
                 setSendError(null)
+                setPdfFailedButCanSendWithout(false)
               }}
               onSubmit={handleSendFromConfirm}
             />
+              {pdfFailedButCanSendWithout && (
+                <div className="mt-3 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-yellow-500 shrink-0" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSendWithoutPdf}
+                    disabled={isSending}
+                  >
+                    Send Without PDF
+                  </Button>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -430,10 +475,22 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
               {sendError && (
                 <div className="mb-4 p-3 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 text-sm">
                   {sendError}
+                  {pdfFailedButCanSendWithout && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2 w-full"
+                      onClick={handleSendWithoutPdf}
+                      disabled={isSending}
+                    >
+                      <AlertTriangle className="h-4 w-4 mr-2 text-yellow-500" />
+                      Send Without PDF
+                    </Button>
+                  )}
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <Button variant="outline" onClick={() => { setView('cards'); setSendError(null) }}>
+                <Button variant="outline" onClick={() => { setView('cards'); setSendError(null); setPdfFailedButCanSendWithout(false) }}>
                   Back
                 </Button>
                 <Button

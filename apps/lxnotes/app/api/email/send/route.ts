@@ -193,6 +193,10 @@ export async function POST(request: Request) {
     const timestampMinute = Math.floor(Date.now() / 60000)
     const idempotencyKey = `notes-${productionId}-${moduleType}-${user.id}-${timestampMinute}`
 
+    if (attachPdf && !pdfBase64) {
+      console.warn('[Email API] attachPdf=true but no pdfBase64 provided — sending without attachment')
+    }
+
     // Prepare email data
     const emailData: NoteEmailData = {
       recipientEmails,
