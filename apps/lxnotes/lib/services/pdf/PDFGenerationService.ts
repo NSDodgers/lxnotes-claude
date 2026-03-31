@@ -43,7 +43,7 @@ export class PDFGenerationService {
 
       // Apply title override if provided (e.g., combined view uses "Work + Electrician Notes")
       const strategy = request.moduleTitleOverride
-        ? { ...baseStrategy, getModuleTitle: () => request.moduleTitleOverride! }
+        ? Object.assign(Object.create(Object.getPrototypeOf(baseStrategy)), baseStrategy, { getModuleTitle: () => request.moduleTitleOverride! })
         : baseStrategy
 
       // Get custom priorities and types for module
