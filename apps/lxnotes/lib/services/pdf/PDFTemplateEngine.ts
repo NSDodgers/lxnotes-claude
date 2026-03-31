@@ -219,8 +219,8 @@ export class PDFTemplateEngine {
     return notes.map(note => {
       const moduleType = this.config.moduleType
 
-      // Format the note description with title
-      const noteText = `${note.title}: ${note.description || ''}`
+      // Show description if available, otherwise title
+      const noteText = note.description || note.title
 
       // New column structure: [Checkbox, Priority, Type, Cue#, Scene/Song, Note, Created]
       if (moduleType === 'cue') {

@@ -66,7 +66,9 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
     {
       header: 'Note',
       render: (note: PDFFormattedNote) => {
-        const noteText = `${note.title}${note.description ? ': ' + note.description : ''}`
+        // Show description if available, otherwise title. Avoid repeating both
+        // when they contain the same text (which is the default from note creation).
+        const noteText = note.description || note.title
         return <Text>{noteText}</Text>
       }
     },
