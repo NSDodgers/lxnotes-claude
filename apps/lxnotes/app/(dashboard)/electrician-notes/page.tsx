@@ -1,6 +1,7 @@
 'use client'
 
 import { ElectricianNotesTable } from '@/components/notes-table/electrician-notes-table'
+import { ColumnConfigPopover } from '@/components/notes-table/column-config-popover'
 import { TabletNotesTable } from '@/components/notes-table/tablet-notes-table'
 import { createTabletElectricianColumns } from '@/components/notes-table/columns/tablet-electrician-columns'
 import { AddNoteDialog } from '@/components/add-note-dialog'
@@ -120,7 +121,6 @@ export default function ElectricianNotesPage() {
   const [isPrintViewOpen, setIsPrintViewOpen] = useState(false)
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
-  const resetColumnsRef = useRef<(() => void) | null>(null)
   const inlineEditing = useInlineEditing('electrician')
 
   useEffect(() => {
@@ -588,18 +588,7 @@ export default function ElectricianNotesPage() {
                   aria-label="Search notes"
                 />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (resetColumnsRef.current) {
-                    resetColumnsRef.current()
-                  }
-                }}
-                title="Reset column widths to defaults"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
+              <ColumnConfigPopover moduleType="electrician" />
             </div>
           </div>
 
@@ -666,9 +655,6 @@ export default function ElectricianNotesPage() {
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
             onEdit={handleEditNote}
-            onMountResetFn={(resetFn) => {
-              resetColumnsRef.current = resetFn
-            }}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}
             inlineEditing={inlineEditingProps}

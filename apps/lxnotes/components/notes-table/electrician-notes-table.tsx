@@ -21,7 +21,7 @@ import type { Note, NoteStatus } from '@/types'
 import { createElectricianColumns } from './columns/electrician-columns'
 import { ColumnResizeHandle } from './column-resize-handle'
 import { FreezeColumnMenu } from './freeze-column-menu'
-import { useColumnSizing } from '@/hooks/use-column-sizing'
+import { useColumnConfig } from '@/hooks/use-column-config'
 import { useColumnFreeze } from '@/hooks/use-column-freeze'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
@@ -31,7 +31,6 @@ interface ElectricianNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit?: (note: Note) => void
-  onMountResetFn?: (resetFn: () => void) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
   inlineEditing?: InlineEditingState & {
@@ -43,19 +42,13 @@ interface ElectricianNotesTableProps {
   }
 }
 
-export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, emptyMessage, inlineEditing }: ElectricianNotesTableProps) {
+export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ElectricianNotesTableProps) {
   const columns = useMemo(
     () => createElectricianColumns({ onStatusUpdate, inlineEditing }),
     [onStatusUpdate, inlineEditing]
   )
 
-  const { columnSizing, onColumnSizingChange, resetColumnSizes } = useColumnSizing('electrician')
-
-  useEffect(() => {
-    if (onMountResetFn) {
-      onMountResetFn(resetColumnSizes)
-    }
-  }, [onMountResetFn, resetColumnSizes])
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder } = useColumnConfig('electrician')
 
   const table = useReactTable({
     data: notes,
@@ -72,6 +65,8 @@ export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onMountRe
     },
     state: {
       columnSizing,
+      columnVisibility,
+      columnOrder,
     },
     onColumnSizingChange,
   })

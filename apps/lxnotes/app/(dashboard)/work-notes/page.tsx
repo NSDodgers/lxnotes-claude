@@ -1,6 +1,7 @@
 'use client'
 
 import { WorkNotesTable } from '@/components/notes-table/work-notes-table'
+import { ColumnConfigPopover } from '@/components/notes-table/column-config-popover'
 import { TabletNotesTable } from '@/components/notes-table/tablet-notes-table'
 import { createTabletWorkColumns } from '@/components/notes-table/columns/tablet-work-columns'
 import { AddNoteDialog } from '@/components/add-note-dialog'
@@ -131,7 +132,6 @@ export default function WorkNotesPage() {
   const [isPrintViewOpen, setIsPrintViewOpen] = useState(false)
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
-  const resetColumnsRef = useRef<(() => void) | null>(null)
   const inlineEditing = useInlineEditing('work')
 
   // Handle client-side hydration for stores with skipHydration: true
@@ -624,18 +624,7 @@ export default function WorkNotesPage() {
                   aria-label="Search notes"
                 />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (resetColumnsRef.current) {
-                    resetColumnsRef.current()
-                  }
-                }}
-                title="Reset column widths to defaults"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
+              <ColumnConfigPopover moduleType="work" />
             </div>
           </div>
 
@@ -702,9 +691,6 @@ export default function WorkNotesPage() {
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
             onEdit={handleEditNote}
-            onMountResetFn={(resetFn) => {
-              resetColumnsRef.current = resetFn
-            }}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}
             inlineEditing={inlineEditingProps}

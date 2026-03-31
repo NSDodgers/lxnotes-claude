@@ -36,6 +36,7 @@ import { MobileNoteList } from '@/components/notes-table/mobile-note-card'
 import { MobileFilterBar } from '@/components/layout/mobile-filter-bar'
 import { MobileActionBar } from '@/components/layout/mobile-action-bar'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
+import { ColumnConfigPopover } from '@/components/notes-table/column-config-popover'
 import { isDemoMode } from '@/lib/demo-data'
 import Image from 'next/image'
 import { DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
@@ -99,7 +100,6 @@ export default function CueNotesPage() {
   const [isScriptManagerOpen, setIsScriptManagerOpen] = useState(false)
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
-  const resetColumnsRef = useRef<(() => void) | null>(null)
   const inlineEditing = useInlineEditing('cue')
 
   // Handle client-side hydration for stores with skipHydration: true
@@ -491,18 +491,7 @@ export default function CueNotesPage() {
                   aria-label="Search notes"
                 />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (resetColumnsRef.current) {
-                    resetColumnsRef.current()
-                  }
-                }}
-                title="Reset column widths to defaults"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
+              <ColumnConfigPopover moduleType="cue" />
             </div>
           </div>
 
@@ -568,9 +557,6 @@ export default function CueNotesPage() {
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
             onEdit={handleEditNote}
-            onMountResetFn={(resetFn) => {
-              resetColumnsRef.current = resetFn
-            }}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}
             inlineEditing={inlineEditingProps}

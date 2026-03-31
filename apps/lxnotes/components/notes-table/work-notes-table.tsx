@@ -21,7 +21,7 @@ import type { Note, NoteStatus } from '@/types'
 import { createWorkColumns } from './columns/work-columns'
 import { ColumnResizeHandle } from './column-resize-handle'
 import { FreezeColumnMenu } from './freeze-column-menu'
-import { useColumnSizing } from '@/hooks/use-column-sizing'
+import { useColumnConfig } from '@/hooks/use-column-config'
 import { useColumnFreeze } from '@/hooks/use-column-freeze'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
@@ -31,7 +31,6 @@ interface WorkNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit?: (note: Note) => void
-  onMountResetFn?: (resetFn: () => void) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
   inlineEditing?: InlineEditingState & {
@@ -43,35 +42,22 @@ interface WorkNotesTableProps {
   }
 }
 
-export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, emptyMessage, inlineEditing }: WorkNotesTableProps) {
-  // Memoize columns to prevent recreation on every render
+export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: WorkNotesTableProps) {
   const columns = useMemo(
     () => createWorkColumns({ onStatusUpdate, inlineEditing }),
     [onStatusUpdate, inlineEditing]
   )
 
-  // Column sizing state with localStorage persistence
-  const { columnSizing, onColumnSizingChange, resetColumnSizes } = useColumnSizing('work')
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder } = useColumnConfig('work')
 
-  // Expose reset function to parent via callback on mount
-  useEffect(() => {
-    if (onMountResetFn) {
-      onMountResetFn(resetColumnSizes)
-    }
-  }, [onMountResetFn, resetColumnSizes])
-
-  // Create table instance with TanStack
   const table = useReactTable({
     data: notes,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    // Enable multi-sort (hold shift and click to add secondary sort)
     enableMultiSort: true,
     maxMultiSortColCount: 2,
-    // Column resizing - onChange provides live visual feedback during drag
     columnResizeMode: 'onChange',
-    // Default sort by channels ascending
     initialState: {
       sorting: [
         { id: 'channels', desc: false }
@@ -79,6 +65,8 @@ export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, 
     },
     state: {
       columnSizing,
+      columnVisibility,
+      columnOrder,
     },
     onColumnSizingChange,
   })

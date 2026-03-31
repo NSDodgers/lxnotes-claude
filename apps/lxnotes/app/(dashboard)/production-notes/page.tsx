@@ -1,6 +1,7 @@
 'use client'
 
 import { ProductionNotesTable } from '@/components/notes-table/production-notes-table'
+import { ColumnConfigPopover } from '@/components/notes-table/column-config-popover'
 import { TabletNotesTable } from '@/components/notes-table/tablet-notes-table'
 import { createTabletProductionColumns } from '@/components/notes-table/columns/tablet-production-columns'
 import { AddNoteDialog } from '@/components/add-note-dialog'
@@ -974,7 +975,6 @@ export default function ProductionNotesPage() {
   const [isPrintViewOpen, setIsPrintViewOpen] = useState(false)
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
-  const resetColumnsRef = useRef<(() => void) | null>(null)
   const inlineEditing = useInlineEditing('production')
 
   // Handle client-side hydration for stores with skipHydration: true
@@ -1344,18 +1344,7 @@ export default function ProductionNotesPage() {
                   aria-label="Search notes"
                 />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  if (resetColumnsRef.current) {
-                    resetColumnsRef.current()
-                  }
-                }}
-                title="Reset column widths to defaults"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </Button>
+              <ColumnConfigPopover moduleType="production" />
             </div>
           </div>
 
@@ -1433,9 +1422,6 @@ export default function ProductionNotesPage() {
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}
             inlineEditing={inlineEditingProps}
-            onMountResetFn={(resetFn) => {
-              resetColumnsRef.current = resetFn
-            }}
           />
 
           {filteredNotes.length === 0 && (

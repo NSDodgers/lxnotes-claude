@@ -21,7 +21,7 @@ import type { Note, NoteStatus } from '@/types'
 import { createProductionColumns } from './columns/production-columns'
 import { ColumnResizeHandle } from './column-resize-handle'
 import { FreezeColumnMenu } from './freeze-column-menu'
-import { useColumnSizing } from '@/hooks/use-column-sizing'
+import { useColumnConfig } from '@/hooks/use-column-config'
 import { useColumnFreeze } from '@/hooks/use-column-freeze'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
@@ -31,7 +31,6 @@ interface ProductionNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit?: (note: Note) => void
-  onMountResetFn?: (resetFn: () => void) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
   inlineEditing?: InlineEditingState & {
@@ -43,35 +42,22 @@ interface ProductionNotesTableProps {
   }
 }
 
-export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, emptyMessage, inlineEditing }: ProductionNotesTableProps) {
-  // Memoize columns to prevent recreation on every render
+export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ProductionNotesTableProps) {
   const columns = useMemo(
     () => createProductionColumns({ onStatusUpdate, inlineEditing }),
     [onStatusUpdate, inlineEditing]
   )
 
-  // Column sizing state with localStorage persistence
-  const { columnSizing, onColumnSizingChange, resetColumnSizes } = useColumnSizing('production')
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder } = useColumnConfig('production')
 
-  // Expose reset function to parent via callback on mount
-  useEffect(() => {
-    if (onMountResetFn) {
-      onMountResetFn(resetColumnSizes)
-    }
-  }, [onMountResetFn, resetColumnSizes])
-
-  // Create table instance with TanStack
   const table = useReactTable({
     data: notes,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    // Enable multi-sort (hold shift and click to add secondary sort)
     enableMultiSort: true,
     maxMultiSortColCount: 2,
-    // Column resizing - onChange provides live visual feedback during drag
     columnResizeMode: 'onChange',
-    // Default sort by created date descending
     initialState: {
       sorting: [
         { id: 'createdAt', desc: true }
@@ -79,6 +65,8 @@ export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onMountRes
     },
     state: {
       columnSizing,
+      columnVisibility,
+      columnOrder,
     },
     onColumnSizingChange,
   })

@@ -21,7 +21,7 @@ import type { Note, NoteStatus } from '@/types'
 import { createCueColumns } from './columns/cue-columns'
 import { ColumnResizeHandle } from './column-resize-handle'
 import { FreezeColumnMenu } from './freeze-column-menu'
-import { useColumnSizing } from '@/hooks/use-column-sizing'
+import { useColumnConfig } from '@/hooks/use-column-config'
 import { useColumnFreeze } from '@/hooks/use-column-freeze'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
@@ -31,7 +31,6 @@ interface CueNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   onEdit?: (note: Note) => void
-  onMountResetFn?: (resetFn: () => void) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
   inlineEditing?: InlineEditingState & {
@@ -43,22 +42,15 @@ interface CueNotesTableProps {
   }
 }
 
-export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, onQuickAdd, emptyMessage, inlineEditing }: CueNotesTableProps) {
+export function CueNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: CueNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createCueColumns({ onStatusUpdate, inlineEditing }),
     [onStatusUpdate, inlineEditing]
   )
 
-  // Column sizing state with localStorage persistence
-  const { columnSizing, onColumnSizingChange, resetColumnSizes } = useColumnSizing('cue')
-
-  // Expose reset function to parent via callback on mount
-  useEffect(() => {
-    if (onMountResetFn) {
-      onMountResetFn(resetColumnSizes)
-    }
-  }, [onMountResetFn, resetColumnSizes])
+  // Consolidated column config: sizing, visibility, order
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder } = useColumnConfig('cue')
 
   // Create table instance with TanStack
   const table = useReactTable({
@@ -66,12 +58,9 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, o
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    // Enable multi-sort (hold shift and click to add secondary sort)
     enableMultiSort: true,
     maxMultiSortColCount: 2,
-    // Column resizing - onChange provides live visual feedback during drag
     columnResizeMode: 'onChange',
-    // Default sort by cue number ascending
     initialState: {
       sorting: [
         { id: 'cueNumber', desc: false }
@@ -79,6 +68,8 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onMountResetFn, o
     },
     state: {
       columnSizing,
+      columnVisibility,
+      columnOrder,
     },
     onColumnSizingChange,
   })
