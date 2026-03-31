@@ -15,6 +15,7 @@ interface WorkNotesPDFProps {
   filterPresetName?: string
   groupByType?: boolean
   typeColorMap?: Record<string, string>
+  moduleTitle?: string
 }
 
 export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
@@ -25,7 +26,8 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
   dateGenerated = new Date(),
   filterPresetName,
   groupByType = false,
-  typeColorMap
+  typeColorMap,
+  moduleTitle = 'Work Notes'
 }) => {
   const columns = [
     {
@@ -81,7 +83,7 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
         <PDFHeader
           productionName={productionName}
           productionLogo={productionLogo}
-          moduleTitle="Work Notes"
+          moduleTitle={moduleTitle}
           dateGenerated={dateGenerated}
           noteCount={notes.length}
           filterPresetName={filterPresetName}

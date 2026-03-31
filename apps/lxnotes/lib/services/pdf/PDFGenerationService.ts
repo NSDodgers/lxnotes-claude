@@ -77,7 +77,8 @@ export class PDFGenerationService {
         dateGenerated: new Date(),
         filterPresetName: request.filterPreset?.name || 'All notes',
         groupByType: request.filterPreset?.config.groupByType || false,
-        typeColorMap
+        typeColorMap,
+        moduleTitle: strategy.getModuleTitle(),
       }
 
       // Select the appropriate PDF component based on module type
