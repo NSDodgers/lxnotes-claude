@@ -49,7 +49,7 @@ export function ElectricianNotesTable({ notes, onStatusUpdate, onMoveModule, onE
     [onStatusUpdate, onMoveModule, inlineEditing]
   )
 
-  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder } = useColumnConfig('electrician')
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('electrician')
 
   const table = useReactTable({
     data: notes,
@@ -59,17 +59,14 @@ export function ElectricianNotesTable({ notes, onStatusUpdate, onMoveModule, onE
     enableMultiSort: true,
     maxMultiSortColCount: 2,
     columnResizeMode: 'onChange',
-    initialState: {
-      sorting: [
-        { id: 'channels', desc: false }
-      ]
-    },
     state: {
       columnSizing,
       columnVisibility,
       columnOrder,
+      sorting,
     },
     onColumnSizingChange,
+    onSortingChange,
   })
 
   const { frozenCount, freeze, unfreeze, headerRowRef, getFrozenHeaderStyle, getFrozenCellStyle, isLastFrozen } =

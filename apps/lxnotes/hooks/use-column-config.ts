@@ -1,10 +1,17 @@
 'use client'
 
 import { useMemo, useCallback } from 'react'
-import { ColumnSizingState, OnChangeFn, VisibilityState } from '@tanstack/react-table'
+import { ColumnSizingState, OnChangeFn, SortingState, VisibilityState } from '@tanstack/react-table'
 import { useColumnLayoutStore, mergeColumnOrderWithRegistry } from '@/lib/stores/column-layout-store'
 import { MODULE_COLUMN_REGISTRY } from '@/lib/config/column-registry'
 import type { ModuleType } from '@/types'
+
+const DEFAULT_SORTING: Record<ModuleType, SortingState> = {
+  work: [{ id: 'priority', desc: true }],
+  electrician: [{ id: 'priority', desc: true }],
+  cue: [{ id: 'cueNumber', desc: false }],
+  production: [{ id: 'createdAt', desc: true }],
+}
 
 interface UseColumnConfigReturn {
   // Column sizing (consolidated from use-column-sizing)
@@ -14,6 +21,9 @@ interface UseColumnConfigReturn {
   columnVisibility: VisibilityState
   // Column order
   columnOrder: string[]
+  // Sorting
+  sorting: SortingState
+  onSortingChange: OnChangeFn<SortingState>
   // Actions
   toggleColumn: (columnId: string) => void
   reorderColumns: (orderedIds: string[]) => void
@@ -62,6 +72,22 @@ export function useColumnConfig(moduleType: ModuleType): UseColumnConfigReturn {
     return vis
   }, [layout?.hiddenColumns, registry])
 
+  // Sorting - read from store or use module default
+  const sorting = useMemo<SortingState>(() => {
+    return store.getSorting(moduleType) ?? DEFAULT_SORTING[moduleType] ?? []
+  }, [store.getSorting(moduleType), moduleType])
+
+  const onSortingChange: OnChangeFn<SortingState> = useCallback(
+    (updaterOrValue) => {
+      const newValue =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(store.getSorting(moduleType) ?? DEFAULT_SORTING[moduleType] ?? [])
+          : updaterOrValue
+      store.setSorting(moduleType, newValue)
+    },
+    [store, moduleType]
+  )
+
   const toggleColumn = useCallback(
     (columnId: string) => {
       store.toggleColumnVisibility(moduleType, columnId)
@@ -85,6 +111,8 @@ export function useColumnConfig(moduleType: ModuleType): UseColumnConfigReturn {
     onColumnSizingChange,
     columnVisibility,
     columnOrder,
+    sorting,
+    onSortingChange,
     toggleColumn,
     reorderColumns,
     resetColumnConfig,

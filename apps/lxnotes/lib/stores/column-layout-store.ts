@@ -5,7 +5,7 @@ import { MODULE_COLUMN_REGISTRY, getDefaultColumnOrder } from '@/lib/config/colu
 import type { ModuleType } from '@/types'
 import { toast } from 'sonner'
 
-const COLUMN_LAYOUT_VERSION = 2
+const COLUMN_LAYOUT_VERSION = 3
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function userSettingsTable() {
@@ -14,12 +14,18 @@ function userSettingsTable() {
   return (supabase as any).from('user_settings')
 }
 
+interface SortingEntry {
+  id: string
+  desc: boolean
+}
+
 interface ColumnLayoutEntry {
   version: number
   widths: Record<string, number>
   frozenCount: number
   columnOrder: string[] | null
   hiddenColumns: string[]
+  sorting: SortingEntry[] | null
   timestamp: number
 }
 
@@ -33,6 +39,7 @@ interface ColumnLayoutState {
   getFrozenCount: (moduleType: ModuleType) => number
   getColumnOrder: (moduleType: ModuleType) => string[] | null
   getHiddenColumns: (moduleType: ModuleType) => string[]
+  getSorting: (moduleType: ModuleType) => SortingEntry[] | null
 
   // Column width actions
   setColumnWidth: (moduleType: ModuleType, columnId: string, width: number) => void
@@ -45,6 +52,9 @@ interface ColumnLayoutState {
   setColumnOrder: (moduleType: ModuleType, order: string[]) => void
   toggleColumnVisibility: (moduleType: ModuleType, columnId: string) => void
   setHiddenColumns: (moduleType: ModuleType, hidden: string[]) => void
+
+  // Sorting actions
+  setSorting: (moduleType: ModuleType, sorting: SortingEntry[]) => void
 
   // Reset
   resetModuleLayout: (moduleType: ModuleType) => void
@@ -63,6 +73,7 @@ function ensureV2(entry: ColumnLayoutEntry | undefined): ColumnLayoutEntry {
       frozenCount: 0,
       columnOrder: null,
       hiddenColumns: [],
+      sorting: null,
       timestamp: Date.now(),
     }
   }
@@ -71,6 +82,7 @@ function ensureV2(entry: ColumnLayoutEntry | undefined): ColumnLayoutEntry {
     version: COLUMN_LAYOUT_VERSION,
     columnOrder: entry.columnOrder ?? null,
     hiddenColumns: entry.hiddenColumns ?? [],
+    sorting: entry.sorting ?? null,
   }
 }
 
@@ -124,6 +136,11 @@ export const useColumnLayoutStore = create<ColumnLayoutState>()(
       getHiddenColumns: (moduleType) => {
         const state = get()
         return state.layouts[state.profileKey]?.[moduleType]?.hiddenColumns ?? []
+      },
+
+      getSorting: (moduleType) => {
+        const state = get()
+        return state.layouts[state.profileKey]?.[moduleType]?.sorting ?? null
       },
 
       setColumnWidth: (moduleType, columnId, width) => {
@@ -269,6 +286,28 @@ export const useColumnLayoutStore = create<ColumnLayoutState>()(
         })
       },
 
+      setSorting: (moduleType, sorting) => {
+        set((state) => {
+          const profileKey = state.profileKey
+          const profileLayouts = state.layouts[profileKey] ?? {}
+          const existing = ensureV2(profileLayouts[moduleType])
+
+          return {
+            layouts: {
+              ...state.layouts,
+              [profileKey]: {
+                ...profileLayouts,
+                [moduleType]: {
+                  ...existing,
+                  sorting,
+                  timestamp: Date.now(),
+                },
+              },
+            },
+          }
+        })
+      },
+
       resetModuleLayout: (moduleType) => {
         set((state) => {
           const profileKey = state.profileKey
@@ -355,14 +394,24 @@ export const useColumnLayoutStore = create<ColumnLayoutState>()(
       migrate: (persisted, version) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const state = persisted as any
+        const layouts = state.layouts ?? {}
         if (version < 2) {
           // Migrate v1 entries: add columnOrder and hiddenColumns
-          const layouts = state.layouts ?? {}
           for (const profileKey of Object.keys(layouts)) {
             for (const moduleType of Object.keys(layouts[profileKey])) {
               const entry = layouts[profileKey][moduleType]
               if (!entry.columnOrder) entry.columnOrder = null
               if (!entry.hiddenColumns) entry.hiddenColumns = []
+              entry.version = COLUMN_LAYOUT_VERSION
+            }
+          }
+        }
+        if (version < 3) {
+          // Migrate v2 entries: add sorting
+          for (const profileKey of Object.keys(layouts)) {
+            for (const moduleType of Object.keys(layouts[profileKey])) {
+              const entry = layouts[profileKey][moduleType]
+              if (!entry.sorting) entry.sorting = null
               entry.version = COLUMN_LAYOUT_VERSION
             }
           }

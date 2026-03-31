@@ -50,7 +50,7 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, empty
   )
 
   // Consolidated column config: sizing, visibility, order
-  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder } = useColumnConfig('cue')
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('cue')
 
   // Create table instance with TanStack
   const table = useReactTable({
@@ -61,17 +61,14 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, empty
     enableMultiSort: true,
     maxMultiSortColCount: 2,
     columnResizeMode: 'onChange',
-    initialState: {
-      sorting: [
-        { id: 'cueNumber', desc: false }
-      ]
-    },
     state: {
       columnSizing,
       columnVisibility,
       columnOrder,
+      sorting,
     },
     onColumnSizingChange,
+    onSortingChange,
   })
 
   const { frozenCount, freeze, unfreeze, headerRowRef, getFrozenHeaderStyle, getFrozenCellStyle, isLastFrozen } =

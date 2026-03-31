@@ -48,7 +48,7 @@ export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd
     [onStatusUpdate, inlineEditing]
   )
 
-  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder } = useColumnConfig('production')
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('production')
 
   const table = useReactTable({
     data: notes,
@@ -58,17 +58,14 @@ export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd
     enableMultiSort: true,
     maxMultiSortColCount: 2,
     columnResizeMode: 'onChange',
-    initialState: {
-      sorting: [
-        { id: 'createdAt', desc: true }
-      ]
-    },
     state: {
       columnSizing,
       columnVisibility,
       columnOrder,
+      sorting,
     },
     onColumnSizingChange,
+    onSortingChange,
   })
 
   const { frozenCount, freeze, unfreeze, headerRowRef, getFrozenHeaderStyle, getFrozenCellStyle, isLastFrozen } =
