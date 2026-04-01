@@ -19,14 +19,13 @@ import {
 } from './preset-wizard-steps/atomic'
 // Replace direct store imports with production-aware hooks
 import { useProductionFilterSortPresets } from '@/lib/hooks/use-production-filter-sort-presets'
-import { useProductionPageStylePresets } from '@/lib/hooks/use-production-page-style-presets'
 import { useProductionEmailPresets } from '@/lib/hooks/use-production-email-presets'
 import { useProductionPrintPresets } from '@/lib/hooks/use-production-print-presets'
 import { useProductionId } from '@/components/production/production-provider'
 
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset, PageStylePreset } from '@/types'
+import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset } from '@/types'
 
 // Safe useProductionId that doesn't throw if outside provider (for demo mode)
 function useSafeProductionId() {
@@ -106,7 +105,6 @@ export function PresetWizard({
   const productionId = useSafeProductionId()
 
   const { savePreset: saveFilterPreset } = useProductionFilterSortPresets(moduleType)
-  const { savePreset: savePageStylePreset } = useProductionPageStylePresets()
   const { savePreset: saveEmailPreset } = useProductionEmailPresets(moduleType)
   const { savePreset: savePrintPreset } = useProductionPrintPresets(moduleType)
 
@@ -142,13 +140,12 @@ export function PresetWizard({
     // Populate from editing preset
     if (editingPreset.type === 'email_message') {
       const email = editingPreset as EmailMessagePreset
-      // Ideally we would look up the referenced filter/page presets to populate their fields
-      // For now we keep the defaults or would need to fetch them
-      // This is a known limitation that might need addressing in a future task if deeper editing is required
-
       return {
         ...defaults,
         presetName: email.name,
+        paperSize: email.config.pageStyle?.paperSize ?? defaults.paperSize,
+        orientation: email.config.pageStyle?.orientation ?? defaults.orientation,
+        includeCheckboxes: email.config.pageStyle?.includeCheckboxes ?? defaults.includeCheckboxes,
         recipients: email.config.recipients,
         subject: email.config.subject,
         message: email.config.message,
@@ -160,6 +157,9 @@ export function PresetWizard({
       return {
         ...defaults,
         presetName: print.name,
+        paperSize: print.config.pageStyle?.paperSize ?? defaults.paperSize,
+        orientation: print.config.pageStyle?.orientation ?? defaults.orientation,
+        includeCheckboxes: print.config.pageStyle?.includeCheckboxes ?? defaults.includeCheckboxes,
       }
     }
 
@@ -195,11 +195,7 @@ export function PresetWizard({
   const handleSave = useCallback(async () => {
     if (!state.presetName.trim()) return
 
-    // Generate IDs for new presets if they are new, or reuse if we were consistently editing
-    // But here we are creating dependent presets on the fly.
-    // simpler to generate new IDs for the dependencies
     const newFilterId = `filter-sort-${Math.random().toString(36).substr(2, 9)}`
-    const newPageStyleId = `page-style-${Math.random().toString(36).substr(2, 9)}`
     const timestamp = new Date()
 
     // 1. Create Filter/Sort Preset
@@ -224,33 +220,20 @@ export function PresetWizard({
     }
     await saveFilterPreset(filterPreset)
 
-    // 2. Create Page Style Preset
-    const pageStylePreset: PageStylePreset = {
-      id: newPageStyleId,
-      type: 'page_style',
-      moduleType: 'all',
-      name: `Style: ${state.presetName}`,
-      productionId,
-      config: {
-        paperSize: state.paperSize,
-        orientation: state.orientation,
-        includeCheckboxes: state.includeCheckboxes,
-      },
-      isDefault: false,
-      createdBy: 'user',
-      createdAt: timestamp,
-      updatedAt: timestamp,
+    // 2. Create the main preset (Email or Print) with inline page style config
+    const pageStyle = {
+      paperSize: state.paperSize,
+      orientation: state.orientation,
+      includeCheckboxes: state.includeCheckboxes,
     }
-    await savePageStylePreset(pageStylePreset)
 
-    // 3. Create the main preset (Email or Print)
     if (variant === 'email') {
       const config: EmailMessagePreset['config'] = {
         recipients: state.recipients,
         subject: state.subject,
         message: state.message,
         filterAndSortPresetId: newFilterId,
-        pageStylePresetId: newPageStyleId,
+        pageStyle,
         includeNotesInBody: state.includeNotesInBody,
         attachPdf: state.attachPdf,
       }
@@ -279,7 +262,7 @@ export function PresetWizard({
     } else {
       const config: PrintPreset['config'] = {
         filterSortPresetId: newFilterId,
-        pageStylePresetId: newPageStyleId,
+        pageStyle,
       }
 
       if (editingPreset && editingPreset.type === 'print') {
@@ -308,7 +291,7 @@ export function PresetWizard({
     onComplete()
   }, [
     state, variant, moduleType, editingPreset, productionId,
-    saveFilterPreset, savePageStylePreset, saveEmailPreset, savePrintPreset,
+    saveFilterPreset, saveEmailPreset, savePrintPreset,
     onComplete
   ])
 

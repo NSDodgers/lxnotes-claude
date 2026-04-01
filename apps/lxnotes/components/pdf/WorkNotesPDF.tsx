@@ -11,6 +11,8 @@ interface WorkNotesPDFProps {
   productionName: string
   productionLogo?: string
   includeCheckboxes?: boolean
+  paperSize?: 'a4' | 'letter' | 'legal'
+  orientation?: 'portrait' | 'landscape'
   dateGenerated?: Date
   filterPresetName?: string
   groupByType?: boolean
@@ -23,6 +25,8 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
   productionName,
   productionLogo,
   includeCheckboxes = false,
+  paperSize = 'letter',
+  orientation = 'landscape',
   dateGenerated = new Date(),
   filterPresetName,
   groupByType = false,
@@ -79,7 +83,7 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
 
   return (
     <Document>
-      <Page size="LETTER" orientation="landscape" style={commonStyles.page}>
+      <Page size={paperSize.toUpperCase() as 'LETTER' | 'A4' | 'LEGAL'} orientation={orientation} style={commonStyles.page}>
         <PDFHeader
           productionName={productionName}
           productionLogo={productionLogo}

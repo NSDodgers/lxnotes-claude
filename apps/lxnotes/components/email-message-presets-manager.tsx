@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { PresetCard } from './preset-card'
 import { PresetSelector } from './preset-selector'
@@ -43,7 +42,6 @@ export function EmailMessagePresetsManager() {
   // Local store as fallback for demo mode
   const store = useEmailMessagePresetsStore()
   const { getPresetsByModule: getFilterPresetsByModule } = useFilterSortPresetsStore()
-  const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { user } = useAuthContext()
 
   // Use production presets when available, otherwise fall back to local store
@@ -70,7 +68,6 @@ export function EmailMessagePresetsManager() {
       subject: '',
       message: '',
       filterAndSortPresetId: null,
-      pageStylePresetId: null,
       includeNotesInBody: true,
       attachPdf: false,
     },
@@ -95,7 +92,6 @@ export function EmailMessagePresetsManager() {
       subject: '',
       message: '',
       filterAndSortPresetId: null,
-      pageStylePresetId: null,
       includeNotesInBody: true,
       attachPdf: false,
     })
@@ -112,7 +108,6 @@ export function EmailMessagePresetsManager() {
       subject: preset.config.subject,
       message: preset.config.message,
       filterAndSortPresetId: preset.config.filterAndSortPresetId,
-      pageStylePresetId: preset.config.pageStylePresetId,
       includeNotesInBody: preset.config.includeNotesInBody,
       attachPdf: preset.config.attachPdf,
     })
@@ -155,7 +150,7 @@ export function EmailMessagePresetsManager() {
           subject: data.subject,
           message: data.message,
           filterAndSortPresetId: data.filterAndSortPresetId,
-          pageStylePresetId: data.pageStylePresetId,
+          pageStyle: editingPreset?.config.pageStyle ?? { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true },
           includeNotesInBody: data.includeNotesInBody,
           attachPdf: data.attachPdf,
         },
@@ -176,7 +171,7 @@ export function EmailMessagePresetsManager() {
             subject: data.subject,
             message: data.message,
             filterAndSortPresetId: data.filterAndSortPresetId,
-            pageStylePresetId: data.pageStylePresetId,
+            pageStyle: editingPreset.config.pageStyle ?? { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true },
             includeNotesInBody: data.includeNotesInBody,
             attachPdf: data.attachPdf,
           }
@@ -192,7 +187,7 @@ export function EmailMessagePresetsManager() {
             subject: data.subject,
             message: data.message,
             filterAndSortPresetId: data.filterAndSortPresetId,
-            pageStylePresetId: data.pageStylePresetId,
+            pageStyle: { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true },
             includeNotesInBody: data.includeNotesInBody,
             attachPdf: data.attachPdf,
           },
@@ -500,28 +495,12 @@ Best regards,
                   checked={watchedAttachPdf}
                   onCheckedChange={(checked) => {
                     form.setValue('attachPdf', checked)
-                    if (!checked) {
-                      form.setValue('pageStylePresetId', null)
-                    }
                   }}
                   label="Attach PDF of notes"
                   description="Generate and attach a PDF file"
                 />
               </div>
 
-              {watchedAttachPdf && (
-                <PresetFormField 
-                  label="Page Style Preset" 
-                  description="Choose PDF formatting for the attachment"
-                >
-                  <PresetSelector
-                    presets={pageStylePresets}
-                    selectedId={form.watch('pageStylePresetId')}
-                    onSelect={(preset) => form.setValue('pageStylePresetId', preset?.id || null)}
-                    placeholder="Select page style preset..."
-                  />
-                </PresetFormField>
-              )}
             </div>
           </PresetDialogContent>
 

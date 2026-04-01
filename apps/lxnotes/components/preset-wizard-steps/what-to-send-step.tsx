@@ -4,38 +4,44 @@ import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import type { FilterSortPreset, PageStylePreset } from '@/types'
+import type { FilterSortPreset, PageStyleConfig } from '@/types'
+
+// Standard page style options for inline selection
+const PAGE_STYLE_OPTIONS: { label: string; description: string; value: PageStyleConfig }[] = [
+  { label: 'Letter Landscape', description: 'LETTER • landscape', value: { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true } },
+  { label: 'Letter Portrait', description: 'LETTER • portrait', value: { paperSize: 'letter', orientation: 'portrait', includeCheckboxes: true } },
+  { label: 'A4 Landscape', description: 'A4 • landscape', value: { paperSize: 'a4', orientation: 'landscape', includeCheckboxes: true } },
+  { label: 'A4 Portrait', description: 'A4 • portrait', value: { paperSize: 'a4', orientation: 'portrait', includeCheckboxes: true } },
+  { label: 'Legal Landscape', description: 'LEGAL • landscape', value: { paperSize: 'legal', orientation: 'landscape', includeCheckboxes: true } },
+  { label: 'Legal Portrait', description: 'LEGAL • portrait', value: { paperSize: 'legal', orientation: 'portrait', includeCheckboxes: true } },
+]
 
 interface WhatToSendStepProps {
   filterPresets: FilterSortPreset[]
-  pageStylePresets: PageStylePreset[]
   selectedFilterPresetId: string | null
-  selectedPageStylePresetId: string | null
+  selectedPageStyle: PageStyleConfig | null
   includeNotesInBody: boolean
   attachPdf: boolean
   variant: 'email' | 'print'
   onFilterPresetChange: (id: string | null) => void
-  onPageStylePresetChange: (id: string | null) => void
+  onPageStyleChange: (pageStyle: PageStyleConfig) => void
   onIncludeNotesInBodyChange: (val: boolean) => void
   onAttachPdfChange: (val: boolean) => void
   onCreateFilterPreset?: () => void
-  onCreatePageStylePreset?: () => void
 }
 
 export function WhatToSendStep({
   filterPresets,
-  pageStylePresets,
   selectedFilterPresetId,
-  selectedPageStylePresetId,
+  selectedPageStyle,
   includeNotesInBody,
   attachPdf,
   variant,
   onFilterPresetChange,
-  onPageStylePresetChange,
+  onPageStyleChange,
   onIncludeNotesInBodyChange,
   onAttachPdfChange,
   onCreateFilterPreset,
-  onCreatePageStylePreset,
 }: WhatToSendStepProps) {
   const showPdfOptions = variant === 'print' || attachPdf
 
@@ -112,27 +118,19 @@ export function WhatToSendStep({
         <div className="space-y-3">
           <Label className="text-sm font-medium text-text-primary">Page style</Label>
           <div className="space-y-2">
-            {pageStylePresets.map(preset => (
+            {PAGE_STYLE_OPTIONS.map((option, idx) => (
               <RadioOption
-                key={preset.id}
-                id={`page-style-${preset.id}`}
-                label={preset.name}
-                description={`${preset.config.paperSize.toUpperCase()} • ${preset.config.orientation}`}
-                selected={selectedPageStylePresetId === preset.id}
-                onSelect={() => onPageStylePresetChange(preset.id)}
+                key={idx}
+                id={`page-style-${idx}`}
+                label={option.label}
+                description={option.description}
+                selected={
+                  selectedPageStyle?.paperSize === option.value.paperSize &&
+                  selectedPageStyle?.orientation === option.value.orientation
+                }
+                onSelect={() => onPageStyleChange(option.value)}
               />
             ))}
-            {onCreatePageStylePreset && (
-              <button
-                type="button"
-                onClick={onCreatePageStylePreset}
-                className="w-full flex items-center gap-2 p-3 rounded-lg border border-dashed border-bg-tertiary text-text-secondary hover:text-modules-production hover:border-modules-production/50 transition-colors text-sm"
-                data-testid="wizard-create-page-style-preset"
-              >
-                <Plus className="h-4 w-4" />
-                Create New Page Style...
-              </button>
-            )}
           </div>
         </div>
       )}

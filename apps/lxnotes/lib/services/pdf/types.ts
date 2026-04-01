@@ -1,9 +1,9 @@
-import type { Note, ModuleType, FilterSortPreset, PageStylePreset, FixtureAggregate } from '@/types'
+import type { Note, ModuleType, FilterSortPreset, PageStyleConfig, FixtureAggregate } from '@/types'
 
 export interface PDFGenerationRequest {
   moduleType: ModuleType
   filterPreset?: FilterSortPreset
-  pageStylePreset: PageStylePreset
+  pageStyle: PageStyleConfig
   notes: Note[]
   productionName?: string
   productionLogo?: string

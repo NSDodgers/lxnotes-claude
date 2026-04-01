@@ -5,7 +5,6 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { TypesManager } from '@/components/types-manager'
 import { PrioritiesManager } from '@/components/priorities-manager'
-import { PageStylePresetsManager } from '@/components/page-style-presets-manager'
 import { FilterSortPresetsManager } from '@/components/filter-sort-presets-manager'
 import { EmailMessagePresetsManager } from '@/components/email-message-presets-manager'
 import { PrintPresetsManager } from '@/components/print-presets-manager'
@@ -391,7 +390,6 @@ function BuildingBlocksSection() {
       {expanded && (
         <div className="mt-4 space-y-6">
           <FilterSortPresetsManager />
-          <PageStylePresetsManager />
         </div>
       )}
     </div>

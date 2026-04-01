@@ -11,6 +11,8 @@ interface CueNotesPDFProps {
   productionName: string
   productionLogo?: string
   includeCheckboxes?: boolean
+  paperSize?: 'a4' | 'letter' | 'legal'
+  orientation?: 'portrait' | 'landscape'
   dateGenerated?: Date
   filterPresetName?: string
   groupByType?: boolean
@@ -22,6 +24,8 @@ export const CueNotesPDF: React.FC<CueNotesPDFProps> = ({
   productionName,
   productionLogo,
   includeCheckboxes = false,
+  paperSize = 'letter',
+  orientation = 'landscape',
   dateGenerated = new Date(),
   filterPresetName,
   groupByType = false,
@@ -70,7 +74,7 @@ export const CueNotesPDF: React.FC<CueNotesPDFProps> = ({
 
   return (
     <Document>
-      <Page size="LETTER" orientation="landscape" style={commonStyles.page}>
+      <Page size={paperSize.toUpperCase() as 'LETTER' | 'A4' | 'LEGAL'} orientation={orientation} style={commonStyles.page}>
         <PDFHeader
           productionName={productionName}
           productionLogo={productionLogo}

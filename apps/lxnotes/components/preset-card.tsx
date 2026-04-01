@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Edit2, Trash2, ChevronDown, ChevronUp, FileText, Filter, Mail, Printer } from 'lucide-react'
+import { Edit2, Trash2, ChevronDown, ChevronUp, Filter, Mail, Printer } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { AnyPreset, PageStylePreset, FilterSortPreset, EmailMessagePreset, PrintPreset } from '@/types'
+import type { AnyPreset, FilterSortPreset, EmailMessagePreset, PrintPreset } from '@/types'
 
 interface PresetCardProps {
   preset: AnyPreset
@@ -18,8 +18,6 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
 
   const getPresetIcon = () => {
     switch (preset.type) {
-      case 'page_style':
-        return <FileText className="h-4 w-4 text-modules-production" />
       case 'filter_sort':
         return <Filter className="h-4 w-4 text-modules-work" />
       case 'email_message':
@@ -31,10 +29,6 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
 
   const getPresetSummary = () => {
     switch (preset.type) {
-      case 'page_style': {
-        const config = (preset as PageStylePreset).config
-        return `${config.paperSize.toUpperCase()} • ${config.orientation} • ${config.includeCheckboxes ? 'Checkboxes' : 'No Checkboxes'}`
-      }
       case 'filter_sort': {
         const config = (preset as FilterSortPreset).config
         const statusText = config.statusFilter ? config.statusFilter.toUpperCase() : 'ALL'
@@ -52,15 +46,14 @@ export function PresetCard({ preset, onEdit, onDelete, showDetails = false, clas
       case 'print': {
         const config = (preset as PrintPreset).config
         const hasFilter = config.filterSortPresetId ? '✓' : '✗'
-        const hasStyle = config.pageStylePresetId ? '✓' : '✗'
-        return `Filter: ${hasFilter} • Page Style: ${hasStyle}`
+        const ps = config.pageStyle
+        const pageInfo = `${ps.paperSize.toUpperCase()} ${ps.orientation}`
+        return `Filter: ${hasFilter} • ${pageInfo}`
       }
     }
   }
 
   const getModuleBadge = () => {
-    if (preset.moduleType === 'all') return null
-    
     const colors = {
       cue: 'bg-modules-cue/20 text-modules-cue border-modules-cue/30',
       work: 'bg-modules-work/20 text-modules-work border-modules-work/30',

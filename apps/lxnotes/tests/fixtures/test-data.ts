@@ -90,7 +90,7 @@ Completed today: {{COMPLETE_COUNT}}
 Best regards,
 {{USER_FULL_NAME}}`,
   filterAndSortPresetId: null,
-  pageStylePresetId: null,
+  pageStyle: { paperSize: 'letter' as const, orientation: 'landscape' as const, includeCheckboxes: true },
   includeNotesInBody: true,
   attachPdf: false,
 };
@@ -170,7 +170,7 @@ export const testPrintPreset = {
   name: 'Test Cue Print Preset',
   moduleType: 'cue' as ModuleType,
   filterSortPresetId: null,
-  pageStylePresetId: null,
+  pageStyle: { paperSize: 'letter' as const, orientation: 'landscape' as const, includeCheckboxes: true },
 };
 
 // Test data generators

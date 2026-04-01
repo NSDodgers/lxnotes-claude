@@ -9,7 +9,7 @@ import { useAuthContext } from '@/components/auth/auth-provider'
 import { FixturesProvider } from '@/lib/contexts/fixtures-context'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import type { FullProduction, EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset, CustomTypesConfig, CustomPrioritiesConfig } from '@/types' // All types used in context API methods
+import type { FullProduction, EmailMessagePreset, FilterSortPreset, PrintPreset, CustomTypesConfig, CustomPrioritiesConfig } from '@/types'
 
 export type { FullProduction as Production }
 
@@ -29,8 +29,6 @@ interface ProductionContextType {
   deleteEmailPreset: (presetId: string) => Promise<void>
   updateFilterSortPreset: (preset: FilterSortPreset) => Promise<void>
   deleteFilterSortPreset: (presetId: string) => Promise<void>
-  updatePageStylePreset: (preset: PageStylePreset) => Promise<void>
-  deletePageStylePreset: (presetId: string) => Promise<void>
   updatePrintPreset: (preset: PrintPreset) => Promise<void>
   deletePrintPreset: (presetId: string) => Promise<void>
   updateCustomTypesConfig: (config: CustomTypesConfig) => Promise<void>
@@ -229,48 +227,6 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
       setProduction(prev => prev ? { ...prev, filterSortPresets } : null)
     } catch (err) {
       console.error('Error deleting filter/sort preset:', err)
-      throw err
-    }
-  }, [productionId])
-
-  const updatePageStylePreset = useCallback(async (preset: PageStylePreset) => {
-    try {
-      const response = await fetch(`/api/productions/${productionId}/page-style-presets`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(preset),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to update page style preset')
-      }
-
-      const { pageStylePresets } = await response.json()
-
-      // Update local state
-      setProduction(prev => prev ? { ...prev, pageStylePresets } : null)
-    } catch (err) {
-      console.error('Error updating page style preset:', err)
-      throw err
-    }
-  }, [productionId])
-
-  const deletePageStylePreset = useCallback(async (presetId: string) => {
-    try {
-      const response = await fetch(`/api/productions/${productionId}/page-style-presets/${presetId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to delete page style preset')
-      }
-
-      const { pageStylePresets } = await response.json()
-
-      // Update local state
-      setProduction(prev => prev ? { ...prev, pageStylePresets } : null)
-    } catch (err) {
-      console.error('Error deleting page style preset:', err)
       throw err
     }
   }, [productionId])
@@ -571,8 +527,6 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
         deleteEmailPreset,
         updateFilterSortPreset,
         deleteFilterSortPreset,
-        updatePageStylePreset,
-        deletePageStylePreset,
         updatePrintPreset,
         deletePrintPreset,
         updateCustomTypesConfig,

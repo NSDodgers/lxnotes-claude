@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { usePrintPresetsStore } from '@/lib/stores/print-presets-store'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
-import type { FilterSortPreset, PageStylePreset, PrintPreset, EmailMessagePreset } from '@/types'
+import type { FilterSortPreset, PrintPreset, EmailMessagePreset } from '@/types'
 
 function makeFilterSortPreset(overrides: Partial<FilterSortPreset> = {}): Omit<FilterSortPreset, 'id' | 'createdAt' | 'updatedAt'> & { id?: string; createdAt?: Date; updatedAt?: Date } {
   return {
@@ -25,23 +24,6 @@ function makeFilterSortPreset(overrides: Partial<FilterSortPreset> = {}): Omit<F
   }
 }
 
-function makePageStylePreset(overrides: Partial<PageStylePreset> = {}): Omit<PageStylePreset, 'id' | 'createdAt' | 'updatedAt'> & { id?: string; createdAt?: Date; updatedAt?: Date } {
-  return {
-    productionId: 'prod-1',
-    type: 'page_style',
-    moduleType: 'all',
-    name: 'Test Style',
-    config: {
-      paperSize: 'letter',
-      orientation: 'portrait',
-      includeCheckboxes: true,
-    },
-    isDefault: false,
-    createdBy: 'user',
-    ...overrides,
-  }
-}
-
 function makePrintPreset(overrides: Partial<PrintPreset> = {}): Omit<PrintPreset, 'id' | 'createdAt' | 'updatedAt'> & { id?: string; createdAt?: Date; updatedAt?: Date } {
   return {
     productionId: 'prod-1',
@@ -50,7 +32,7 @@ function makePrintPreset(overrides: Partial<PrintPreset> = {}): Omit<PrintPreset
     name: 'Test Print',
     config: {
       filterSortPresetId: 'filter-123',
-      pageStylePresetId: 'style-123',
+      pageStyle: { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true },
     },
     isDefault: false,
     createdBy: 'user',
@@ -69,7 +51,7 @@ function makeEmailPreset(overrides: Partial<EmailMessagePreset> = {}): Omit<Emai
       subject: 'Test',
       message: 'Body',
       filterAndSortPresetId: null,
-      pageStylePresetId: null,
+      pageStyle: { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true },
       includeNotesInBody: true,
       attachPdf: false,
     },
@@ -133,37 +115,6 @@ describe('Filter Sort Presets Store', () => {
       const found = store.getPreset(systemPresets[0].id)
       expect(found).toBeDefined()
       expect(found!.id).toBe(systemPresets[0].id)
-    })
-  })
-})
-
-describe('Page Style Presets Store', () => {
-  beforeEach(() => {
-    // Reset to system defaults
-    usePageStylePresetsStore.setState({ presets: usePageStylePresetsStore.getState().getSystemDefaults() })
-  })
-
-  describe('addPreset', () => {
-    it('preserves caller-provided id', () => {
-      const store = usePageStylePresetsStore.getState()
-      const initialCount = store.presets.length
-      store.addPreset(makePageStylePreset({ id: 'my-page-style-id' }))
-
-      const presets = usePageStylePresetsStore.getState().presets
-      expect(presets).toHaveLength(initialCount + 1)
-      const added = presets.find(p => p.id === 'my-page-style-id')
-      expect(added).toBeDefined()
-    })
-
-    it('generates id when none provided', () => {
-      const store = usePageStylePresetsStore.getState()
-      const initialCount = store.presets.length
-      store.addPreset(makePageStylePreset())
-
-      const presets = usePageStylePresetsStore.getState().presets
-      expect(presets).toHaveLength(initialCount + 1)
-      const added = presets[presets.length - 1]
-      expect(added.id).toMatch(/^page-style-/)
     })
   })
 })

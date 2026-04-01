@@ -3,7 +3,6 @@
 import { useState, useMemo } from 'react'
 import { Printer, Download, Loader2 } from 'lucide-react'
 import { useProductionFilterSortPresets } from '@/lib/hooks/use-production-filter-sort-presets'
-import { useProductionPageStylePresets } from '@/lib/hooks/use-production-page-style-presets'
 import { useProductionPrintPresets } from '@/lib/hooks/use-production-print-presets'
 import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
@@ -13,7 +12,6 @@ import { PresetWizard } from './preset-wizard'
 import { PresetEditor } from './preset-editor'
 import { PresetSelector } from './preset-selector'
 import { FilterSortPresetDialog } from './filter-sort-preset-dialog'
-import { PageStylePresetDialog } from './page-style-preset-dialog'
 import {
   Sheet,
   SheetContent,
@@ -23,7 +21,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import type { ModuleType, PresetModuleType, PrintPreset, EmailMessagePreset, FilterSortPreset, PageStylePreset, Note } from '@/types'
+import type { ModuleType, PresetModuleType, PrintPreset, EmailMessagePreset, FilterSortPreset, PageStyleConfig, Note } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
@@ -50,7 +48,6 @@ const moduleDisplayNames: Record<PresetModuleType, string> = {
 
 export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNotes }: PrintNotesSidebarProps) {
   const { getPreset: getFilterPreset, presets: moduleFilterPresets } = useProductionFilterSortPresets(moduleType)
-  const { presets: pageStylePresets } = useProductionPageStylePresets()
   const { presets: printPresets, deletePreset } = useProductionPrintPresets(moduleType)
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
@@ -75,13 +72,13 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
 
   // Custom one-off state
   const [customFilterPreset, setCustomFilterPreset] = useState<FilterSortPreset | null>(null)
-  const [customPageStylePreset, setCustomPageStylePreset] = useState<PageStylePreset | null>(null)
+  const [customPaperSize, setCustomPaperSize] = useState<'letter' | 'a4' | 'legal'>('letter')
+  const [customOrientation, setCustomOrientation] = useState<'portrait' | 'landscape'>('landscape')
+  const [customIncludeCheckboxes, setCustomIncludeCheckboxes] = useState(true)
 
   // Inline create/edit dialog state
   const [filterDialogOpen, setFilterDialogOpen] = useState(false)
-  const [pageStyleDialogOpen, setPageStyleDialogOpen] = useState(false)
   const [editingFilterPreset, setEditingFilterPreset] = useState<FilterSortPreset | null>(null)
-  const [editingPageStylePreset, setEditingPageStylePreset] = useState<PageStylePreset | null>(null)
 
   // For PDF generation and preset creation, use the base module type
   const pdfModuleType = getPdfModuleType(moduleType)
@@ -105,23 +102,20 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
     try {
       await doGenerate(
         printPreset.config.filterSortPresetId,
-        printPreset.config.pageStylePresetId,
+        printPreset.config.pageStyle,
       )
     } finally {
       setGeneratingPresetId(null)
     }
   }
 
-  const doGenerate = async (filterPresetId: string | null, pageStylePresetId: string | null) => {
+  const doGenerate = async (filterPresetId: string | null, pageStyle: PageStyleConfig) => {
     const filterPreset = filterPresetId
       ? getFilterPreset(filterPresetId)
       : null
-    const pageStylePreset = pageStylePresetId
-      ? pageStylePresets.find(p => p.id === pageStylePresetId)
-      : null
 
-    if (!filterPreset || !pageStylePreset) {
-      setGenerateError('Both filter and page style presets are required')
+    if (!filterPreset) {
+      setGenerateError('Filter preset is required')
       return
     }
 
@@ -133,7 +127,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
       const result = await pdfService.generatePDF({
         moduleType: pdfModuleType,
         filterPreset,
-        pageStylePreset,
+        pageStyle,
         notes,
         productionName,
         productionLogo,
@@ -166,13 +160,17 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
     if (!selectedPreset) return
     await doGenerate(
       selectedPreset.config.filterSortPresetId,
-      selectedPreset.config.pageStylePresetId,
+      selectedPreset.config.pageStyle,
     )
   }
 
   const handleGenerateCustom = async () => {
-    if (!customFilterPreset || !customPageStylePreset) return
-    await doGenerate(customFilterPreset.id, customPageStylePreset.id)
+    if (!customFilterPreset) return
+    await doGenerate(customFilterPreset.id, {
+      paperSize: customPaperSize,
+      orientation: customOrientation,
+      includeCheckboxes: customIncludeCheckboxes,
+    })
   }
 
   const handleClose = () => {
@@ -301,25 +299,42 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
                   canEdit={(preset) => !preset.isDefault}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Page Style Preset <span className="text-red-500">*</span></Label>
-                <PresetSelector
-                  presets={pageStylePresets}
-                  selectedId={customPageStylePreset?.id || null}
-                  onSelect={(preset) => setCustomPageStylePreset(preset as PageStylePreset)}
-                  placeholder="Select page formatting..."
-                  presetType="page_style"
-                  enableQuickCreate
-                  onQuickCreate={() => {
-                    setEditingPageStylePreset(null)
-                    setPageStyleDialogOpen(true)
-                  }}
-                  onEdit={(preset) => {
-                    setEditingPageStylePreset(preset as PageStylePreset)
-                    setPageStyleDialogOpen(true)
-                  }}
-                  canEdit={(preset) => !preset.isDefault}
-                />
+              <div className="space-y-3">
+                <Label>Page Layout</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-text-secondary">Paper Size</Label>
+                    <select
+                      value={customPaperSize}
+                      onChange={(e) => setCustomPaperSize(e.target.value as 'letter' | 'a4' | 'legal')}
+                      className="w-full rounded-md border border-bg-tertiary bg-bg-secondary px-3 py-2 text-sm text-text-primary"
+                    >
+                      <option value="letter">Letter</option>
+                      <option value="a4">A4</option>
+                      <option value="legal">Legal</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-text-secondary">Orientation</Label>
+                    <select
+                      value={customOrientation}
+                      onChange={(e) => setCustomOrientation(e.target.value as 'portrait' | 'landscape')}
+                      className="w-full rounded-md border border-bg-tertiary bg-bg-secondary px-3 py-2 text-sm text-text-primary"
+                    >
+                      <option value="portrait">Portrait</option>
+                      <option value="landscape">Landscape</option>
+                    </select>
+                  </div>
+                </div>
+                <label className="flex items-center gap-2 text-sm text-text-primary">
+                  <input
+                    type="checkbox"
+                    checked={customIncludeCheckboxes}
+                    onChange={(e) => setCustomIncludeCheckboxes(e.target.checked)}
+                    className="rounded"
+                  />
+                  Include checkboxes
+                </label>
               </div>
             </div>
             <div className="border-t border-bg-tertiary p-6">
@@ -334,7 +349,7 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
                 </Button>
                 <Button
                   onClick={handleGenerateCustom}
-                  disabled={!customFilterPreset || !customPageStylePreset || isGenerating}
+                  disabled={!customFilterPreset || isGenerating}
                 >
                   {isGenerating ? (
                     <>
@@ -368,18 +383,6 @@ export function PrintNotesSidebar({ moduleType, isOpen, onClose, notes: propNote
         }}
       />
 
-      <PageStylePresetDialog
-        open={pageStyleDialogOpen}
-        onOpenChange={(open) => {
-          setPageStyleDialogOpen(open)
-          if (!open) setEditingPageStylePreset(null)
-        }}
-        editingPreset={editingPageStylePreset}
-        onSave={(presetId) => {
-          const preset = pageStylePresets.find((p: PageStylePreset) => p.id === presetId)
-          if (preset) setCustomPageStylePreset(preset)
-        }}
-      />
     </Sheet>
   )
 }
