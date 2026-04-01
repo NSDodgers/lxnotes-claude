@@ -56,8 +56,8 @@ export function EmailFormatStep({
                 includeNotesInBody ? 'bg-primary' : 'bg-bg-tertiary'
               )}>
                 <div className={cn(
-                  'absolute top-1 h-4 w-4 rounded-full bg-white transition-transform',
-                  includeNotesInBody ? 'left-5' : 'left-1'
+                  'absolute top-1 h-4 w-4 rounded-full transition-transform',
+                  includeNotesInBody ? 'left-5 bg-bg-primary' : 'left-1 bg-white'
                 )} />
               </div>
             </div>
@@ -98,8 +98,8 @@ export function EmailFormatStep({
                 attachPdf ? 'bg-primary' : 'bg-bg-tertiary'
               )}>
                 <div className={cn(
-                  'absolute top-1 h-4 w-4 rounded-full bg-white transition-transform',
-                  attachPdf ? 'left-5' : 'left-1'
+                  'absolute top-1 h-4 w-4 rounded-full transition-transform',
+                  attachPdf ? 'left-5 bg-bg-primary' : 'left-1 bg-white'
                 )} />
               </div>
             </div>
