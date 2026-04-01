@@ -191,9 +191,16 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       let pdfFilename: string | undefined
       let pdfError: string | undefined
 
-      if (withPdf && pageStylePresetId) {
-        const pageStylePreset = pageStylePresets.find(p => p.id === pageStylePresetId)
+      if (withPdf) {
+        // Find the page style preset - fall back to first available if configured one was deleted
+        const pageStylePreset = pageStylePresetId
+          ? (pageStylePresets.find(p => p.id === pageStylePresetId) || pageStylePresets[0])
+          : pageStylePresets[0]
+
         if (pageStylePreset) {
+          if (pageStylePresetId && pageStylePreset.id !== pageStylePresetId) {
+            console.warn(`[Email PDF] Configured preset "${pageStylePresetId}" not found, using "${pageStylePreset.name}"`)
+          }
           const pdfService = PDFGenerationService.getInstance()
           const result = await pdfService.generatePDF({
             moduleType: pdfModuleType,
@@ -220,12 +227,9 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
             console.warn('[Email PDF] PDF generation failed:', pdfError)
           }
         } else {
-          pdfError = `Page style preset "${pageStylePresetId}" not found`
+          pdfError = 'No page style presets available'
           console.warn('[Email PDF]', pdfError)
         }
-      } else if (withPdf && !pageStylePresetId) {
-        pdfError = 'No page style preset configured'
-        console.warn('[Email PDF]', pdfError)
       }
 
       // Block send if PDF was requested but generation failed
