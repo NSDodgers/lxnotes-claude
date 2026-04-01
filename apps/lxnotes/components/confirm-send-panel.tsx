@@ -11,7 +11,6 @@ import { DroppableTextarea } from '@/components/ui/droppable-textarea'
 import { PlaceholderChipPanel } from '@/components/placeholder-chip-panel'
 import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
 import { useProductionFilterSortPresets } from '@/lib/hooks/use-production-filter-sort-presets'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
@@ -50,7 +49,6 @@ export function ConfirmSendPanel({
   onSubmit,
 }: ConfirmSendPanelProps) {
   const { getPreset: getFilterPreset } = useProductionFilterSortPresets(moduleType)
-  const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { getPriorities } = useCustomPrioritiesStore()
   const productionContext = useProductionOptional()
   const updateEmailPreset = productionContext?.updateEmailPreset
@@ -70,14 +68,11 @@ export function ConfirmSendPanel({
   const filterPresetId = emailPreset
     ? emailPreset.config.filterAndSortPresetId
     : (localPreset as PrintPreset).config.filterSortPresetId
-  const pageStylePresetId = emailPreset
-    ? emailPreset.config.pageStylePresetId
-    : (localPreset as PrintPreset).config.pageStylePresetId
+  const pageStyle = emailPreset
+    ? emailPreset.config.pageStyle
+    : (localPreset as PrintPreset).config.pageStyle
 
   const filterPreset = filterPresetId ? getFilterPreset(filterPresetId) : null
-  const pageStylePreset = pageStylePresetId
-    ? pageStylePresets.find(p => p.id === pageStylePresetId)
-    : null
 
   // Compute note count
   const noteCount = useMemo(() => {
@@ -227,11 +222,11 @@ export function ConfirmSendPanel({
               <span className="text-text-secondary">Notes</span>
               <span className="text-text-primary">{noteCount} matching</span>
             </div>
-            {pageStylePreset && (
+            {pageStyle && (
               <div className="flex justify-between">
                 <span className="text-text-secondary">PDF</span>
                 <span className="text-text-primary">
-                  {pageStylePreset.config.paperSize.toUpperCase()} {pageStylePreset.config.orientation} ✓
+                  {pageStyle.paperSize.toUpperCase()} {pageStyle.orientation} ✓
                 </span>
               </div>
             )}

@@ -6,7 +6,6 @@ import { Mail, Send, Loader2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useProductionEmailPresets } from '@/lib/hooks/use-production-email-presets'
 import { useProductionFilterSortPresets } from '@/lib/hooks/use-production-filter-sort-presets'
-import { useProductionPageStylePresets } from '@/lib/hooks/use-production-page-style-presets'
 import { useCurrentProductionStore } from '@/lib/stores/production-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
@@ -26,7 +25,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset } from '@/types'
+import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset, PageStyleConfig } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useNotes } from '@/lib/contexts/notes-context'
@@ -53,7 +52,6 @@ const moduleDisplayNames: Record<PresetModuleType, string> = {
 export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSidebarProps) {
   const { presets: moduleEmailPresets, resolvePlaceholders, deletePreset } = useProductionEmailPresets(moduleType)
   const { getPreset: getFilterPreset } = useProductionFilterSortPresets(moduleType)
-  const { presets: pageStylePresets } = useProductionPageStylePresets()
   const localProductionStore = useCurrentProductionStore()
   const productionContext = useProductionOptional()
   const { user } = useAuthContext()
@@ -140,13 +138,15 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       config.includeNotesInBody,
       config.attachPdf,
       config.filterAndSortPresetId,
-      config.pageStylePresetId,
+      config.pageStyle,
     )
   }
 
+  const defaultPageStyle: PageStyleConfig = { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true }
+
   const handleSendCustom = async () => {
     if (!recipients || !subject || !message) return
-    await doSend(recipients, subject, message, includeNotesInBody, attachPdf, null, null)
+    await doSend(recipients, subject, message, includeNotesInBody, attachPdf, null, defaultPageStyle)
   }
 
   const doSend = async (
@@ -156,7 +156,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
     withNotesInBody: boolean,
     withPdf: boolean,
     filterPresetId: string | null,
-    pageStylePresetId: string | null,
+    pageStyle: PageStyleConfig,
   ) => {
     if (isDemo) {
       alert('In a live production, this email would be sent to your recipients.')
@@ -164,7 +164,7 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       return
     }
 
-    lastSendParamsRef.current = [recipientList, subjectLine, messageBody, withNotesInBody, withPdf, filterPresetId, pageStylePresetId]
+    lastSendParamsRef.current = [recipientList, subjectLine, messageBody, withNotesInBody, withPdf, filterPresetId, pageStyle]
     setIsSending(true)
     setSendError(null)
     setPdfFailedButCanSendWithout(false)
@@ -192,43 +192,30 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       let pdfError: string | undefined
 
       if (withPdf) {
-        // Find the page style preset - fall back to first available if configured one was deleted
-        const pageStylePreset = pageStylePresetId
-          ? (pageStylePresets.find(p => p.id === pageStylePresetId) || pageStylePresets[0])
-          : pageStylePresets[0]
+        const pdfService = PDFGenerationService.getInstance()
+        const result = await pdfService.generatePDF({
+          moduleType: pdfModuleType,
+          filterPreset: filterPreset || undefined,
+          pageStyle,
+          notes,
+          productionName,
+          productionLogo,
+          ...(isFixtureModule(moduleType) && { fixtureAggregates }),
+          ...(moduleType !== pdfModuleType && { moduleTitleOverride: moduleName }),
+        })
 
-        if (pageStylePreset) {
-          if (pageStylePresetId && pageStylePreset.id !== pageStylePresetId) {
-            console.warn(`[Email PDF] Configured preset "${pageStylePresetId}" not found, using "${pageStylePreset.name}"`)
+        if (result.success && result.pdfBlob) {
+          const arrayBuffer = await result.pdfBlob.arrayBuffer()
+          const uint8Array = new Uint8Array(arrayBuffer)
+          let binary = ''
+          for (let i = 0; i < uint8Array.length; i++) {
+            binary += String.fromCharCode(uint8Array[i])
           }
-          const pdfService = PDFGenerationService.getInstance()
-          const result = await pdfService.generatePDF({
-            moduleType: pdfModuleType,
-            filterPreset: filterPreset || undefined,
-            pageStylePreset,
-            notes,
-            productionName,
-            productionLogo,
-            ...(isFixtureModule(moduleType) && { fixtureAggregates }),
-            ...(moduleType !== pdfModuleType && { moduleTitleOverride: moduleName }),
-          })
-
-          if (result.success && result.pdfBlob) {
-            const arrayBuffer = await result.pdfBlob.arrayBuffer()
-            const uint8Array = new Uint8Array(arrayBuffer)
-            let binary = ''
-            for (let i = 0; i < uint8Array.length; i++) {
-              binary += String.fromCharCode(uint8Array[i])
-            }
-            pdfBase64 = btoa(binary)
-            pdfFilename = result.filename || `${moduleType}_notes.pdf`
-          } else {
-            pdfError = result.error || 'PDF generation returned no data'
-            console.warn('[Email PDF] PDF generation failed:', pdfError)
-          }
+          pdfBase64 = btoa(binary)
+          pdfFilename = result.filename || `${moduleType}_notes.pdf`
         } else {
-          pdfError = 'No page style presets available'
-          console.warn('[Email PDF]', pdfError)
+          pdfError = result.error || 'PDF generation returned no data'
+          console.warn('[Email PDF] PDF generation failed:', pdfError)
         }
       }
 

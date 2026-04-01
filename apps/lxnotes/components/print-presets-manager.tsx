@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Plus, ChevronDown, ChevronUp, Printer, Edit2, Trash2 } from 'lucide-react'
 import { usePrintPresetsStore } from '@/lib/stores/print-presets-store'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { PresetSelector } from './preset-selector'
 import {
@@ -41,10 +40,6 @@ export function PrintPresetsManager() {
   const filterSortPresets = productionContext?.production?.filterSortPresets ?? filterSortStore.presets
   const getFilterPresetsByModule = (module: ModuleType) => filterSortPresets.filter(p => p.moduleType === module)
 
-  // Page style presets - use production when available
-  const pageStyleStore = usePageStylePresetsStore()
-  const pageStylePresets = productionContext?.production?.pageStylePresets ?? pageStyleStore.presets
-
   const [collapsed, setCollapsed] = useState(false)
   const [showDialog, setShowDialog] = useState(false)
   const [editingPreset, setEditingPreset] = useState<PrintPreset | null>(null)
@@ -54,7 +49,6 @@ export function PrintPresetsManager() {
   const [formName, setFormName] = useState('')
   const [formModuleType, setFormModuleType] = useState<ModuleType>('cue')
   const [formFilterPresetId, setFormFilterPresetId] = useState<string | null>(null)
-  const [formPageStylePresetId, setFormPageStylePresetId] = useState<string | null>(null)
 
   const filteredPresets = moduleFilter === 'all'
     ? presets
@@ -68,7 +62,6 @@ export function PrintPresetsManager() {
     setFormName('')
     setFormModuleType('cue')
     setFormFilterPresetId(null)
-    setFormPageStylePresetId(null)
     setShowDialog(true)
   }
 
@@ -77,7 +70,6 @@ export function PrintPresetsManager() {
     setFormName(preset.isDefault ? `Copy of ${preset.name}` : preset.name)
     setFormModuleType(preset.moduleType as ModuleType)
     setFormFilterPresetId(preset.config.filterSortPresetId)
-    setFormPageStylePresetId(preset.config.pageStylePresetId)
     setShowDialog(true)
   }
 
@@ -86,7 +78,7 @@ export function PrintPresetsManager() {
 
     const config: PrintPreset['config'] = {
       filterSortPresetId: formFilterPresetId,
-      pageStylePresetId: formPageStylePresetId,
+      pageStyle: editingPreset?.config.pageStyle ?? { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true },
     }
 
     if (productionContext?.updatePrintPreset) {
@@ -257,15 +249,6 @@ export function PrintPresetsManager() {
               />
             </PresetFormField>
 
-            <PresetFormField label="Page Style Preset">
-              <PresetSelector
-                presets={pageStylePresets}
-                selectedId={formPageStylePresetId}
-                onSelect={(p) => setFormPageStylePresetId(p?.id || null)}
-                placeholder="Select page style..."
-                presetType="page_style"
-              />
-            </PresetFormField>
           </PresetDialogContent>
 
           <PresetDialogActions>

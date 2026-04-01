@@ -255,7 +255,7 @@ export function generateSystemPrintPresets(
       name: filterPreset.name,
       config: {
         filterSortPresetId: filterPreset.id,
-        pageStylePresetId: 'sys-page-style-2', // Letter Landscape with checkboxes
+        pageStyle: { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true },
       },
       isDefault: true,
       createdBy: 'system',
@@ -300,7 +300,7 @@ export function generateSystemEmailPresets(
 
 {{USER_FULL_NAME}}`,
         filterAndSortPresetId: filterPreset.id,
-        pageStylePresetId: 'sys-page-style-2', // Letter Landscape with checkboxes
+        pageStyle: { paperSize: 'letter', orientation: 'landscape', includeCheckboxes: true },
         includeNotesInBody: false,
         attachPdf: true,
       },

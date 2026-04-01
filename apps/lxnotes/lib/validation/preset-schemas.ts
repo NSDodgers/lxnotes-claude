@@ -65,7 +65,7 @@ export const emailMessagePresetConfigSchema = z.object({
   subject: z.string().min(1, 'Subject is required').max(500, 'Subject must be less than 500 characters'),
   message: z.string().min(1, 'Message is required').max(5000, 'Message must be less than 5000 characters'),
   filterAndSortPresetId: z.string().nullable(),
-  pageStylePresetId: z.string().nullable(),
+  pageStyle: pageStylePresetConfigSchema.optional(),
   includeNotesInBody: z.boolean().default(true),
   attachPdf: z.boolean().default(false),
 })
@@ -85,7 +85,7 @@ export const createEmailMessagePresetSchema = emailMessagePresetSchema.omit({
 // Print Preset schema
 export const printPresetConfigSchema = z.object({
   filterSortPresetId: z.string().nullable(),
-  pageStylePresetId: z.string().nullable(),
+  pageStyle: pageStylePresetConfigSchema.optional(),
 })
 
 export const printPresetSchema = basePresetSchema.extend({
@@ -102,7 +102,6 @@ export const createPrintPresetSchema = printPresetSchema.omit({
 
 // Union schema for any preset type
 export const anyPresetSchema = z.discriminatedUnion('type', [
-  pageStylePresetSchema,
   filterSortPresetSchema,
   emailMessagePresetSchema,
   printPresetSchema,
@@ -180,7 +179,6 @@ export const emailMessageFormSchema = z.object({
   subject: emailMessagePresetConfigSchema.shape.subject,
   message: emailMessagePresetConfigSchema.shape.message,
   filterAndSortPresetId: emailMessagePresetConfigSchema.shape.filterAndSortPresetId,
-  pageStylePresetId: emailMessagePresetConfigSchema.shape.pageStylePresetId,
   includeNotesInBody: z.boolean(),
   attachPdf: z.boolean(),
 })
@@ -191,7 +189,6 @@ export const printFormSchema = z.object({
     message: 'Module type is required',
   }),
   filterSortPresetId: printPresetConfigSchema.shape.filterSortPresetId,
-  pageStylePresetId: printPresetConfigSchema.shape.pageStylePresetId,
 })
 
 // Type exports for use in components

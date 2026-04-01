@@ -5,7 +5,6 @@ import { Plus, Send, Download, Loader2, ArrowUpNarrowWide, ArrowDownWideNarrow, 
 import { cn } from '@/lib/utils'
 import type { EmailMessagePreset, PrintPreset, ModuleType, PresetModuleType, Note } from '@/types'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -160,19 +159,18 @@ const sortFieldLabels: Record<string, string> = {
 
 function ActionPresetCard({ preset, variant, onClick, onEdit, onDelete, isLoading, disabled }: ActionPresetCardProps) {
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
-  const { getPreset: getPageStylePreset } = usePageStylePresetsStore()
 
   // Get linked presets for metadata
   const filterPresetId = preset.type === 'email_message'
     ? (preset as EmailMessagePreset).config.filterAndSortPresetId
     : (preset as PrintPreset).config.filterSortPresetId
 
-  const pageStylePresetId = preset.type === 'print'
-    ? (preset as PrintPreset).config.pageStylePresetId
-    : (preset as EmailMessagePreset).config.pageStylePresetId
-
   const filterPreset = filterPresetId ? getFilterPreset(filterPresetId) : null
-  const pageStylePreset = pageStylePresetId ? getPageStylePreset(pageStylePresetId) : null
+
+  // Get inline page style config
+  const pageStyle = preset.type === 'print'
+    ? (preset as PrintPreset).config.pageStyle
+    : (preset as EmailMessagePreset).config.pageStyle
 
   // Get sort info for tooltip
   const sortBy = filterPreset?.config.sortBy || 'created_at'
@@ -180,8 +178,8 @@ function ActionPresetCard({ preset, variant, onClick, onEdit, onDelete, isLoadin
   const sortLabel = sortFieldLabels[sortBy] || sortBy
 
   // Get page style info for tooltip
-  const paperSize = pageStylePreset?.config.paperSize || 'letter'
-  const orientation = pageStylePreset?.config.orientation || 'portrait'
+  const paperSize = pageStyle?.paperSize || 'letter'
+  const orientation = pageStyle?.orientation || 'portrait'
   const pageTooltip = `${paperSize.charAt(0).toUpperCase() + paperSize.slice(1)} ${orientation.charAt(0).toUpperCase() + orientation.slice(1)}`
 
   // Check if this is an "All" preset (overview presets)
@@ -249,7 +247,7 @@ function ActionPresetCard({ preset, variant, onClick, onEdit, onDelete, isLoadin
       <div className="flex items-center justify-between w-full mt-auto">
         {/* Metadata icons - minimal, tooltips only */}
         <div className="flex items-center gap-2 text-text-tertiary">
-          {pageStylePreset && (
+          {pageStyle && (
             <span title={pageTooltip}>
               <FileText className="h-3.5 w-3.5" />
             </span>

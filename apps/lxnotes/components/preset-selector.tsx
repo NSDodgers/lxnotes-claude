@@ -14,7 +14,7 @@ interface PresetSelectorProps {
   className?: string
   // New props for quick creation
   enableQuickCreate?: boolean
-  presetType?: 'filter_sort' | 'page_style' | 'email_message'
+  presetType?: 'filter_sort' | 'email_message' | 'print'
   moduleType?: PresetModuleType
   onQuickCreate?: () => void
   // New props for inline editing
@@ -45,8 +45,6 @@ export function PresetSelector({
 
   const getPresetSummary = (preset: AnyPreset) => {
     switch (preset.type) {
-      case 'page_style':
-        return `${preset.config.paperSize.toUpperCase()} • ${preset.config.orientation}`
       case 'filter_sort':
         const statusText = preset.config.statusFilter ? preset.config.statusFilter.toUpperCase() : 'ALL'
         return `${statusText} • Sort by ${preset.config.sortBy}`
