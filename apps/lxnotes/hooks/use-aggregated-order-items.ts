@@ -105,9 +105,10 @@ export function useAggregatedOrderItems(productionId: string | undefined): UseAg
       const supabase = createClient()
       const { data, error } = await supabase
         .from('order_items' as SupabaseAny)
-        .select('id, note_id, name, ordered, created_at, updated_at, notes!inner(id, channel_numbers, position_unit, description, module_type, production_id)')
+        .select('id, note_id, name, ordered, created_at, updated_at, notes!inner(id, channel_numbers, position_unit, description, module_type, production_id, status)')
         .eq('notes.production_id', productionId)
         .in('notes.module_type', ['work', 'electrician'])
+        .in('notes.status', ['todo', 'review'])
         .order('created_at', { ascending: true })
 
       if (cancelled) return
@@ -180,9 +181,10 @@ export function useAggregatedOrderItems(productionId: string | undefined): UseAg
               const refetch = async () => {
                 const { data, error } = await supabase
                   .from('order_items' as SupabaseAny)
-                  .select('id, note_id, name, ordered, created_at, updated_at, notes!inner(id, channel_numbers, position_unit, description, module_type, production_id)')
+                  .select('id, note_id, name, ordered, created_at, updated_at, notes!inner(id, channel_numbers, position_unit, description, module_type, production_id, status)')
                   .eq('notes.production_id', productionId)
                   .in('notes.module_type', ['work', 'electrician'])
+                  .in('notes.status', ['todo', 'review'])
                   .order('created_at', { ascending: true })
 
                 if (error) return
