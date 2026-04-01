@@ -42,6 +42,26 @@ Run /design-consultation to establish a documented design system: typography, sp
 
 **Scope:** One session with /design-consultation to produce DESIGN.md. Should formalize the existing implicit patterns (module colors: cue=purple, work=blue, electrician=yellow, production=cyan; status colors: blue=todo, green=complete, gray=cancelled; dark theme defaults) plus any new additions (combined view teal).
 
-**Context:** LXNotes has 5+ module/accent colors with no formal color system. The sidebar customization feature added teal (#2dd4bf) for combined views without a documented system to validate against. At 5 colors it's manageable, at 10+ it gets inconsistent.
+**Context:** LXNotes has 5+ module/accent colors with no formal color system. The sidebar customization feature added teal (#2dd4bf) for combined views without a documented system to validate against. At 5 colors it's manageable, at 10+ it gets inconsistent. The order list page added amber (#f59e0b) as a utility page accent color.
 
 **Depends on:** Nothing.
+
+---
+
+## Order List: PDF/Email Export
+**Priority:** Low | **Added:** 2026-03-31 | **Source:** /autoplan
+
+Add PDF and email export to the aggregated order list page, so an electrician can email the full order list to a supplier. Follow existing PDF/email sidebar patterns from work-notes and electrician-notes pages.
+
+**Scope:** Add PrintNotesSidebar and EmailNotesSidebar integration to the order list page. Generate a PDF grouped by note with item checkboxes.
+
+**Depends on:** Order list page (shipped in feature/order-list-page).
+
+---
+
+## Order List: Add Items Inline
+**Priority:** Low | **Added:** 2026-03-31 | **Source:** /autoplan
+
+Allow adding new order items to a note directly from the aggregated order list page, without navigating to the note's edit dialog. Currently the page is view + toggle only.
+
+**Depends on:** Order list page (shipped in feature/order-list-page).
