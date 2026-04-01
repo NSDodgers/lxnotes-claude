@@ -190,10 +190,10 @@ interface NoteCommentsPanelProps {
 export function NoteCommentsPanel({ productionId }: NoteCommentsPanelProps) {
   const openNoteId = useNoteCommentsStore(state => state.openNoteId)
   const setOpenNoteId = useNoteCommentsStore(state => state.setOpenNoteId)
-  const { comments, isLoading, error, addComment, editComment, deleteComment, retry } = useNoteComments(openNoteId)
+  const isDemo = isDemoMode()
+  const { comments, isLoading, error, addComment, editComment, deleteComment, retry } = useNoteComments(isDemo ? null : openNoteId)
   const { user } = useAuthContext()
   const displayName = getDisplayName(user)
-  const isDemo = isDemoMode()
 
   const { getNotes } = useNotes()
   const allNotes = [
