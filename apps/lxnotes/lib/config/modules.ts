@@ -1,4 +1,4 @@
-import { Lightbulb, Wrench, Zap, FileText, Layers } from 'lucide-react'
+import { Lightbulb, Wrench, Zap, FileText, Layers, Package } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { ModuleType } from '@/types'
 
@@ -36,6 +36,29 @@ export const COMBINED_VIEW_REGISTRY: CombinedViewConfig[] = [
     moduleTypes: ['work', 'electrician'],
   },
 ]
+
+export interface UtilityViewConfig {
+  id: string
+  label: string
+  icon: ComponentType<{ className?: string }>
+  colorClass: string
+  route: string
+}
+
+export const UTILITY_VIEWS: UtilityViewConfig[] = [
+  {
+    id: 'order-list',
+    label: 'Order List',
+    icon: Package,
+    colorClass: 'text-amber-400',
+    route: '/order-list',
+  },
+]
+
+/** Look up a utility view config by id */
+export function getUtilityViewConfig(id: string): UtilityViewConfig | undefined {
+  return UTILITY_VIEWS.find((v) => v.id === id)
+}
 
 /** Default module order (all visible) */
 export const DEFAULT_MODULE_ORDER = MODULE_REGISTRY.map((m) => m.id)
