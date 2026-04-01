@@ -34,7 +34,7 @@ const DEFAULT_CONFIG: SidebarConfig = {
   modules: DEFAULT_MODULE_ORDER.map((id) => ({ id, visible: true })),
   combinedViews: COMBINED_VIEW_REGISTRY.map((v) => ({
     id: v.id,
-    visible: false,
+    visible: true,
     moduleTypes: v.moduleTypes,
   })),
 }
@@ -49,7 +49,7 @@ function mergeWithRegistry(stored: SidebarConfig): SidebarConfig {
   const storedViewIds = new Set(stored.combinedViews.map((v) => v.id))
   const missingViews = COMBINED_VIEW_REGISTRY
     .filter((v) => !storedViewIds.has(v.id))
-    .map((v) => ({ id: v.id, visible: false, moduleTypes: v.moduleTypes }))
+    .map((v) => ({ id: v.id, visible: true, moduleTypes: v.moduleTypes }))
 
   return {
     modules: [...stored.modules, ...missingModules],

@@ -202,7 +202,8 @@ export function PresetFormToggle({
       >
         <span 
           className={cn(
-            'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+            'inline-block h-4 w-4 transform rounded-full transition-transform',
+            checked ? 'bg-bg-primary' : 'bg-white',
             checked ? 'translate-x-6' : 'translate-x-1'
           )}
         />
