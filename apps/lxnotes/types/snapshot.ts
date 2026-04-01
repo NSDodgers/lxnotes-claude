@@ -40,7 +40,7 @@ export interface ProductionSnapshot {
     shortCode: string | null
     emailPresets: Record<string, unknown>[]
     filterSortPresets: Record<string, unknown>[]
-    pageStylePresets: Record<string, unknown>[]
+    pageStylePresets?: Record<string, unknown>[] // Legacy — kept for backward compat with old snapshots
     printPresets: Record<string, unknown>[]
     customTypesConfig: Record<string, unknown>
     customPrioritiesConfig: Record<string, unknown>

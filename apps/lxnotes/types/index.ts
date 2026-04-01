@@ -86,7 +86,6 @@ export interface Production {
   // Preset/config JSONB fields (populated when fetching full production)
   emailPresets?: EmailMessagePreset[]
   filterSortPresets?: FilterSortPreset[]
-  pageStylePresets?: PageStylePreset[]
   printPresets?: PrintPreset[]
   customTypesConfig?: CustomTypesConfig
   customPrioritiesConfig?: CustomPrioritiesConfig
@@ -102,7 +101,6 @@ export interface FullProduction extends Production {
   isDemo: boolean
   emailPresets: EmailMessagePreset[]
   filterSortPresets: FilterSortPreset[]
-  pageStylePresets: PageStylePreset[]
   printPresets: PrintPreset[]
   customTypesConfig: CustomTypesConfig
   customPrioritiesConfig: CustomPrioritiesConfig
@@ -208,15 +206,18 @@ export interface Preset {
   updatedAt: Date
 }
 
-// Enhanced preset types with specific configurations
+// Inline page style config (stored directly on email/print presets)
+export interface PageStyleConfig {
+  paperSize: 'a4' | 'letter' | 'legal'
+  orientation: 'portrait' | 'landscape'
+  includeCheckboxes: boolean
+}
+
+// Legacy type — kept for migration and snapshot backward compatibility only
 export interface PageStylePreset extends Preset {
   type: 'page_style'
   moduleType: 'all'
-  config: {
-    paperSize: 'a4' | 'letter' | 'legal'
-    orientation: 'portrait' | 'landscape'
-    includeCheckboxes: boolean
-  }
+  config: PageStyleConfig
 }
 
 export interface FilterSortPreset extends Preset {
@@ -240,7 +241,7 @@ export interface EmailMessagePreset extends Preset {
     subject: string // Subject line with placeholders
     message: string // Message body with placeholders
     filterAndSortPresetId: string | null // Reference to filter/sort preset
-    pageStylePresetId: string | null // Reference to page style preset (for PDF attachment)
+    pageStyle: PageStyleConfig // Inline page style config (paper size, orientation, checkboxes)
     includeNotesInBody: boolean // Whether to include notes table in email body
     attachPdf: boolean // Whether to attach PDF file to email
   }
@@ -251,12 +252,12 @@ export interface PrintPreset extends Preset {
   moduleType: PresetModuleType
   config: {
     filterSortPresetId: string | null
-    pageStylePresetId: string | null
+    pageStyle: PageStyleConfig // Inline page style config (paper size, orientation, checkboxes)
   }
 }
 
 // Union type for all preset types
-export type AnyPreset = PageStylePreset | FilterSortPreset | EmailMessagePreset | PrintPreset
+export type AnyPreset = FilterSortPreset | EmailMessagePreset | PrintPreset
 
 // Placeholder types for email templates
 export interface PlaceholderDefinition {

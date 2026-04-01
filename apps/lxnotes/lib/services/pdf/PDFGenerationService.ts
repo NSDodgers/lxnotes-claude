@@ -73,7 +73,9 @@ export class PDFGenerationService {
         productionLogo: request.productionLogo === DEFAULT_PRODUCTION_LOGO
           ? undefined
           : request.productionLogo,
-        includeCheckboxes: request.pageStylePreset.config.includeCheckboxes,
+        includeCheckboxes: request.pageStyle.includeCheckboxes,
+        paperSize: request.pageStyle.paperSize,
+        orientation: request.pageStyle.orientation,
         dateGenerated: new Date(),
         filterPresetName: request.filterPreset?.name || 'All notes',
         groupByType: request.filterPreset?.config.groupByType || false,
