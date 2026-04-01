@@ -7,7 +7,7 @@
 
 import { createClient } from './client'
 import type { StorageAdapter, ProductionData, ScriptPage, SceneSong } from '@/lib/storage/adapter'
-import type { Note, FixtureInfo, ModuleType, FullProduction, EmailMessagePreset, FilterSortPreset, PageStylePreset, PrintPreset, CustomTypesConfig, CustomPrioritiesConfig } from '@/types'
+import type { Note, FixtureInfo, ModuleType, FullProduction, EmailMessagePreset, FilterSortPreset, PrintPreset, CustomTypesConfig, CustomPrioritiesConfig } from '@/types'
 import type { Database } from './database.types'
 
 type DbNote = Database['public']['Tables']['notes']['Row']
@@ -615,7 +615,6 @@ export function mapDbRowToFullProduction(data: Record<string, unknown>): FullPro
     isDemo: (data.is_demo as boolean) ?? false,
     emailPresets: (data.email_presets as EmailMessagePreset[]) ?? [],
     filterSortPresets: (data.filter_sort_presets as FilterSortPreset[]) ?? [],
-    pageStylePresets: (data.page_style_presets as PageStylePreset[]) ?? [],
     printPresets: (data.print_presets as PrintPreset[]) ?? [],
     customTypesConfig: (data.custom_types_config as CustomTypesConfig) ?? { customTypes: { cue: [], work: [], production: [], electrician: [] }, systemOverrides: [] },
     customPrioritiesConfig: (data.custom_priorities_config as CustomPrioritiesConfig) ?? { customPriorities: { cue: [], work: [], production: [], electrician: [] }, systemOverrides: [] },

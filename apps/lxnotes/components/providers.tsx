@@ -6,7 +6,6 @@ import { Toaster } from 'sonner'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
 import { NotesProvider } from '@/lib/contexts/notes-context'
@@ -29,12 +28,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   // Hydrate stores with skipHydration: true on client mount
   // Order matters: dependencies must rehydrate before dependents
-  // custom-types/priorities → filter-sort → page-style/email-message
+  // custom-types/priorities → filter-sort → email-message
   useEffect(() => {
     useCustomTypesStore.persist.rehydrate()
     useCustomPrioritiesStore.persist.rehydrate()
     useFilterSortPresetsStore.persist.rehydrate()
-    usePageStylePresetsStore.persist.rehydrate()
     useEmailMessagePresetsStore.persist.rehydrate()
     useSidebarStore.persist.rehydrate()
   }, [])
