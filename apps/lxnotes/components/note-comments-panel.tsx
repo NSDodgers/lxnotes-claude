@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -48,6 +48,7 @@ function CommentItem({ comment, currentUser, onEdit, onDelete }: CommentItemProp
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(comment.content)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isDeletePending, setIsDeletePending] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const isOwn = comment.createdBy === currentUser
   const isEdited = comment.updatedAt.getTime() - comment.createdAt.getTime() > 1000
@@ -70,11 +71,13 @@ function CommentItem({ comment, currentUser, onEdit, onDelete }: CommentItemProp
   }
 
   const handleDelete = async () => {
+    setIsDeletePending(true)
     try {
       await onDelete(comment.id)
     } catch {
       toast.error('Failed to delete comment')
     }
+    setIsDeletePending(false)
     setIsDeleting(false)
   }
 
@@ -142,8 +145,9 @@ function CommentItem({ comment, currentUser, onEdit, onDelete }: CommentItemProp
             variant="destructive"
             className="h-6 px-2 text-xs"
             onClick={handleDelete}
+            disabled={isDeletePending}
           >
-            Confirm
+            {isDeletePending ? 'Deleting...' : 'Confirm'}
           </Button>
           <Button
             size="sm"
@@ -196,13 +200,14 @@ export function NoteCommentsPanel({ productionId }: NoteCommentsPanelProps) {
   const displayName = getDisplayName(user)
 
   const { getNotes } = useNotes()
-  const allNotes = [
-    ...getNotes('cue'),
-    ...getNotes('work'),
-    ...getNotes('production'),
-    ...getNotes('electrician'),
-  ]
-  const note = openNoteId ? allNotes.find(n => n.id === openNoteId) : null
+  const note = useMemo(() => {
+    if (!openNoteId) return null
+    for (const mod of ['cue', 'work', 'production', 'electrician'] as const) {
+      const found = getNotes(mod).find(n => n.id === openNoteId)
+      if (found) return found
+    }
+    return null
+  }, [openNoteId, getNotes])
 
   const [newComment, setNewComment] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
