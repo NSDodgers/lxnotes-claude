@@ -11,16 +11,14 @@ import {
   PresetFormToggle,
 } from './preset-dialog'
 import { useProductionFilterSortPresets } from '@/lib/hooks/use-production-filter-sort-presets'
-import { useProductionPageStylePresets } from '@/lib/hooks/use-production-page-style-presets'
 import { useProductionEmailPresets } from '@/lib/hooks/use-production-email-presets'
 import { useProductionPrintPresets } from '@/lib/hooks/use-production-print-presets'
 import { useProductionId } from '@/components/production/production-provider'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { getSortFieldsForModule } from '@/lib/validation/preset-schemas'
-import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset, PageStylePreset } from '@/types'
+import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset } from '@/types'
 
 function useSafeProductionId() {
   try {
@@ -60,12 +58,10 @@ export function PresetEditor({
   const productionId = useSafeProductionId()
 
   const { savePreset: saveFilterPreset } = useProductionFilterSortPresets(moduleType)
-  const { savePreset: savePageStylePreset } = useProductionPageStylePresets()
   const { savePreset: saveEmailPreset } = useProductionEmailPresets(moduleType)
   const { savePreset: savePrintPreset } = useProductionPrintPresets(moduleType)
 
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
-  const { presets: allPageStylePresets } = usePageStylePresetsStore()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
 
@@ -85,15 +81,7 @@ export function PresetEditor({
     return filterId ? getFilterPreset(filterId) : null
   }, [editingPreset, getFilterPreset])
 
-  const linkedPageStylePreset = useMemo(() => {
-    if (!editingPreset) return null
-    const pageId = editingPreset.type === 'email_message'
-      ? (editingPreset as EmailMessagePreset).config.pageStylePresetId
-      : (editingPreset as PrintPreset).config.pageStylePresetId
-    return pageId ? allPageStylePresets.find(p => p.id === pageId) : null
-  }, [editingPreset, allPageStylePresets])
-
-  // Form state — initialized from editing preset + resolved linked presets
+  // Form state — initialized from editing preset
   const [presetName, setPresetName] = useState('')
   const [statusFilter, setStatusFilter] = useState<'todo' | 'review' | 'complete' | 'cancelled' | 'deleted' | ''>('todo')
   const [typeFilters, setTypeFilters] = useState<string[]>([])
@@ -132,11 +120,14 @@ export function PresetEditor({
         setPriorityFilters(priorities.map(p => p.value))
       }
 
-      // Populate from linked page style preset
-      if (linkedPageStylePreset) {
-        setPaperSize(linkedPageStylePreset.config.paperSize)
-        setOrientation(linkedPageStylePreset.config.orientation)
-        setIncludeCheckboxes(linkedPageStylePreset.config.includeCheckboxes)
+      // Populate from inline page style config
+      const pageStyle = editingPreset.type === 'email_message'
+        ? (editingPreset as EmailMessagePreset).config.pageStyle
+        : (editingPreset as PrintPreset).config.pageStyle
+      if (pageStyle) {
+        setPaperSize(pageStyle.paperSize)
+        setOrientation(pageStyle.orientation)
+        setIncludeCheckboxes(pageStyle.includeCheckboxes)
       }
 
       // Email-specific fields
@@ -180,7 +171,6 @@ export function PresetEditor({
     if (!canSave) return
 
     const newFilterId = `filter-sort-${Math.random().toString(36).substring(2, 11)}`
-    const newPageStyleId = `page-style-${Math.random().toString(36).substring(2, 11)}`
     const timestamp = new Date()
 
     // 1. Create Filter/Sort Preset
@@ -205,33 +195,16 @@ export function PresetEditor({
     }
     await saveFilterPreset(filterPreset)
 
-    // 2. Create Page Style Preset
-    const pageStylePreset: PageStylePreset = {
-      id: newPageStyleId,
-      type: 'page_style',
-      moduleType: 'all',
-      name: `Style: ${presetName}`,
-      productionId,
-      config: {
-        paperSize,
-        orientation,
-        includeCheckboxes,
-      },
-      isDefault: false,
-      createdBy: 'user',
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    }
-    await savePageStylePreset(pageStylePreset)
+    // 2. Create/update the main preset with inline page style config
+    const pageStyle = { paperSize, orientation, includeCheckboxes }
 
-    // 3. Create/update the main preset
     if (variant === 'email') {
       const config: EmailMessagePreset['config'] = {
         recipients,
         subject,
         message,
         filterAndSortPresetId: newFilterId,
-        pageStylePresetId: newPageStyleId,
+        pageStyle,
         includeNotesInBody,
         attachPdf,
       }
@@ -260,7 +233,7 @@ export function PresetEditor({
     } else {
       const config: PrintPreset['config'] = {
         filterSortPresetId: newFilterId,
-        pageStylePresetId: newPageStyleId,
+        pageStyle,
       }
 
       if (editingPreset && editingPreset.type === 'print') {
@@ -292,7 +265,7 @@ export function PresetEditor({
     statusFilter, typeFilters, priorityFilters, sortBy, sortOrder, groupByType,
     paperSize, orientation, includeCheckboxes,
     recipients, subject, message, includeNotesInBody, attachPdf,
-    saveFilterPreset, savePageStylePreset, saveEmailPreset, savePrintPreset,
+    saveFilterPreset, saveEmailPreset, savePrintPreset,
     onComplete,
   ])
 

@@ -5,10 +5,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
-import { usePageStylePresetsStore } from '@/lib/stores/page-style-presets-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
-import type { Note, ModuleType, PresetModuleType } from '@/types'
+import type { Note, ModuleType, PresetModuleType, PageStyleConfig } from '@/types'
 
 interface NameAndSaveStepProps {
   name: string
@@ -18,7 +17,7 @@ interface NameAndSaveStepProps {
   recipients?: string
   subject?: string
   filterPresetId: string | null
-  pageStylePresetId: string | null
+  pageStyle?: PageStyleConfig | null
   moduleType: PresetModuleType
   notes: Note[]
   placeholderData: PlaceholderData
@@ -31,19 +30,15 @@ export function NameAndSaveStep({
   recipients,
   subject,
   filterPresetId,
-  pageStylePresetId,
+  pageStyle,
   moduleType,
   notes,
   placeholderData,
 }: NameAndSaveStepProps) {
   const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
-  const { presets: pageStylePresets } = usePageStylePresetsStore()
   const { getPriorities } = useCustomPrioritiesStore()
 
   const filterPreset = filterPresetId ? getFilterPreset(filterPresetId) : null
-  const pageStylePreset = pageStylePresetId
-    ? pageStylePresets.find(p => p.id === pageStylePresetId)
-    : null
 
   const noteCount = useMemo(() => {
     if (!filterPreset) return notes.length
@@ -94,11 +89,11 @@ export function NameAndSaveStep({
               <span className="text-text-primary">{filterPreset.name}</span>
             </div>
           )}
-          {pageStylePreset && (
+          {pageStyle && (
             <div className="flex justify-between">
               <span className="text-text-secondary">PDF</span>
               <span className="text-text-primary">
-                {pageStylePreset.config.paperSize.toUpperCase()} {pageStylePreset.config.orientation} ✓
+                {pageStyle.paperSize.toUpperCase()} {pageStyle.orientation} ✓
               </span>
             </div>
           )}
