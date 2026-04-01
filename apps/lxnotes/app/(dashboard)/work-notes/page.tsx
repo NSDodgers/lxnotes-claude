@@ -38,6 +38,8 @@ import { useNotes } from '@/lib/contexts/notes-context'
 // import { generateSampleFixtures } from '@/lib/test-data/sample-fixture-data'
 import { isDemoMode } from '@/lib/demo-data'
 import { useOrderItemCounts } from '@/hooks/use-order-item-counts'
+import { useNoteCommentCounts } from '@/hooks/use-note-comment-counts'
+import { NoteCommentsPanel } from '@/components/note-comments-panel'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
 import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
@@ -102,6 +104,7 @@ export default function WorkNotesPage() {
     : storeData.logo
   // Populate order item counts store for the Orders column
   useOrderItemCounts(isProductionMode ? productionId : undefined)
+  useNoteCommentCounts(isProductionMode ? productionId : undefined)
 
   const customTypesStore = useCustomTypesStore()
   const { isDesignerMode } = useDesignerModeStore()
@@ -774,6 +777,8 @@ export default function WorkNotesPage() {
           <PositionManager productionId={productionId} />
         </SheetContent>
       </Sheet>
+
+      <NoteCommentsPanel productionId={productionId} />
     </>
   )
 }

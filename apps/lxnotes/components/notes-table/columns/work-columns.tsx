@@ -8,6 +8,7 @@ import { EditableTypeCell } from '../cells/editable-type-cell'
 import { EditablePriorityCell } from '../cells/editable-priority-cell'
 import { FixtureAggregateCell } from '../cells/fixture-aggregate-cell'
 import { OrderItemsCell } from '../cells/order-items-cell'
+import { CommentCountCell } from '../cells/comment-count-cell'
 import { prioritySortFn, positionSortFn, channelsSortFn, dateSortFn } from '../sorting/work-sort-functions'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
 
@@ -215,6 +216,15 @@ export function createWorkColumns({ onStatusUpdate, onMoveModule, inlineEditing 
       enableResizing: true,
       size: 150,
       minSize: 120,
+    },
+    {
+      id: 'comments',
+      header: 'Comments',
+      cell: ({ row }) => <CommentCountCell noteId={row.original.id} />,
+      enableSorting: false,
+      enableResizing: true,
+      size: 100,
+      minSize: 70,
     },
     {
       accessorKey: 'createdBy',

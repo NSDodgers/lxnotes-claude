@@ -6,6 +6,7 @@ import { TypeCell } from '../cells/type-cell'
 import { EditableTextCell } from '../cells/editable-text-cell'
 import { EditableTypeCell } from '../cells/editable-type-cell'
 import { EditablePriorityCell } from '../cells/editable-priority-cell'
+import { CommentCountCell } from '../cells/comment-count-cell'
 import { dateSortFn } from '../sorting/cue-sort-functions'
 import { SortingFn } from '@tanstack/react-table'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
@@ -148,6 +149,15 @@ export function createProductionColumns({ onStatusUpdate, inlineEditing }: Creat
       enableResizing: true,
       size: 400,
       minSize: 200,
+    },
+    {
+      id: 'comments',
+      header: 'Comments',
+      cell: ({ row }) => <CommentCountCell noteId={row.original.id} />,
+      enableSorting: false,
+      enableResizing: true,
+      size: 100,
+      minSize: 70,
     },
     {
       accessorKey: 'createdBy',
