@@ -46,6 +46,7 @@ import { MobileNoteList } from '@/components/notes-table/mobile-note-card'
 import { MobileFilterBar } from '@/components/layout/mobile-filter-bar'
 import { MobileActionBar } from '@/components/layout/mobile-action-bar'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
+import { useEditNoteQueryParam } from '@/hooks/use-edit-note-query-param'
 import Image from 'next/image'
 import { toast } from 'sonner'
 
@@ -283,6 +284,12 @@ export default function ElectricianNotesPage() {
     setDialogDefaultType(note.type || 'Work')
     setIsDialogOpen(true)
   }
+
+  // Handle ?editNote query param (from order list page "Open note" link)
+  useEditNoteQueryParam(useCallback((noteId: string) => {
+    const note = notes.find(n => n.id === noteId)
+    if (note) handleEditNote(note)
+  }, [notes])) // eslint-disable-line react-hooks/exhaustive-deps
 
   const designerAddNote = useCallback(() => {
     setEditingNote(null)

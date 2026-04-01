@@ -14,7 +14,7 @@ import {
 import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
 import { useSidebarConfigStore } from '@/lib/stores/sidebar-config-store'
-import { MODULE_REGISTRY, COMBINED_VIEW_REGISTRY, getModuleConfig, getCombinedViewConfig } from '@/lib/config/modules'
+import { MODULE_REGISTRY, COMBINED_VIEW_REGISTRY, UTILITY_VIEWS, getModuleConfig, getCombinedViewConfig } from '@/lib/config/modules'
 import { PolicyFooter } from './policy-footer'
 import { UserMenu } from '@/components/auth/user-menu'
 import { useNotes } from '@/lib/contexts/notes-context'
@@ -77,9 +77,17 @@ export function Sidebar() {
     return { name: view.label, href: `${baseUrl}${view.route}`, icon: view.icon, color: view.colorClass }
   }).filter(Boolean) as { name: string; href: string; icon: React.ComponentType<{ className?: string }>; color: string }[]
 
+  const utilityNavItems = UTILITY_VIEWS.map((view) => ({
+    name: view.label,
+    href: `${baseUrl}${view.route}`,
+    icon: view.icon,
+    color: view.colorClass,
+  }))
+
   const navigation = [
     ...moduleNavItems,
     ...combinedNavItems,
+    ...utilityNavItems,
     { name: 'Settings', href: `${baseUrl}/settings`, icon: Settings, color: '' },
   ]
   const { isDesignerMode, toggleDesignerMode } = useDesignerModeStore()
