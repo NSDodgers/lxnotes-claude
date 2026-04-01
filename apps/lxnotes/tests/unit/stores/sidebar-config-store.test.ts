@@ -153,7 +153,7 @@ describe('useSidebarConfigStore', () => {
       const state = useSidebarConfigStore.getState()
       expect(state.config.modules.every(m => m.visible)).toBe(true)
       expect(state.config.modules.map(m => m.id)).toEqual(['cue', 'work', 'electrician', 'production'])
-      expect(state.config.combinedViews.every(v => !v.visible)).toBe(true)
+      expect(state.config.combinedViews.every(v => v.visible)).toBe(true)
     })
   })
 
