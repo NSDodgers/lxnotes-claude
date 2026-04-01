@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { createSafeStorage } from '@/lib/storage/safe-storage'
-import type { PrintPreset, ModuleType, PresetModuleType } from '@/types'
+import type { PrintPreset, PresetModuleType } from '@/types'
 import { generateSystemPrintPresets } from '@/lib/utils/generate-dynamic-presets'
 import { useFilterSortPresetsStore } from './filter-sort-presets-store'
 
@@ -11,7 +11,7 @@ interface PrintPresetsState {
   loading: boolean
 
   // CRUD operations for user presets
-  addPreset: (preset: Omit<PrintPreset, 'id' | 'createdAt' | 'updatedAt'>) => void
+  addPreset: (preset: Omit<PrintPreset, 'id' | 'createdAt' | 'updatedAt'> & { id?: string; createdAt?: Date; updatedAt?: Date }) => void
   updatePreset: (id: string, updates: Partial<PrintPreset>) => void
   deletePreset: (id: string) => void
   getPreset: (id: string) => PrintPreset | undefined
@@ -52,10 +52,10 @@ export const usePrintPresetsStore = create<PrintPresetsState>()(
       addPreset: (presetData) => {
         const timestamp = new Date()
         const newPreset: PrintPreset = {
-          ...presetData,
           id: `print-${Math.random().toString(36).substring(2, 11)}`,
           createdAt: timestamp,
           updatedAt: timestamp,
+          ...presetData,
         }
 
         set(state => ({
@@ -91,7 +91,7 @@ export const usePrintPresetsStore = create<PrintPresetsState>()(
         if (userPreset) return userPreset
 
         // Check system presets across all modules
-        const modules: ModuleType[] = ['cue', 'work', 'production', 'electrician']
+        const modules: PresetModuleType[] = ['cue', 'work', 'production', 'electrician', 'combined-work-electrician']
         for (const moduleType of modules) {
           const systemPresets = computeSystemPrintPresets(moduleType)
           const systemPreset = systemPresets.find(p => p.id === id)
@@ -114,7 +114,7 @@ export const usePrintPresetsStore = create<PrintPresetsState>()(
 
       getSystemDefaults: () => {
         // Return all system presets across all modules
-        const modules: ModuleType[] = ['cue', 'work', 'production', 'electrician']
+        const modules: PresetModuleType[] = ['cue', 'work', 'production', 'electrician', 'combined-work-electrician']
         return modules.flatMap(moduleType => computeSystemPrintPresets(moduleType))
       },
 
