@@ -7,6 +7,7 @@ import { EditableTextCell } from '../cells/editable-text-cell'
 import { EditableTypeCell } from '../cells/editable-type-cell'
 import { EditablePriorityCell } from '../cells/editable-priority-cell'
 import { ScriptLookupCell } from '../cells/script-lookup-cell'
+import { CommentCountCell } from '../cells/comment-count-cell'
 
 import { prioritySortFn, cueNumberSortFn, dateSortFn } from '../sorting/cue-sort-functions'
 import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-editing'
@@ -188,6 +189,15 @@ export function createCueColumns({ onStatusUpdate, inlineEditing }: CreateColumn
       enableResizing: true,
       size: 200,
       minSize: 150,
+    },
+    {
+      id: 'comments',
+      header: 'Comments',
+      cell: ({ row }) => <CommentCountCell noteId={row.original.id} />,
+      enableSorting: false,
+      enableResizing: true,
+      size: 100,
+      minSize: 70,
     },
     {
       accessorKey: 'createdBy',

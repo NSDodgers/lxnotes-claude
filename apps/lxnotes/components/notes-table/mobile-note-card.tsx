@@ -1,8 +1,9 @@
 'use client'
 
-import { ArrowRightLeft, Check, Trash2, X, Eye } from 'lucide-react'
+import { ArrowRightLeft, Check, Trash2, X, Eye, MessageSquare } from 'lucide-react'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
+import { useNoteCommentsStore } from '@/lib/stores/note-comments-store'
 import type { Note, NoteStatus, ModuleType } from '@/types'
 import type { LucideIcon } from 'lucide-react'
 
@@ -17,6 +18,8 @@ interface MobileNoteCardProps {
 function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit, onMoveModule }: MobileNoteCardProps) {
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
+  const commentCount = useNoteCommentsStore(state => state.counts[note.id] || 0)
+  const setOpenNoteId = useNoteCommentsStore(state => state.setOpenNoteId)
   const types = getTypes(moduleType)
   const priorities = getPriorities(moduleType)
   const noteType = types.find(t => t.value === note.type)
@@ -50,6 +53,18 @@ function MobileNoteCard({ note, moduleType, onStatusUpdate, onEdit, onMoveModule
           >
             {noteType.label}
           </span>
+        )}
+
+        {/* Comment count */}
+        {commentCount > 0 && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setOpenNoteId(note.id) }}
+            className="inline-flex items-center gap-0.5 text-[11px] text-muted-foreground"
+            data-testid={`mobile-comment-count-${note.id}`}
+          >
+            <MessageSquare className="h-3 w-3" />
+            {commentCount}
+          </button>
         )}
 
         {/* Spacer */}

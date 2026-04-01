@@ -144,6 +144,17 @@ export interface Note {
   deletedBy?: string
 }
 
+export interface NoteComment {
+  id: string
+  noteId: string
+  content: string
+  createdBy: string
+  createdAt: Date
+  updatedAt: Date
+  deletedAt?: Date
+  deletedBy?: string
+}
+
 export interface OrderItem {
   id: string
   noteId: string

@@ -38,6 +38,8 @@ import { MobileActionBar } from '@/components/layout/mobile-action-bar'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 import { ColumnConfigPopover } from '@/components/notes-table/column-config-popover'
 import { isDemoMode } from '@/lib/demo-data'
+import { useNoteCommentCounts } from '@/hooks/use-note-comment-counts'
+import { NoteCommentsPanel } from '@/components/note-comments-panel'
 import Image from 'next/image'
 import { DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 
@@ -77,6 +79,8 @@ export default function CueNotesPage() {
   const logo = isProductionMode
     ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
     : storeData.logo
+  const productionId = productionContext?.productionId ?? 'demo-production'
+  useNoteCommentCounts(isProductionMode ? productionId : undefined)
   const customTypesStore = useCustomTypesStore()
   const { isDesignerMode } = useDesignerModeStore()
   const isMobile = useIsMobile()
@@ -599,6 +603,8 @@ export default function CueNotesPage() {
         onClose={() => setIsScriptManagerOpen(false)}
         productionId={productionContext?.productionId ?? 'demo-production'}
       />
+
+      <NoteCommentsPanel productionId={productionId} />
     </>
   )
 }

@@ -24,6 +24,8 @@ import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { isDemoMode } from '@/lib/demo-data'
+import { useNoteCommentCounts } from '@/hooks/use-note-comment-counts'
+import { NoteCommentsPanel } from '@/components/note-comments-panel'
 import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
@@ -953,6 +955,8 @@ export default function ProductionNotesPage() {
   const logo = isProductionMode
     ? (productionContext?.production?.logo || DEFAULT_PRODUCTION_LOGO)
     : storeData.logo
+  const productionId = productionContext?.productionId ?? 'demo-production'
+  useNoteCommentCounts(isProductionMode ? productionId : undefined)
   const customTypesStore = useCustomTypesStore()
   const { isDesignerMode } = useDesignerModeStore()
   const isMobile = useIsMobile()
@@ -1455,6 +1459,8 @@ export default function ProductionNotesPage() {
         onClose={() => setIsPrintViewOpen(false)}
         notes={notes}
       />
+
+      <NoteCommentsPanel productionId={productionId} />
     </>
   )
 }
