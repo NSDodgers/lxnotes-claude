@@ -639,6 +639,9 @@ function ActItem({ page, allPages, onSave, onRemove, onContinue, onCancelAdd, st
   const totalPages = actEndIndex - actStartIndex + 1
   const isFirstOccurrence = pageIndex === actStartIndex
 
+  // For continuations, resolve the cue from the original act if this page has none
+  const displayActCue = page.actFirstCueNumber || (isContinuation ? allPages[actStartIndex]?.actFirstCueNumber : undefined)
+
   // Can continue if next page exists and doesn't already have this act
   const nextPage = pageIndex < allPages.length - 1 ? allPages[pageIndex + 1] : null
   const canContinue = nextPage && nextPage.actName !== page.actName
@@ -787,13 +790,13 @@ function ActItem({ page, allPages, onSave, onRemove, onContinue, onCancelAdd, st
             <span className="text-xs text-text-secondary">Cue:</span>
             <span className={cn(
               "text-sm",
-              !page.actFirstCueNumber
+              !displayActCue
                 ? "text-text-muted"
                 : isContinuation
                   ? "text-amber-500/50"
                   : "text-text-primary"
             )}>
-              {page.actFirstCueNumber || 'None'}
+              {displayActCue || 'None'}
             </span>
           </div>
 
@@ -873,6 +876,9 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
   const continuationChain = getContinuationChain(item.id)
   const isContinuation = !!item.continuesFromId
   const isOriginal = continuationChain.length > 1 && continuationChain[0].id === item.id
+
+  // For continuations, resolve the cue from the original item if this one has none
+  const displayCue = item.firstCueNumber || (isContinuation ? continuationChain[0]?.firstCueNumber : undefined)
 
   // Get next page info
   const nextPage = getNextPage(item.scriptPageId)
@@ -1102,9 +1108,13 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
               )}
               <span className={cn(
                 "text-sm",
-                item.firstCueNumber ? "text-text-primary" : "text-text-muted"
+                !displayCue
+                  ? "text-text-muted"
+                  : (isContinuation && !item.firstCueNumber)
+                    ? "text-text-tertiary"
+                    : "text-text-primary"
               )}>
-                {item.firstCueNumber || 'None'}
+                {displayCue || 'None'}
               </span>
               {cueValidation && (
                 <div
