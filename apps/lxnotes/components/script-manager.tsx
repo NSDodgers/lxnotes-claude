@@ -639,9 +639,6 @@ function ActItem({ page, allPages, onSave, onRemove, onContinue, onCancelAdd, st
   const totalPages = actEndIndex - actStartIndex + 1
   const isFirstOccurrence = pageIndex === actStartIndex
 
-  // For continuations, resolve the cue from the original act if this page has none
-  const displayActCue = page.actFirstCueNumber || (isContinuation ? allPages[actStartIndex]?.actFirstCueNumber : undefined)
-
   // Can continue if next page exists and doesn't already have this act
   const nextPage = pageIndex < allPages.length - 1 ? allPages[pageIndex + 1] : null
   const canContinue = nextPage && nextPage.actName !== page.actName
@@ -785,20 +782,18 @@ function ActItem({ page, allPages, onSave, onRemove, onContinue, onCancelAdd, st
             )}
           </div>
 
-          {/* First Cue */}
-          <div className="flex items-center gap-compact-2">
-            <span className="text-xs text-text-secondary">Cue:</span>
-            <span className={cn(
-              "text-sm",
-              !displayActCue
-                ? "text-text-muted"
-                : isContinuation
-                  ? "text-amber-500/50"
-                  : "text-text-primary"
-            )}>
-              {displayActCue || 'None'}
-            </span>
-          </div>
+          {/* First Cue (hidden on continuations) */}
+          {!isContinuation && (
+            <div className="flex items-center gap-compact-2">
+              <span className="text-xs text-text-secondary">Cue:</span>
+              <span className={cn(
+                "text-sm",
+                page.actFirstCueNumber ? "text-text-primary" : "text-text-muted"
+              )}>
+                {page.actFirstCueNumber || 'None'}
+              </span>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex items-center gap-compact-2">
@@ -877,8 +872,6 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
   const isContinuation = !!item.continuesFromId
   const isOriginal = continuationChain.length > 1 && continuationChain[0].id === item.id
 
-  // For continuations, resolve the cue from the original item if this one has none
-  const displayCue = item.firstCueNumber || (isContinuation ? continuationChain[0]?.firstCueNumber : undefined)
 
   // Get next page info
   const nextPage = getNextPage(item.scriptPageId)
@@ -1094,7 +1087,8 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
             )}
           </div>
 
-          {/* First Cue */}
+          {/* First Cue (hidden on continuations) */}
+          {!isContinuation && (
           <div className="flex items-center gap-compact-2">
             <span className="text-xs text-text-secondary">Cue:</span>
             <div className="flex items-center gap-compact-1">
@@ -1108,13 +1102,9 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
               )}
               <span className={cn(
                 "text-sm",
-                !displayCue
-                  ? "text-text-muted"
-                  : (isContinuation && !item.firstCueNumber)
-                    ? "text-text-tertiary"
-                    : "text-text-primary"
+                item.firstCueNumber ? "text-text-primary" : "text-text-muted"
               )}>
-                {displayCue || 'None'}
+                {item.firstCueNumber || 'None'}
               </span>
               {cueValidation && (
                 <div
@@ -1128,6 +1118,7 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
               )}
             </div>
           </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex items-center gap-compact-2">
