@@ -199,6 +199,7 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
         if (updates.channelNumbers !== undefined) dbUpdates.channel_numbers = updates.channelNumbers ?? null
         if (updates.positionUnit !== undefined) dbUpdates.position_unit = updates.positionUnit ?? null
         if (updates.sceneryNeeds !== undefined) dbUpdates.scenery_needs = updates.sceneryNeeds ?? null
+        if (updates.moduleType !== undefined) dbUpdates.module_type = updates.moduleType
 
         const { data, error } = await supabase
           .from('notes')
