@@ -233,13 +233,6 @@ export default function ElectricianNotesPage() {
     await notesContext.updateNote(noteId, { status })
   }
 
-  const handleMoveModule = useCallback(async (noteId: string) => {
-    await notesContext.updateNote(noteId, { moduleType: 'work' })
-    toast('Moved to Work Notes', {
-      action: { label: 'Undo', onClick: () => notesContext.undoLastAction() }
-    })
-  }, [notesContext])
-
   const handleQuickAdd = useCallback(async () => {
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
     const note = await notesContext.addNote({
@@ -309,11 +302,9 @@ export default function ElectricianNotesPage() {
 
   const updateNoteStatusRef = useRef(updateNoteStatus)
   updateNoteStatusRef.current = updateNoteStatus
-  const handleMoveModuleRef = useRef(handleMoveModule)
-  handleMoveModuleRef.current = handleMoveModule
 
   const tabletColumns = useMemo(
-    () => createTabletElectricianColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status), onMoveModule: (noteId, moduleType) => handleMoveModuleRef.current(noteId) }),
+    () => createTabletElectricianColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
@@ -321,6 +312,14 @@ export default function ElectricianNotesPage() {
   const handleDialogAdd = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>, lightwrightFixtureIds?: string[]) => {
     if (editingNote) {
       await notesContext.updateNote(editingNote.id, noteData)
+
+      // Show toast if note was moved to another module
+      if (noteData.moduleType !== editingNote.moduleType) {
+        const targetLabel = noteData.moduleType === 'work' ? 'Work Notes' : 'Electrician Notes'
+        toast(`Moved to ${targetLabel}`, {
+          action: { label: 'Undo', onClick: () => notesContext.undoLastAction() }
+        })
+      }
 
       if (noteData.moduleType === 'electrician' && lightwrightFixtureIds) {
         linkFixturesToWorkNote(editingNote.id, lightwrightFixtureIds)
@@ -358,7 +357,6 @@ export default function ElectricianNotesPage() {
           notes={filteredNotes}
           moduleType="electrician"
           onStatusUpdate={updateNoteStatus}
-          onMoveModule={handleMoveModule}
           onEdit={handleEditNote}
           emptyIcon={Zap}
           emptyMessage={emptyMessage}
@@ -675,7 +673,6 @@ export default function ElectricianNotesPage() {
           <ElectricianNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
-            onMoveModule={handleMoveModule}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}

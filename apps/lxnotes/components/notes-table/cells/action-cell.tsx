@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRightLeft, Check, Eye, Trash2, X } from 'lucide-react'
+import { Check, Eye, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { ModuleType, Note, NoteStatus } from '@/types'
@@ -9,10 +9,9 @@ interface ActionCellProps {
   note: Note
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
   moduleType?: ModuleType
-  onMoveModule?: (noteId: string, moduleType: ModuleType) => void
 }
 
-export function ActionCell({ note, onStatusUpdate, moduleType, onMoveModule }: ActionCellProps) {
+export function ActionCell({ note, onStatusUpdate, moduleType }: ActionCellProps) {
   return (
     <div className="flex items-center gap-1">
       <Button
@@ -85,21 +84,6 @@ export function ActionCell({ note, onStatusUpdate, moduleType, onMoveModule }: A
       >
         <Trash2 className="h-3 w-3" />
       </Button>
-      {(moduleType === 'work' || moduleType === 'electrician') && onMoveModule && (
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={(e) => {
-            e.stopPropagation()
-            onMoveModule(note.id, note.moduleType)
-          }}
-          title={moduleType === 'work' ? 'Move to Electrician Notes' : 'Move to Work Notes'}
-          aria-label={moduleType === 'work' ? 'Move to Electrician Notes' : 'Move to Work Notes'}
-          className="h-7 w-7 text-teal-400 opacity-60 hover:opacity-100 hover:bg-teal-500/20"
-        >
-          <ArrowRightLeft className="h-3 w-3" />
-        </Button>
-      )}
     </div>
   )
 }
