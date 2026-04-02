@@ -165,6 +165,22 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
     await onPersist()
   }
 
+  const handleActRemoveAll = async () => {
+    // Remove the act from all consecutive pages that share the same act name
+    const actName = page.actName
+    if (!actName) return
+    const pageIndex = allPages.findIndex(p => p.id === page.id)
+    // Find the start of this act chain
+    let start = pageIndex
+    while (start > 0 && allPages[start - 1]?.actName === actName) start--
+    // Clear act from all pages in the chain
+    for (let i = start; i < allPages.length && allPages[i]?.actName === actName; i++) {
+      updatePage(allPages[i].id, { actName: undefined, actFirstCueNumber: undefined })
+    }
+    setIsAddingAct(false)
+    await onPersist()
+  }
+
   const handleContinueAct = async () => {
     if (!page.actName) return
     const pageIndex = allPages.findIndex(p => p.id === page.id)
@@ -533,6 +549,7 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
                   allPages={allPages}
                   onSave={handleActSave}
                   onRemove={handleActRemove}
+                  onRemoveAll={handleActRemoveAll}
                   onContinue={handleContinueAct}
                   onCancelAdd={() => setIsAddingAct(false)}
                   startInEditMode={isAddingAct}
@@ -582,17 +599,19 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   )
 }
 
-function ActItem({ page, allPages, onSave, onRemove, onContinue, onCancelAdd, startInEditMode = false }: {
+function ActItem({ page, allPages, onSave, onRemove, onRemoveAll, onContinue, onCancelAdd, startInEditMode = false }: {
   page: ScriptPage
   allPages: ScriptPage[]
   onSave: (actName: string, actFirstCueNumber: string | undefined) => Promise<void>
   onRemove: () => Promise<void>
+  onRemoveAll: () => Promise<void>
   onContinue: () => void
   onCancelAdd?: () => void
   startInEditMode?: boolean
 }) {
   // Edit mode state
   const [isEditing, setIsEditing] = useState(startInEditMode)
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [editName, setEditName] = useState(page.actName || '')
   const [editCueNumber, setEditCueNumber] = useState(page.actFirstCueNumber || '')
   const editNameRef = useRef<HTMLInputElement>(null)
@@ -813,12 +832,73 @@ function ActItem({ page, allPages, onSave, onRemove, onContinue, onCancelAdd, st
               variant="ghost"
               onClick={(e) => {
                 e.stopPropagation()
-                onRemove()
+                setShowConfirmDelete(true)
               }}
               className="h-7 w-7 p-0"
             >
               <Trash2 className="h-3 w-3" />
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      {showConfirmDelete && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
+            <h3 className="text-lg font-semibold text-text-primary mb-2">Delete act?</h3>
+            {totalPages > 1 ? (
+              <>
+                <p className="text-text-secondary mb-4">
+                  &quot;{page.actName}&quot; spans {totalPages} pages.
+                </p>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="destructive"
+                    onClick={async () => { setShowConfirmDelete(false); await onRemoveAll() }}
+                    className="w-full"
+                  >
+                    Delete from all {totalPages} pages
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={async () => { setShowConfirmDelete(false); await onRemove() }}
+                    className="w-full"
+                  >
+                    Delete from this page only
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowConfirmDelete(false)}
+                    className="w-full"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-text-secondary mb-4">
+                  Are you sure you want to delete act &quot;{page.actName}&quot;?
+                </p>
+                <div className="flex gap-3">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowConfirmDelete(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={async () => { setShowConfirmDelete(false); await onRemove() }}
+                    className="flex-1"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -929,11 +1009,35 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
     }
   }
 
+  // Find this item's position in the chain for delete logic
+  const chainIndex = continuationChain.findIndex(c => c.id === item.id)
+  const hasChainItems = continuationChain.length > 1
+  const nextInChain = chainIndex >= 0 && chainIndex < continuationChain.length - 1 ? continuationChain[chainIndex + 1] : null
+  const remainingAfter = continuationChain.length - chainIndex - 1
+
+  const handleDeleteThisOnly = async () => {
+    // Promote the next item in chain to be the new origin (clear its continuesFromId)
+    if (nextInChain) {
+      updateSceneSong(nextInChain.id, { continuesFromId: undefined })
+    }
+    deleteSceneSong(item.id)
+    setShowConfirmDelete(false)
+    await onPersist()
+  }
+
+  const handleDeleteAll = async () => {
+    // Delete this item and all items after it in the chain
+    const itemsToDelete = continuationChain.slice(chainIndex)
+    for (const chainItem of itemsToDelete) {
+      deleteSceneSong(chainItem.id)
+    }
+    setShowConfirmDelete(false)
+    await onPersist()
+  }
+
   const handleDelete = async () => {
     deleteSceneSong(item.id)
     setShowConfirmDelete(false)
-
-    // Persist to Supabase
     await onPersist()
   }
 
@@ -1153,25 +1257,58 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold text-text-primary mb-2">Delete {item.type}?</h3>
-            <p className="text-text-secondary mb-4">
-              Are you sure you want to delete {item.type} &quot;{item.name}&quot;?
-            </p>
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setShowConfirmDelete(false)}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                className="flex-1"
-              >
-                Delete
-              </Button>
-            </div>
+            {hasChainItems && remainingAfter > 0 ? (
+              <>
+                <p className="text-text-secondary mb-4">
+                  &quot;{item.name}&quot; continues on {remainingAfter} other {remainingAfter === 1 ? 'page' : 'pages'}.
+                </p>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteAll}
+                    className="w-full"
+                  >
+                    Delete this and all continuations
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={handleDeleteThisOnly}
+                    className="w-full"
+                  >
+                    Delete this only
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowConfirmDelete(false)}
+                    className="w-full"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-text-secondary mb-4">
+                  Are you sure you want to delete {item.type} &quot;{item.name}&quot;?
+                </p>
+                <div className="flex gap-3">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowConfirmDelete(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDelete}
+                    className="flex-1"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
