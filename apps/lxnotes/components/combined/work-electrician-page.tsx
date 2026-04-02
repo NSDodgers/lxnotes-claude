@@ -93,12 +93,24 @@ export default function CombinedWorkElectricianPage() {
   const [dialogModuleType, setDialogModuleType] = useState<ModuleType>('work')
 
   const handleDialogAdd = useCallback(
-    async (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
-      await notesContext.addNote(note)
+    async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
+      if (editingNote) {
+        await notesContext.updateNote(editingNote.id, noteData)
+
+        // Show toast if note was moved to another module
+        if (noteData.moduleType !== editingNote.moduleType) {
+          const targetLabel = noteData.moduleType === 'work' ? 'Work Notes' : 'Electrician Notes'
+          toast(`Moved to ${targetLabel}`, {
+            action: { label: 'Undo', onClick: () => notesContext.undoLastAction() }
+          })
+        }
+      } else {
+        await notesContext.addNote(noteData)
+      }
       setIsDialogOpen(false)
       setEditingNote(null)
     },
-    [notesContext]
+    [notesContext, editingNote]
   )
 
   const handleEdit = useCallback((note: Note) => {
@@ -110,18 +122,6 @@ export default function CombinedWorkElectricianPage() {
   const handleStatusUpdate = useCallback(
     async (noteId: string, status: NoteStatus) => {
       await notesContext.updateNote(noteId, { status })
-    },
-    [notesContext]
-  )
-
-  const handleMoveModule = useCallback(
-    async (noteId: string, currentModule: ModuleType) => {
-      const target = currentModule === 'work' ? 'electrician' : 'work'
-      const targetLabel = target === 'work' ? 'Work Notes' : 'Electrician Notes'
-      await notesContext.updateNote(noteId, { moduleType: target })
-      toast(`Moved to ${targetLabel}`, {
-        action: { label: 'Undo', onClick: () => notesContext.undoLastAction() }
-      })
     },
     [notesContext]
   )
@@ -268,7 +268,6 @@ export default function CombinedWorkElectricianPage() {
       <WorkNotesTable
         notes={filteredNotes}
         onStatusUpdate={handleStatusUpdate}
-        onMoveModule={handleMoveModule}
         onEdit={handleEdit}
         emptyMessage="No notes match your filters"
         inlineEditing={inlineEditingProps}

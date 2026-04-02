@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { ModuleType, Note, NoteStatus } from '@/types'
+import type { Note, NoteStatus } from '@/types'
 import { createElectricianColumns } from './columns/electrician-columns'
 import { ColumnResizeHandle } from './column-resize-handle'
 import { FreezeColumnMenu } from './freeze-column-menu'
@@ -30,7 +30,6 @@ const EDITABLE_COLUMNS = new Set<string>(['title', 'type', 'priority'])
 interface ElectricianNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
-  onMoveModule?: (noteId: string, moduleType: ModuleType) => void
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
@@ -43,10 +42,10 @@ interface ElectricianNotesTableProps {
   }
 }
 
-export function ElectricianNotesTable({ notes, onStatusUpdate, onMoveModule, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ElectricianNotesTableProps) {
+export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ElectricianNotesTableProps) {
   const columns = useMemo(
-    () => createElectricianColumns({ onStatusUpdate, onMoveModule, inlineEditing }),
-    [onStatusUpdate, onMoveModule, inlineEditing]
+    () => createElectricianColumns({ onStatusUpdate, inlineEditing }),
+    [onStatusUpdate, inlineEditing]
   )
 
   const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('electrician')

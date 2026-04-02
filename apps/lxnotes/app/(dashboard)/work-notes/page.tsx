@@ -255,13 +255,6 @@ export default function WorkNotesPage() {
     await notesContext.updateNote(noteId, { status })
   }
 
-  const handleMoveModule = useCallback(async (noteId: string) => {
-    await notesContext.updateNote(noteId, { moduleType: 'electrician' })
-    toast('Moved to Electrician Notes', {
-      action: { label: 'Undo', onClick: () => notesContext.undoLastAction() }
-    })
-  }, [notesContext])
-
   const handleQuickAdd = useCallback(async () => {
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
     const note = await notesContext.addNote({
@@ -332,11 +325,9 @@ export default function WorkNotesPage() {
 
   const updateNoteStatusRef = useRef(updateNoteStatus)
   updateNoteStatusRef.current = updateNoteStatus
-  const handleMoveModuleRef = useRef(handleMoveModule)
-  handleMoveModuleRef.current = handleMoveModule
 
   const tabletColumns = useMemo(
-    () => createTabletWorkColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status), onMoveModule: (noteId, moduleType) => handleMoveModuleRef.current(noteId) }),
+    () => createTabletWorkColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
@@ -345,6 +336,14 @@ export default function WorkNotesPage() {
     if (editingNote) {
       // Update existing note
       await notesContext.updateNote(editingNote.id, noteData)
+
+      // Show toast if note was moved to another module
+      if (noteData.moduleType !== editingNote.moduleType) {
+        const targetLabel = noteData.moduleType === 'work' ? 'Work Notes' : 'Electrician Notes'
+        toast(`Moved to ${targetLabel}`, {
+          action: { label: 'Undo', onClick: () => notesContext.undoLastAction() }
+        })
+      }
 
       // Handle fixture linking for work notes
       if (noteData.moduleType === 'work' && lightwrightFixtureIds) {
@@ -387,7 +386,6 @@ export default function WorkNotesPage() {
           notes={filteredNotes}
           moduleType="work"
           onStatusUpdate={updateNoteStatus}
-          onMoveModule={handleMoveModule}
           onEdit={handleEditNote}
           emptyIcon={Wrench}
           emptyMessage={emptyMessage}
@@ -711,7 +709,6 @@ export default function WorkNotesPage() {
           <WorkNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
-            onMoveModule={handleMoveModule}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}

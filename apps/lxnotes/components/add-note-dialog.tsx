@@ -90,6 +90,9 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   const { getPriorities } = useCustomPrioritiesStore()
   const { getLinkedFixtures } = useFixtureStore()
 
+  // Track selected module for move-between-modules (work <-> electrician)
+  const [selectedModuleType, setSelectedModuleType] = useState<ModuleType>(moduleType)
+
   const [formData, setFormData] = useState({
     description: '',
     priority: 'medium',
@@ -108,12 +111,14 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   // Populate form when editing
   useEffect(() => {
     if (editingNote) {
+      setSelectedModuleType(editingNote.moduleType)
+
       // Read from cueNumber field first, fall back to parsing scriptPageId for backward compatibility
       const cueNumbers = editingNote.cueNumber ||
         (editingNote.scriptPageId?.startsWith('cue-')
           ? editingNote.scriptPageId.split('cue-')[1]
           : '')
-      
+
       setFormData({
         description: editingNote.description || '',
         priority: editingNote.priority,
@@ -138,19 +143,22 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
           setChannelExpression(editingNote.channelNumbers)
         }
       }
-    } else if (defaultType) {
-      setFormData({
-        description: '',
-        priority: 'medium',
-        type: defaultType,
-        cueNumbers: '',
-        scriptPageId: '',
-        sceneSongId: '',
-        lightwrightItemId: '',
-        sceneryNeeds: '',
-      })
-      setSelectedLightwrightIds([])
-      setChannelExpression('')
+    } else {
+      setSelectedModuleType(moduleType)
+      if (defaultType) {
+        setFormData({
+          description: '',
+          priority: 'medium',
+          type: defaultType,
+          cueNumbers: '',
+          scriptPageId: '',
+          sceneSongId: '',
+          lightwrightItemId: '',
+          sceneryNeeds: '',
+        })
+        setSelectedLightwrightIds([])
+        setChannelExpression('')
+      }
     }
   }, [editingNote, defaultType, moduleType, getLinkedFixtures])
 
@@ -163,7 +171,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
 
     const noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'> = {
       productionId,
-      moduleType,
+      moduleType: selectedModuleType,
       description: formData.description,
       priority: formData.priority,
       status: 'todo',
@@ -234,6 +242,22 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
                         {mt === 'work' ? 'Work Notes' : mt === 'electrician' ? 'Electrician Notes' : mt}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Module selector for moving between work <-> electrician */}
+            {editingNote && (moduleType === 'work' || moduleType === 'electrician') && (
+              <div className="space-y-2">
+                <Label>Module</Label>
+                <Select value={selectedModuleType} onValueChange={(value) => setSelectedModuleType(value as ModuleType)}>
+                  <SelectTrigger data-testid="module-type-selector">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="work">Work Notes</SelectItem>
+                    <SelectItem value="electrician">Electrician Notes</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

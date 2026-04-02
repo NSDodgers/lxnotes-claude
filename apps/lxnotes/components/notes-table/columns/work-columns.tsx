@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { ModuleType, Note, NoteStatus } from '@/types'
+import { Note, NoteStatus } from '@/types'
 import { ActionCell } from '../cells/action-cell'
 import { PriorityCell } from '../cells/priority-cell'
 import { TypeCell } from '../cells/type-cell'
@@ -14,7 +14,6 @@ import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-edit
 
 interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
-  onMoveModule?: (noteId: string, moduleType: ModuleType) => void
   inlineEditing?: InlineEditingState & {
     onSave: (noteId: string, column: EditableColumn, value: string) => void
     onAdvance: (column: EditableColumn) => void
@@ -39,12 +38,12 @@ function formatDate(date: Date): string {
 /**
  * Creates column definitions for the work notes table
  */
-export function createWorkColumns({ onStatusUpdate, onMoveModule, inlineEditing }: CreateColumnsOptions): ColumnDef<Note>[] {
+export function createWorkColumns({ onStatusUpdate, inlineEditing }: CreateColumnsOptions): ColumnDef<Note>[] {
   return [
     {
       id: 'actions',
       header: 'Actions',
-      cell: ({ row }) => <ActionCell note={row.original} onStatusUpdate={onStatusUpdate} onMoveModule={onMoveModule} moduleType="work" />,
+      cell: ({ row }) => <ActionCell note={row.original} onStatusUpdate={onStatusUpdate} moduleType="work" />,
       enableSorting: false,
       enableResizing: true,
       size: 80,
