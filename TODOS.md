@@ -65,3 +65,14 @@ Add PDF and email export to the aggregated order list page, so an electrician ca
 Allow adding new order items to a note directly from the aggregated order list page, without navigating to the note's edit dialog. Currently the page is view + toggle only.
 
 **Depends on:** Order list page (shipped in feature/order-list-page).
+
+---
+
+## Add VERSION and CHANGELOG.md
+**Priority:** Medium | **Added:** 2026-04-01 | **Source:** user
+
+Add a `VERSION` file (4-digit format: `MAJOR.MINOR.PATCH.MICRO`) and `CHANGELOG.md` so gstack's `/ship` workflow can auto-bump versions and generate changelog entries on each PR. Currently `/ship` skips version and changelog steps because neither file exists.
+
+**Scope:** Create `VERSION` with an initial version (e.g., `0.1.0.0`), create `CHANGELOG.md` with standard header and a retroactive entry covering recent features. Future `/ship` runs will auto-maintain both files.
+
+**Depends on:** Nothing.
