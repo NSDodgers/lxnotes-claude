@@ -936,7 +936,6 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
   const isContinuation = !!item.continuesFromId
   const isOriginal = continuationChain.length > 1 && continuationChain[0].id === item.id
 
-
   // Get next page info
   const nextPage = getNextPage(item.scriptPageId)
 
@@ -1016,9 +1015,10 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
   const remainingAfter = continuationChain.length - chainIndex - 1
 
   const handleDeleteThisOnly = async () => {
-    // Promote the next item in chain to be the new origin (clear its continuesFromId)
+    // Re-link the next item to the previous item in chain (or make it the new origin)
     if (nextInChain) {
-      updateSceneSong(nextInChain.id, { continuesFromId: undefined })
+      const prevInChain = chainIndex > 0 ? continuationChain[chainIndex - 1] : null
+      updateSceneSong(nextInChain.id, { continuesFromId: prevInChain?.id ?? undefined })
     }
     deleteSceneSong(item.id)
     setShowConfirmDelete(false)
