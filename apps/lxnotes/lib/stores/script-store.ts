@@ -83,8 +83,8 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
       updatedAt: new Date(),
     }
 
-    set((state) => ({
-      pages: [...state.pages, newPage].sort((a, b) => {
+    const sortPages = (pages: ScriptPage[]) =>
+      pages.sort((a, b) => {
         const pageA = parsePageNumber(a.pageNumber)
         const pageB = parsePageNumber(b.pageNumber)
         if (pageA.base !== pageB.base) {
@@ -92,7 +92,81 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
         }
         return pageA.suffix.localeCompare(pageB.suffix)
       })
-    }))
+
+    set((state) => {
+      const sortedPages = sortPages([...state.pages, newPage])
+      const newPageIndex = sortedPages.findIndex(p => p.id === newPage.id)
+
+      let updatedScenes = [...state.scenes]
+      let updatedSongs = [...state.songs]
+      let updatedNewPage = newPage
+
+      // Splice continuation chains through the new page
+      if (newPageIndex < sortedPages.length - 1) {
+        const nextPage = sortedPages[newPageIndex + 1]
+        const pagesBeforeNewPage = new Set(
+          sortedPages.slice(0, newPageIndex).map(p => p.id)
+        )
+        const allItems = [...state.scenes, ...state.songs]
+
+        for (const item of allItems) {
+          if (item.scriptPageId !== nextPage.id || !item.continuesFromId) continue
+
+          const predecessor = allItems.find(i => i.id === item.continuesFromId)
+          if (!predecessor || !pagesBeforeNewPage.has(predecessor.scriptPageId)) continue
+
+          // Create intermediate continuation on the new page
+          const intermediate: SceneSong = {
+            id: crypto.randomUUID(),
+            name: predecessor.name,
+            type: predecessor.type,
+            productionId: predecessor.productionId,
+            moduleType: predecessor.moduleType,
+            scriptPageId: newPage.id,
+            orderIndex: item.orderIndex,
+            continuesFromId: predecessor.id,
+            continuesOnPageId: nextPage.id,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+
+          const targetArray = intermediate.type === 'scene' ? updatedScenes : updatedSongs
+
+          // Add the intermediate item
+          targetArray.push(intermediate)
+
+          // Update the next page's item to point to the intermediate
+          const updateArray = item.type === 'scene' ? updatedScenes : updatedSongs
+          const idx = updateArray.findIndex(i => i.id === item.id)
+          if (idx !== -1) {
+            updateArray[idx] = { ...updateArray[idx], continuesFromId: intermediate.id, updatedAt: new Date() }
+          }
+
+          // Update the predecessor's continuesOnPageId to point to the new page
+          const predArray = predecessor.type === 'scene' ? updatedScenes : updatedSongs
+          const predIdx = predArray.findIndex(i => i.id === predecessor.id)
+          if (predIdx !== -1) {
+            predArray[predIdx] = { ...predArray[predIdx], continuesOnPageId: newPage.id, updatedAt: new Date() }
+          }
+        }
+      }
+
+      // Auto-inherit act name if previous and next pages share the same act
+      if (newPageIndex > 0 && newPageIndex < sortedPages.length - 1) {
+        const prevPage = sortedPages[newPageIndex - 1]
+        const nextPage = sortedPages[newPageIndex + 1]
+        if (prevPage.actName && prevPage.actName === nextPage.actName && !updatedNewPage.actName) {
+          updatedNewPage = { ...updatedNewPage, actName: prevPage.actName, actFirstCueNumber: prevPage.actFirstCueNumber }
+          sortedPages[newPageIndex] = updatedNewPage
+        }
+      }
+
+      return {
+        pages: sortedPages,
+        scenes: updatedScenes,
+        songs: updatedSongs,
+      }
+    })
 
     return newPage
   },
