@@ -55,7 +55,6 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   const [isEditingPage, setIsEditingPage] = useState(false)
   const [editPageNumber, setEditPageNumber] = useState(page.pageNumber)
   const [editFirstCue, setEditFirstCue] = useState(page.firstCueNumber || '')
-  const [editActName, setEditActName] = useState(page.actName || '')
   const editPageNumberRef = useRef<HTMLInputElement>(null)
 
   // Act adding state
@@ -108,7 +107,6 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   const openPageEdit = () => {
     setEditPageNumber(page.pageNumber)
     setEditFirstCue(page.firstCueNumber || '')
-    setEditActName(page.actName || '')
     setIsEditingPage(true)
     setTimeout(() => editPageNumberRef.current?.focus(), 0)
   }
@@ -119,7 +117,6 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
     updatePage(page.id, {
       pageNumber: editPageNumber.trim(),
       firstCueNumber: editFirstCue.trim() || undefined,
-      actName: editActName.trim() || undefined,
     })
 
     // Validate after update
@@ -142,7 +139,6 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   const handleCancelPageEdit = () => {
     setEditPageNumber(page.pageNumber)
     setEditFirstCue(page.firstCueNumber || '')
-    setEditActName(page.actName || '')
     setIsEditingPage(false)
   }
 
@@ -295,18 +291,6 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
                   onKeyDown={handlePageEditKeyDown}
                   placeholder="None"
                   className="h-compact-7 bg-bg-tertiary border border-modules-cue rounded px-compact-2 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue w-20"
-                />
-              </div>
-
-              <div className="flex items-center gap-compact-2">
-                <span className="text-sm text-text-secondary">Act:</span>
-                <input
-                  type="text"
-                  value={editActName}
-                  onChange={(e) => setEditActName(e.target.value)}
-                  onKeyDown={handlePageEditKeyDown}
-                  placeholder="None"
-                  className="h-compact-7 bg-bg-tertiary border border-modules-cue rounded px-compact-2 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue w-28"
                 />
               </div>
 
