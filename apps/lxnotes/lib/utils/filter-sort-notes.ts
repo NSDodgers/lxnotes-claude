@@ -78,7 +78,7 @@ export function sortNotes(
         case 'department':
           return note.type || ''
         case 'cue_number':
-          return extractCueNumber(note.scriptPageId || '')
+          return parseCueNumber(note.cueNumber || '')
         case 'type':
           return (note.type || '').toLowerCase()
         default:
@@ -152,11 +152,11 @@ export function filterAndSortNotes(
 }
 
 /**
- * Extracts numeric value from cue identifiers like 'cue-127', 'page-78'
+ * Parses a cue number string (e.g. "521.5", "420") into a numeric value for sorting
  */
-function extractCueNumber(scriptPageId: string): number {
-  const match = scriptPageId.match(/(\d+)/)
-  return match ? parseInt(match[1], 10) : 0
+function parseCueNumber(cueNumber: string): number {
+  const num = parseFloat(cueNumber)
+  return isNaN(num) ? 0 : num
 }
 
 /**

@@ -29,9 +29,9 @@ export const cueNumberSortFn: SortingFn<Note> = (rowA, rowB) => {
   if (!cueA) return 1
   if (!cueB) return -1
 
-  // Try to parse as numbers
-  const numA = parseInt(cueA, 10)
-  const numB = parseInt(cueB, 10)
+  // Try to parse as numbers (parseFloat handles decimals like "521.5")
+  const numA = parseFloat(cueA)
+  const numB = parseFloat(cueB)
 
   if (isNaN(numA)) return 1
   if (isNaN(numB)) return -1
