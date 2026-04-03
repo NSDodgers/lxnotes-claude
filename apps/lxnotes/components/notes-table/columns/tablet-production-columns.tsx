@@ -3,7 +3,6 @@ import { Note, NoteStatus } from '@/types'
 import { TabletPriorityDot } from '../cells/tablet-priority-dot'
 import { TabletActionCell } from '../cells/tablet-action-cell'
 import { TypeCell } from '../cells/type-cell'
-import { CommentCountCell } from '../cells/comment-count-cell'
 
 
 interface CreateColumnsOptions {
@@ -36,14 +35,6 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       ),
       enableSorting: false,
       enableResizing: false,
-    },
-    {
-      id: 'comments',
-      header: '',
-      cell: ({ row }) => <CommentCountCell noteId={row.original.id} />,
-      enableSorting: false,
-      enableResizing: false,
-      size: 50,
     },
     {
       id: 'actions',

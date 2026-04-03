@@ -59,11 +59,21 @@ export function DesignerTopBar() {
       {/* Hamburger */}
       <button
         onClick={toggleDesignerSidebar}
-        className="touch-target flex items-center justify-center rounded-lg hover:bg-bg-tertiary"
+        className="touch-target flex-none flex items-center justify-center rounded-lg hover:bg-bg-tertiary"
         aria-label="Open menu"
         data-testid="designer-menu-button"
       >
         <Menu className="h-5 w-5" />
+      </button>
+
+      {/* Exit designer mode — kept left so it's always visible on small screens */}
+      <button
+        onClick={toggleDesignerMode}
+        className="flex-none flex items-center gap-1.5 rounded-full px-3 h-8 text-xs text-text-secondary bg-bg-tertiary/50 hover:bg-bg-tertiary border border-bg-tertiary transition-colors touch-target"
+        data-testid="designer-mode-exit-topbar"
+      >
+        <Monitor className="h-4 w-4" />
+        <span>Exit</span>
       </button>
 
       {/* Module name */}
@@ -140,15 +150,6 @@ export function DesignerTopBar() {
         </Button>
       )}
 
-      {/* Exit designer mode */}
-      <button
-        onClick={toggleDesignerMode}
-        className="flex items-center gap-1.5 rounded-full px-3 h-8 text-xs text-text-secondary bg-bg-tertiary/50 hover:bg-bg-tertiary border border-bg-tertiary transition-colors touch-target"
-        data-testid="designer-mode-exit-topbar"
-      >
-        <Monitor className="h-4 w-4" />
-        <span>Exit</span>
-      </button>
     </div>
   )
 }

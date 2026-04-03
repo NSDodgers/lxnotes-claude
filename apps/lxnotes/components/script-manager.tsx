@@ -84,8 +84,8 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
   }, [page.firstCueNumber, page.id, page.pageNumber, validateCueNumber, validatePageOrder])
 
   // Re-validate when any page changes (to catch order conflicts resolved by other pages)
-  const { getSortedPages } = useScriptStore()
-  const allPages = getSortedPages()
+  // Subscribe to pages state so Zustand triggers re-render on page add/delete
+  const allPages = useScriptStore(state => state.getSortedPages())
   useEffect(() => {
     if (page.firstCueNumber) {
       const orderValidation = validatePageOrder(page.id)
@@ -443,7 +443,7 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     onKeyDown={handleInlineFormKeyDown}
-                    placeholder={addingType === 'scene' ? 'e.g., Act 1, Scene 1' : 'e.g., Opening Number'}
+                    placeholder={addingType === 'scene' ? 'e.g., Scene 1' : 'e.g., Opening Number'}
                     disabled={isContinuation}
                     className="w-full h-9 rounded-lg bg-bg-secondary border border-bg-hover px-3 text-sm text-text-primary focus:outline-hidden focus:border-modules-cue disabled:opacity-50"
                   />
@@ -540,7 +540,7 @@ function ScriptItem({ page, productionId, onPersist }: ScriptItemProps) {
         )}
 
         {/* Page Content */}
-        {(page.actName || allItems.length > 0) && (
+        {(page.actName || isAddingAct || allItems.length > 0) && (
           <div className="px-3 pb-3 pt-2">
             <div className="border-l-2 border-bg-hover/50 pl-4 space-y-1.5">
               {(page.actName || isAddingAct) && (
@@ -956,7 +956,8 @@ function SceneSongItem({ item, onPersist }: SceneSongItemProps) {
   }, [item.firstCueNumber, item.scriptPageId, item.id, validateSceneSongCueNumber])
 
   // Re-validate when any page changes (to catch boundary conflicts resolved by other pages)
-  const allPages = getSortedPages()
+  // Subscribe to pages state so Zustand triggers re-render on page add/delete
+  const allPages = useScriptStore(state => state.getSortedPages())
   useEffect(() => {
     if (item.firstCueNumber) {
       const validation = validateSceneSongCueNumber(item.firstCueNumber, item.scriptPageId, item.id)

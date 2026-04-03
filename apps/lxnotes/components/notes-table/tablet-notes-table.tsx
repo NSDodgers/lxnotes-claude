@@ -3,10 +3,8 @@
 import {
   useReactTable,
   getCoreRowModel,
-  getSortedRowModel,
   flexRender,
   ColumnDef,
-  SortingState,
 } from '@tanstack/react-table'
 import {
   Table,
@@ -23,7 +21,6 @@ interface TabletNotesTableProps {
   notes: Note[]
   columns: ColumnDef<Note>[]
   onEdit?: (note: Note) => void
-  defaultSort?: SortingState
   emptyIcon?: LucideIcon
   emptyMessage?: string
 }
@@ -32,7 +29,6 @@ export function TabletNotesTable({
   notes,
   columns,
   onEdit,
-  defaultSort,
   emptyIcon: EmptyIcon,
   emptyMessage = 'No notes found',
 }: TabletNotesTableProps) {
@@ -40,11 +36,6 @@ export function TabletNotesTable({
     data: notes,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    enableMultiSort: false,
-    initialState: {
-      sorting: defaultSort ?? [],
-    },
   })
 
   return (
