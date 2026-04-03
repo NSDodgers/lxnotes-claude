@@ -348,6 +348,33 @@ export default function ElectricianNotesPage() {
     setEditingNote(null)
   }
 
+  // Tablet mode rendering (checked before isMobile so designer mode
+  // always shows the table view, even on narrow viewports like iPad Mini)
+  if (isDesignerMode) {
+    return (
+      <>
+        <div className="h-full">
+          <TabletNotesTable
+            notes={filteredNotes}
+            columns={tabletColumns}
+            onEdit={handleEditNote}
+            emptyIcon={Zap}
+            emptyMessage={emptyMessage}
+          />
+        </div>
+
+        <AddNoteDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          onAdd={handleDialogAdd}
+          moduleType="electrician"
+          defaultType={dialogDefaultType}
+          editingNote={editingNote}
+        />
+      </>
+    )
+  }
+
   // Mobile mode rendering
   if (isMobile) {
     return (
@@ -422,32 +449,6 @@ export default function ElectricianNotesPage() {
             <PositionManager productionId={productionId} />
           </SheetContent>
         </Sheet>
-      </>
-    )
-  }
-
-  // Tablet mode rendering
-  if (isDesignerMode) {
-    return (
-      <>
-        <div className="h-full">
-          <TabletNotesTable
-            notes={filteredNotes}
-            columns={tabletColumns}
-            onEdit={handleEditNote}
-            emptyIcon={Zap}
-            emptyMessage={emptyMessage}
-          />
-        </div>
-
-        <AddNoteDialog
-          isOpen={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          onAdd={handleDialogAdd}
-          moduleType="electrician"
-          defaultType={dialogDefaultType}
-          editingNote={editingNote}
-        />
       </>
     )
   }

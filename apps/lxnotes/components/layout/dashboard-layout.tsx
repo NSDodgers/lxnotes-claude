@@ -21,13 +21,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Note: Designer mode scaling is handled via CSS transform in designer-layout.tsx
   // CSS zoom breaks touch event coordinates on iOS Safari
 
-  // Mobile takes priority — designer mode is for reviewing layouts, not phones
-  if (isMobile) {
-    return <MobileLayout>{children}</MobileLayout>
-  }
-
+  // Designer mode takes priority — it's an explicit user choice to preview tablet layout,
+  // even on narrow viewports like iPad Mini (744px)
   if (isDesignerMode) {
     return <DesignerLayout>{children}</DesignerLayout>
+  }
+
+  if (isMobile) {
+    return <MobileLayout>{children}</MobileLayout>
   }
 
   return (
