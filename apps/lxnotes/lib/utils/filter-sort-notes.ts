@@ -128,7 +128,12 @@ export function sortNotes(
     }
 
     // Apply sort direction
-    return sortOrder === 'desc' ? -primaryComparison : primaryComparison
+    // For priority, the sortOrder numbers are inverted (1=Critical/highest, 9=lowest),
+    // so we flip the comparison so 'desc' means "highest priority first" as users expect.
+    const effectiveOrder = sortBy === 'priority'
+      ? (sortOrder === 'desc' ? 'asc' : 'desc')
+      : sortOrder
+    return effectiveOrder === 'desc' ? -primaryComparison : primaryComparison
   })
 
   return sortedNotes
