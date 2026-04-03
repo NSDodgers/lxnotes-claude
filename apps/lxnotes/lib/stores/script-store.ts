@@ -97,8 +97,8 @@ export const useScriptStore = create<ScriptState>((set, get) => ({
       const sortedPages = sortPages([...state.pages, newPage])
       const newPageIndex = sortedPages.findIndex(p => p.id === newPage.id)
 
-      let updatedScenes = [...state.scenes]
-      let updatedSongs = [...state.songs]
+      const updatedScenes = [...state.scenes]
+      const updatedSongs = [...state.songs]
       let updatedNewPage = newPage
 
       // Splice continuation chains through the new page
