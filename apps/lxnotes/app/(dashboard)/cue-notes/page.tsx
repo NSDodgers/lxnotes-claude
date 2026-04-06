@@ -202,13 +202,24 @@ export default function CueNotesPage() {
     setIsDialogOpen(true)
   }
 
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
+
   const updateNoteStatus = async (noteId: string, status: NoteStatus) => {
-    await notesContext.updateNote(noteId, { status })
+    const updates: Partial<Note> = { status }
+    if (status === 'cancelled') {
+      updates.cancelledBy = displayName
+      updates.cancelledAt = new Date()
+    } else if (status === 'todo') {
+      // Reopening — clear cancelled tracking
+      updates.cancelledBy = undefined
+      updates.cancelledAt = undefined
+    }
+    await notesContext.updateNote(noteId, updates)
   }
 
   const handleQuickAdd = useCallback(async () => {
     const productionId = productionContext?.productionId ?? 'demo-production'
-    const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
+    const localDisplayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
     const note = await notesContext.addNote({
       moduleType: 'cue',
       description: '',
@@ -216,7 +227,7 @@ export default function CueNotesPage() {
       priority: 'medium',
       type: inlineEditing.lastType ?? 'cue',
       productionId,
-      createdBy: displayName,
+      createdBy: localDisplayName,
     } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
     return note
   }, [notesContext, productionContext?.productionId, user, inlineEditing.lastType])
@@ -561,6 +572,7 @@ export default function CueNotesPage() {
           <CueNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
+            statusFilter={effectiveFilterStatus}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}

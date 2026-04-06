@@ -381,6 +381,8 @@ export type Database = {
         Row: {
           app_id: string | null
           assigned_to: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           channel_numbers: string | null
           completed_at: string | null
           completed_by: string | null
@@ -410,6 +412,8 @@ export type Database = {
         Insert: {
           app_id?: string | null
           assigned_to?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           channel_numbers?: string | null
           completed_at?: string | null
           completed_by?: string | null
@@ -439,6 +443,8 @@ export type Database = {
         Update: {
           app_id?: string | null
           assigned_to?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           channel_numbers?: string | null
           completed_at?: string | null
           completed_by?: string | null

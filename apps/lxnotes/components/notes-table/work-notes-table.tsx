@@ -30,6 +30,7 @@ const EDITABLE_COLUMNS = new Set<string>(['title', 'type', 'priority'])
 interface WorkNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
+  statusFilter?: NoteStatus
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
@@ -42,10 +43,11 @@ interface WorkNotesTableProps {
   }
 }
 
-export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: WorkNotesTableProps) {
+export function WorkNotesTable({ notes, onStatusUpdate, statusFilter, onEdit, onQuickAdd, emptyMessage, inlineEditing }: WorkNotesTableProps) {
+  // Memoize columns to prevent recreation on every render
   const columns = useMemo(
-    () => createWorkColumns({ onStatusUpdate, inlineEditing }),
-    [onStatusUpdate, inlineEditing]
+    () => createWorkColumns({ onStatusUpdate, statusFilter, inlineEditing }),
+    [onStatusUpdate, statusFilter, inlineEditing]
   )
 
   const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('work')
