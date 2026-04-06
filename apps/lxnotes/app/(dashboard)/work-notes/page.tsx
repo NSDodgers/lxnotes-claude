@@ -251,12 +251,22 @@ export default function WorkNotesPage() {
     setIsDialogOpen(true)
   }
 
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
+
   const updateNoteStatus = async (noteId: string, status: NoteStatus) => {
-    await notesContext.updateNote(noteId, { status })
+    const updates: Partial<Note> = { status }
+    if (status === 'cancelled') {
+      updates.cancelledBy = displayName
+      updates.cancelledAt = new Date()
+    } else if (status === 'todo') {
+      updates.cancelledBy = undefined
+      updates.cancelledAt = undefined
+    }
+    await notesContext.updateNote(noteId, updates)
   }
 
   const handleQuickAdd = useCallback(async () => {
-    const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
+    const localDisplayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
     const note = await notesContext.addNote({
       moduleType: 'work',
       description: '',
@@ -264,7 +274,7 @@ export default function WorkNotesPage() {
       priority: 'medium',
       type: inlineEditing.lastType ?? 'work',
       productionId,
-      createdBy: displayName,
+      createdBy: localDisplayName,
     } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
     return note
   }, [notesContext, productionId, user, inlineEditing.lastType])
@@ -710,6 +720,7 @@ export default function WorkNotesPage() {
           <WorkNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
+            statusFilter={effectiveFilterStatus}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}

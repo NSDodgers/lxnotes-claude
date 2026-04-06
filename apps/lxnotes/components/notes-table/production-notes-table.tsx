@@ -30,6 +30,7 @@ const EDITABLE_COLUMNS = new Set<string>(['title', 'type', 'priority'])
 interface ProductionNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
+  statusFilter?: NoteStatus
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
@@ -42,10 +43,11 @@ interface ProductionNotesTableProps {
   }
 }
 
-export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ProductionNotesTableProps) {
+export function ProductionNotesTable({ notes, onStatusUpdate, statusFilter, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ProductionNotesTableProps) {
+  // Memoize columns to prevent recreation on every render
   const columns = useMemo(
-    () => createProductionColumns({ onStatusUpdate, inlineEditing }),
-    [onStatusUpdate, inlineEditing]
+    () => createProductionColumns({ onStatusUpdate, statusFilter, inlineEditing }),
+    [onStatusUpdate, statusFilter, inlineEditing]
   )
 
   const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('production')

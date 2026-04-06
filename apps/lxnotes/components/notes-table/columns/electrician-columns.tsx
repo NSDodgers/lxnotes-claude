@@ -14,6 +14,7 @@ import type { InlineEditingState, EditableColumn } from '@/hooks/use-inline-edit
 
 interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
+  statusFilter?: NoteStatus
   inlineEditing?: InlineEditingState & {
     onSave: (noteId: string, column: EditableColumn, value: string) => void
     onAdvance: (column: EditableColumn) => void
@@ -32,7 +33,8 @@ function formatDate(date: Date): string {
   }).format(new Date(date))
 }
 
-export function createElectricianColumns({ onStatusUpdate, inlineEditing }: CreateColumnsOptions): ColumnDef<Note>[] {
+export function createElectricianColumns({ onStatusUpdate, statusFilter, inlineEditing }: CreateColumnsOptions): ColumnDef<Note>[] {
+  const showCancelledColumns = statusFilter && statusFilter !== 'todo'
   return [
     {
       id: 'actions',
@@ -245,5 +247,34 @@ export function createElectricianColumns({ onStatusUpdate, inlineEditing }: Crea
       size: 180,
       minSize: 150,
     },
+    ...(showCancelledColumns ? [
+      {
+        accessorKey: 'cancelledBy',
+        header: 'Who Cancelled',
+        cell: ({ getValue }: { getValue: () => unknown }) => {
+          const value = getValue() as string | undefined
+          return <span className="text-sm text-muted-foreground">{value || ''}</span>
+        },
+        enableSorting: true,
+        enableMultiSort: true,
+        enableResizing: true,
+        size: 130,
+        minSize: 100,
+      } as ColumnDef<Note>,
+      {
+        accessorKey: 'cancelledAt',
+        header: 'When Cancelled',
+        cell: ({ getValue }: { getValue: () => unknown }) => {
+          const value = getValue() as Date | undefined
+          return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+        },
+        sortingFn: dateSortFn,
+        enableSorting: true,
+        enableMultiSort: true,
+        enableResizing: true,
+        size: 180,
+        minSize: 150,
+      } as ColumnDef<Note>,
+    ] : []),
   ]
 }

@@ -14,7 +14,7 @@ const STORAGE_PREFIX = 'lxnotes:demo:'
 // JSON reviver function to convert ISO date strings back to Date objects
 function dateReviver(key: string, value: unknown): unknown {
   // List of known date fields in our data structures
-  const dateFields = ['createdAt', 'updatedAt', 'completedAt', 'dueDate', 'dateGenerated']
+  const dateFields = ['createdAt', 'updatedAt', 'completedAt', 'cancelledAt', 'dueDate', 'dateGenerated']
 
   if (dateFields.includes(key) && typeof value === 'string') {
     // Check if it's a valid ISO date string

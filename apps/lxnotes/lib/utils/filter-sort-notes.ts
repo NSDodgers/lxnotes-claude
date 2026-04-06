@@ -69,7 +69,7 @@ export function sortNotes(
         case 'completed_at':
           return note.completedAt?.getTime() || 0
         case 'cancelled_at':
-          return note.updatedAt.getTime()
+          return note.cancelledAt?.getTime() || 0
         case 'channel':
           // Extract lowest channel number from channelNumbers field
           return extractLowestChannelNumber(note.channelNumbers || '')

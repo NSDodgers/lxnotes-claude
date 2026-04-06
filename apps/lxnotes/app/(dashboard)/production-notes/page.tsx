@@ -1060,13 +1060,23 @@ export default function ProductionNotesPage() {
     setIsDialogOpen(true)
   }
 
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
+
   const updateNoteStatus = async (noteId: string, status: NoteStatus) => {
-    await notesContext.updateNote(noteId, { status })
+    const updates: Partial<Note> = { status }
+    if (status === 'cancelled') {
+      updates.cancelledBy = displayName
+      updates.cancelledAt = new Date()
+    } else if (status === 'todo') {
+      updates.cancelledBy = undefined
+      updates.cancelledAt = undefined
+    }
+    await notesContext.updateNote(noteId, updates)
   }
 
   const handleQuickAdd = useCallback(async () => {
     const prodId = productionContext?.productionId ?? 'demo-production'
-    const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
+    const localDisplayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0]
     const note = await notesContext.addNote({
       moduleType: 'production',
       title: '',
@@ -1074,7 +1084,7 @@ export default function ProductionNotesPage() {
       priority: 'medium',
       type: inlineEditing.lastType ?? 'lighting',
       productionId: prodId,
-      createdBy: displayName,
+      createdBy: localDisplayName,
     } as Omit<Note, 'id' | 'createdAt' | 'updatedAt'>)
     return note
   }, [notesContext, productionContext?.productionId, user, inlineEditing.lastType])
@@ -1423,6 +1433,7 @@ export default function ProductionNotesPage() {
           <ProductionNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
+            statusFilter={effectiveFilterStatus}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}

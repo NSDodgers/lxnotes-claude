@@ -117,9 +117,11 @@ export interface Note {
   createdBy?: string
   assignedTo?: string
   completedBy?: string
+  cancelledBy?: string
   createdAt: Date
   updatedAt: Date
   completedAt?: Date
+  cancelledAt?: Date
   dueDate?: Date
 
   // Cross-app fields

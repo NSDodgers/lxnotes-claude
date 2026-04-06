@@ -30,6 +30,7 @@ const EDITABLE_COLUMNS = new Set<string>(['title', 'type', 'priority', 'cueNumbe
 interface CueNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
+  statusFilter?: NoteStatus
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
@@ -42,11 +43,11 @@ interface CueNotesTableProps {
   }
 }
 
-export function CueNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: CueNotesTableProps) {
+export function CueNotesTable({ notes, onStatusUpdate, statusFilter, onEdit, onQuickAdd, emptyMessage, inlineEditing }: CueNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
-    () => createCueColumns({ onStatusUpdate, inlineEditing }),
-    [onStatusUpdate, inlineEditing]
+    () => createCueColumns({ onStatusUpdate, statusFilter, inlineEditing }),
+    [onStatusUpdate, statusFilter, inlineEditing]
   )
 
   // Consolidated column config: sizing, visibility, order

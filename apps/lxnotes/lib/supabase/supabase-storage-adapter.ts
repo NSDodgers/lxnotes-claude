@@ -32,9 +32,11 @@ function dbNoteToNote(row: DbNote): Note {
     createdBy: row.created_by ?? undefined,
     assignedTo: row.assigned_to ?? undefined,
     completedBy: row.completed_by ?? undefined,
+    cancelledBy: row.cancelled_by ?? undefined,
     createdAt: new Date(row.created_at!),
     updatedAt: new Date(row.updated_at!),
     completedAt: row.completed_at ? new Date(row.completed_at) : undefined,
+    cancelledAt: row.cancelled_at ? new Date(row.cancelled_at) : undefined,
     dueDate: row.due_date ? new Date(row.due_date) : undefined,
     cueNumber: row.cue_number ?? undefined,
     scriptPageId: row.script_page_id ?? undefined,
@@ -61,6 +63,8 @@ function noteToDbNote(note: Partial<Note> & { productionId: string; moduleType: 
     assigned_to: note.assignedTo ?? null,
     completed_by: note.completedBy ?? null,
     completed_at: note.completedAt?.toISOString() ?? null,
+    cancelled_by: note.cancelledBy ?? null,
+    cancelled_at: note.cancelledAt?.toISOString() ?? null,
     due_date: note.dueDate?.toISOString() ?? null,
     cue_number: note.cueNumber ?? null,
     script_page_id: note.scriptPageId ?? null,
@@ -191,6 +195,8 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
         if (updates.assignedTo !== undefined) dbUpdates.assigned_to = updates.assignedTo ?? null
         if (updates.completedBy !== undefined) dbUpdates.completed_by = updates.completedBy ?? null
         if (updates.completedAt !== undefined) dbUpdates.completed_at = updates.completedAt?.toISOString() ?? null
+        if (updates.cancelledBy !== undefined) dbUpdates.cancelled_by = updates.cancelledBy ?? null
+        if (updates.cancelledAt !== undefined) dbUpdates.cancelled_at = updates.cancelledAt?.toISOString() ?? null
         if (updates.dueDate !== undefined) dbUpdates.due_date = updates.dueDate?.toISOString() ?? null
         if (updates.cueNumber !== undefined) dbUpdates.cue_number = updates.cueNumber ?? null
         if (updates.scriptPageId !== undefined) dbUpdates.script_page_id = updates.scriptPageId ?? null
