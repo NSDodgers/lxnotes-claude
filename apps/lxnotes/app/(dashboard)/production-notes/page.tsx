@@ -1264,6 +1264,7 @@ export default function ProductionNotesPage() {
               <Button
                 onClick={() => setIsPrintViewOpen(true)}
                 variant="secondary"
+                data-testid="print-notes-button"
               >
                 <Printer className="h-4 w-4" />
                 PDF
@@ -1271,6 +1272,7 @@ export default function ProductionNotesPage() {
               <Button
                 onClick={() => setIsEmailViewOpen(true)}
                 variant="secondary"
+                data-testid="email-notes-button"
               >
                 <Mail className="h-4 w-4" />
                 Email
