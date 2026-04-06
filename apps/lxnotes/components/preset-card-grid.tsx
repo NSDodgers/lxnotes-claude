@@ -53,7 +53,7 @@ export function PresetCardGrid({
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('space-y-4', className)} data-testid="preset-card-grid">
       {/* Section header */}
       <div className="text-sm font-medium text-text-secondary uppercase tracking-wider">
         Your Presets
