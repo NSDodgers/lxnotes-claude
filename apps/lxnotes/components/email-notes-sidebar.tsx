@@ -173,6 +173,26 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
       const filterPreset = filterPresetId
         ? getFilterPreset(filterPresetId)
         : null
+
+      // Guard: this email preset declares a filter, but lookup returned nothing.
+      // Refuse to send rather than silently fall through to the unfiltered set
+      // (the original Schmigadoon bug: 116 notes emailed when user expected ~30).
+      // A null filterPresetId is a legitimate "send all" case and continues below.
+      if (filterPresetId && !filterPreset) {
+        console.error('[Email PDF] Filter preset lookup failed', {
+          filterPresetId,
+          moduleType,
+          productionId: productionId ?? null,
+          emailPresetId: selectedPreset?.id ?? null,
+        })
+        setSendError(
+          'The filter referenced by this email preset is missing. ' +
+          'Open the preset, re-select the filter, save, and try again.'
+        )
+        setIsSending(false)
+        return
+      }
+
       const customPriorities = getPriorities(moduleType)
       const filteredNotes = filterPreset
         ? filterAndSortNotes(notes, filterPreset, customPriorities)
@@ -197,7 +217,10 @@ export function EmailNotesSidebar({ moduleType, isOpen, onClose }: EmailNotesSid
           moduleType: pdfModuleType,
           filterPreset: filterPreset || undefined,
           pageStyle,
-          notes,
+          // Defense in depth: PDFGenerationService also filters internally,
+          // but pass the already-filtered subset so a future regression in the
+          // service can never widen the result beyond what was intended here.
+          notes: filteredNotes,
           productionName,
           productionLogo,
           ...(isFixtureModule(moduleType) && { fixtureAggregates }),

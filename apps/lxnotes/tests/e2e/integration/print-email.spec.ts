@@ -210,3 +210,23 @@ test.describe('Print & Email Integration', () => {
     });
   });
 });
+
+// TODO(email-send-tests): build proper e2e scaffolding for the email send flow.
+// As of 2026-04-06 there are no automated tests that exercise doSend() in
+// email-notes-sidebar.tsx — existing tests are smoke checks that click around
+// without intercepting /api/email/send or seeding broken preset references.
+//
+// Specifically missing:
+//   1. Regression test for the filter-reference guard
+//      (docs/plans/2026-04-06-email-pdf-filter-guard.md, Part A): seed an
+//      email preset whose filterAndSortPresetId points to a non-existent filter,
+//      click send, assert the missing-filter error appears AND no POST to
+//      /api/email/send is made.
+//   2. Happy-path filter assertion: send a preset with a valid filter,
+//      intercept the POST, assert noteStats.total equals only the filtered
+//      subset (this would have caught the original Schmigadoon bug).
+//
+// First attempt at (1) hit hydration timing issues with addInitScript +
+// zustand-persist that need their own investigation. Worth doing as a follow-up
+// because the email send flow handles money-time data (sends real emails to
+// real recipients) and currently has zero behavioral coverage.
