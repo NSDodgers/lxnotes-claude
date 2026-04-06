@@ -35,7 +35,16 @@ export function useProductionEmailPresets(moduleType: PresetModuleType) {
 
   // Merge presets: production presets override system presets with same ID
   const presets = useMemo(() => {
-    // Start with system presets
+    // In demo / non-production mode, return the full local store list
+    // (system defaults + user-created presets). Mirrors the behavior of
+    // useProductionPrintPresets and useProductionFilterSortPresets — email
+    // was the outlier that silently dropped local user presets, so users in
+    // demo mode could create email presets but never see them back.
+    if (!productionContext?.production) {
+      return store.getPresetsByModule(moduleType)
+    }
+
+    // Production mode: start with system presets, then merge in production presets
     const mergedPresets = [...systemPresets]
 
     // Add or replace with production presets
@@ -51,17 +60,19 @@ export function useProductionEmailPresets(moduleType: PresetModuleType) {
     }
 
     return mergedPresets
-  }, [systemPresets, productionPresets])
+  }, [systemPresets, productionPresets, productionContext?.production, store, moduleType])
 
   // Get a single preset by ID
   const getPreset = useCallback((id: string): EmailMessagePreset | undefined => {
-    // Check production presets first
-    const prodPreset = productionPresets.find(p => p.id === id)
-    if (prodPreset) return prodPreset
-
-    // Fall back to system preset
-    return systemPresets.find(p => p.id === id)
-  }, [productionPresets, systemPresets])
+    if (productionContext?.production) {
+      // Production mode: check production presets first, then system
+      const prodPreset = productionPresets.find(p => p.id === id)
+      if (prodPreset) return prodPreset
+      return systemPresets.find(p => p.id === id)
+    }
+    // Demo / non-production mode: full local store lookup (system + user)
+    return store.getPreset(id)
+  }, [productionContext?.production, productionPresets, systemPresets, store])
 
   // Save a preset (creates or updates)
   const savePreset = useCallback(async (preset: EmailMessagePreset) => {
