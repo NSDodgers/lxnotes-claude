@@ -258,9 +258,14 @@ export default function WorkNotesPage() {
     if (status === 'cancelled') {
       updates.cancelledBy = displayName
       updates.cancelledAt = new Date()
+    } else if (status === 'complete') {
+      updates.completedBy = displayName
+      updates.completedAt = new Date()
     } else if (status === 'todo') {
       updates.cancelledBy = undefined
       updates.cancelledAt = undefined
+      updates.completedBy = undefined
+      updates.completedAt = undefined
     }
     await notesContext.updateNote(noteId, updates)
   }

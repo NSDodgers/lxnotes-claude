@@ -249,6 +249,33 @@ export function createElectricianColumns({ onStatusUpdate, statusFilter, inlineE
     },
     ...(showCancelledColumns ? [
       {
+        accessorKey: 'completedBy',
+        header: 'Who Completed',
+        cell: ({ getValue }: { getValue: () => unknown }) => {
+          const value = getValue() as string | undefined
+          return <span className="text-sm text-muted-foreground">{value || ''}</span>
+        },
+        enableSorting: true,
+        enableMultiSort: true,
+        enableResizing: true,
+        size: 130,
+        minSize: 100,
+      } as ColumnDef<Note>,
+      {
+        accessorKey: 'completedAt',
+        header: 'When Completed',
+        cell: ({ getValue }: { getValue: () => unknown }) => {
+          const value = getValue() as Date | undefined
+          return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+        },
+        sortingFn: dateSortFn,
+        enableSorting: true,
+        enableMultiSort: true,
+        enableResizing: true,
+        size: 180,
+        minSize: 150,
+      } as ColumnDef<Note>,
+      {
         accessorKey: 'cancelledBy',
         header: 'Who Cancelled',
         cell: ({ getValue }: { getValue: () => unknown }) => {
