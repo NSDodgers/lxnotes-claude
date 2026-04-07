@@ -209,10 +209,15 @@ export default function CueNotesPage() {
     if (status === 'cancelled') {
       updates.cancelledBy = displayName
       updates.cancelledAt = new Date()
+    } else if (status === 'complete') {
+      updates.completedBy = displayName
+      updates.completedAt = new Date()
     } else if (status === 'todo') {
-      // Reopening — clear cancelled tracking
+      // Reopening — clear cancelled and completed tracking
       updates.cancelledBy = undefined
       updates.cancelledAt = undefined
+      updates.completedBy = undefined
+      updates.completedAt = undefined
     }
     await notesContext.updateNote(noteId, updates)
   }
