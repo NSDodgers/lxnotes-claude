@@ -14,7 +14,6 @@ import { useProductionFilterSortPresets } from '@/lib/hooks/use-production-filte
 import { useProductionEmailPresets } from '@/lib/hooks/use-production-email-presets'
 import { useProductionPrintPresets } from '@/lib/hooks/use-production-print-presets'
 import { useProductionId } from '@/components/production/production-provider'
-import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { getSortFieldsForModule } from '@/lib/validation/preset-schemas'
@@ -57,11 +56,10 @@ export function PresetEditor({
 }: PresetEditorProps) {
   const productionId = useSafeProductionId()
 
-  const { savePreset: saveFilterPreset } = useProductionFilterSortPresets(moduleType)
+  const { savePreset: saveFilterPreset, getPreset: getFilterPreset } = useProductionFilterSortPresets(moduleType)
   const { savePreset: saveEmailPreset } = useProductionEmailPresets(moduleType)
   const { savePreset: savePrintPreset } = useProductionPrintPresets(moduleType)
 
-  const { getPreset: getFilterPreset } = useFilterSortPresetsStore()
   const { getTypes } = useCustomTypesStore()
   const { getPriorities } = useCustomPrioritiesStore()
 
