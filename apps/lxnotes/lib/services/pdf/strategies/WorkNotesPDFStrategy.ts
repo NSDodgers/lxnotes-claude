@@ -24,6 +24,8 @@ export class WorkNotesPDFStrategy implements PDFStrategy {
       'Priority',
       'Type',
       'Channels',
+      'Fixture Type',
+      'Purpose',
       'Position/Unit',
       'Note',
       'Created'
@@ -38,6 +40,8 @@ export class WorkNotesPDFStrategy implements PDFStrategy {
     const aggregate = fixtureAggregates?.[note.id]
     return {
       channels: aggregate?.channels || note.channelNumbers || '-',
+      fixtureType: aggregate?.fixtureTypes?.length ? aggregate.fixtureTypes.join(', ') : '-',
+      purpose: aggregate?.purposes?.length ? aggregate.purposes.join('\n') : '-',
       positionUnit: (aggregate?.positionsWithUnits?.length ? aggregate.positionsWithUnits.join('\n') : null) || note.positionUnit || '-',
       lightwrightId: note.lightwrightItemId || '-',
       sceneryNeeds: note.sceneryNeeds || '-'

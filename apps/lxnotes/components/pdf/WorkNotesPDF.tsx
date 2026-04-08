@@ -53,6 +53,29 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
       }
     },
     {
+      header: 'Fixture Type',
+      width: 85,
+      render: (note: PDFFormattedNote) => {
+        const fixtureType = note.moduleSpecificData?.fixtureType
+        return <Text>{typeof fixtureType === 'string' ? fixtureType : '-'}</Text>
+      }
+    },
+    {
+      header: 'Purpose',
+      width: 95,
+      render: (note: PDFFormattedNote) => {
+        const purpose = note.moduleSpecificData?.purpose
+        if (typeof purpose !== 'string' || purpose === '-') {
+          return <Text>-</Text>
+        }
+        const lines = purpose.split('\n')
+        if (lines.length === 1) {
+          return <Text>{lines[0]}</Text>
+        }
+        return <Text>{lines.map(line => `• ${line}`).join('\n')}</Text>
+      }
+    },
+    {
       header: 'Position/Unit',
       width: 95,
       render: (note: PDFFormattedNote) => {
