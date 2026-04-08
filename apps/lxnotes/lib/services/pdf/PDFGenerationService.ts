@@ -5,6 +5,7 @@ import type { PDFGenerationRequest, PDFGenerationResult, PDFStrategy } from './t
 import { CueNotesPDFStrategy } from './strategies/CueNotesPDFStrategy'
 import { WorkNotesPDFStrategy } from './strategies/WorkNotesPDFStrategy'
 import { ProductionNotesPDFStrategy } from './strategies/ProductionNotesPDFStrategy'
+import { ElectricianNotesPDFStrategy } from './strategies/ElectricianNotesPDFStrategy'
 import { CueNotesPDF } from '@/components/pdf/CueNotesPDF'
 import { WorkNotesPDF } from '@/components/pdf/WorkNotesPDF'
 import { ProductionNotesPDF } from '@/components/pdf/ProductionNotesPDF'
@@ -22,7 +23,7 @@ export class PDFGenerationService {
       cue: new CueNotesPDFStrategy(),
       work: new WorkNotesPDFStrategy(),
       production: new ProductionNotesPDFStrategy(),
-      electrician: new ProductionNotesPDFStrategy() // Electrician notes use same PDF layout as production notes
+      electrician: new ElectricianNotesPDFStrategy() // Electrician notes share the fixture-aware Work Notes layout (with an "Electrician Notes" title)
     }
   }
 
@@ -96,7 +97,7 @@ export class PDFGenerationService {
           pdfDocument = React.createElement(ProductionNotesPDF, commonProps)
           break
         case 'electrician':
-          pdfDocument = React.createElement(ProductionNotesPDF, commonProps)
+          pdfDocument = React.createElement(WorkNotesPDF, commonProps)
           break
         default:
           throw new Error(`Unsupported module type: ${request.moduleType}`)
