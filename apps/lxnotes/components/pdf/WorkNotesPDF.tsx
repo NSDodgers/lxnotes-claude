@@ -101,7 +101,7 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
           typeColorMap={typeColorMap}
         />
 
-        <PDFFooter pageNumber={1} totalPages={1} />
+        <PDFFooter pageNumber={1} totalPages={1} presetName={filterPresetName} />
       </Page>
     </Document>
   )
