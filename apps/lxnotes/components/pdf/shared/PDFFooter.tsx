@@ -5,6 +5,7 @@ import { LX_NOTES_LOGO_BASE64 } from '@/lib/constants/pdf-assets'
 interface PDFFooterProps {
   pageNumber: number
   totalPages: number
+  presetName?: string
 }
 
 const footerStyles = StyleSheet.create({
@@ -37,7 +38,7 @@ const footerStyles = StyleSheet.create({
   }
 })
 
-export const PDFFooter: React.FC<PDFFooterProps> = ({ pageNumber, totalPages }) => {
+export const PDFFooter: React.FC<PDFFooterProps> = ({ pageNumber, totalPages, presetName }) => {
   const formatDate = (date: Date): string => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -67,7 +68,7 @@ export const PDFFooter: React.FC<PDFFooterProps> = ({ pageNumber, totalPages }) 
         <Text>Page {pageNumber} of {totalPages}</Text>
       </View>
       <View style={footerStyles.footerRight}>
-        <Text>Printed: {formatDate(printDateTime)} at {formatTime(printDateTime)}</Text>
+        <Text>Printed: {formatDate(printDateTime)} at {formatTime(printDateTime)}{presetName ? ` • Preset: ${presetName}` : ''}</Text>
       </View>
     </View>
   )
