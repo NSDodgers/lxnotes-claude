@@ -1,117 +1,70 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Bug } from 'lucide-react'
+import { Bug, Loader2 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { useAuthContext } from '@/components/auth/auth-provider'
+import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { BugReportModal } from './bug-report-modal'
-
-function inferModule(pathname: string): string {
-  if (pathname.includes('/cue')) return 'Cue Notes'
-  if (pathname.includes('/work')) return 'Work Notes'
-  if (pathname.includes('/production')) return 'Production Notes'
-  if (pathname.includes('/electrician')) return 'Electrician Tracking'
-  if (pathname.includes('/settings')) return 'Settings'
-  return 'General'
-}
-
-function getBrowserInfo(): string {
-  if (typeof navigator === 'undefined') return 'Unknown'
-  const ua = navigator.userAgent
-  if (ua.includes('Firefox/')) return `Firefox ${ua.split('Firefox/')[1]?.split(' ')[0]}`
-  if (ua.includes('Edg/')) return `Edge ${ua.split('Edg/')[1]?.split(' ')[0]}`
-  if (ua.includes('Chrome/')) return `Chrome ${ua.split('Chrome/')[1]?.split(' ')[0]}`
-  if (ua.includes('Safari/') && !ua.includes('Chrome')) return `Safari ${ua.split('Version/')[1]?.split(' ')[0] || ''}`
-  return 'Unknown'
-}
-
-function getOSInfo(): string {
-  if (typeof navigator === 'undefined') return 'Unknown'
-  const ua = navigator.userAgent
-  if (ua.includes('Mac OS X')) return `macOS ${ua.match(/Mac OS X ([0-9_]+)/)?.[1]?.replace(/_/g, '.') || ''}`
-  if (ua.includes('Windows NT')) return `Windows ${ua.match(/Windows NT ([0-9.]+)/)?.[1] || ''}`
-  if (ua.includes('Linux')) return 'Linux'
-  if (ua.includes('Android')) return 'Android'
-  if (ua.includes('iOS') || ua.includes('iPhone')) return 'iOS'
-  return 'Unknown'
-}
+import { useBugReport } from './use-bug-report'
 
 export function BugReportButton() {
   const { isAuthenticated, isLoading } = useAuthContext()
   const pathname = usePathname()
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [screenshot, setScreenshot] = useState<string | null>(null)
-  const [isCapturing, setIsCapturing] = useState(false)
+  const isMobile = useIsMobile()
   const buttonRef = useRef<HTMLButtonElement>(null)
   const [mounted, setMounted] = useState(false)
+  const [mobileBarPresent, setMobileBarPresent] = useState(false)
+  const { openReport, isCapturing, modalProps } = useBugReport()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const handleClick = useCallback(async () => {
-    setIsCapturing(true)
-    let capturedScreenshot: string | null = null
-
-    try {
-      const html2canvas = (await import('html2canvas-pro')).default
-      const canvas = await html2canvas(document.documentElement, {
-        scale: window.devicePixelRatio > 1 ? 1 : undefined,
-        logging: false,
-        useCORS: true,
-        foreignObjectRendering: false,
-        ignoreElements: (el) => {
-          if (el === buttonRef.current) return true
-          // Skip cross-origin images that would taint the canvas
-          if (el instanceof HTMLImageElement && el.crossOrigin === null && el.src.startsWith('http') && !el.src.startsWith(window.location.origin)) return true
-          return false
-        },
-      })
-      const dataUrl = canvas.toDataURL('image/png')
-      const base64 = dataUrl.split(',')[1]
-      if (base64 && base64.length > 100) {
-        capturedScreenshot = base64
-      } else {
-        console.warn('Screenshot capture produced empty result')
-      }
-    } catch (err) {
-      console.error('Screenshot capture failed:', err)
+  // Track whether MobileActionBar is mounted. When it is, the in-bar icon
+  // owns the mobile bug-report entry point and this floating button hides.
+  // Re-check on route changes because MobileActionBar is rendered per-page.
+  useEffect(() => {
+    if (!mounted) return
+    const check = () => {
+      setMobileBarPresent(!!document.querySelector('[data-testid="mobile-action-bar"]'))
     }
-
-    setScreenshot(capturedScreenshot)
-    setIsCapturing(false)
-    setIsModalOpen(true)
-  }, [])
+    check()
+    // Re-check after a tick to catch the bar mounting on the same navigation.
+    const t = window.setTimeout(check, 50)
+    return () => window.clearTimeout(t)
+  }, [mounted, pathname])
 
   if (isLoading || !isAuthenticated || !mounted) return null
 
-  const context = {
-    route: pathname,
-    module: inferModule(pathname),
-    browser: getBrowserInfo(),
-    os: getOSInfo(),
-  }
+  // On mobile, hide if the action bar is present (its in-bar icon takes over).
+  if (isMobile && mobileBarPresent) return null
+
+  // Sizing: desktop FAB is 44px, mobile fallback FAB is 40px (smaller, no
+  // content to clear since the bar is absent on these pages).
+  const sizeClasses = isMobile ? 'h-10 w-10' : 'h-11 w-11'
+  const iconSizeClasses = isMobile ? 'h-4 w-4' : 'h-5 w-5'
 
   return createPortal(
     <>
       <button
         ref={buttonRef}
-        onClick={handleClick}
+        onClick={() => openReport(buttonRef.current)}
         disabled={isCapturing}
         data-testid="bug-report-button"
-        className="fixed bottom-20 right-4 md:bottom-4 z-[2147483647] flex h-11 w-11 items-center justify-center rounded-full bg-red-600 shadow-lg transition-colors hover:bg-red-500 disabled:opacity-50"
+        aria-label="Report a bug"
+        aria-busy={isCapturing}
+        className={`fixed bottom-4 right-4 z-[2147483647] flex ${sizeClasses} items-center justify-center rounded-full bg-red-600 shadow-lg transition-colors hover:bg-red-500 disabled:opacity-70`}
         title="Report a bug"
       >
-        <Bug className="h-5 w-5 text-white" />
+        {isCapturing ? (
+          <Loader2 className={`${iconSizeClasses} text-white animate-spin`} />
+        ) : (
+          <Bug className={`${iconSizeClasses} text-white`} />
+        )}
       </button>
-      <BugReportModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        screenshot={screenshot}
-        onRemoveScreenshot={() => setScreenshot(null)}
-        context={context}
-      />
+      <BugReportModal {...modalProps} />
     </>,
     document.body
   )

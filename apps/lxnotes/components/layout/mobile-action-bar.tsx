@@ -1,8 +1,11 @@
 'use client'
 
-import { Plus, Printer, Mail, MoreHorizontal } from 'lucide-react'
+import { useRef } from 'react'
+import { Plus, Printer, Mail, MoreHorizontal, Bug, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { BugReportModal } from '@/components/bug-report/bug-report-modal'
+import { useBugReport } from '@/components/bug-report/use-bug-report'
 import type { ModuleType } from '@/types'
 import type { LucideIcon } from 'lucide-react'
 
@@ -28,8 +31,17 @@ const moduleVariants: Record<ModuleType, string> = {
 }
 
 export function MobileActionBar({ moduleType, onAddNote, onPDF, onEmail, overflowItems }: MobileActionBarProps) {
+  const barRef = useRef<HTMLDivElement>(null)
+  const { openReport, isCapturing, modalProps } = useBugReport({
+    // Exclude the entire bottom bar from the captured screenshot so the red
+    // bug icon the user just pressed doesn't appear in the report image.
+    getExtraIgnoreElements: () => (barRef.current ? [barRef.current] : []),
+  })
+
   return (
+    <>
     <div
+      ref={barRef}
       className="fixed bottom-0 left-0 right-0 z-40 bg-bg-secondary border-t border-bg-tertiary safe-bottom"
       data-testid="mobile-action-bar"
     >
@@ -74,6 +86,25 @@ export function MobileActionBar({ moduleType, onAddNote, onPDF, onEmail, overflo
           </Button>
         )}
 
+        {/* Bug report - icon only */}
+        <Button
+          onClick={() => openReport(null)}
+          disabled={isCapturing}
+          variant="secondary"
+          size="sm"
+          className="h-9 w-9 p-0 shrink-0"
+          data-testid="mobile-bug-report-button"
+          aria-label="Report a bug"
+          aria-busy={isCapturing}
+          title="Report a bug"
+        >
+          {isCapturing ? (
+            <Loader2 className="h-4 w-4 text-red-500 animate-spin" />
+          ) : (
+            <Bug className="h-4 w-4 text-red-500" />
+          )}
+        </Button>
+
         {/* Overflow menu */}
         {overflowItems && overflowItems.length > 0 && (
           <Popover>
@@ -103,5 +134,7 @@ export function MobileActionBar({ moduleType, onAddNote, onPDF, onEmail, overflo
         )}
       </div>
     </div>
+    <BugReportModal {...modalProps} />
+    </>
   )
 }
