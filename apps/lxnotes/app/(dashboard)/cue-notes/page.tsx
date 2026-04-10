@@ -298,6 +298,7 @@ export default function CueNotesPage() {
           <TabletNotesTable
             notes={filteredNotes}
             columns={tabletColumns}
+            moduleType="cue"
             onEdit={handleEditNote}
             emptyIcon={Lightbulb}
             emptyMessage={emptyMessage}
@@ -577,7 +578,6 @@ export default function CueNotesPage() {
           <CueNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
-            statusFilter={effectiveFilterStatus}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}

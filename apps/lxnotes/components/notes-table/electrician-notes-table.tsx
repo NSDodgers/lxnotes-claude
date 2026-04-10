@@ -30,7 +30,6 @@ const EDITABLE_COLUMNS = new Set<string>(['title', 'type', 'priority'])
 interface ElectricianNotesTableProps {
   notes: Note[]
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
-  statusFilter?: NoteStatus
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
@@ -43,10 +42,10 @@ interface ElectricianNotesTableProps {
   }
 }
 
-export function ElectricianNotesTable({ notes, onStatusUpdate, statusFilter, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ElectricianNotesTableProps) {
+export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ElectricianNotesTableProps) {
   const columns = useMemo(
-    () => createElectricianColumns({ onStatusUpdate, statusFilter, inlineEditing }),
-    [onStatusUpdate, statusFilter, inlineEditing]
+    () => createElectricianColumns({ onStatusUpdate, inlineEditing }),
+    [onStatusUpdate, inlineEditing]
   )
 
   const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('electrician')
