@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import { DesignerFilterPopover } from './designer-filter-popover'
+import { ColumnConfigPopover } from '@/components/notes-table/column-config-popover'
 import type { NoteStatus, ModuleType } from '@/types'
 
 function getModuleInfo(pathname: string) {
@@ -86,6 +87,11 @@ export function DesignerTopBar() {
           </div>
         )}
         {(searchExpanded || !moduleInfo) && <div className="mr-auto" />}
+
+        {/* Column config popover */}
+        {moduleInfo && (
+          <ColumnConfigPopover moduleType={moduleInfo.moduleType} />
+        )}
 
         {/* Filter/Sort popover */}
         {moduleInfo && (
