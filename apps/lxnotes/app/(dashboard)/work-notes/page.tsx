@@ -737,6 +737,7 @@ export default function WorkNotesPage() {
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}
+            statusFilter={effectiveFilterStatus}
             inlineEditing={inlineEditingProps}
           />
 

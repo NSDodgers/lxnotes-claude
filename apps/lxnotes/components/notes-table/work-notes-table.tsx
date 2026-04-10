@@ -33,6 +33,7 @@ interface WorkNotesTableProps {
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
+  statusFilter?: NoteStatus
   inlineEditing?: InlineEditingState & {
     startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
     stopEditing: () => void
@@ -42,14 +43,14 @@ interface WorkNotesTableProps {
   }
 }
 
-export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: WorkNotesTableProps) {
+export function WorkNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, statusFilter, inlineEditing }: WorkNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createWorkColumns({ onStatusUpdate, inlineEditing }),
     [onStatusUpdate, inlineEditing]
   )
 
-  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('work')
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('work', statusFilter)
 
   const table = useReactTable({
     data: notes,

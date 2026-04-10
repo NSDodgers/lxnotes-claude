@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useColumnConfig } from '@/hooks/use-column-config'
+import { useNotesFilterStore } from '@/lib/stores/notes-filter-store'
 import type { Note, ModuleType } from '@/types'
 import type { LucideIcon } from 'lucide-react'
 
@@ -35,7 +36,8 @@ export function TabletNotesTable({
   emptyIcon: EmptyIcon,
   emptyMessage = 'No notes found',
 }: TabletNotesTableProps) {
-  const { columnVisibility, columnOrder } = useColumnConfig(moduleType)
+  const filterStatus = useNotesFilterStore((s) => s.filterStatus)
+  const { columnVisibility, columnOrder } = useColumnConfig(moduleType, filterStatus)
 
   const table = useReactTable({
     data: notes,

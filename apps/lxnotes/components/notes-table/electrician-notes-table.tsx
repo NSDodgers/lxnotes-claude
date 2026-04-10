@@ -33,6 +33,7 @@ interface ElectricianNotesTableProps {
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
+  statusFilter?: NoteStatus
   inlineEditing?: InlineEditingState & {
     startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
     stopEditing: () => void
@@ -42,13 +43,13 @@ interface ElectricianNotesTableProps {
   }
 }
 
-export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ElectricianNotesTableProps) {
+export function ElectricianNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, statusFilter, inlineEditing }: ElectricianNotesTableProps) {
   const columns = useMemo(
     () => createElectricianColumns({ onStatusUpdate, inlineEditing }),
     [onStatusUpdate, inlineEditing]
   )
 
-  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('electrician')
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('electrician', statusFilter)
 
   const table = useReactTable({
     data: notes,

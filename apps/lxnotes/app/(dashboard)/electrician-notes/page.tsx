@@ -700,6 +700,7 @@ export default function ElectricianNotesPage() {
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}
+            statusFilter={effectiveFilterStatus}
             inlineEditing={inlineEditingProps}
           />
 

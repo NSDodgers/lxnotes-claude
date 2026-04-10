@@ -33,6 +33,7 @@ interface ProductionNotesTableProps {
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
+  statusFilter?: NoteStatus
   inlineEditing?: InlineEditingState & {
     startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
     stopEditing: () => void
@@ -42,14 +43,14 @@ interface ProductionNotesTableProps {
   }
 }
 
-export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: ProductionNotesTableProps) {
+export function ProductionNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, statusFilter, inlineEditing }: ProductionNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createProductionColumns({ onStatusUpdate, inlineEditing }),
     [onStatusUpdate, inlineEditing]
   )
 
-  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('production')
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('production', statusFilter)
 
   const table = useReactTable({
     data: notes,

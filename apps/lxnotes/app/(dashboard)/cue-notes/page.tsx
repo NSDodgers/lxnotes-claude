@@ -581,6 +581,7 @@ export default function CueNotesPage() {
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}
+            statusFilter={effectiveFilterStatus}
             inlineEditing={inlineEditingProps}
           />
 

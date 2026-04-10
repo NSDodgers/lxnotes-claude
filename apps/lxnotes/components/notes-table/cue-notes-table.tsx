@@ -33,6 +33,7 @@ interface CueNotesTableProps {
   onEdit?: (note: Note) => void
   onQuickAdd?: () => Promise<Note>
   emptyMessage?: string
+  statusFilter?: NoteStatus
   inlineEditing?: InlineEditingState & {
     startEditing: (noteId: string, column: EditableColumn, isNew?: boolean) => void
     stopEditing: () => void
@@ -42,7 +43,7 @@ interface CueNotesTableProps {
   }
 }
 
-export function CueNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, inlineEditing }: CueNotesTableProps) {
+export function CueNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, emptyMessage, statusFilter, inlineEditing }: CueNotesTableProps) {
   // Memoize columns to prevent recreation on every render
   const columns = useMemo(
     () => createCueColumns({ onStatusUpdate, inlineEditing }),
@@ -50,7 +51,7 @@ export function CueNotesTable({ notes, onStatusUpdate, onEdit, onQuickAdd, empty
   )
 
   // Consolidated column config: sizing, visibility, order
-  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('cue')
+  const { columnSizing, onColumnSizingChange, columnVisibility, columnOrder, sorting, onSortingChange } = useColumnConfig('cue', statusFilter)
 
   // Create table instance with TanStack
   const table = useReactTable({

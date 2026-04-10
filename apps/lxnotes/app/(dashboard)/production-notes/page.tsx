@@ -1449,6 +1449,7 @@ export default function ProductionNotesPage() {
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}
+            statusFilter={effectiveFilterStatus}
             inlineEditing={inlineEditingProps}
           />
 

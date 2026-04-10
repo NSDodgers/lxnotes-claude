@@ -4,7 +4,16 @@ import { useMemo, useCallback } from 'react'
 import { ColumnSizingState, OnChangeFn, SortingState, VisibilityState } from '@tanstack/react-table'
 import { useColumnLayoutStore, mergeColumnOrderWithRegistry } from '@/lib/stores/column-layout-store'
 import { MODULE_COLUMN_REGISTRY } from '@/lib/config/column-registry'
-import type { ModuleType } from '@/types'
+import type { ModuleType, NoteStatus } from '@/types'
+
+/** Columns to auto-hide based on the active status filter */
+const STATUS_HIDDEN_COLUMNS: Record<NoteStatus, string[]> = {
+  todo: ['cancelledBy', 'cancelledAt', 'createdBy', 'createdAt'],
+  review: ['cancelledBy', 'cancelledAt', 'completedBy', 'completedAt'],
+  complete: ['cancelledBy', 'cancelledAt'],
+  cancelled: ['completedBy', 'completedAt'],
+  deleted: ['cancelledBy', 'cancelledAt', 'completedBy', 'completedAt'],
+}
 
 const DEFAULT_SORTING: Record<ModuleType, SortingState> = {
   work: [{ id: 'priority', desc: true }],
@@ -30,7 +39,7 @@ interface UseColumnConfigReturn {
   resetColumnConfig: () => void
 }
 
-export function useColumnConfig(moduleType: ModuleType): UseColumnConfigReturn {
+export function useColumnConfig(moduleType: ModuleType, statusFilter?: NoteStatus): UseColumnConfigReturn {
   const store = useColumnLayoutStore()
   const layout = store.getModuleLayout(moduleType)
   const registry = MODULE_COLUMN_REGISTRY[moduleType]
@@ -60,17 +69,18 @@ export function useColumnConfig(moduleType: ModuleType): UseColumnConfigReturn {
     return mergeColumnOrderWithRegistry(layout?.columnOrder ?? null, moduleType)
   }, [layout?.columnOrder, moduleType])
 
-  // Column visibility - derive from hiddenColumns
+  // Column visibility - derive from hiddenColumns + status-based auto-hides
   const columnVisibility = useMemo<VisibilityState>(() => {
     const hidden = new Set(layout?.hiddenColumns ?? [])
+    const statusHidden = statusFilter ? new Set(STATUS_HIDDEN_COLUMNS[statusFilter]) : new Set<string>()
     const vis: VisibilityState = {}
     for (const col of registry) {
-      if (hidden.has(col.id)) {
+      if (hidden.has(col.id) || statusHidden.has(col.id)) {
         vis[col.id] = false
       }
     }
     return vis
-  }, [layout?.hiddenColumns, registry])
+  }, [layout?.hiddenColumns, registry, statusFilter])
 
   // Sorting - read from store or use module default
   const sorting = useMemo<SortingState>(() => {
