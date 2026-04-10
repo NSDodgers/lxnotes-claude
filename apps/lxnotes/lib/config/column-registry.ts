@@ -22,6 +22,10 @@ export const MODULE_COLUMN_REGISTRY: Record<ModuleType, ColumnMeta[]> = {
     { id: 'scriptLookup', label: 'Script Page', canHide: true },
     { id: 'createdBy', label: 'Who Created', canHide: true },
     { id: 'createdAt', label: 'Created', canHide: true },
+    { id: 'completedBy', label: 'Who Completed', canHide: true },
+    { id: 'completedAt', label: 'When Completed', canHide: true },
+    { id: 'cancelledBy', label: 'Who Cancelled', canHide: true },
+    { id: 'cancelledAt', label: 'When Cancelled', canHide: true },
   ],
   work: [
     { id: 'actions', label: 'Actions', canHide: false },
@@ -36,6 +40,10 @@ export const MODULE_COLUMN_REGISTRY: Record<ModuleType, ColumnMeta[]> = {
     { id: 'sceneryNeeds', label: 'Scenery Needs', canHide: true },
     { id: 'createdBy', label: 'Who Created', canHide: true },
     { id: 'createdAt', label: 'Created', canHide: true },
+    { id: 'completedBy', label: 'Who Completed', canHide: true },
+    { id: 'completedAt', label: 'When Completed', canHide: true },
+    { id: 'cancelledBy', label: 'Who Cancelled', canHide: true },
+    { id: 'cancelledAt', label: 'When Cancelled', canHide: true },
   ],
   production: [
     { id: 'actions', label: 'Actions', canHide: false },
@@ -44,6 +52,10 @@ export const MODULE_COLUMN_REGISTRY: Record<ModuleType, ColumnMeta[]> = {
     { id: 'description', label: 'Note', canHide: false },
     { id: 'createdBy', label: 'Who Created', canHide: true },
     { id: 'createdAt', label: 'Created', canHide: true },
+    { id: 'completedBy', label: 'Who Completed', canHide: true },
+    { id: 'completedAt', label: 'When Completed', canHide: true },
+    { id: 'cancelledBy', label: 'Who Cancelled', canHide: true },
+    { id: 'cancelledAt', label: 'When Cancelled', canHide: true },
   ],
   electrician: [
     { id: 'actions', label: 'Actions', canHide: false },
@@ -58,6 +70,10 @@ export const MODULE_COLUMN_REGISTRY: Record<ModuleType, ColumnMeta[]> = {
     { id: 'sceneryNeeds', label: 'Scenery Needs', canHide: true },
     { id: 'createdBy', label: 'Who Created', canHide: true },
     { id: 'createdAt', label: 'Created', canHide: true },
+    { id: 'completedBy', label: 'Who Completed', canHide: true },
+    { id: 'completedAt', label: 'When Completed', canHide: true },
+    { id: 'cancelledBy', label: 'Who Cancelled', canHide: true },
+    { id: 'cancelledAt', label: 'When Cancelled', canHide: true },
   ],
 }
 

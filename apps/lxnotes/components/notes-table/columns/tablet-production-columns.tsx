@@ -9,6 +9,17 @@ interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
 }
 
+function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }).format(new Date(date))
+}
+
 export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsOptions): ColumnDef<Note>[] {
   return [
     {
@@ -43,6 +54,50 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       enableSorting: false,
       enableResizing: false,
       size: 140,
+    },
+    {
+      accessorKey: 'completedBy',
+      header: 'Who Completed',
+      cell: ({ getValue }) => {
+        const value = getValue() as string | undefined
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
+      },
+      enableSorting: false,
+      enableResizing: false,
+      size: 130,
+    },
+    {
+      accessorKey: 'completedAt',
+      header: 'When Completed',
+      cell: ({ getValue }) => {
+        const value = getValue() as Date | undefined
+        return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+      },
+      enableSorting: false,
+      enableResizing: false,
+      size: 180,
+    },
+    {
+      accessorKey: 'cancelledBy',
+      header: 'Who Cancelled',
+      cell: ({ getValue }) => {
+        const value = getValue() as string | undefined
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
+      },
+      enableSorting: false,
+      enableResizing: false,
+      size: 130,
+    },
+    {
+      accessorKey: 'cancelledAt',
+      header: 'When Cancelled',
+      cell: ({ getValue }) => {
+        const value = getValue() as Date | undefined
+        return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+      },
+      enableSorting: false,
+      enableResizing: false,
+      size: 180,
     },
   ]
 }

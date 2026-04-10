@@ -14,12 +14,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import type { Note } from '@/types'
+import { useColumnConfig } from '@/hooks/use-column-config'
+import type { Note, ModuleType } from '@/types'
 import type { LucideIcon } from 'lucide-react'
 
 interface TabletNotesTableProps {
   notes: Note[]
   columns: ColumnDef<Note>[]
+  moduleType: ModuleType
   onEdit?: (note: Note) => void
   emptyIcon?: LucideIcon
   emptyMessage?: string
@@ -28,14 +30,21 @@ interface TabletNotesTableProps {
 export function TabletNotesTable({
   notes,
   columns,
+  moduleType,
   onEdit,
   emptyIcon: EmptyIcon,
   emptyMessage = 'No notes found',
 }: TabletNotesTableProps) {
+  const { columnVisibility, columnOrder } = useColumnConfig(moduleType)
+
   const table = useReactTable({
     data: notes,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    state: {
+      columnVisibility,
+      columnOrder,
+    },
   })
 
   return (

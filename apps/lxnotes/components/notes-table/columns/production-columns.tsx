@@ -30,7 +30,7 @@ const prioritySortFn: SortingFn<Note> = (rowA, rowB) => {
 
 interface CreateColumnsOptions {
   onStatusUpdate: (noteId: string, status: NoteStatus) => void
-  statusFilter?: NoteStatus
+
   inlineEditing?: InlineEditingState & {
     onSave: (noteId: string, column: EditableColumn, value: string) => void
     onAdvance: (column: EditableColumn) => void
@@ -55,8 +55,7 @@ function formatDate(date: Date): string {
 /**
  * Creates column definitions for the production notes table
  */
-export function createProductionColumns({ onStatusUpdate, statusFilter, inlineEditing }: CreateColumnsOptions): ColumnDef<Note>[] {
-  const showCancelledColumns = statusFilter && statusFilter !== 'todo'
+export function createProductionColumns({ onStatusUpdate, inlineEditing }: CreateColumnsOptions): ColumnDef<Note>[] {
   return [
     {
       id: 'actions',
@@ -187,61 +186,59 @@ export function createProductionColumns({ onStatusUpdate, statusFilter, inlineEd
       size: 180,
       minSize: 150,
     },
-    ...(showCancelledColumns ? [
-      {
-        accessorKey: 'completedBy',
-        header: 'Who Completed',
-        cell: ({ getValue }: { getValue: () => unknown }) => {
-          const value = getValue() as string | undefined
-          return <span className="text-sm text-muted-foreground">{value || ''}</span>
-        },
-        enableSorting: true,
-        enableMultiSort: true,
-        enableResizing: true,
-        size: 130,
-        minSize: 100,
-      } as ColumnDef<Note>,
-      {
-        accessorKey: 'completedAt',
-        header: 'When Completed',
-        cell: ({ getValue }: { getValue: () => unknown }) => {
-          const value = getValue() as Date | undefined
-          return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
-        },
-        sortingFn: dateSortFn,
-        enableSorting: true,
-        enableMultiSort: true,
-        enableResizing: true,
-        size: 180,
-        minSize: 150,
-      } as ColumnDef<Note>,
-      {
-        accessorKey: 'cancelledBy',
-        header: 'Who Cancelled',
-        cell: ({ getValue }: { getValue: () => unknown }) => {
-          const value = getValue() as string | undefined
-          return <span className="text-sm text-muted-foreground">{value || ''}</span>
-        },
-        enableSorting: true,
-        enableMultiSort: true,
-        enableResizing: true,
-        size: 130,
-        minSize: 100,
-      } as ColumnDef<Note>,
-      {
-        accessorKey: 'cancelledAt',
-        header: 'When Cancelled',
-        cell: ({ getValue }: { getValue: () => unknown }) => {
-          const value = getValue() as Date | undefined
-          return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
-        },
-        sortingFn: dateSortFn,
-        enableSorting: true,
-        enableMultiSort: true,
-        enableResizing: true,
-        size: 180,
-        minSize: 150,
-      } as ColumnDef<Note>,
-    ] : []),
+    {
+      accessorKey: 'completedBy',
+      header: 'Who Completed',
+      cell: ({ getValue }) => {
+        const value = getValue() as string | undefined
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
+      },
+      enableSorting: true,
+      enableMultiSort: true,
+      enableResizing: true,
+      size: 130,
+      minSize: 100,
+    },
+    {
+      accessorKey: 'completedAt',
+      header: 'When Completed',
+      cell: ({ getValue }) => {
+        const value = getValue() as Date | undefined
+        return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+      },
+      sortingFn: dateSortFn,
+      enableSorting: true,
+      enableMultiSort: true,
+      enableResizing: true,
+      size: 180,
+      minSize: 150,
+    },
+    {
+      accessorKey: 'cancelledBy',
+      header: 'Who Cancelled',
+      cell: ({ getValue }) => {
+        const value = getValue() as string | undefined
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
+      },
+      enableSorting: true,
+      enableMultiSort: true,
+      enableResizing: true,
+      size: 130,
+      minSize: 100,
+    },
+    {
+      accessorKey: 'cancelledAt',
+      header: 'When Cancelled',
+      cell: ({ getValue }) => {
+        const value = getValue() as Date | undefined
+        return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+      },
+      sortingFn: dateSortFn,
+      enableSorting: true,
+      enableMultiSort: true,
+      enableResizing: true,
+      size: 180,
+      minSize: 150,
+    },
   ]
 }

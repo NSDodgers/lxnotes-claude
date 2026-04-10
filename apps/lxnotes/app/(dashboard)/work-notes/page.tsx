@@ -401,6 +401,7 @@ export default function WorkNotesPage() {
           <TabletNotesTable
             notes={filteredNotes}
             columns={tabletColumns}
+            moduleType="work"
             onEdit={handleEditNote}
             emptyIcon={Wrench}
             emptyMessage={emptyMessage}
@@ -733,7 +734,6 @@ export default function WorkNotesPage() {
           <WorkNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
-            statusFilter={effectiveFilterStatus}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}

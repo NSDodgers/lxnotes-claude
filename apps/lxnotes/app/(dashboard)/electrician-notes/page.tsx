@@ -372,6 +372,7 @@ export default function ElectricianNotesPage() {
           <TabletNotesTable
             notes={filteredNotes}
             columns={tabletColumns}
+            moduleType="electrician"
             onEdit={handleEditNote}
             emptyIcon={Zap}
             emptyMessage={emptyMessage}
@@ -696,7 +697,6 @@ export default function ElectricianNotesPage() {
           <ElectricianNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
-            statusFilter={effectiveFilterStatus}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}

@@ -1171,6 +1171,7 @@ export default function ProductionNotesPage() {
           <TabletNotesTable
             notes={filteredNotes}
             columns={tabletColumns}
+            moduleType="production"
             onEdit={handleEditNote}
             emptyIcon={FileText}
             emptyMessage={emptyMessage}
@@ -1445,7 +1446,6 @@ export default function ProductionNotesPage() {
           <ProductionNotesTable
             notes={filteredNotes}
             onStatusUpdate={updateNoteStatus}
-            statusFilter={effectiveFilterStatus}
             onEdit={handleEditNote}
             onQuickAdd={handleQuickAdd}
             emptyMessage={emptyMessage}
