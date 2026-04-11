@@ -33,10 +33,14 @@ function dbNoteToNote(row: DbNote): Note {
     assignedTo: row.assigned_to ?? undefined,
     completedBy: row.completed_by ?? undefined,
     cancelledBy: row.cancelled_by ?? undefined,
+    reviewedBy: (row as SupabaseAny).reviewed_by ?? undefined,
+    deletedByName: (row as SupabaseAny).deleted_by_name ?? undefined,
     createdAt: new Date(row.created_at!),
     updatedAt: new Date(row.updated_at!),
     completedAt: row.completed_at ? new Date(row.completed_at) : undefined,
     cancelledAt: row.cancelled_at ? new Date(row.cancelled_at) : undefined,
+    reviewedAt: (row as SupabaseAny).reviewed_at ? new Date((row as SupabaseAny).reviewed_at) : undefined,
+    statusDeletedAt: (row as SupabaseAny).status_deleted_at ? new Date((row as SupabaseAny).status_deleted_at) : undefined,
     dueDate: row.due_date ? new Date(row.due_date) : undefined,
     cueNumber: row.cue_number ?? undefined,
     scriptPageId: row.script_page_id ?? undefined,
@@ -197,6 +201,10 @@ export function createSupabaseStorageAdapter(productionId: string): StorageAdapt
         if (updates.completedAt !== undefined) dbUpdates.completed_at = updates.completedAt?.toISOString() ?? null
         if (updates.cancelledBy !== undefined) dbUpdates.cancelled_by = updates.cancelledBy ?? null
         if (updates.cancelledAt !== undefined) dbUpdates.cancelled_at = updates.cancelledAt?.toISOString() ?? null
+        if (updates.reviewedBy !== undefined) (dbUpdates as SupabaseAny).reviewed_by = updates.reviewedBy ?? null
+        if (updates.reviewedAt !== undefined) (dbUpdates as SupabaseAny).reviewed_at = updates.reviewedAt?.toISOString() ?? null
+        if (updates.deletedByName !== undefined) (dbUpdates as SupabaseAny).deleted_by_name = updates.deletedByName ?? null
+        if (updates.statusDeletedAt !== undefined) (dbUpdates as SupabaseAny).status_deleted_at = updates.statusDeletedAt?.toISOString() ?? null
         if (updates.dueDate !== undefined) dbUpdates.due_date = updates.dueDate?.toISOString() ?? null
         if (updates.cueNumber !== undefined) dbUpdates.cue_number = updates.cueNumber ?? null
         if (updates.scriptPageId !== undefined) dbUpdates.script_page_id = updates.scriptPageId ?? null

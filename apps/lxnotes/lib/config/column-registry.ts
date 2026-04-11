@@ -26,6 +26,10 @@ export const MODULE_COLUMN_REGISTRY: Record<ModuleType, ColumnMeta[]> = {
     { id: 'completedAt', label: 'When Completed', canHide: true },
     { id: 'cancelledBy', label: 'Who Cancelled', canHide: true },
     { id: 'cancelledAt', label: 'When Cancelled', canHide: true },
+    { id: 'reviewedBy', label: 'Who Reviewed', canHide: true },
+    { id: 'reviewedAt', label: 'When Reviewed', canHide: true },
+    { id: 'deletedByName', label: 'Who Deleted', canHide: true },
+    { id: 'statusDeletedAt', label: 'When Deleted', canHide: true },
   ],
   work: [
     { id: 'actions', label: 'Actions', canHide: false },
@@ -44,6 +48,10 @@ export const MODULE_COLUMN_REGISTRY: Record<ModuleType, ColumnMeta[]> = {
     { id: 'completedAt', label: 'When Completed', canHide: true },
     { id: 'cancelledBy', label: 'Who Cancelled', canHide: true },
     { id: 'cancelledAt', label: 'When Cancelled', canHide: true },
+    { id: 'reviewedBy', label: 'Who Reviewed', canHide: true },
+    { id: 'reviewedAt', label: 'When Reviewed', canHide: true },
+    { id: 'deletedByName', label: 'Who Deleted', canHide: true },
+    { id: 'statusDeletedAt', label: 'When Deleted', canHide: true },
   ],
   production: [
     { id: 'actions', label: 'Actions', canHide: false },
@@ -56,6 +64,10 @@ export const MODULE_COLUMN_REGISTRY: Record<ModuleType, ColumnMeta[]> = {
     { id: 'completedAt', label: 'When Completed', canHide: true },
     { id: 'cancelledBy', label: 'Who Cancelled', canHide: true },
     { id: 'cancelledAt', label: 'When Cancelled', canHide: true },
+    { id: 'reviewedBy', label: 'Who Reviewed', canHide: true },
+    { id: 'reviewedAt', label: 'When Reviewed', canHide: true },
+    { id: 'deletedByName', label: 'Who Deleted', canHide: true },
+    { id: 'statusDeletedAt', label: 'When Deleted', canHide: true },
   ],
   electrician: [
     { id: 'actions', label: 'Actions', canHide: false },
@@ -74,6 +86,10 @@ export const MODULE_COLUMN_REGISTRY: Record<ModuleType, ColumnMeta[]> = {
     { id: 'completedAt', label: 'When Completed', canHide: true },
     { id: 'cancelledBy', label: 'Who Cancelled', canHide: true },
     { id: 'cancelledAt', label: 'When Cancelled', canHide: true },
+    { id: 'reviewedBy', label: 'Who Reviewed', canHide: true },
+    { id: 'reviewedAt', label: 'When Reviewed', canHide: true },
+    { id: 'deletedByName', label: 'Who Deleted', canHide: true },
+    { id: 'statusDeletedAt', label: 'When Deleted', canHide: true },
   ],
 }
 

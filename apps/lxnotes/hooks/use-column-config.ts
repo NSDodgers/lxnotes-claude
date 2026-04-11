@@ -6,13 +6,14 @@ import { useColumnLayoutStore, mergeColumnOrderWithRegistry } from '@/lib/stores
 import { MODULE_COLUMN_REGISTRY } from '@/lib/config/column-registry'
 import type { ModuleType, NoteStatus } from '@/types'
 
-/** Columns to auto-hide based on the active status filter */
+/** Columns to auto-hide based on the active status filter.
+ * Each status only shows its own tracking columns (plus created where relevant). */
 const STATUS_HIDDEN_COLUMNS: Record<NoteStatus, string[]> = {
-  todo: ['cancelledBy', 'cancelledAt', 'createdBy', 'createdAt'],
-  review: ['cancelledBy', 'cancelledAt', 'completedBy', 'completedAt'],
-  complete: ['cancelledBy', 'cancelledAt'],
-  cancelled: ['completedBy', 'completedAt'],
-  deleted: ['cancelledBy', 'cancelledAt', 'completedBy', 'completedAt'],
+  todo: ['cancelledBy', 'cancelledAt', 'createdBy', 'createdAt', 'completedBy', 'completedAt', 'reviewedBy', 'reviewedAt', 'deletedByName', 'statusDeletedAt'],
+  review: ['cancelledBy', 'cancelledAt', 'completedBy', 'completedAt', 'deletedByName', 'statusDeletedAt'],
+  complete: ['cancelledBy', 'cancelledAt', 'reviewedBy', 'reviewedAt', 'deletedByName', 'statusDeletedAt'],
+  cancelled: ['completedBy', 'completedAt', 'reviewedBy', 'reviewedAt', 'deletedByName', 'statusDeletedAt'],
+  deleted: ['cancelledBy', 'cancelledAt', 'completedBy', 'completedAt', 'reviewedBy', 'reviewedAt'],
 }
 
 const DEFAULT_SORTING: Record<ModuleType, SortingState> = {

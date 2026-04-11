@@ -918,9 +918,13 @@ interface RawDbNote {
   created_by?: string | null
   assigned_to?: string | null
   completed_by?: string | null
+  reviewed_by?: string | null
+  deleted_by_name?: string | null
   created_at: string | null
   updated_at: string | null
   completed_at?: string | null
+  reviewed_at?: string | null
+  status_deleted_at?: string | null
   due_date?: string | null
   cue_number?: string | null
   script_page_id?: string | null
@@ -946,9 +950,13 @@ function noteToDbFormat(note: Note): RawDbNote {
     created_by: note.createdBy ?? null,
     assigned_to: note.assignedTo ?? null,
     completed_by: note.completedBy ?? null,
+    reviewed_by: note.reviewedBy ?? null,
+    deleted_by_name: note.deletedByName ?? null,
     created_at: note.createdAt?.toISOString() ?? null,
     updated_at: note.updatedAt?.toISOString() ?? null,
     completed_at: note.completedAt?.toISOString() ?? null,
+    reviewed_at: note.reviewedAt?.toISOString() ?? null,
+    status_deleted_at: note.statusDeletedAt?.toISOString() ?? null,
     due_date: note.dueDate?.toISOString() ?? null,
     cue_number: note.cueNumber ?? null,
     script_page_id: note.scriptPageId ?? null,
@@ -975,9 +983,13 @@ function convertDbNoteToNote(dbNote: RawDbNote): Note {
     createdBy: dbNote.created_by ?? undefined,
     assignedTo: dbNote.assigned_to ?? undefined,
     completedBy: dbNote.completed_by ?? undefined,
+    reviewedBy: dbNote.reviewed_by ?? undefined,
+    deletedByName: dbNote.deleted_by_name ?? undefined,
     createdAt: dbNote.created_at ? new Date(dbNote.created_at) : new Date(),
     updatedAt: dbNote.updated_at ? new Date(dbNote.updated_at) : new Date(),
     completedAt: dbNote.completed_at ? new Date(dbNote.completed_at) : undefined,
+    reviewedAt: dbNote.reviewed_at ? new Date(dbNote.reviewed_at) : undefined,
+    statusDeletedAt: dbNote.status_deleted_at ? new Date(dbNote.status_deleted_at) : undefined,
     dueDate: dbNote.due_date ? new Date(dbNote.due_date) : undefined,
     cueNumber: dbNote.cue_number ?? undefined,
     scriptPageId: dbNote.script_page_id ?? undefined,

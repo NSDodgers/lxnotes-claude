@@ -280,5 +280,59 @@ export function createCueColumns({ onStatusUpdate, inlineEditing }: CreateColumn
       size: 180,
       minSize: 150,
     },
+    {
+      accessorKey: 'reviewedBy',
+      header: 'Who Reviewed',
+      cell: ({ getValue }) => {
+        const value = getValue() as string | undefined
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
+      },
+      enableSorting: true,
+      enableMultiSort: true,
+      enableResizing: true,
+      size: 130,
+      minSize: 100,
+    },
+    {
+      accessorKey: 'reviewedAt',
+      header: 'When Reviewed',
+      cell: ({ getValue }) => {
+        const value = getValue() as Date | undefined
+        return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+      },
+      sortingFn: dateSortFn,
+      enableSorting: true,
+      enableMultiSort: true,
+      enableResizing: true,
+      size: 180,
+      minSize: 150,
+    },
+    {
+      accessorKey: 'deletedByName',
+      header: 'Who Deleted',
+      cell: ({ getValue }) => {
+        const value = getValue() as string | undefined
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
+      },
+      enableSorting: true,
+      enableMultiSort: true,
+      enableResizing: true,
+      size: 130,
+      minSize: 100,
+    },
+    {
+      accessorKey: 'statusDeletedAt',
+      header: 'When Deleted',
+      cell: ({ getValue }) => {
+        const value = getValue() as Date | undefined
+        return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+      },
+      sortingFn: dateSortFn,
+      enableSorting: true,
+      enableMultiSort: true,
+      enableResizing: true,
+      size: 180,
+      minSize: 150,
+    },
   ]
 }

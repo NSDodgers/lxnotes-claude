@@ -118,10 +118,14 @@ export interface Note {
   assignedTo?: string
   completedBy?: string
   cancelledBy?: string
+  reviewedBy?: string
+  deletedByName?: string
   createdAt: Date
   updatedAt: Date
   completedAt?: Date
   cancelledAt?: Date
+  reviewedAt?: Date
+  statusDeletedAt?: Date
   dueDate?: Date
 
   // Cross-app fields

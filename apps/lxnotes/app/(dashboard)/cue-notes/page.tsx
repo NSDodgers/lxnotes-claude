@@ -212,12 +212,22 @@ export default function CueNotesPage() {
     } else if (status === 'complete') {
       updates.completedBy = displayName
       updates.completedAt = new Date()
+    } else if (status === 'review') {
+      updates.reviewedBy = displayName
+      updates.reviewedAt = new Date()
+    } else if (status === 'deleted') {
+      updates.deletedByName = displayName
+      updates.statusDeletedAt = new Date()
     } else if (status === 'todo') {
-      // Reopening — clear cancelled and completed tracking
+      // Reopening — clear all tracking
       updates.cancelledBy = undefined
       updates.cancelledAt = undefined
       updates.completedBy = undefined
       updates.completedAt = undefined
+      updates.reviewedBy = undefined
+      updates.reviewedAt = undefined
+      updates.deletedByName = undefined
+      updates.statusDeletedAt = undefined
     }
     await notesContext.updateNote(noteId, updates)
   }

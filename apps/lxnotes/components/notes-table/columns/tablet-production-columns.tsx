@@ -99,5 +99,49 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       enableResizing: false,
       size: 180,
     },
+    {
+      accessorKey: 'reviewedBy',
+      header: 'Who Reviewed',
+      cell: ({ getValue }) => {
+        const value = getValue() as string | undefined
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
+      },
+      enableSorting: false,
+      enableResizing: false,
+      size: 130,
+    },
+    {
+      accessorKey: 'reviewedAt',
+      header: 'When Reviewed',
+      cell: ({ getValue }) => {
+        const value = getValue() as Date | undefined
+        return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+      },
+      enableSorting: false,
+      enableResizing: false,
+      size: 180,
+    },
+    {
+      accessorKey: 'deletedByName',
+      header: 'Who Deleted',
+      cell: ({ getValue }) => {
+        const value = getValue() as string | undefined
+        return <span className="text-sm text-muted-foreground">{value || ''}</span>
+      },
+      enableSorting: false,
+      enableResizing: false,
+      size: 130,
+    },
+    {
+      accessorKey: 'statusDeletedAt',
+      header: 'When Deleted',
+      cell: ({ getValue }) => {
+        const value = getValue() as Date | undefined
+        return <span className="text-sm text-muted-foreground">{value ? formatDate(value) : ''}</span>
+      },
+      enableSorting: false,
+      enableResizing: false,
+      size: 180,
+    },
   ]
 }
