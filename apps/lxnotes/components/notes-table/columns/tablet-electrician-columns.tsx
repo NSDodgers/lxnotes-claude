@@ -29,7 +29,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       cell: ({ row }) => <TabletPriorityDot note={row.original} moduleType="electrician" />,
       enableSorting: false,
       enableResizing: false,
-      size: 120,
+      size: 28,
     },
     {
       accessorKey: 'type',
@@ -37,7 +37,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       cell: ({ row }) => <TypeCell note={row.original} moduleType="electrician" />,
       enableSorting: false,
       enableResizing: false,
-      size: 90,
+      size: 60,
     },
     {
       id: 'positions',
@@ -47,7 +47,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       ),
       enableSorting: false,
       enableResizing: false,
-      size: 100,
+      size: 50,
     },
     {
       id: 'channels',
@@ -57,7 +57,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       ),
       enableSorting: false,
       enableResizing: false,
-      size: 70,
+      size: 50,
     },
     {
       accessorKey: 'description',
@@ -74,7 +74,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       cell: ({ row }) => <TabletActionCell note={row.original} onStatusUpdate={onStatusUpdate} moduleType="electrician" />,
       enableSorting: false,
       enableResizing: false,
-      size: 140,
+      size: 110,
     },
     {
       accessorKey: 'completedBy',
@@ -85,7 +85,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'completedAt',
@@ -96,7 +96,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
     {
       accessorKey: 'cancelledBy',
@@ -107,7 +107,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'cancelledAt',
@@ -118,7 +118,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
     {
       accessorKey: 'reviewedBy',
@@ -129,7 +129,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'reviewedAt',
@@ -140,7 +140,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
     {
       accessorKey: 'deletedByName',
@@ -151,7 +151,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'statusDeletedAt',
@@ -162,7 +162,7 @@ export function createTabletElectricianColumns({ onStatusUpdate }: CreateColumns
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
   ]
 }

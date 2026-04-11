@@ -59,7 +59,7 @@ export function TabletNotesTable({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="bg-bg-primary text-xs"
+                    className="bg-bg-primary text-xs px-1"
                     style={{ width: header.getSize() }}
                   >
                     {header.isPlaceholder
@@ -86,7 +86,7 @@ export function TabletNotesTable({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="py-3"
+                      className="py-1.5 px-1"
                       style={{ width: cell.column.getSize() }}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

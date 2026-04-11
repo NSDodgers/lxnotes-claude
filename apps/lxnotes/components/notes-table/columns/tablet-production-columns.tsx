@@ -28,7 +28,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       cell: ({ row }) => <TabletPriorityDot note={row.original} moduleType="production" />,
       enableSorting: false,
       enableResizing: false,
-      size: 120,
+      size: 28,
     },
     {
       accessorKey: 'type',
@@ -36,7 +36,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       cell: ({ row }) => <TypeCell note={row.original} moduleType="production" />,
       enableSorting: false,
       enableResizing: false,
-      size: 90,
+      size: 60,
     },
     {
       accessorKey: 'description',
@@ -53,7 +53,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       cell: ({ row }) => <TabletActionCell note={row.original} onStatusUpdate={onStatusUpdate} />,
       enableSorting: false,
       enableResizing: false,
-      size: 140,
+      size: 110,
     },
     {
       accessorKey: 'completedBy',
@@ -64,7 +64,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'completedAt',
@@ -75,7 +75,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
     {
       accessorKey: 'cancelledBy',
@@ -86,7 +86,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'cancelledAt',
@@ -97,7 +97,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
     {
       accessorKey: 'reviewedBy',
@@ -108,7 +108,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'reviewedAt',
@@ -119,7 +119,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
     {
       accessorKey: 'deletedByName',
@@ -130,7 +130,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'statusDeletedAt',
@@ -141,7 +141,7 @@ export function createTabletProductionColumns({ onStatusUpdate }: CreateColumnsO
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
   ]
 }

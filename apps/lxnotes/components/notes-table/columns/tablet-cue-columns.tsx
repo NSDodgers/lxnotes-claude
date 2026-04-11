@@ -28,7 +28,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       cell: ({ row }) => <TabletPriorityDot note={row.original} moduleType="cue" />,
       enableSorting: false,
       enableResizing: false,
-      size: 120,
+      size: 28,
     },
     {
       accessorKey: 'type',
@@ -36,7 +36,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       cell: ({ row }) => <TypeCell note={row.original} moduleType="cue" />,
       enableSorting: false,
       enableResizing: false,
-      size: 90,
+      size: 60,
     },
     {
       id: 'cueNumber',
@@ -47,7 +47,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       ),
       enableSorting: false,
       enableResizing: false,
-      size: 70,
+      size: 50,
     },
     {
       accessorKey: 'description',
@@ -64,7 +64,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       cell: ({ row }) => <TabletActionCell note={row.original} onStatusUpdate={onStatusUpdate} />,
       enableSorting: false,
       enableResizing: false,
-      size: 140,
+      size: 110,
     },
     {
       accessorKey: 'completedBy',
@@ -75,7 +75,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'completedAt',
@@ -86,7 +86,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
     {
       accessorKey: 'cancelledBy',
@@ -97,7 +97,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'cancelledAt',
@@ -108,7 +108,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
     {
       accessorKey: 'reviewedBy',
@@ -119,7 +119,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'reviewedAt',
@@ -130,7 +130,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
     {
       accessorKey: 'deletedByName',
@@ -141,7 +141,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       },
       enableSorting: false,
       enableResizing: false,
-      size: 130,
+      size: 100,
     },
     {
       accessorKey: 'statusDeletedAt',
@@ -152,7 +152,7 @@ export function createTabletCueColumns({ onStatusUpdate }: CreateColumnsOptions)
       },
       enableSorting: false,
       enableResizing: false,
-      size: 180,
+      size: 140,
     },
   ]
 }
