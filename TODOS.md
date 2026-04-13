@@ -68,6 +68,19 @@ Allow adding new order items to a note directly from the aggregated order list p
 
 ---
 
+## Extract Shared Hookup Upload Logic
+**Priority:** Low | **Added:** 2026-04-13 | **Source:** /plan-eng-review
+
+Both `hookup-upload-dialog.tsx` and `hookup-import-sidebar.tsx` contain nearly identical upload logic: parse rows, upload to local fixture store, persist to Supabase, broadcast changes. Extract into a shared `useHookupUpload()` hook.
+
+**Scope:** Create a `useHookupUpload(productionId)` hook that takes parsed rows and import options, handles local store upload, Supabase persistence, and broadcast. Both dialog and sidebar components call it instead of duplicating ~40 lines.
+
+**Context:** The duplication was flagged during the eng review of the fixture broadcast fix. The broadcast call for the CSV-not-updating-across-users bug had to be added in two places. Any future change to the upload flow will need to be made in both files.
+
+**Depends on:** Nothing.
+
+---
+
 ## Add VERSION and CHANGELOG.md
 **Priority:** Medium | **Added:** 2026-04-01 | **Source:** user
 
