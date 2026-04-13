@@ -102,7 +102,7 @@ export interface RealtimeCallbacks {
   onNoteUpdate?: (note: DbNote) => void
   onNoteDelete?: (oldNote: DbNote) => void
   onProductionUpdate?: (production: DbProduction) => void
-  onFixtureChange?: (fixture: DbFixture, eventType: 'INSERT' | 'UPDATE' | 'DELETE') => void
+  onFixtureChange?: (fixture: DbFixture | undefined, eventType: 'INSERT' | 'UPDATE' | 'DELETE') => void
   onError?: (error: Error) => void
   onStatusChange?: (status: string) => void
 }
@@ -188,8 +188,11 @@ export function subscribeToNoteChanges(
   }
 }
 
-// Map of production ID to broadcast channel for sending events
+// Map of production ID to broadcast channel for sending events (notes)
 const _broadcastChannels = new Map<string, ReturnType<ReturnType<typeof createClient>['channel']>>()
+
+// Map of production ID to broadcast channel for sending events (fixtures)
+const _fixtureBroadcastChannels = new Map<string, ReturnType<ReturnType<typeof createClient>['channel']>>()
 
 /**
  * Broadcast a note change to other clients in the same production.
@@ -211,8 +214,29 @@ export function broadcastNoteChange(
 }
 
 /**
+ * Broadcast a fixture change to other clients in the same production.
+ * This is a reliable fallback when postgres_changes + RLS silently drops events,
+ * which is common during bulk upserts from CSV imports.
+ */
+export function broadcastFixtureChange(
+  productionId: string,
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE' | 'BULK_UPLOAD'
+) {
+  const channel = _fixtureBroadcastChannels.get(productionId)
+  if (channel) {
+    channel.send({
+      type: 'broadcast',
+      event: 'fixture-change',
+      payload: { eventType },
+    })
+  }
+}
+
+/**
  * Subscribe to real-time changes for fixtures (channel/type/position data)
- * Includes automatic retry with exponential backoff on connection failures
+ * Includes automatic retry with exponential backoff on connection failures.
+ * Uses both postgres_changes and broadcast (as reliable fallback when RLS
+ * silently drops events, especially during bulk upserts).
  */
 export function subscribeToFixtureChanges(
   productionId: string,
@@ -227,7 +251,7 @@ export function subscribeToFixtureChanges(
   const supabase = createClient()
   const channelName = `production-${productionId}-fixtures`
 
-  return createSubscriptionWithRetry(
+  const unsubPostgres = createSubscriptionWithRetry(
     channelName,
     () => {
       return supabase.channel(channelName).on(
@@ -250,6 +274,30 @@ export function subscribeToFixtureChanges(
     callbacks.onError,
     callbacks.onStatusChange
   )
+
+  // Broadcast channel for direct client-to-client sync (bypasses postgres_changes + RLS)
+  const broadcastChannelName = `broadcast-${productionId}-fixtures`
+  const broadcastChannel = supabase.channel(broadcastChannelName)
+    .on('broadcast', { event: 'fixture-change' }, (payload) => {
+      const { eventType } = payload.payload as { eventType: 'INSERT' | 'UPDATE' | 'DELETE' | 'BULK_UPLOAD' }
+      if (isDev) console.log('[Realtime] Fixture broadcast received:', eventType)
+
+      // For bulk uploads, trigger a full refresh via the callback
+      // fixture is undefined for broadcasts — the receiver should do a full refetch
+      if (callbacks.onFixtureChange) {
+        callbacks.onFixtureChange(undefined, eventType === 'BULK_UPLOAD' ? 'UPDATE' : eventType)
+      }
+    })
+    .subscribe()
+
+  // Store broadcast channel reference for sending
+  _fixtureBroadcastChannels.set(productionId, broadcastChannel)
+
+  return () => {
+    unsubPostgres()
+    supabase.removeChannel(broadcastChannel)
+    _fixtureBroadcastChannels.delete(productionId)
+  }
 }
 
 /**
