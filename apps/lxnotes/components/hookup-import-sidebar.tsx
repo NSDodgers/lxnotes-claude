@@ -17,6 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { HookupParser } from '@/lib/services/hookup-parser'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-adapter'
+import { broadcastFixtureChange } from '@/lib/supabase/realtime'
 import { HookupHeaderMapping } from '@/components/hookup-header-mapping'
 import { HookupDataPreview } from '@/components/hookup-data-preview'
 import type {
@@ -382,15 +383,23 @@ export function HookupImportSidebar({
       const storeResult = uploadFixtures(productionId, validParsedRows, state.importOptions.deactivateMissing)
 
       // Persist to Supabase if not in demo mode and authenticated
+      let supabaseUploadSucceeded = false
       if (!isDemoMode && isAuthenticated) {
         try {
           const storageAdapter = createSupabaseStorageAdapter(productionId)
           const fixturesForProduction = getFixturesByProduction(productionId)
           await storageAdapter.fixtures.upload(fixturesForProduction)
+          supabaseUploadSucceeded = true
         } catch (supabaseError: unknown) {
           const errorMessage = supabaseError instanceof Error ? supabaseError.message : String(supabaseError)
           console.error('[HookupImportSidebar] Failed to persist fixtures to Supabase:', errorMessage)
         }
+      }
+
+      // Notify other clients via broadcast (postgres_changes is unreliable for bulk upserts)
+      // Only broadcast if upload succeeded — no point notifying if data didn't persist
+      if (supabaseUploadSucceeded) {
+        broadcastFixtureChange(productionId, 'BULK_UPLOAD')
       }
 
       // Combine parser result with store result
