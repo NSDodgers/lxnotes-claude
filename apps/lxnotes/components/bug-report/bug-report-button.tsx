@@ -55,7 +55,7 @@ export function BugReportButton() {
         data-testid="bug-report-button"
         aria-label="Report a bug"
         aria-busy={isCapturing}
-        className={`fixed bottom-4 right-4 z-[2147483647] flex ${sizeClasses} items-center justify-center rounded-full bg-red-600 shadow-lg transition-colors hover:bg-red-500 disabled:opacity-70`}
+        className={`fixed bottom-4 right-4 z-[2147483647] flex ${sizeClasses} pointer-events-auto items-center justify-center rounded-full bg-red-600 shadow-lg transition-colors hover:bg-red-500 disabled:opacity-70`}
         title="Report a bug"
       >
         {isCapturing ? (
