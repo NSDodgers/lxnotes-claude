@@ -385,10 +385,6 @@ export function EmailMessagePresetsManager() {
                     onChange={(value) => form.setValue('subject', value)}
                     availablePlaceholders={availablePlaceholders}
                     placeholder="{{PRODUCTION_TITLE}} - Daily Report {{CURRENT_DATE}}"
-                    onPlaceholderInsert={(placeholder) => {
-                      // Optional callback for tracking placeholder usage
-                      console.log('Placeholder inserted in subject:', placeholder)
-                    }}
                   />
                   {form.formState.errors.subject && (
                     <p className="text-sm text-destructive mt-1">
@@ -412,10 +408,6 @@ Completed items: {{COMPLETE_COUNT}}
 
 Best regards,
 {{USER_FULL_NAME}}"
-                    onPlaceholderInsert={(placeholder) => {
-                      // Optional callback for tracking placeholder usage
-                      console.log('Placeholder inserted in message:', placeholder)
-                    }}
                   />
                   {form.formState.errors.message && (
                     <p className="text-sm text-destructive mt-1">

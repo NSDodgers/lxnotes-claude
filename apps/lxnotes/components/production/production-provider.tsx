@@ -367,7 +367,6 @@ export function ProductionProvider({ productionId, children }: ProductionProvide
   useEffect(() => {
     // Skip if not authenticated (avoids 401 errors)
     if (!isAuthenticated) {
-      console.log('[ProductionProvider] Skipping script data fetch: User not authenticated')
       return
     }
 
