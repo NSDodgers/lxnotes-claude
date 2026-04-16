@@ -53,6 +53,7 @@ describe('ElectricianNotesPDFStrategy (regression: bug where electrician PDFs re
   it('includes Fixture Type and Purpose columns', () => {
     const headers = new ElectricianNotesPDFStrategy().getColumnHeaders()
     expect(headers).toContain('Channels')
+    expect(headers).toContain('Address')
     expect(headers).toContain('Fixture Type')
     expect(headers).toContain('Purpose')
     expect(headers).toContain('Position/Unit')
@@ -71,9 +72,10 @@ describe('WorkNotesPDFStrategy unified fixture-aware layout', () => {
       'Priority',
       'Type',
       'Channels',
+      'Address',
+      'Position/Unit',
       'Fixture Type',
       'Purpose',
-      'Position/Unit',
       'Note',
       'Created',
     ])
@@ -89,6 +91,7 @@ describe('WorkNotesPDFStrategy unified fixture-aware layout', () => {
 
       expect(formatted.moduleSpecificData).toMatchObject({
         channels: '455, 455',
+        address: '-',
         fixtureType: 'ETC S4 26°',
         purpose: 'HEADER HIGHLIGHT <<\nHEADER HIGHLIGHT >>',
         positionUnit: 'TORM 3 SL, U#: 1\nTORM 3 SR, U#: 1',
@@ -103,6 +106,7 @@ describe('WorkNotesPDFStrategy unified fixture-aware layout', () => {
 
       expect(formatted.moduleSpecificData).toMatchObject({
         channels: '101-105',
+        address: '-',
         fixtureType: '-',
         purpose: '-',
         positionUnit: 'TORM 3 SR, U#: 1',
@@ -132,5 +136,17 @@ describe('WorkNotesPDFStrategy unified fixture-aware layout', () => {
 
     expect(formatted.moduleSpecificData?.fixtureType).toBe('ETC S4 26°')
     expect(formatted.moduleSpecificData?.purpose).toBe('HEADER HIGHLIGHT <<\nHEADER HIGHLIGHT >>')
+  })
+
+  it('surfaces universe addresses from the aggregate', () => {
+    const strategy = new WorkNotesPDFStrategy()
+    const note = makeNote()
+    const aggregates: Record<string, FixtureAggregate> = {
+      'note-1': makeAggregate({ universeAddresses: ['1/001', '1/025'] }),
+    }
+
+    const [formatted] = strategy.formatNotes([note], aggregates)
+
+    expect(formatted.moduleSpecificData?.address).toBe('1/001\n1/025')
   })
 })
