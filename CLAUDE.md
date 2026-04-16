@@ -7,7 +7,7 @@ See [@CLAUDE.sessions.md](./CLAUDE.sessions.md) for task protocols and agent usa
 ## Development Commands
 
 ```bash
-npm run dev          # Dev server on localhost:3001
+npm run dev          # Dev server on localhost:3005
 npm run build        # Production build
 npm run lint         # Lint
 npm run test:unit    # Vitest unit tests
