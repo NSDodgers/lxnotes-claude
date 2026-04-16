@@ -115,13 +115,15 @@ export const commonStyles = StyleSheet.create({
     alignItems: 'center'
   },
   tableHeader: {
-    padding: 4,
+    paddingHorizontal: 2,
+    paddingVertical: 3,
     fontSize: 9.5,
     fontFamily: 'Helvetica-Bold',
     color: '#ffffff'
   },
   tableCell: {
-    padding: 4,
+    paddingHorizontal: 2,
+    paddingVertical: 3,
     fontSize: 9,
     color: '#000000'
   },
@@ -143,8 +145,8 @@ export const commonStyles = StyleSheet.create({
 
   // Badge styles - compact
   badge: {
-    paddingHorizontal: 5,
-    paddingVertical: 2.5,
+    paddingHorizontal: 3,
+    paddingVertical: 2,
     borderRadius: 2,
     color: '#ffffff',
     fontSize: 8,

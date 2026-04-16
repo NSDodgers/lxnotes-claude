@@ -36,39 +36,31 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
   const columns = [
     {
       header: 'Priority',
-      width: 75,
+      width: 55,
       render: (note: PDFFormattedNote) => <PriorityBadge priority={note.priority} />
     },
     {
       header: 'Type',
-      width: 95,
+      width: 70,
       render: (note: PDFFormattedNote) => <TypeBadge type={note.type || '-'} typeColorMap={typeColorMap} />
     },
     {
       header: 'Channels',
-      width: 60,
+      width: 50,
       render: (note: PDFFormattedNote) => {
         const channels = note.moduleSpecificData?.channels
         return <Text>{typeof channels === 'string' ? channels : '-'}</Text>
       }
     },
     {
-      header: 'Fixture Type',
-      width: 85,
+      header: 'Address',
+      width: 60,
       render: (note: PDFFormattedNote) => {
-        const fixtureType = note.moduleSpecificData?.fixtureType
-        return <Text>{typeof fixtureType === 'string' ? fixtureType : '-'}</Text>
-      }
-    },
-    {
-      header: 'Purpose',
-      width: 95,
-      render: (note: PDFFormattedNote) => {
-        const purpose = note.moduleSpecificData?.purpose
-        if (typeof purpose !== 'string' || purpose === '-') {
+        const address = note.moduleSpecificData?.address
+        if (typeof address !== 'string' || address === '-') {
           return <Text>-</Text>
         }
-        const lines = purpose.split('\n')
+        const lines = address.split('\n')
         if (lines.length === 1) {
           return <Text>{lines[0]}</Text>
         }
@@ -77,13 +69,36 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
     },
     {
       header: 'Position/Unit',
-      width: 95,
+      width: 80,
       render: (note: PDFFormattedNote) => {
         const positionUnit = note.moduleSpecificData?.positionUnit
         if (typeof positionUnit !== 'string' || positionUnit === '-') {
           return <Text>-</Text>
         }
         const lines = positionUnit.split('\n')
+        if (lines.length === 1) {
+          return <Text>{lines[0]}</Text>
+        }
+        return <Text>{lines.map(line => `• ${line}`).join('\n')}</Text>
+      }
+    },
+    {
+      header: 'Fixture Type',
+      width: 75,
+      render: (note: PDFFormattedNote) => {
+        const fixtureType = note.moduleSpecificData?.fixtureType
+        return <Text>{typeof fixtureType === 'string' ? fixtureType : '-'}</Text>
+      }
+    },
+    {
+      header: 'Purpose',
+      width: 80,
+      render: (note: PDFFormattedNote) => {
+        const purpose = note.moduleSpecificData?.purpose
+        if (typeof purpose !== 'string' || purpose === '-') {
+          return <Text>-</Text>
+        }
+        const lines = purpose.split('\n')
         if (lines.length === 1) {
           return <Text>{lines[0]}</Text>
         }
@@ -99,7 +114,7 @@ export const WorkNotesPDF: React.FC<WorkNotesPDFProps> = ({
     },
     {
       header: 'Created',
-      width: 70,
+      width: 55,
       render: (note: PDFFormattedNote) => <Text>{formatDate(note.createdAt)}</Text>
     }
   ]
