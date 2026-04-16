@@ -21,5 +21,10 @@
   },
   "dependencies": {
     "tailwindcss": "^4.1.18"
+  },
+  "overrides": {
+    "jspdf": {
+      "dompurify": "^3.4.0"
+    }
   }
 }
