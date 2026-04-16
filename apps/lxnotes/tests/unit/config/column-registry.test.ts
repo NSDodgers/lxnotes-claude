@@ -69,9 +69,7 @@ describe('MODULE_COLUMN_REGISTRY', () => {
 describe('getDefaultColumnOrder', () => {
   it('returns column IDs in registry order', () => {
     const order = getDefaultColumnOrder('cue')
-    expect(order[0]).toBe('actions')
-    expect(order).toContain('description')
-    expect(order[order.length - 1]).toBe('createdAt')
+    expect(order).toEqual(MODULE_COLUMN_REGISTRY.cue.map((c) => c.id))
   })
 })
 
