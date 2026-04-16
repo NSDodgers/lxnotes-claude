@@ -20,6 +20,7 @@ import { createSupabaseStorageAdapter } from '@/lib/supabase/supabase-storage-ad
 import { broadcastFixtureChange } from '@/lib/supabase/realtime'
 import { HookupHeaderMapping } from '@/components/hookup-header-mapping'
 import { HookupDataPreview } from '@/components/hookup-data-preview'
+import { toast } from 'sonner'
 import type {
   HookupUploadResult,
   ValidationResult,
@@ -384,6 +385,7 @@ export function HookupImportSidebar({
 
       // Persist to Supabase if not in demo mode and authenticated
       let supabaseUploadSucceeded = false
+      let supabaseErrorMessage: string | null = null
       if (!isDemoMode && isAuthenticated) {
         try {
           const storageAdapter = createSupabaseStorageAdapter(productionId)
@@ -391,8 +393,15 @@ export function HookupImportSidebar({
           await storageAdapter.fixtures.upload(fixturesForProduction)
           supabaseUploadSucceeded = true
         } catch (supabaseError: unknown) {
-          const errorMessage = supabaseError instanceof Error ? supabaseError.message : String(supabaseError)
-          console.error('[HookupImportSidebar] Failed to persist fixtures to Supabase:', errorMessage)
+          supabaseErrorMessage = supabaseError instanceof Error ? supabaseError.message : String(supabaseError)
+          console.error('[HookupImportSidebar] Failed to persist fixtures to Supabase:', supabaseErrorMessage)
+          // Surface to user: local store has fixtures, but they'll be wiped on the next refresh
+          // because Supabase never got them. Without this toast, "Import Successful" on the
+          // result step is misleading — the user thinks everything saved.
+          toast.error('Import saved locally but failed to sync to the database', {
+            description: supabaseErrorMessage,
+            duration: 10000,
+          })
         }
       }
 
