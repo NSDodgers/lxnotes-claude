@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useColumnLayoutStore, mergeColumnOrderWithRegistry } from '@/lib/stores/column-layout-store'
+import { getDefaultColumnOrder } from '@/lib/config/column-registry'
 
 // Mock Supabase client
 vi.mock('@/lib/supabase/client', () => ({
@@ -148,26 +149,27 @@ describe('useColumnLayoutStore', () => {
 describe('mergeColumnOrderWithRegistry', () => {
   it('returns defaults when stored order is null', () => {
     const result = mergeColumnOrderWithRegistry(null, 'production')
-    expect(result).toEqual(['actions', 'priority', 'type', 'description', 'createdBy', 'createdAt'])
+    expect(result).toEqual(getDefaultColumnOrder('production'))
   })
 
   it('preserves stored order for known columns', () => {
-    const stored = ['description', 'priority', 'actions', 'type', 'createdBy', 'createdAt']
-    const result = mergeColumnOrderWithRegistry(stored, 'production')
-    expect(result).toEqual(stored)
+    const reversed = [...getDefaultColumnOrder('production')].reverse()
+    const result = mergeColumnOrderWithRegistry(reversed, 'production')
+    expect(result).toEqual(reversed)
   })
 
   it('appends new registry columns not in stored order', () => {
-    // Simulate stored order missing 'createdAt'
-    const stored = ['actions', 'priority', 'type', 'description', 'createdBy']
-    const result = mergeColumnOrderWithRegistry(stored, 'production')
-    expect(result).toEqual(['actions', 'priority', 'type', 'description', 'createdBy', 'createdAt'])
+    const defaults = getDefaultColumnOrder('production')
+    const partial = defaults.slice(0, Math.max(1, defaults.length - 2))
+    const result = mergeColumnOrderWithRegistry(partial, 'production')
+    expect(result).toEqual([...partial, ...defaults.slice(partial.length)])
   })
 
   it('removes stored columns no longer in registry', () => {
-    const stored = ['actions', 'priority', 'type', 'REMOVED_COLUMN', 'description', 'createdBy', 'createdAt']
+    const defaults = getDefaultColumnOrder('production')
+    const stored = [...defaults.slice(0, 3), 'REMOVED_COLUMN', ...defaults.slice(3)]
     const result = mergeColumnOrderWithRegistry(stored, 'production')
     expect(result).not.toContain('REMOVED_COLUMN')
-    expect(result).toEqual(['actions', 'priority', 'type', 'description', 'createdBy', 'createdAt'])
+    expect(result).toEqual(defaults)
   })
 })
