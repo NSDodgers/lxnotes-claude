@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isSuperAdmin } from '@/lib/auth'
+import type { Database } from '@/lib/supabase/database.types'
+
+type ProductionUpdate = Database['public']['Tables']['productions']['Update']
 
 /**
  * GET /api/admin/productions/[id]
@@ -92,7 +95,7 @@ export async function PUT(
     }
 
     // Build update object
-    const updates: Record<string, unknown> = {}
+    const updates: ProductionUpdate = {}
     if (name !== undefined) updates.name = name
     if (abbreviation !== undefined) updates.abbreviation = abbreviation
     if (logo !== undefined) updates.logo = logo || null

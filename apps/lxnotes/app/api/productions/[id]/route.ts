@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isProductionMember, isProductionAdmin } from '@/lib/services/production-members'
+import type { Database } from '@/lib/supabase/database.types'
+
+type ProductionUpdate = Database['public']['Tables']['productions']['Update']
 
 // Type helper for Supabase client with new tables
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -102,7 +105,7 @@ export async function PUT(
     }
 
     // Build partial update
-    const updates: Record<string, unknown> = {}
+    const updates: ProductionUpdate = {}
     if (name !== undefined) updates.name = name
     if (abbreviation !== undefined) updates.abbreviation = abbreviation
     if (logo !== undefined) updates.logo = logo || null
