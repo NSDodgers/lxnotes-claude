@@ -162,7 +162,7 @@ export function subscribeToNoteChanges(
   const broadcastChannel = supabase.channel(broadcastChannelName)
     .on('broadcast', { event: 'note-change' }, (payload) => {
       const { eventType, note } = payload.payload as { eventType: string; note: DbNote }
-      console.log('[Realtime] Broadcast received:', eventType, note.id)
+      if (isDev) console.log('[Realtime] Broadcast received:', eventType, note.id)
 
       switch (eventType) {
         case 'INSERT':
