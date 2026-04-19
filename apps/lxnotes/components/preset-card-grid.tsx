@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus, Send, Download, Loader2, ArrowUpNarrowWide, ArrowDownWideNarrow, FileText, Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { EmailMessagePreset, PrintPreset, ModuleType, PresetModuleType, Note } from '@/types'
+import type { EmailMessagePreset, PrintPreset, PresetModuleType, Note } from '@/types'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import {
   AlertDialog,

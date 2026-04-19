@@ -25,7 +25,7 @@ import { useProductionId } from '@/components/production/production-provider'
 
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset } from '@/types'
+import type { PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset } from '@/types'
 
 // Safe useProductionId that doesn't throw if outside provider (for demo mode)
 function useSafeProductionId() {

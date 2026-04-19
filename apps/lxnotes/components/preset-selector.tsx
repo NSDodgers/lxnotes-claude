@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { ChevronDown, Check, Plus, Pencil } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { AnyPreset, ModuleType, PresetModuleType } from '@/types'
+import type { AnyPreset, PresetModuleType } from '@/types'
 
 interface PresetSelectorProps {
   presets: AnyPreset[]

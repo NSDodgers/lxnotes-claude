@@ -17,7 +17,7 @@ import { useProductionId } from '@/components/production/production-provider'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { getSortFieldsForModule } from '@/lib/validation/preset-schemas'
-import type { ModuleType, PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset } from '@/types'
+import type { PresetModuleType, EmailMessagePreset, PrintPreset, FilterSortPreset } from '@/types'
 
 function useSafeProductionId() {
   try {

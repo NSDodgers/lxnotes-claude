@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { PresetFormField, PresetFormSelect } from '@/components/preset-dialog'
 import { getSortFieldsForModule } from '@/lib/validation/preset-schemas'
-import type { ModuleType, PresetModuleType } from '@/types'
+import type { PresetModuleType } from '@/types'
 
 interface SortOptionsStepProps {
   sortBy: string

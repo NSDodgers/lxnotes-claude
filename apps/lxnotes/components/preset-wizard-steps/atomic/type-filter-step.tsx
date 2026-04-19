@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { CheckSquare, Square } from 'lucide-react'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
-import type { ModuleType, PresetModuleType } from '@/types'
+import type { PresetModuleType } from '@/types'
 
 interface TypeFilterStepProps {
   value: string[]

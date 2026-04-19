@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import type { ModuleType, PresetModuleType, PrintPreset, EmailMessagePreset, FilterSortPreset, PageStyleConfig, Note } from '@/types'
+import type { PresetModuleType, PrintPreset, EmailMessagePreset, FilterSortPreset, PageStyleConfig, Note } from '@/types'
 import { PDFGenerationService } from '@/lib/services/pdf'
 import { useFixtureStore } from '@/lib/stores/fixture-store'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
