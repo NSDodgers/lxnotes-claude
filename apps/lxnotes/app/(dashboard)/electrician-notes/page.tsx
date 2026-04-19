@@ -311,7 +311,7 @@ export default function ElectricianNotesPage() {
   useEditNoteQueryParam(useCallback((noteId: string) => {
     const note = notes.find(n => n.id === noteId)
     if (note) handleEditNote(note)
-  }, [notes])) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [notes]))
 
   const designerAddNote = useCallback(() => {
     setEditingNote(null)
@@ -331,7 +331,6 @@ export default function ElectricianNotesPage() {
 
   const tabletColumns = useMemo(
     () => createTabletElectricianColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 

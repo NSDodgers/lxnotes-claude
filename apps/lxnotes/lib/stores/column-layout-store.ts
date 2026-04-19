@@ -7,7 +7,6 @@ import { toast } from 'sonner'
 
 const COLUMN_LAYOUT_VERSION = 3
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function userSettingsTable() {
   const supabase = createClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

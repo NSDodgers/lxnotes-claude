@@ -333,7 +333,7 @@ export default function WorkNotesPage() {
   useEditNoteQueryParam(useCallback((noteId: string) => {
     const note = notes.find(n => n.id === noteId)
     if (note) handleEditNote(note)
-  }, [notes])) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [notes]))
 
   // Register add-note callback for tablet top bar
   const designerAddNote = useCallback(() => {
@@ -354,7 +354,6 @@ export default function WorkNotesPage() {
 
   const tabletColumns = useMemo(
     () => createTabletWorkColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 

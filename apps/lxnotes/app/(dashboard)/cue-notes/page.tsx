@@ -295,7 +295,6 @@ export default function CueNotesPage() {
 
   const tabletColumns = useMemo(
     () => createTabletCueColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 

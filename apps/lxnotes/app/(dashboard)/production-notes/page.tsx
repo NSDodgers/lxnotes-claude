@@ -1158,7 +1158,6 @@ export default function ProductionNotesPage() {
 
   const tabletColumns = useMemo(
     () => createTabletProductionColumns({ onStatusUpdate: (noteId, status) => updateNoteStatusRef.current(noteId, status) }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
 

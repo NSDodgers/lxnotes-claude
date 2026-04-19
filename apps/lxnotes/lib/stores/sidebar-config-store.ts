@@ -7,7 +7,6 @@ import { toast } from 'sonner'
 
 // user_settings table is not yet in the generated Supabase types.
 // This helper wraps the client to access the new table without `any`.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function userSettingsTable() {
   const supabase = createClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
