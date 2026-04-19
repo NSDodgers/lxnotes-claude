@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
+
+const EMPTY_SUBSCRIBE = () => () => {}
+const getServerSnapshot = () => false
+const getClientSnapshot = () => true
 
 /**
  * Hook to prevent hydration mismatches with Zustand stores
  * Returns null on server/initial render, actual store data after hydration
  */
 export function useHydrationSafeStore<T>(storeHook: () => T): T | null {
-  const [isHydrated, setIsHydrated] = useState(false)
   const store = storeHook()
-
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
-
+  const isHydrated = useSyncExternalStore(EMPTY_SUBSCRIBE, getClientSnapshot, getServerSnapshot)
   return isHydrated ? store : null
 }
