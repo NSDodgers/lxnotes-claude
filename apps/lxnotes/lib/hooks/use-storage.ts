@@ -4,16 +4,25 @@
  * Provides access to the appropriate storage adapter based on current mode
  */
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import { getStorageAdapter, type StorageAdapter } from '@/lib/storage'
 
+// Cache the adapter across renders so useSyncExternalStore's snapshot is stable.
+let cached: StorageAdapter | null = null
+
+function getClientSnapshot(): StorageAdapter | null {
+  if (cached) return cached
+  if (typeof window === 'undefined') return null
+  cached = getStorageAdapter()
+  return cached
+}
+
+function getServerSnapshot(): StorageAdapter | null {
+  return null
+}
+
+const EMPTY_SUBSCRIBE = () => () => {}
+
 export function useStorage(): StorageAdapter | null {
-  const [storage, setStorage] = useState<StorageAdapter | null>(null)
-
-  useEffect(() => {
-    // Only initialize storage on client side
-    setStorage(getStorageAdapter())
-  }, [])
-
-  return storage
+  return useSyncExternalStore(EMPTY_SUBSCRIBE, getClientSnapshot, getServerSnapshot)
 }
