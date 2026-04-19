@@ -2,7 +2,6 @@
 
 import type { AggregatedStats } from '@/hooks/use-aggregated-order-items'
 import { Check } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface OrderListSummaryBarProps {
   stats: AggregatedStats

@@ -1,4 +1,4 @@
-import type { FilterSortPreset, PrintPreset, EmailMessagePreset, ModuleType, PresetModuleType, CustomType, CustomPriority } from '@/types'
+import type { FilterSortPreset, PrintPreset, EmailMessagePreset, PresetModuleType, CustomType, CustomPriority } from '@/types'
 
 /**
  * Sentinel value indicating "all types" - when present in typeFilters,

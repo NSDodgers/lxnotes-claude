@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import type { ModuleType, PresetModuleType } from '@/types'
+import type { PresetModuleType } from '@/types'
 
 type StatusFilter = 'todo' | 'review' | 'complete' | 'cancelled' | 'deleted' | null
 

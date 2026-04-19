@@ -191,7 +191,7 @@ interface NoteCommentsPanelProps {
   productionId: string | undefined
 }
 
-export function NoteCommentsPanel({ productionId }: NoteCommentsPanelProps) {
+export function NoteCommentsPanel(_props: NoteCommentsPanelProps) {
   const openNoteId = useNoteCommentsStore(state => state.openNoteId)
   const setOpenNoteId = useNoteCommentsStore(state => state.setOpenNoteId)
   const isDemo = isDemoMode()

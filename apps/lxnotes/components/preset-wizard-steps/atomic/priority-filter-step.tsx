@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { CheckSquare, Square } from 'lucide-react'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
-import type { ModuleType, PresetModuleType } from '@/types'
+import type { PresetModuleType } from '@/types'
 
 interface PriorityFilterStepProps {
   value: string[]

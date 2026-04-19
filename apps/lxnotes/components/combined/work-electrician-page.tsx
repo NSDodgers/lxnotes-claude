@@ -17,7 +17,6 @@ import { useAuthContext } from '@/components/auth/auth-provider'
 import { useMockNotesStore } from '@/lib/stores/mock-notes-store'
 import { useNotes } from '@/lib/contexts/notes-context'
 import { isDemoMode } from '@/lib/demo-data'
-import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { UndoRedoButtons } from '@/components/undo-redo-buttons'
 
 const COMBINED_MODULE_TYPES: ModuleType[] = ['work', 'electrician']
@@ -56,7 +55,6 @@ export default function CombinedWorkElectricianPage() {
 
   useProductionOptional()
   useAuthContext()
-  const isMobile = useIsMobile()
 
   // Local filter state (matches desktop pattern of existing module pages)
   const [searchTerm, setSearchTerm] = useState('')

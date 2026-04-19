@@ -14,7 +14,7 @@ import {
 import { useDesignerModeStore } from '@/lib/stores/designer-mode-store'
 import { useSidebarStore } from '@/lib/stores/sidebar-store'
 import { useSidebarConfigStore } from '@/lib/stores/sidebar-config-store'
-import { MODULE_REGISTRY, COMBINED_VIEW_REGISTRY, UTILITY_VIEWS, getModuleConfig, getCombinedViewConfig } from '@/lib/config/modules'
+import { UTILITY_VIEWS, getModuleConfig, getCombinedViewConfig } from '@/lib/config/modules'
 import { PolicyFooter } from './policy-footer'
 import { UserMenu } from '@/components/auth/user-menu'
 import { useNotes } from '@/lib/contexts/notes-context'
@@ -23,7 +23,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export function Sidebar() {
   const { collapsed, toggleCollapsed } = useSidebarStore()
-  const { config, isLoaded, fetchFromSupabase, getVisibleModules, getVisibleCombinedViews } = useSidebarConfigStore()
+  const { fetchFromSupabase, getVisibleModules, getVisibleCombinedViews } = useSidebarConfigStore()
   const pathname = usePathname()
   const { connectionStatus } = useNotes()
 

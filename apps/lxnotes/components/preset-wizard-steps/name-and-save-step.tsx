@@ -7,7 +7,7 @@ import { resolvePlaceholders, PlaceholderData } from '@/lib/utils/placeholders'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { useCustomPrioritiesStore } from '@/lib/stores/custom-priorities-store'
 import { filterAndSortNotes } from '@/lib/utils/filter-sort-notes'
-import type { Note, ModuleType, PresetModuleType, PageStyleConfig } from '@/types'
+import type { Note, PresetModuleType, PageStyleConfig } from '@/types'
 
 interface NameAndSaveStepProps {
   name: string
