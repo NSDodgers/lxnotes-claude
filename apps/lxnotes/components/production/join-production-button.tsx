@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button'
 import { Loader2, UserPlus, AlertCircle } from 'lucide-react'
 
 interface JoinProductionButtonProps {
-    productionId: string
+    code: string
     productionName: string
 }
 
 export function JoinProductionButton({
-    productionId,
+    code,
     productionName
 }: JoinProductionButtonProps) {
     const router = useRouter()
@@ -28,16 +28,16 @@ export function JoinProductionButton({
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ productionId }),
+                body: JSON.stringify({ code }),
             })
 
+            const data = await response.json()
+
             if (!response.ok) {
-                const data = await response.json()
                 throw new Error(data.error || 'Failed to join production')
             }
 
-            // Success - redirect to the production
-            router.push(`/production/${productionId}/cue-notes`)
+            router.push(`/production/${data.productionId}/cue-notes`)
             router.refresh()
         } catch (err) {
             console.error('Error joining production:', err)

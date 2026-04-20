@@ -73,7 +73,7 @@ export default async function JoinProductionPage({
 
                 <div className="flex justify-center">
                     <JoinProductionButton
-                        productionId={production.id}
+                        code={code}
                         productionName={production.name}
                     />
                 </div>
