@@ -159,7 +159,7 @@ export const useMockNotesStore = create<MockNotesState>()(subscribeWithSelector(
     return { valid: errors.length === 0, errors }
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   validateProductionNote: (_note) => {
     // Production notes don't have external references to validate
     return { valid: true, errors: [] }

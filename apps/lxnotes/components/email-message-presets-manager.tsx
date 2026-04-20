@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Plus, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEmailMessagePresetsStore } from '@/lib/stores/email-message-presets-store'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
@@ -73,10 +73,12 @@ export function EmailMessagePresetsManager() {
     },
   })
 
-  const watchedAttachPdf = form.watch('attachPdf')
-  const watchedSubject = form.watch('subject')
-  const watchedMessage = form.watch('message')
-  const watchedModuleType = form.watch('moduleType')
+  const watchedAttachPdf = useWatch({ control: form.control, name: 'attachPdf' })
+  const watchedSubject = useWatch({ control: form.control, name: 'subject' })
+  const watchedMessage = useWatch({ control: form.control, name: 'message' })
+  const watchedModuleType = useWatch({ control: form.control, name: 'moduleType' })
+  const watchedFilterAndSortPresetId = useWatch({ control: form.control, name: 'filterAndSortPresetId' })
+  const watchedIncludeNotesInBody = useWatch({ control: form.control, name: 'includeNotesInBody' })
 
   const availablePlaceholders = getAvailablePlaceholders()
 
@@ -381,7 +383,7 @@ export function EmailMessagePresetsManager() {
               <div className="space-y-4">
                 <PresetFormField label="Subject Line" required>
                   <DroppableInput
-                    value={form.watch('subject')}
+                    value={watchedSubject}
                     onChange={(value) => form.setValue('subject', value)}
                     availablePlaceholders={availablePlaceholders}
                     placeholder="{{PRODUCTION_TITLE}} - Daily Report {{CURRENT_DATE}}"
@@ -395,7 +397,7 @@ export function EmailMessagePresetsManager() {
 
                 <PresetFormField label="Message Body" required>
                   <DroppableTextarea
-                    value={form.watch('message')}
+                    value={watchedMessage}
                     onChange={(value) => form.setValue('message', value)}
                     availablePlaceholders={availablePlaceholders}
                     rows={8}
@@ -469,7 +471,7 @@ Best regards,
               >
                 <PresetSelector
                   presets={moduleFilterPresets}
-                  selectedId={form.watch('filterAndSortPresetId')}
+                  selectedId={watchedFilterAndSortPresetId}
                   onSelect={(preset) => form.setValue('filterAndSortPresetId', preset?.id || null)}
                   placeholder="Select filter & sort preset..."
                 />
@@ -477,7 +479,7 @@ Best regards,
 
               <div className="grid gap-4 md:grid-cols-2">
                 <PresetFormToggle
-                  checked={form.watch('includeNotesInBody')}
+                  checked={watchedIncludeNotesInBody}
                   onCheckedChange={(checked) => form.setValue('includeNotesInBody', checked)}
                   label="Include Notes in Body"
                   description="Add a table of notes directly in the email"
