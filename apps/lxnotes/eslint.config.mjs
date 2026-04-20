@@ -32,6 +32,21 @@ const eslintConfig = defineConfig([
       }],
     },
   },
+  {
+    // @tanstack/react-table 8.x calls factory functions inline
+    // (getCoreRowModel: getCoreRowModel()) which the React 19 compiler
+    // can't optimize through. The library API is documented this way;
+    // a fix requires a react-table version that exposes pre-built models
+    // or memoizes the factory result. Suppress the rule for table files
+    // until that lands.
+    files: [
+      'components/notes-table/**/*.tsx',
+      'components/fixture-data-viewer.tsx',
+    ],
+    rules: {
+      'react-hooks/incompatible-library': 'off',
+    },
+  },
   globalIgnores([
     '.next/**',
     'out/**',
