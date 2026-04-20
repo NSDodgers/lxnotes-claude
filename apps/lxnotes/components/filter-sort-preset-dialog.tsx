@@ -2,7 +2,7 @@
 
 import { useMemo, useEffect } from 'react'
 import { CheckSquare, Square } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFilterSortPresetsStore } from '@/lib/stores/filter-sort-presets-store'
 import { useCustomTypesStore } from '@/lib/stores/custom-types-store'
@@ -59,7 +59,10 @@ export function FilterSortPresetDialog({
     },
   })
 
-  const watchedModuleType = form.watch('moduleType')
+  const watchedModuleType = useWatch({ control: form.control, name: 'moduleType' })
+  const watchedTypeFilters = useWatch({ control: form.control, name: 'typeFilters' })
+  const watchedPriorityFilters = useWatch({ control: form.control, name: 'priorityFilters' })
+  const watchedGroupByType = useWatch({ control: form.control, name: 'groupByType' })
 
   // Reset form when dialog opens
   useEffect(() => {
@@ -280,7 +283,7 @@ export function FilterSortPresetDialog({
                   <label key={type.id} className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
-                      checked={form.watch('typeFilters').includes(type.value)}
+                      checked={watchedTypeFilters.includes(type.value)}
                       onChange={(e) => handleTypeToggle(type.value, e.target.checked)}
                       className="rounded"
                     />
@@ -324,7 +327,7 @@ export function FilterSortPresetDialog({
                   <label key={priority.id} className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
-                      checked={form.watch('priorityFilters').includes(priority.value)}
+                      checked={watchedPriorityFilters.includes(priority.value)}
                       onChange={(e) => handlePriorityToggle(priority.value, e.target.checked)}
                       className="rounded"
                     />
@@ -361,7 +364,7 @@ export function FilterSortPresetDialog({
             </div>
 
             <PresetFormToggle
-              checked={form.watch('groupByType')}
+              checked={watchedGroupByType}
               onCheckedChange={(checked) => form.setValue('groupByType', checked)}
               label="Group by Type"
               description="Group notes by their type before sorting"
