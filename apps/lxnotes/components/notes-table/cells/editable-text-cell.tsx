@@ -28,18 +28,26 @@ export function EditableTextCell({
   placeholder,
 }: EditableTextCellProps) {
   const [localValue, setLocalValue] = useState(value)
+  const [wasEditing, setWasEditing] = useState(isEditing)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Adjust localValue to the incoming value when we enter edit mode.
+  // Done during render (React 19) instead of in an effect, since this is
+  // state derivation from a prop transition.
+  if (wasEditing !== isEditing) {
+    setWasEditing(isEditing)
+    if (isEditing) setLocalValue(value)
+  }
+
+  // DOM focus stays in an effect — it's a real side effect, not state derivation
   useEffect(() => {
     if (isEditing) {
-      setLocalValue(value)
-      // Small delay to ensure DOM is ready after row insertion
       requestAnimationFrame(() => {
         inputRef.current?.focus()
         inputRef.current?.select()
       })
     }
-  }, [isEditing, value])
+  }, [isEditing])
 
   const handleSaveAndAdvance = useCallback(() => {
     const trimmed = localValue.trim()

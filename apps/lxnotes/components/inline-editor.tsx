@@ -33,12 +33,18 @@ export function InlineEditor({
   const [isEditing, setIsEditing] = useState(false)
   const [editLabel, setEditLabel] = useState(label)
   const [editColor, setEditColor] = useState(color)
+  const [prevLabel, setPrevLabel] = useState(label)
+  const [prevColor, setPrevColor] = useState(color)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
+  // Adjust editor state when parent props change (React 19: setState during render,
+  // not in an effect). Required so clicking Edit shows current external values.
+  if (prevLabel !== label || prevColor !== color) {
+    setPrevLabel(label)
+    setPrevColor(color)
     setEditLabel(label)
     setEditColor(color)
-  }, [label, color])
+  }
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
