@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import { Bug, Loader2 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
@@ -9,18 +9,22 @@ import { useIsMobile } from '@/lib/hooks/use-mobile-detect'
 import { BugReportModal } from './bug-report-modal'
 import { useBugReport } from './use-bug-report'
 
+const EMPTY_SUBSCRIBE = () => () => {}
+const getMountedClientSnapshot = () => true
+const getMountedServerSnapshot = () => false
+
 export function BugReportButton() {
   const { isAuthenticated, isLoading } = useAuthContext()
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const [mounted, setMounted] = useState(false)
+  const mounted = useSyncExternalStore(
+    EMPTY_SUBSCRIBE,
+    getMountedClientSnapshot,
+    getMountedServerSnapshot,
+  )
   const [mobileBarPresent, setMobileBarPresent] = useState(false)
   const { openReport, isCapturing, modalProps } = useBugReport()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Track whether MobileActionBar is mounted. When it is, the in-bar icon
   // owns the mobile bug-report entry point and this floating button hides.
