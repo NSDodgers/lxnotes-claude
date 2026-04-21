@@ -39,8 +39,17 @@ export function PolicyEmbed({
   const [retryCount, setRetryCount] = useState(0)
   const containerRef = useRef<HTMLDivElement | null>(null)
 
-  const handleRetry = () => {
+  // Reset loadState to 'loading' whenever the embed inputs change (including
+  // retryCount). Use adjusting-state-during-render (React 19) instead of
+  // calling setState inside the iframe-setup effect below.
+  const embedKey = `${accountId}|${documentType}|${lang}|${mode}|${retryCount}`
+  const [prevEmbedKey, setPrevEmbedKey] = useState(embedKey)
+  if (prevEmbedKey !== embedKey) {
+    setPrevEmbedKey(embedKey)
     setLoadState('loading')
+  }
+
+  const handleRetry = () => {
     setRetryCount(prev => prev + 1)
   }
 
@@ -58,7 +67,6 @@ export function PolicyEmbed({
 
     container.innerHTML = ''
     container.removeAttribute('data-getterms-styles')
-    setLoadState('loading')
 
     let isActive = true
     let isResolved = false
