@@ -89,3 +89,60 @@ Add a `VERSION` file (4-digit format: `MAJOR.MINOR.PATCH.MICRO`) and `CHANGELOG.
 **Scope:** Create `VERSION` with an initial version (e.g., `0.1.0.0`), create `CHANGELOG.md` with standard header and a retroactive entry covering recent features. Future `/ship` runs will auto-maintain both files.
 
 **Depends on:** Nothing.
+
+---
+
+## Refactor 7 remaining `react-hooks/set-state-in-effect` Warnings
+**Priority:** Low | **Added:** 2026-04-21 | **Source:** /health lint cleanup
+
+Three files still call `setState` synchronously inside `useEffect`, triggering React 19's cascading-render warning. Each needs a per-site behavioral refactor and manual smoke testing — getting these wrong could break user-facing interactions without failing automated tests.
+
+**Remaining sites:**
+- `components/script-manager.tsx` (4 warnings, lines 76/92/952/964) — realtime script sync + persist flow. High-risk refactor, core to feature.
+- `components/position-manager.tsx` (2 warnings, lines 120/135) — fixture position ordering, drag-and-drop state sync.
+- `components/notes-table.tsx` (1 warning, line 326) — syncs persisted column widths from Zustand store into local state with diff-based update to avoid unnecessary re-renders.
+
+**Scope:** One PR per file. Each should use the React 19 "adjusting state during render" pattern where possible (see PRs #98, #99, #100 for examples), or explicit `eslint-disable-next-line` with a rationale if the effect is a legitimate async-callback handler.
+
+**Context:** Opening lint was 56 warnings. PRs #81–85 and #98–100 cleared 49 of them (mostly mechanical). The remaining 7 are the ones that touch user interaction flow. Not urgent — they're warnings, not errors, and the behavior is correct today.
+
+**Depends on:** Nothing. Each file can be tackled independently.
+
+---
+
+## Smoke Test @supabase/ssr 0.9 Auth Flow
+**Priority:** Low | **Added:** 2026-04-21 | **Source:** PR #44 post-merge
+
+`@supabase/ssr` was bumped 0.8 → 0.9 in PR #44 on 2026-04-17. Build passes, typecheck is clean, 119 tests pass, but the library update touches middleware/proxy.ts auth behavior and hasn't been exercised in a browser.
+
+**Scope:** Log in (Google OAuth + magic link), log out, leave tab open long enough for session refresh (~1 hour), confirm no unexpected redirects to `/login`. If anything breaks, roll back PR #44 and pin `@supabase/ssr` to ^0.8.0 in `apps/lxnotes/package.json`.
+
+**Context:** No user reports since 2026-04-17, so likely fine. Low priority; flagging only to close the loop on a merge that never got browser-verified.
+
+**Depends on:** Nothing.
+
+---
+
+## Introduce Central Logger Utility
+**Priority:** Low | **Added:** 2026-04-21 | **Source:** PR #78 deferral
+
+PR #78 did a surgical console.log cleanup (3 deleted, 3 gated with `isDev`). Left ~200 calls in place across cron handlers, demo data loader, realtime subscriptions, and a few context files because they're legitimate or in files that don't already have an `isDev` gate — adding one ad-hoc would mean introducing the pattern inconsistently across files.
+
+**Scope:** Create `lib/utils/logger.ts` exporting `logger.debug()` / `logger.info()` / `logger.warn()` / `logger.error()`. Debug/info no-op when `NODE_ENV !== 'development'`. Warn/error always fire. Migrate the ~30 "audit carefully" console calls in `lib/contexts/notes-context.tsx`, `lib/supabase/realtime.ts`, `components/script-manager.tsx`, `components/production/production-provider.tsx`, `lib/stores/operation-queue-store.ts`. Leave cron and scripts alone.
+
+**Context:** Only do this if a pattern starts repeating — right now it's one-off cleanup. The `isDev` inline guards work fine at current scale.
+
+**Depends on:** Nothing.
+
+---
+
+## Re-attempt ESLint 10 Upgrade
+**Priority:** Low | **Added:** 2026-04-21 | **Source:** Dependabot #38 (closed blocked)
+
+Dependabot PR #38 (eslint 9.39.2 → 10.0.2) was closed on 2026-04-17 because `eslint-plugin-react` (bundled with `eslint-config-next`) calls `context.getFilename()`, which ESLint 10 removed in favor of `context.filename`. The lint job crashed with a `TypeError`. The block is upstream, not in our code.
+
+**Scope:** Check `eslint-config-next` and `eslint-plugin-react` release notes periodically. When a version that supports ESLint 10 ships, re-enable Dependabot by running `gh pr comment <new-PR> --body "@dependabot unignore this major version"` or manually bump.
+
+**Context:** We're on ESLint 9 patch bumps (merged via Dependabot #92 earlier today). No security exposure from being a major version behind.
+
+**Depends on:** Upstream `eslint-plugin-react` ESLint 10 compatibility release.
