@@ -26,11 +26,19 @@ export function MobileFilterBar({ moduleType, statusCounts }: MobileFilterBarPro
   const pathname = usePathname()
   const { filterStatus, searchTerm, setFilterStatus, setSearchTerm, clearAllFilters, filterTypes, filterPriorities, sortField } = useNotesFilterStore()
   const [searchExpanded, setSearchExpanded] = useState(false)
+  const [prevPathname, setPrevPathname] = useState(pathname)
 
-  // Clear search and filters when navigating between modules
+  // Local UI state reset on navigation. Using adjusting-state-during-render
+  // pattern (React 19) instead of useEffect to avoid a cascade render.
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname)
+    setSearchExpanded(false)
+  }
+
+  // Clear filter store when navigating. External store resets are a real
+  // side effect, not derived state — keep them in useEffect.
   useEffect(() => {
     setSearchTerm('')
-    setSearchExpanded(false)
     clearAllFilters()
   }, [pathname, setSearchTerm, clearAllFilters])
 

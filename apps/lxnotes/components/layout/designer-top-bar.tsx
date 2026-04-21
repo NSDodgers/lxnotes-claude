@@ -42,11 +42,19 @@ export function DesignerTopBar() {
   const { toggleDesignerSidebar, toggleDesignerMode } = useDesignerModeStore()
   const { filterStatus, searchTerm, onAddNote, setFilterStatus, setSearchTerm, clearAllFilters, statusCounts } = useNotesFilterStore()
   const [searchExpanded, setSearchExpanded] = useState(false)
+  const [prevPathname, setPrevPathname] = useState(pathname)
 
-  // Clear search and filters when navigating between modules
+  // Local UI state reset on navigation. Using adjusting-state-during-render
+  // pattern (React 19) instead of useEffect to avoid a cascade render.
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname)
+    setSearchExpanded(false)
+  }
+
+  // Clear filter store when navigating. External store resets are a real
+  // side effect, not derived state — keep them in useEffect.
   useEffect(() => {
     setSearchTerm('')
-    setSearchExpanded(false)
     clearAllFilters()
   }, [pathname, setSearchTerm, clearAllFilters])
 
