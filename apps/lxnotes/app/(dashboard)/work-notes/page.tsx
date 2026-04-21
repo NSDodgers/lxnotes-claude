@@ -678,7 +678,7 @@ export default function WorkNotesPage() {
                   aria-label="Search notes"
                 />
               </div>
-              <ColumnConfigPopover moduleType="work" />
+              <ColumnConfigPopover moduleType="work" statusFilter={effectiveFilterStatus} />
             </div>
           </div>
 

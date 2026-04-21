@@ -70,18 +70,20 @@ export function useColumnConfig(moduleType: ModuleType, statusFilter?: NoteStatu
     return mergeColumnOrderWithRegistry(layout?.columnOrder ?? null, moduleType)
   }, [layout?.columnOrder, moduleType])
 
-  // Column visibility - derive from hiddenColumns + status-based auto-hides
+  // Column visibility - explicit user-shown wins over status auto-hide; explicit user-hidden always wins
   const columnVisibility = useMemo<VisibilityState>(() => {
     const hidden = new Set(layout?.hiddenColumns ?? [])
+    const shown = new Set(layout?.shownColumns ?? [])
     const statusHidden = statusFilter ? new Set(STATUS_HIDDEN_COLUMNS[statusFilter]) : new Set<string>()
     const vis: VisibilityState = {}
     for (const col of registry) {
+      if (shown.has(col.id)) continue
       if (hidden.has(col.id) || statusHidden.has(col.id)) {
         vis[col.id] = false
       }
     }
     return vis
-  }, [layout?.hiddenColumns, registry, statusFilter])
+  }, [layout?.hiddenColumns, layout?.shownColumns, registry, statusFilter])
 
   // Sorting - read from store or use module default
   const sorting = useMemo<SortingState>(() => {
@@ -101,9 +103,10 @@ export function useColumnConfig(moduleType: ModuleType, statusFilter?: NoteStatu
 
   const toggleColumn = useCallback(
     (columnId: string) => {
-      store.toggleColumnVisibility(moduleType, columnId)
+      const currentlyVisible = columnVisibility[columnId] !== false
+      store.setColumnVisibility(moduleType, columnId, !currentlyVisible)
     },
-    [store, moduleType]
+    [store, moduleType, columnVisibility]
   )
 
   const reorderColumns = useCallback(

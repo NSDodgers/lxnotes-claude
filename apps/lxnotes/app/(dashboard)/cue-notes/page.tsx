@@ -522,7 +522,7 @@ export default function CueNotesPage() {
                   aria-label="Search notes"
                 />
               </div>
-              <ColumnConfigPopover moduleType="cue" />
+              <ColumnConfigPopover moduleType="cue" statusFilter={effectiveFilterStatus} />
             </div>
           </div>
 

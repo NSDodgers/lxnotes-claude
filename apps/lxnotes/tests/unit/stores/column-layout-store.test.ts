@@ -89,6 +89,33 @@ describe('useColumnLayoutStore', () => {
     })
   })
 
+  describe('setColumnVisibility', () => {
+    it('adds to shownColumns and clears hiddenColumns when visible=true', () => {
+      const store = useColumnLayoutStore.getState()
+      store.setHiddenColumns('work', ['createdBy'])
+      store.setColumnVisibility('work', 'createdBy', true)
+      const layout = useColumnLayoutStore.getState().getModuleLayout('work')
+      expect(layout?.shownColumns).toContain('createdBy')
+      expect(layout?.hiddenColumns).not.toContain('createdBy')
+    })
+
+    it('adds to hiddenColumns and clears shownColumns when visible=false', () => {
+      const store = useColumnLayoutStore.getState()
+      store.setColumnVisibility('work', 'createdBy', true)
+      store.setColumnVisibility('work', 'createdBy', false)
+      const layout = useColumnLayoutStore.getState().getModuleLayout('work')
+      expect(layout?.hiddenColumns).toContain('createdBy')
+      expect(layout?.shownColumns).not.toContain('createdBy')
+    })
+
+    it('refuses to hide pinned (canHide=false) columns', () => {
+      const store = useColumnLayoutStore.getState()
+      store.setColumnVisibility('work', 'actions', false)
+      const layout = useColumnLayoutStore.getState().getModuleLayout('work')
+      expect(layout?.hiddenColumns ?? []).not.toContain('actions')
+    })
+  })
+
   describe('column widths', () => {
     it('sets individual column width', () => {
       const store = useColumnLayoutStore.getState()
