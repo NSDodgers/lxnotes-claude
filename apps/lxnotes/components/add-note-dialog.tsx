@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { Note, ModuleType } from '@/types'
 import { Button } from '@/components/ui/button'
 import { useCueLookup } from '@/lib/services/cue-lookup'
@@ -108,8 +108,14 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   const [selectedLightwrightIds, setSelectedLightwrightIds] = useState<string[]>([])
   const [channelExpression, setChannelExpression] = useState('')
 
-  // Populate form when editing
-  useEffect(() => {
+  // Populate form when the edited note changes (React 19 adjusting-state
+  // pattern: compute during render, not in useEffect). Tracks editingNote.id
+  // as the key since moduleType/defaultType don't change while a note is
+  // being edited in practice.
+  const editingId = editingNote?.id ?? null
+  const [prevEditingId, setPrevEditingId] = useState(editingId)
+  if (prevEditingId !== editingId) {
+    setPrevEditingId(editingId)
     if (editingNote) {
       setSelectedModuleType(editingNote.moduleType)
 
@@ -129,12 +135,12 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
         lightwrightItemId: editingNote.lightwrightItemId || '',
         sceneryNeeds: editingNote.sceneryNeeds || '',
       })
-      
+
       // Load existing Lightwright selections for fixture modules
       if (isFixtureModule(moduleType)) {
         const linkedFixtures = getLinkedFixtures(editingNote.id)
         setSelectedLightwrightIds(linkedFixtures.map(f => f.id))
-        
+
         // Set channel expression from linked fixtures, or fall back to note's channelNumbers
         if (linkedFixtures.length > 0) {
           const channels = linkedFixtures.map(f => f.channel).sort((a, b) => a - b)
@@ -160,7 +166,7 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
         setChannelExpression('')
       }
     }
-  }, [editingNote, defaultType, moduleType, getLinkedFixtures])
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement> | { preventDefault: () => void }) => {
     e.preventDefault()
