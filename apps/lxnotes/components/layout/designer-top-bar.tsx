@@ -90,7 +90,7 @@ export function DesignerTopBar() {
 
         {/* Column config popover */}
         {moduleInfo && (
-          <ColumnConfigPopover moduleType={moduleInfo.moduleType} />
+          <ColumnConfigPopover moduleType={moduleInfo.moduleType} statusFilter={filterStatus} />
         )}
 
         {/* Filter/Sort popover */}

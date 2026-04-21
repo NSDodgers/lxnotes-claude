@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { MODULE_COLUMN_REGISTRY } from '@/lib/config/column-registry'
 import { useColumnConfig } from '@/hooks/use-column-config'
-import type { ModuleType } from '@/types'
+import type { ModuleType, NoteStatus } from '@/types'
 import {
   DndContext,
   closestCenter,
@@ -93,12 +93,13 @@ function SortableColumnRow({ columnId, label, isHidden, isPinned, onToggle }: So
 
 interface ColumnConfigPopoverProps {
   moduleType: ModuleType
+  statusFilter?: NoteStatus
 }
 
-export function ColumnConfigPopover({ moduleType }: ColumnConfigPopoverProps) {
+export function ColumnConfigPopover({ moduleType, statusFilter }: ColumnConfigPopoverProps) {
   const [open, setOpen] = useState(false)
   const { columnOrder, columnVisibility, toggleColumn, reorderColumns, resetColumnConfig } =
-    useColumnConfig(moduleType)
+    useColumnConfig(moduleType, statusFilter)
   const registry = MODULE_COLUMN_REGISTRY[moduleType]
 
   const sensors = useSensors(

@@ -641,7 +641,7 @@ export default function ElectricianNotesPage() {
                   aria-label="Search notes"
                 />
               </div>
-              <ColumnConfigPopover moduleType="electrician" />
+              <ColumnConfigPopover moduleType="electrician" statusFilter={effectiveFilterStatus} />
             </div>
           </div>
 

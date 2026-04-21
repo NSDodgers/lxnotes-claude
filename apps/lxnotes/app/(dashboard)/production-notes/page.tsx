@@ -1382,7 +1382,7 @@ export default function ProductionNotesPage() {
                   aria-label="Search notes"
                 />
               </div>
-              <ColumnConfigPopover moduleType="production" />
+              <ColumnConfigPopover moduleType="production" statusFilter={effectiveFilterStatus} />
             </div>
           </div>
 

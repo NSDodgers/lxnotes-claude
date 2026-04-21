@@ -24,6 +24,7 @@ interface ColumnLayoutEntry {
   frozenCount: number
   columnOrder: string[] | null
   hiddenColumns: string[]
+  shownColumns: string[]
   sorting: SortingEntry[] | null
   timestamp: number
 }
@@ -50,6 +51,7 @@ interface ColumnLayoutState {
   // Column visibility/order actions
   setColumnOrder: (moduleType: ModuleType, order: string[]) => void
   toggleColumnVisibility: (moduleType: ModuleType, columnId: string) => void
+  setColumnVisibility: (moduleType: ModuleType, columnId: string, visible: boolean) => void
   setHiddenColumns: (moduleType: ModuleType, hidden: string[]) => void
 
   // Sorting actions
@@ -72,6 +74,7 @@ function ensureV2(entry: ColumnLayoutEntry | undefined): ColumnLayoutEntry {
       frozenCount: 0,
       columnOrder: null,
       hiddenColumns: [],
+      shownColumns: [],
       sorting: null,
       timestamp: Date.now(),
     }
@@ -81,6 +84,7 @@ function ensureV2(entry: ColumnLayoutEntry | undefined): ColumnLayoutEntry {
     version: COLUMN_LAYOUT_VERSION,
     columnOrder: entry.columnOrder ?? null,
     hiddenColumns: entry.hiddenColumns ?? [],
+    shownColumns: entry.shownColumns ?? [],
     sorting: entry.sorting ?? null,
   }
 }
@@ -255,6 +259,42 @@ export const useColumnLayoutStore = create<ColumnLayoutState>()(
                 [moduleType]: {
                   ...existing,
                   hiddenColumns: Array.from(hiddenSet),
+                  timestamp: Date.now(),
+                },
+              },
+            },
+          }
+        })
+      },
+
+      setColumnVisibility: (moduleType, columnId, visible) => {
+        const meta = MODULE_COLUMN_REGISTRY[moduleType]?.find((c) => c.id === columnId)
+        if (meta && !meta.canHide && !visible) return
+
+        set((state) => {
+          const profileKey = state.profileKey
+          const profileLayouts = state.layouts[profileKey] ?? {}
+          const existing = ensureV2(profileLayouts[moduleType])
+          const hiddenSet = new Set(existing.hiddenColumns)
+          const shownSet = new Set(existing.shownColumns)
+
+          if (visible) {
+            hiddenSet.delete(columnId)
+            shownSet.add(columnId)
+          } else {
+            shownSet.delete(columnId)
+            hiddenSet.add(columnId)
+          }
+
+          return {
+            layouts: {
+              ...state.layouts,
+              [profileKey]: {
+                ...profileLayouts,
+                [moduleType]: {
+                  ...existing,
+                  hiddenColumns: Array.from(hiddenSet),
+                  shownColumns: Array.from(shownSet),
                   timestamp: Date.now(),
                 },
               },
