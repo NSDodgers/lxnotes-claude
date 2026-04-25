@@ -122,7 +122,7 @@ export const PDFTable: React.FC<PDFTableProps> = ({ notes, columns, includeCheck
             )}
 
             {/* Note Row */}
-            <View style={[commonStyles.tableRow, noteIndex % 2 === 1 && commonStyles.tableRowAlt]}>
+            <View style={noteIndex % 2 === 1 ? [commonStyles.tableRow, commonStyles.tableRowAlt] : commonStyles.tableRow}>
               {allColumns.map((col, colIndex) => (
                 <View
                   key={colIndex}
