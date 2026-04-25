@@ -101,10 +101,13 @@ export const commonStyles = StyleSheet.create({
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#e5e7eb',
+    borderBottomWidth: 1,
+    borderBottomColor: '#9ca3af',
     minHeight: 24,
     alignItems: 'center'
+  },
+  tableRowAlt: {
+    backgroundColor: '#f3f4f6'
   },
   tableHeaderRow: {
     flexDirection: 'row',
