@@ -1,6 +1,6 @@
 'use client'
 
-import { Settings, Palette, Lightbulb, Wrench, Zap, Users, X, UserPlus, ChevronDown, ChevronUp, HardDrive, SlidersHorizontal } from 'lucide-react'
+import { Settings, Palette, Lightbulb, Wrench, Zap, Users, X, UserPlus, ChevronDown, ChevronUp, HardDrive, SlidersHorizontal, Sun } from 'lucide-react'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useCurrentProductionStore, DEFAULT_PRODUCTION_LOGO } from '@/lib/stores/production-store'
 import { TypesManager } from '@/components/types-manager'
@@ -15,6 +15,8 @@ import { ModulesSettings } from '@/components/settings/modules-settings'
 import { useProductionOptional } from '@/components/production/production-provider'
 import { useAuthContext } from '@/components/auth/auth-provider'
 import Image from 'next/image'
+import { useTheme } from 'next-themes'
+import { ThemeSwitcher } from '@/components/theme/theme-switcher'
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('modules')
@@ -118,6 +120,7 @@ export default function SettingsPage() {
           <span className="text-[10px] uppercase tracking-wider text-text-tertiary px-2 pb-2.5 hidden sm:block">Your Preferences</span>
           {[
             { id: 'modules', label: 'Modules', icon: SlidersHorizontal },
+            { id: 'appearance', label: 'Appearance', icon: Sun },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -178,6 +181,8 @@ export default function SettingsPage() {
           </div>
         )}
 
+        {activeTab === 'appearance' && <AppearancePanel />}
+
         {activeTab === 'general' && (
           <>
             <div className="rounded-lg bg-bg-secondary p-6 space-y-6">
@@ -229,7 +234,7 @@ export default function SettingsPage() {
                       {(() => {
                         const displayLogo = logoPreview || DEFAULT_PRODUCTION_LOGO
                         return displayLogo.startsWith('data:') || displayLogo.startsWith('/') || displayLogo.startsWith('http') ? (
-                          <div className="relative w-full h-full bg-black">
+                          <div className="relative w-full h-full bg-bg-tertiary">
                             <Image src={displayLogo} alt="Logo preview" fill className="object-contain" />
                           </div>
                         ) : (
@@ -248,7 +253,7 @@ export default function SettingsPage() {
                         {logoPreview && logoPreview !== DEFAULT_PRODUCTION_LOGO && (
                           <button
                             onClick={handleClearLogo}
-                            className="px-3 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors flex items-center gap-1"
+                            className="px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors flex items-center gap-1"
                             title="Clear logo"
                           >
                             <X className="h-4 w-4" />
@@ -391,6 +396,29 @@ function BuildingBlocksSection() {
         <div className="mt-4 space-y-6">
           <FilterSortPresetsManager />
         </div>
+      )}
+    </div>
+  )
+}
+
+function AppearancePanel() {
+  const { theme, setTheme } = useTheme()
+  return (
+    <div className="rounded-lg bg-bg-secondary p-6">
+      <h2 className="text-lg font-semibold text-text-primary mb-1">Appearance</h2>
+      <p className="text-sm text-text-secondary mb-6">
+        Choose how LXNotes looks. Theme follows you across devices.
+      </p>
+      <ThemeSwitcher variant="segmented" />
+      {theme && theme !== 'system' && (
+        <button
+          type="button"
+          onClick={() => setTheme('system')}
+          className="text-xs text-text-muted hover:text-text-secondary mt-4 transition-colors"
+          data-testid="theme-reset-system"
+        >
+          Reset to system default
+        </button>
       )}
     </div>
   )

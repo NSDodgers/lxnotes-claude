@@ -1,0 +1,3 @@
+-- Placeholder for migration applied via Supabase Studio dashboard before this
+-- repo's supabase/migrations/ tree existed. Marked applied in the remote
+-- metadata via `supabase migration repair --status applied`. No-op everywhere.

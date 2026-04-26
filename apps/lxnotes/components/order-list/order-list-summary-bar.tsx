@@ -24,10 +24,10 @@ export function OrderListSummaryBar({ stats, compact }: OrderListSummaryBarProps
               All ordered
             </span>
           ) : (
-            <span className="text-amber-400">{stats.remaining} remaining</span>
+            <span className="text-amber-600">{stats.remaining} remaining</span>
           )}
         </div>
-        <div className="h-1 bg-zinc-800 rounded mt-1.5">
+        <div className="h-1 bg-bg-tertiary rounded mt-1.5">
           <div
             className="h-1 bg-green-500 rounded transition-all duration-300"
             style={{ width: `${percent}%` }}
@@ -55,10 +55,10 @@ export function OrderListSummaryBar({ stats, compact }: OrderListSummaryBarProps
             All ordered
           </span>
         ) : (
-          <span className="text-xl font-bold text-amber-400">{stats.remaining}</span>
+          <span className="text-xl font-bold text-amber-600">{stats.remaining}</span>
         )}
       </div>
-      <div className="flex-1 h-1.5 bg-zinc-800 rounded">
+      <div className="flex-1 h-1.5 bg-bg-tertiary rounded">
         <div
           className="h-1.5 bg-green-500 rounded transition-all duration-300"
           style={{ width: `${percent}%` }}
