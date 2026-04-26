@@ -36,21 +36,21 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
-            <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-            
-            <h2 className="text-xl font-semibold text-white mb-2">
+        <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-bg-secondary rounded-lg border border-border p-6 text-center">
+            <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-4" />
+
+            <h2 className="text-xl font-semibold text-text-primary mb-2">
               Something went wrong
             </h2>
-            
-            <p className="text-gray-400 mb-6">
+
+            <p className="text-text-muted mb-6">
               An unexpected error occurred. Please try again.
             </p>
-            
+
             <button
               onClick={this.handleRetry}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-modules-work hover:bg-modules-work/90 text-white px-4 py-2 rounded-md transition-colors flex items-center justify-center gap-2"
             >
               <RefreshCw className="h-4 w-4" />
               Try Again

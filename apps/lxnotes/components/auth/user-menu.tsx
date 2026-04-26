@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useAuthContext } from './auth-provider'
 import { SUPER_ADMIN_EMAIL } from '@/lib/auth/constants'
 import { cn } from '@/lib/utils'
+import { ThemeSwitcher } from '@/components/theme/theme-switcher'
 
 interface UserMenuProps {
   collapsed?: boolean
@@ -97,7 +98,7 @@ export function UserMenu({ collapsed = false, dropdownDirection = 'up' }: UserMe
               <span className="truncate">{displayName}</span>
               {isSuperAdmin && (
                 <span title="Super Admin" className="shrink-0">
-                  <Shield className="h-3 w-3 text-yellow-500" />
+                  <Shield className="h-3 w-3 text-amber-600" />
                 </span>
               )}
             </p>
@@ -117,17 +118,20 @@ export function UserMenu({ collapsed = false, dropdownDirection = 'up' }: UserMe
               onClick={() => setIsOpen(false)}
               className="flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-bg-tertiary transition-colors"
             >
-              <Database className="h-4 w-4 text-yellow-500" />
+              <Database className="h-4 w-4 text-amber-600" />
               Admin Dashboard
             </Link>
           )}
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-bg-tertiary transition-colors w-full text-left"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-bg-tertiary transition-colors w-full text-left"
           >
             <LogOut className="h-4 w-4" />
             Sign Out
           </button>
+          <div className="border-t border-bg-tertiary mt-1 pt-1 px-3 py-1">
+            <ThemeSwitcher variant="compact" className="mx-auto" />
+          </div>
         </div>
       )}
     </div>

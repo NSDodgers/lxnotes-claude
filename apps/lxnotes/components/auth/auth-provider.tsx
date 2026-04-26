@@ -77,6 +77,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const handleSignOut = useCallback(async () => {
     await supabase.auth.signOut()
+    // Clear the theme localStorage so the next user on a shared device doesn't
+    // inherit the previous user's preference (avoids FOUC on sign-in).
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('theme')
+    }
     window.location.href = '/'
   }, [supabase.auth])
 
