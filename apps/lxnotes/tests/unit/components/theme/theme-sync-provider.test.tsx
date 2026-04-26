@@ -141,6 +141,77 @@ describe('ThemeSyncProvider', () => {
     expect(mocks.supabaseClient.upsertCalls).toHaveLength(0)
   })
 
+  it('does not stomp local theme when user clicks toggle while fetch is in flight', async () => {
+    // Server has theme='system' stored. Local theme starts at 'dark' (e.g. from
+    // localStorage from a previous session).
+    mocks.supabaseClient.selectResult = {
+      data: { user_preferences: { theme: 'system' } },
+      error: null,
+    }
+    mocks.useTheme.mockReturnValue({ theme: 'dark', setTheme, resolvedTheme: 'dark' })
+    const { rerender } = render(<ThemeSyncProvider><div /></ThemeSyncProvider>)
+
+    // BEFORE the fetch resolves, the user clicks Light. themeRef should update.
+    mocks.useTheme.mockReturnValue({ theme: 'light', setTheme, resolvedTheme: 'light' })
+    rerender(<ThemeSyncProvider><div /></ThemeSyncProvider>)
+
+    // Now flush the fetch microtasks. The race guard should prevent setTheme.
+    await act(async () => { await flushAsync() })
+
+    // Critical assertion: server hydration must NOT have called setTheme,
+    // because the user already interacted between fetch start and resolve.
+    expect(setTheme).not.toHaveBeenCalled()
+  })
+
+  it('does not refetch when user reference changes (e.g. TOKEN_REFRESHED) for same user.id', async () => {
+    mocks.supabaseClient.selectResult = {
+      data: { user_preferences: { theme: 'light' } },
+      error: null,
+    }
+    mocks.useTheme.mockReturnValue({ theme: 'dark', setTheme, resolvedTheme: 'dark' })
+    const { rerender } = render(<ThemeSyncProvider><div /></ThemeSyncProvider>)
+    await act(async () => { await flushAsync() })
+
+    // First fetch happened: server said 'light', local was 'dark', setTheme('light') fired.
+    expect(setTheme).toHaveBeenCalledTimes(1)
+    expect(setTheme).toHaveBeenCalledWith('light')
+    setTheme.mockClear()
+
+    // AuthProvider emits a new user object reference for the same id (e.g.
+    // session refresh). The fetched-for-user guard should prevent a second
+    // fetch from re-stomping the now-current local theme.
+    mocks.useTheme.mockReturnValue({ theme: 'light', setTheme, resolvedTheme: 'light' })
+    mocks.useAuthContext.mockReturnValue({ user: { id: 'u1' } }) // new ref, same id
+    rerender(<ThemeSyncProvider><div /></ThemeSyncProvider>)
+    await act(async () => { await flushAsync() })
+
+    expect(setTheme).not.toHaveBeenCalled()
+  })
+
+  it('refetches when user.id actually changes (account switch)', async () => {
+    mocks.supabaseClient.selectResult = {
+      data: { user_preferences: { theme: 'light' } },
+      error: null,
+    }
+    mocks.useTheme.mockReturnValue({ theme: 'dark', setTheme, resolvedTheme: 'dark' })
+    const { rerender } = render(<ThemeSyncProvider><div /></ThemeSyncProvider>)
+    await act(async () => { await flushAsync() })
+    expect(setTheme).toHaveBeenCalledWith('light')
+    setTheme.mockClear()
+
+    // Different user signs in.
+    mocks.supabaseClient.selectResult = {
+      data: { user_preferences: { theme: 'dark' } },
+      error: null,
+    }
+    mocks.useTheme.mockReturnValue({ theme: 'light', setTheme, resolvedTheme: 'light' })
+    mocks.useAuthContext.mockReturnValue({ user: { id: 'u2' } })
+    rerender(<ThemeSyncProvider><div /></ThemeSyncProvider>)
+    await act(async () => { await flushAsync() })
+
+    expect(setTheme).toHaveBeenCalledWith('dark')
+  })
+
   it('preserves other user_preferences keys via read-modify-write', async () => {
     // Server has theme=dark plus extra keys. Initial useTheme also returns 'dark'
     // so no hydration setTheme fires and lastPersistedRef settles to 'dark'.
