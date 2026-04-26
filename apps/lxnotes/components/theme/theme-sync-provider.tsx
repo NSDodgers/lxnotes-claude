@@ -50,12 +50,32 @@ export function ThemeSyncProvider({ children }: { children: ReactNode }) {
   // doesn't echo back as a write.
   const hydratedFromServerRef = useRef(false)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Tracks which user.id we've already fetched for. Prevents the fetch from
+  // re-running when AuthProvider emits multiple setUser calls with fresh
+  // session.user references on initial mount (getInitialSession +
+  // onAuthStateChange INITIAL_SESSION) or on TOKEN_REFRESHED. Each of those
+  // would otherwise re-trigger the [user, setTheme] effect and stomp the
+  // user's just-clicked theme with a stale-closure setTheme(serverTheme).
+  const fetchedForUserIdRef = useRef<string | null>(null)
+  // Always-current theme value, readable from inside async callbacks without
+  // closing over a stale value.
+  const themeRef = useRef(theme)
+  themeRef.current = theme
 
-  // Fetch on sign-in: server-truth wins.
+  // Fetch on sign-in: server-truth wins UNLESS the user has interacted with
+  // the toggle since the fetch started (in which case their click takes
+  // precedence).
   useEffect(() => {
     if (IS_DEV_MODE || !user) return
+    if (fetchedForUserIdRef.current === user.id) return
+    fetchedForUserIdRef.current = user.id
 
+    // Snapshot the local theme at the moment we kick off the fetch. If the
+    // user clicks the toggle while the fetch is in flight, themeRef.current
+    // will diverge from this snapshot and we'll know to skip the hydration.
+    const themeAtStart = themeRef.current
     let cancelled = false
+
     ;(async () => {
       try {
         const { data, error } = await userSettingsTable()
@@ -74,12 +94,18 @@ export function ThemeSyncProvider({ children }: { children: ReactNode }) {
         }
 
         const serverTheme = data?.user_preferences?.theme
-        if (isThemeValue(serverTheme)) {
-          lastPersistedRef.current = serverTheme
-          if (serverTheme !== theme) {
-            hydratedFromServerRef.current = true
-            setTheme(serverTheme)
-          }
+        if (!isThemeValue(serverTheme)) return
+
+        lastPersistedRef.current = serverTheme
+
+        // Race guard: if the user clicked the toggle while we were fetching,
+        // do not stomp their choice. The upsert effect will persist the new
+        // local value to the server shortly.
+        if (themeRef.current !== themeAtStart) return
+
+        if (serverTheme !== themeAtStart) {
+          hydratedFromServerRef.current = true
+          setTheme(serverTheme)
         }
       } catch {
         // Demo mode mock or transient network — silently no-op.
@@ -89,8 +115,6 @@ export function ThemeSyncProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-    // theme intentionally omitted: we want to fetch once per user, not per change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, setTheme])
 
   // Debounced upsert on theme change.
@@ -151,11 +175,15 @@ export function ThemeSyncProvider({ children }: { children: ReactNode }) {
   }, [theme, user])
 
   // Clear any pending save on sign-out so we don't upsert against a logged-out session.
+  // Also reset the fetched-for-user marker so the next sign-in re-fetches.
   useEffect(() => {
-    if (!user && saveTimerRef.current) {
-      clearTimeout(saveTimerRef.current)
-      saveTimerRef.current = null
+    if (!user) {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current)
+        saveTimerRef.current = null
+      }
       lastPersistedRef.current = null
+      fetchedForUserIdRef.current = null
     }
   }, [user])
 
