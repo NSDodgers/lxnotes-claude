@@ -58,9 +58,12 @@ export function ThemeSyncProvider({ children }: { children: ReactNode }) {
   // user's just-clicked theme with a stale-closure setTheme(serverTheme).
   const fetchedForUserIdRef = useRef<string | null>(null)
   // Always-current theme value, readable from inside async callbacks without
-  // closing over a stale value.
+  // closing over a stale value. Synced via effect (React forbids updating
+  // refs during render under the new react-hooks/refs lint rule).
   const themeRef = useRef(theme)
-  themeRef.current = theme
+  useEffect(() => {
+    themeRef.current = theme
+  })
 
   // Fetch on sign-in: server-truth wins UNLESS the user has interacted with
   // the toggle since the fetch started (in which case their click takes
