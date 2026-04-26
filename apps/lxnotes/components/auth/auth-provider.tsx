@@ -76,13 +76,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [supabase.auth])
 
   const handleSignOut = useCallback(async () => {
-    await supabase.auth.signOut()
-    // Clear the theme localStorage so the next user on a shared device doesn't
-    // inherit the previous user's preference (avoids FOUC on sign-in).
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem('theme')
+    try {
+      await supabase.auth.signOut()
+    } finally {
+      // Clear the theme localStorage so the next user on a shared device doesn't
+      // inherit the previous user's preference (avoids FOUC on sign-in). Run in
+      // a finally so a Supabase signOut failure or window-mocked test doesn't
+      // leave the page in a half-signed-out state.
+      if (typeof window !== 'undefined') {
+        try {
+          window.localStorage.removeItem('theme')
+        } catch {
+          // localStorage can throw in private browsing or quota-exceeded states.
+        }
+        window.location.href = '/'
+      }
     }
-    window.location.href = '/'
   }, [supabase.auth])
 
   const value: AuthContextType = {

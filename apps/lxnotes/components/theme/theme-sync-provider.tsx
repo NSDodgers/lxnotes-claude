@@ -117,18 +117,26 @@ export function ThemeSyncProvider({ children }: { children: ReactNode }) {
           .single()
 
         const existing =
-          data?.user_preferences && typeof data.user_preferences === 'object'
+          data?.user_preferences &&
+          typeof data.user_preferences === 'object' &&
+          !Array.isArray(data.user_preferences)
             ? data.user_preferences
             : {}
 
         const next = { ...existing, theme }
 
-        await userSettingsTable().upsert(
+        // Note: Supabase JS does not throw on RLS rejection — it returns { error }.
+        // We must read the error explicitly before updating lastPersistedRef,
+        // otherwise a silent server-side rejection causes client/server drift
+        // and the next sign-in fetch will revert the user's choice.
+        const { error: upsertError } = await userSettingsTable().upsert(
           { user_id: user.id, user_preferences: next },
           { onConflict: 'user_id' }
         )
 
-        lastPersistedRef.current = theme
+        if (!upsertError) {
+          lastPersistedRef.current = theme
+        }
       } catch {
         // Failure is non-fatal — next sign-in's fetch will reconcile.
       }

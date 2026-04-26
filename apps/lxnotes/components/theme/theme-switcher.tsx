@@ -45,7 +45,7 @@ export function ThemeSwitcher({ variant, className }: ThemeSwitcherProps) {
     return (
       <div
         className={cn(
-          'flex gap-0.5 bg-bg-primary p-0.5 rounded-lg w-fit',
+          'flex gap-0.5 bg-bg-tertiary p-0.5 rounded-lg w-fit',
           className,
         )}
         role="radiogroup"
@@ -64,11 +64,11 @@ export function ThemeSwitcher({ variant, className }: ThemeSwitcherProps) {
               data-testid={`theme-${value}`}
               onClick={() => setTheme(value)}
               className={cn(
-                'h-7 w-7 rounded-md flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-bg-primary',
+                'h-7 w-7 rounded-md flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-bg-tertiary',
                 !mounted && 'opacity-60',
                 isActive
-                  ? 'bg-bg-hover text-text-primary'
-                  : 'text-text-muted hover:text-text-secondary hover:bg-bg-tertiary',
+                  ? 'bg-bg-primary text-text-primary shadow-sm'
+                  : 'text-text-muted hover:text-text-secondary hover:bg-bg-hover',
               )}
             >
               <Icon className="h-4 w-4" />
