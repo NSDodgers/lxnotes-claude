@@ -175,6 +175,24 @@ test.describe('Electrician Notes Module', () => {
         await expect(page.getByRole('button', { name: 'Think' })).toBeVisible();
       }
     });
+
+    test('Quick Add button preselects matching type in dialog', async ({ page }) => {
+      // Regression: a27bbdd narrowed AddNoteDialog's reset key to editingNote.id only,
+      // so clicking "Focus" Quick Add no longer reset formData.type — the dialog
+      // submitted with the initial 'Work' default, dropping the user's chosen type.
+      await page.goto('/electrician-notes');
+      await helpers.waitForAppReady();
+
+      const quickAddLabel = page.locator('text=Quick Add:');
+      if (!(await quickAddLabel.isVisible())) test.skip();
+
+      await page.getByRole('button', { name: 'Focus' }).click();
+
+      const dialog = page.locator('[data-testid="add-note-dialog"]');
+      await expect(dialog).toBeVisible();
+      const typeCombobox = dialog.locator('label:has-text("Type")').locator('..').locator('[role="combobox"]');
+      await expect(typeCombobox).toContainText('Focus');
+    });
   });
 
   test.describe('Demo Mode', () => {
