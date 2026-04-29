@@ -108,14 +108,17 @@ export function AddNoteDialog({ isOpen, onClose, onAdd, moduleType, defaultType,
   const [selectedLightwrightIds, setSelectedLightwrightIds] = useState<string[]>([])
   const [channelExpression, setChannelExpression] = useState('')
 
-  // Populate form when the edited note changes (React 19 adjusting-state
-  // pattern: compute during render, not in useEffect). Tracks editingNote.id
-  // as the key since moduleType/defaultType don't change while a note is
-  // being edited in practice.
+  // Populate form when the edited note changes, or when the dialog is
+  // reopened in add mode with a different default type (e.g. clicking a
+  // different Quick Add button). React 19 adjusting-state pattern.
   const editingId = editingNote?.id ?? null
   const [prevEditingId, setPrevEditingId] = useState(editingId)
-  if (prevEditingId !== editingId) {
+  const [prevDefaultType, setPrevDefaultType] = useState(defaultType)
+  const editingChanged = prevEditingId !== editingId
+  const defaultTypeChangedWhileAdding = !editingId && prevDefaultType !== defaultType
+  if (editingChanged || defaultTypeChangedWhileAdding) {
     setPrevEditingId(editingId)
+    setPrevDefaultType(defaultType)
     if (editingNote) {
       setSelectedModuleType(editingNote.moduleType)
 
