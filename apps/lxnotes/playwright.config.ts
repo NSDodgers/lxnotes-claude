@@ -5,6 +5,9 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  // auth-* specs and auth.setup.ts run against a deployed environment via
+  // playwright.auth.config.ts; keep them out of the dev-mode E2E suite.
+  testIgnore: ['**/auth.setup.ts', '**/auth-*.spec.ts'],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
