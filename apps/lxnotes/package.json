@@ -12,6 +12,8 @@
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
+    "test:auth:setup": "playwright test --config=playwright.auth.config.ts --project=setup",
+    "test:auth:verify": "playwright test --config=playwright.auth.config.ts --project=verify",
     "test:report": "playwright show-report",
     "vercel": "node scripts/vercel-with-token.js"
   },
