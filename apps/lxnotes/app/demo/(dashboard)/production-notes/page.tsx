@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { initializeDemoSession } from '@/lib/demo-data'
-import ProductionNotesPage from '@/app/(dashboard)/production-notes/page'
+import ProductionNotesPage from '@/app/(dashboard)/production-notes/production-notes-impl'
 import { Loader2 } from 'lucide-react'
 
 export default function DemoProductionNotesPage() {

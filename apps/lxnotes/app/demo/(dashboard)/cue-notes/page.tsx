@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { initializeDemoSession } from '@/lib/demo-data'
-import CueNotesPage from '@/app/(dashboard)/cue-notes/page'
+import CueNotesPage from '@/app/(dashboard)/cue-notes/cue-notes-impl'
 import { Loader2 } from 'lucide-react'
 
 export default function DemoCueNotesPage() {
