@@ -1,9 +1,5 @@
-'use client'
+import { redirectToActiveProduction } from '@/lib/auth/redirect-to-active-production'
 
-import { OrderListPage } from '@/components/order-list/order-list-page'
-import { useProductionOptional } from '@/components/production/production-provider'
-
-export default function OrderListRoute() {
-  const production = useProductionOptional()
-  return <OrderListPage productionId={production?.productionId} />
+export default async function Page() {
+  await redirectToActiveProduction('order-list')
 }

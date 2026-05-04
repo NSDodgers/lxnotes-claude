@@ -7,7 +7,7 @@
 
 import { useEffect } from 'react'
 import { initializeDemoSession } from '@/lib/demo-data'
-import PositionsPage from '@/app/(dashboard)/positions/page'
+import PositionsPage from '@/app/(dashboard)/positions/positions-impl'
 
 export default function DemoPositionsPage() {
   useEffect(() => {

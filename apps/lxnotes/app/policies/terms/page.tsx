@@ -16,7 +16,7 @@ export default function TermsPage() {
         {/* Header */}
         <div className="mb-6 flex items-center gap-4">
           <Link
-            href="/cue-notes"
+            href="/"
             className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { initializeDemoSession } from '@/lib/demo-data'
-import ElectricianNotesPage from '@/app/(dashboard)/electrician-notes/page'
+import ElectricianNotesPage from '@/app/(dashboard)/electrician-notes/electrician-notes-impl'
 import { Loader2 } from 'lucide-react'
 
 export default function DemoElectricianNotesPage() {

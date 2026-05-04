@@ -7,7 +7,7 @@
 
 import { useEffect } from 'react'
 import { initializeDemoSession } from '@/lib/demo-data'
-import SettingsPage from '@/app/(dashboard)/settings/page'
+import SettingsPage from '@/app/(dashboard)/settings/settings-impl'
 
 export default function DemoSettingsPage() {
   useEffect(() => {
